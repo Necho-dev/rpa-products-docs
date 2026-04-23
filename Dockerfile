@@ -1,15 +1,17 @@
 # syntax=docker/dockerfile:1
-# 推荐在 website/ 用 Compose：docker compose up -d
-# 单独构建：docker build -t rpa-hero-docs .   或仓库根：docker build -f website/Dockerfile website
+# 推荐在 documents/ 用 Compose：docker compose up -d
+# 单独构建：docker build -t rpa-hero-docs .
 
-ARG NODE_VERSION=20
+# Node 22 满足所有依赖的 engines 要求（chevrotain@12 需要 >=22）
+ARG NODE_VERSION=22
 
 # ── 依赖层（可缓存） ──
 FROM node:${NODE_VERSION}-bookworm-slim AS deps
 WORKDIR /app
 RUN apt-get update -y && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json ./
-RUN npm ci
+# --ignore-scripts：跳过 postinstall（fumadocs-mdx 需要源码，在 builder 阶段单独运行）
+RUN npm ci --ignore-scripts
 
 # ── 构建 ──
 FROM node:${NODE_VERSION}-bookworm-slim AS builder
@@ -18,6 +20,8 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN apt-get update -y && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+# 源码就位后手动运行 postinstall（fumadocs-mdx 生成类型声明）
+RUN npm run postinstall
 # 无 public/ 时 Next 不生成该目录，COPY 会失败
 RUN mkdir -p public
 # NEXT_PUBLIC_* 需在 build 时注入，例如: docker build --build-arg NEXT_PUBLIC_SITE_URL=https://docs.example.com .
