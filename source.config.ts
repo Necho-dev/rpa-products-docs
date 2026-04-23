@@ -1,3 +1,4 @@
+import { stat } from 'node:fs/promises';
 import { defineConfig, defineDocs } from 'fumadocs-mdx/config';
 import { metaSchema, pageSchema } from 'fumadocs-core/source/schema';
 import lastModified from 'fumadocs-mdx/plugins/last-modified';
@@ -40,6 +41,26 @@ export const docs = defineDocs({
   },
 });
 
+/**
+ * 文档「最后更新」时间来源：
+ * - 默认 `git`：用 `git log`（需本机/CI 可执行 git、且非过浅的 clone，时间更接近真实提交日）
+ * - 环境变量 `FUMADOCS_LAST_MODIFIED=fs`：用文件 mtime（Docker slim 无 git、不跑 apt，见 Dockerfile）
+ * @see https://fumadocs.dev/docs/mdx/last-modified
+ */
+const lastModifiedPlugin = lastModified(
+  process.env.FUMADOCS_LAST_MODIFIED === 'fs'
+    ? {
+        versionControl: async (filePath: string) => {
+          try {
+            return (await stat(filePath)).mtime;
+          } catch {
+            return null;
+          }
+        },
+      }
+    : {},
+);
+
 export default defineConfig({
   mdxOptions: {
     remarkPlugins: [remarkMdxMermaid, remarkMath],
@@ -51,5 +72,5 @@ export default defineConfig({
       addLanguageClass: true,
     },
   },
-  plugins: [lastModified()],
+  plugins: [lastModifiedPlugin],
 });

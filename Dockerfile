@@ -2,6 +2,10 @@
 # 推荐在 documents/ 用 Compose：docker compose up -d
 # 单独构建：docker build -t rpa-products-docs .
 # 拉取基镜像/国内加速见 README「Docker 部署 / 构建加速」
+#
+# 构建必要条件（不装 git / 不跑 apt）：
+# - FUMADOCS_LAST_MODIFIED=fs，见 source.config（lastModified 用文件 mtime，避免 fumadocs 调 git log）
+# - Node 22、npm ci、postinstall、next build
 
 # Node 22 满足所有依赖的 engines 要求（chevrotain@12 需要 >=22）
 ARG NODE_VERSION=22
@@ -10,22 +14,15 @@ ARG NODE_VERSION=22
 FROM node:${NODE_VERSION}-bookworm-slim AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-# 不跑 apt：避免每个 stage 都连接 debian 源（国内常极慢，且与 deps 重复三次）
-# BuildKit 缓存加速重复执行 npm 时的元数据与包缓存
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
   npm ci --ignore-scripts
 
 # ── 构建 ──
 FROM node:${NODE_VERSION}-bookworm-slim AS builder
 WORKDIR /app
+# 在 copy 与任何 fumadocs 步骤之前设置，使 postinstall 与 next build 均不依赖 git
 ENV NEXT_TELEMETRY_DISABLED=1
-# fumadocs-mdx 在 postinstall / `next build` 处理 MDX 时会 spawn git（如元数据/最后修改时间）
-# slim 镜像无 git，需显式安装；仅 builder 需装，用 apt 缓存减轻重复构建
-RUN --mount=type=cache,id=apt-lists,sharing=locked,target=/var/lib/apt/lists \
-  --mount=type=cache,id=apt-cache,sharing=locked,target=/var/cache/apt \
-  apt-get update \
-  && apt-get install -y --no-install-recommends git \
-  && rm -rf /var/lib/apt/lists/*
+ENV FUMADOCS_LAST_MODIFIED=fs
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
@@ -36,7 +33,7 @@ ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
   npm run build
 
-# ── 运行：standalone（无 apt，用 useradd 建非 root 用户，秒级）──
+# ── 运行：standalone ──
 FROM node:${NODE_VERSION}-bookworm-slim AS runner
 WORKDIR /app
 ENV NODE_ENV=production
