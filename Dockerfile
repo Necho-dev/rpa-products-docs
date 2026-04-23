@@ -19,6 +19,13 @@ RUN --mount=type=cache,target=/root/.npm,sharing=locked \
 FROM node:${NODE_VERSION}-bookworm-slim AS builder
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
+# fumadocs-mdx 在 postinstall / `next build` 处理 MDX 时会 spawn git（如元数据/最后修改时间）
+# slim 镜像无 git，需显式安装；仅 builder 需装，用 apt 缓存减轻重复构建
+RUN --mount=type=cache,id=apt-lists,sharing=locked,target=/var/lib/apt/lists \
+  --mount=type=cache,id=apt-cache,sharing=locked,target=/var/cache/apt \
+  apt-get update \
+  && apt-get install -y --no-install-recommends git \
+  && rm -rf /var/lib/apt/lists/*
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \

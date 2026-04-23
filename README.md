@@ -116,7 +116,7 @@ docker compose up -d
 - **启用 BuildKit**（本 Dockerfile 已使用 `npm` 缓存挂卷，需 BuildKit 才生效；Compose v2+ 一般默认已开）  
   若需显式打开：`export DOCKER_BUILDKIT=1`
 - **拉取 `node:22-bookworm-slim` 慢**：在 Docker 守护进程上配置**镜像加速**（如阿里云、DaoCloud 等）指向 Docker Hub 或自建缓存，会显著减少「大层下载」的等待。
-- **避免重复 `apt-get`**：当前 Dockerfile 在依赖与构建阶段**不再**安装 `ca-certificates`（`node:bookworm-slim` 已含运行 Node 与访问 npm 所需根证书；运行阶段用 `useradd` 建非 root 用户，**不跑** `apt`），避免以前每个 stage 各花几分钟连 `deb.debian.org` 的问题。
+- **尽量减少 `apt-get`**：deps / runner 不装包；**builder 仅安装 `git` 一次**（Fumadocs MDX 构建时会调用 `git`，无则报 `spawn git ENOENT`），并配合 BuildKit 的 apt 缓存挂卷。若连接 Debian 源仍慢，请给 Docker 或宿主机配国内镜像/代理。
 
 ### 方式二：手动 docker build
 
@@ -138,7 +138,7 @@ docker run -d \
 Dockerfile 采用三阶段构建：
 
 1. **deps**：`npm ci`（BuildKit 挂载 `~/.npm` 缓存；不跑 `apt`）
-2. **builder**：`postinstall` + `next build`，输出 `output: standalone`
+2. **builder**：安装 `git` + `postinstall` + `next build`，输出 `output: standalone`
 3. **runner**：复制 standalone 与静态资源；**不跑 `apt`**，用 `useradd`/`groupadd` 创建 `nextjs` 用户
 
 ---
