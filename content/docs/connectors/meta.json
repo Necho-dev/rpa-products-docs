@@ -1,0 +1,9 @@
+{
+  "title": "连接器",
+  "icon": "Bot",
+  "pages": [
+    "./rpa-conn-qianniu-all",
+    "./rpa-conn-sycm-all",
+    "./rpa-conn-pinduoduo-all"
+  ]
+}

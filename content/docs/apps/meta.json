@@ -1,0 +1,6 @@
+{
+  "title": "应用",
+  "access": "private",
+  "icon": "Package",
+  "pages": ["./rpa-app-agent"]
+}

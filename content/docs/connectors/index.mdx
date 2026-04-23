@@ -1,0 +1,38 @@
+---
+title: 连接器
+description: 按平台/应用的 RPA 连接器集合包，按照 PyPI 包划分模块
+---
+
+import { BarChart2, Bot, Store } from 'lucide-react';
+
+### 淘宝 / 天猫
+
+<Cards className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+  <ModuleCard
+    icon={<Bot className="text-sky-600 dark:text-sky-400" />}
+    title="千牛商家工作台"
+    href="./rpa-conn-qianniu-all"
+    code="rpa-conn-qianniu-all"
+    url="https://myseller.taobao.com"
+  />
+  <ModuleCard
+    icon={<BarChart2 className="text-violet-600 dark:text-violet-400" />}
+    title="生意参谋工作台"
+    href="./rpa-conn-sycm-all"
+    code="rpa-conn-sycm-all"
+    url="https://sycm.taobao.com"
+  />
+</Cards>
+
+### 拼多多
+
+<Cards className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+  <ModuleCard
+    icon={<Store className="text-amber-600 dark:text-amber-400" />}
+    title="拼多多商家后台"
+    href="./rpa-conn-pinduoduo-all"
+    code="rpa-conn-pinduoduo-all"
+    url="https://mms.pinduoduo.com/"
+  />
+</Cards>
+

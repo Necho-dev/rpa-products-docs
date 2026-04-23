@@ -1,0 +1,531 @@
+/*
+ * 覆盖 @tailwindcss/typography 的 blockquote（引号、斜体、字重）：
+ * 在 layout 中于 global.css / katex 之后引入，保证层叠靠后、覆盖生效。
+ * 见 https://github.com/tailwindlabs/tailwindcss-typography 默认 blockquote 的 quotes、italic、::before/::after
+ */
+#nd-docs-layout .prose blockquote,
+div.prose blockquote {
+  font-style: normal !important;
+  font-weight: 400 !important;
+  color: var(--color-fd-muted-foreground) !important;
+  quotes: none !important;
+  background: transparent !important;
+  font-synthesis: none;
+}
+
+#nd-docs-layout .prose blockquote p::before,
+#nd-docs-layout .prose blockquote p::after,
+div.prose blockquote p::before,
+div.prose blockquote p::after {
+  content: none !important;
+  display: none;
+}
+
+#nd-docs-layout .prose blockquote a,
+div.prose blockquote a {
+  color: var(--color-fd-primary) !important;
+  font-style: normal !important;
+}
+
+/* 块内多个 <p> 时，typography 会给每段较大上下 margin；收紧为「两行之间略留一点」 */
+#nd-docs-layout .prose blockquote > p,
+div.prose blockquote > p {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+#nd-docs-layout .prose blockquote > p + p,
+div.prose blockquote > p + p {
+  margin-top: 0.35em !important;
+}
+
+/* 长 URL、无空格连续英文等：允许在词内/任意处断行，避免整段撑出横向滚动 */
+#nd-docs-layout .prose,
+div.prose {
+  overflow-wrap: break-word;
+  word-wrap: break-word; /* 旧版 */
+  word-break: break-all;
+}
+
+/*
+ * 列宽（多列表格）— 与下方规则同步维护：
+ * - 基线 `table-layout: auto`，末列 30% 仅用于首行 ≥4 列 的表。
+ * - 2 列「属性|值」：见 :has(2) 段；3 列「短标签|对照A|对照B」：`fixed` 12%+44%+44%（见 :has(3)）。
+ * - 6 列业务表：见 :has(6) 段。
+ *
+ * 统筹原则（少反复打补丁）：
+ * - 默认 `table-layout: auto`：避免全表 `fixed` 在未知列数时把中间列挤成极窄条。
+ * - 「末列 30%」**仅**用于首行有 ≥4 个单元格的表；2/3 列不套该规则，避免「改版前|改版后」等对照表被误伤。
+ * - 恰好 3 列：用 `fixed` + 明确比例，中间与末列对对照列给足宽度，并取消中列 `nowrap`+过窄 `max-width` 的组合。
+ * - 中文正文：`word-break: keep-all` 减轻在窄列里逐字竖排。
+ * - 特例：在需完全自控的表外包一层 `div.not-prose` 或使用主题自带表格组件。
+ */
+/* 表格：与 typography 的 not-prose 规则一致，避免误伤嵌套在 not-prose 内的表 */
+#nd-docs-layout
+  .prose
+  :where(table):not(
+    :where([class~='not-prose'], [class~='not-prose'] *)),
+div.prose :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+  table-layout: auto;
+  width: 100%;
+}
+
+/* 表头/单元格：合理断行；keep-all 优先在 CJK 词/短语边界断行（不逐字） */
+#nd-docs-layout .prose th,
+#nd-docs-layout .prose td,
+div.prose th,
+div.prose td {
+  min-width: 0;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+/* 末列 30%：仅针对首行有 ≥4 列 的表（2/3 列对照表、双列表均不套） */
+#nd-docs-layout
+  .prose
+  :where(table):not(
+    :where([class~='not-prose'], [class~='not-prose'] *))
+:has(> * > tr:first-child > *:nth-child(4))
+  th:last-child,
+#nd-docs-layout
+  .prose
+  :where(table):not(
+    :where([class~='not-prose'], [class~='not-prose'] *))
+:has(> * > tr:first-child > *:nth-child(4))
+  td:last-child,
+div.prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(4)
+  )
+  th:last-child,
+div.prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(4)
+  )
+  td:last-child {
+  width: 30%;
+  max-width: min(30%, 24rem);
+  word-break: break-all;
+  overflow-wrap: break-word;
+}
+
+/* 恰好 2 列（文首「属性 | 值」等）：`auto` 布局 + 左列 1% 与 nowrap = 随标签内容定宽，右列占满剩余，避免两列对半拉满留大片空白 */
+#nd-docs-layout
+  .prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(2):last-child
+  ),
+div.prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(2):last-child
+  ) {
+  table-layout: auto;
+}
+
+#nd-docs-layout
+  .prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(2):last-child
+  )
+  th:first-child,
+#nd-docs-layout
+  .prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(2):last-child
+  )
+  td:first-child,
+div.prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(2):last-child
+  )
+  th:first-child,
+div.prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(2):last-child
+  )
+  td:first-child {
+  width: 1%;
+  min-width: max(9.5em, 7.5rem);
+  padding-inline-end: 1.25rem;
+  white-space: nowrap;
+  vertical-align: top;
+}
+
+#nd-docs-layout
+  .prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(2):last-child
+  )
+  th:last-child,
+#nd-docs-layout
+  .prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(2):last-child
+  )
+  td:last-child,
+div.prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(2):last-child
+  )
+  th:last-child,
+div.prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(2):last-child
+  )
+  td:last-child {
+  width: auto;
+  max-width: none;
+  min-width: 0;
+  word-break: break-all;
+  overflow-wrap: break-word;
+}
+
+/* 3 列：首列窄标签 + 后两列「对照/说明」等分，避免中列 1%+nowrap+max 把「改版前」类内容挤成竖条 */
+#nd-docs-layout
+  .prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(3):last-child
+  ),
+div.prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(3):last-child
+  ) {
+  table-layout: fixed;
+  width: 100%;
+}
+
+#nd-docs-layout
+  .prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(3):last-child
+  )
+  th:nth-child(1),
+#nd-docs-layout
+  .prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(3):last-child
+  )
+  td:nth-child(1),
+div.prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(3):last-child
+  )
+  th:nth-child(1),
+div.prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(3):last-child
+  )
+  td:nth-child(1) {
+  width: 12%;
+  min-width: 3.5rem;
+  max-width: none;
+  white-space: nowrap;
+  vertical-align: top;
+}
+
+#nd-docs-layout
+  .prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(3):last-child
+  )
+  th:nth-child(2),
+#nd-docs-layout
+  .prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(3):last-child
+  )
+  td:nth-child(2),
+div.prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(3):last-child
+  )
+  th:nth-child(2),
+div.prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(3):last-child
+  )
+  td:nth-child(2) {
+  width: 44%;
+  min-width: 0;
+  max-width: none;
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  vertical-align: top;
+}
+
+#nd-docs-layout
+  .prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(3):last-child
+  )
+  th:last-child,
+#nd-docs-layout
+  .prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(3):last-child
+  )
+  td:last-child,
+div.prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(3):last-child
+  )
+  th:last-child,
+div.prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(3):last-child
+  )
+  td:last-child {
+  width: 44%;
+  min-width: 0;
+  max-width: none;
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  vertical-align: top;
+}
+
+#nd-docs-layout .prose th code,
+#nd-docs-layout .prose td code,
+div.prose th code,
+div.prose td code {
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+#nd-docs-layout .prose th:last-child code,
+#nd-docs-layout .prose td:last-child code,
+div.prose th:last-child code,
+div.prose td:last-child code {
+  word-break: break-all;
+}
+
+/* 3 列末格多为长说明，行内 `code` 保持正常断行，不沿用上条 break-all */
+#nd-docs-layout
+  .prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(3):last-child
+  )
+  th:last-child code,
+#nd-docs-layout
+  .prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(3):last-child
+  )
+  td:last-child code,
+div.prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(3):last-child
+  )
+  th:last-child code,
+div.prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(3):last-child
+  )
+  td:last-child code {
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+/* 6 列：`auto` 按内容最小宽分配，覆盖前面的 `fixed` 与全表「末列 30%」 */
+#nd-docs-layout
+  .prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(6):last-child
+  ),
+div.prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(6):last-child
+  ) {
+  table-layout: auto;
+  width: 100%;
+}
+
+/* 1–2：字段名 + 中文释义：给第 2 列下限与右留白，减竖向堆行；2 与 3 列之间不贴死 */
+#nd-docs-layout
+  .prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(6):last-child
+  )
+  th:nth-child(1),
+#nd-docs-layout
+  .prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(6):last-child
+  )
+  td:nth-child(1),
+div.prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(6):last-child
+  )
+  th:nth-child(1),
+div.prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(6):last-child
+  )
+  td:nth-child(1) {
+  min-width: 0;
+  vertical-align: top;
+}
+
+#nd-docs-layout
+  .prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(6):last-child
+  )
+  th:nth-child(2),
+#nd-docs-layout
+  .prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(6):last-child
+  )
+  td:nth-child(2),
+div.prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(6):last-child
+  )
+  th:nth-child(2),
+div.prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(6):last-child
+  )
+  td:nth-child(2) {
+  min-width: 10.5em;
+  max-width: none;
+  padding-inline-end: 0.75rem;
+  line-height: 1.5;
+  word-break: normal;
+  overflow-wrap: break-word;
+  vertical-align: top;
+}
+
+/* 3：数据类型（含 `string | list[string]` 等），只保下限、不设过窄的 max/nowrap，避免为凑 fixed 版式硬挤 */
+#nd-docs-layout
+  .prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(6):last-child
+  )
+  th:nth-child(3),
+#nd-docs-layout
+  .prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(6):last-child
+  )
+  td:nth-child(3),
+div.prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(6):last-child
+  )
+  th:nth-child(3),
+div.prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(6):last-child
+  )
+  td:nth-child(3) {
+  min-width: 11.5em;
+  max-width: none;
+  width: auto;
+  padding-inline-start: 0.25rem;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: break-word;
+  vertical-align: top;
+}
+
+/* 4：数据字段「可为空」与业务入参「必填」同列位：不再 1%+nowrap 强压，否则多行 是/否 与整句条件共列时，长句会被挤成极窄纵条。改为 auto+下限+可换行；表头/表体均左齐 */
+#nd-docs-layout
+  .prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(6):last-child
+  )
+  th:nth-child(4),
+#nd-docs-layout
+  .prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(6):last-child
+  )
+  td:nth-child(4),
+div.prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(6):last-child
+  )
+  th:nth-child(4),
+div.prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(6):last-child
+  )
+  td:nth-child(4) {
+  width: auto;
+  min-width: min(11rem, 18%);
+  max-width: none;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: break-word;
+  text-align: start;
+  vertical-align: top;
+}
+
+/* 5：在「取数路径」与「默认值」等结构间不兼容 nowrap，只限制 min、允许换行，交给 auto 与第 3 列 min 分宽 */
+#nd-docs-layout
+  .prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(6):last-child
+  )
+  th:nth-child(5),
+#nd-docs-layout
+  .prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(6):last-child
+  )
+  td:nth-child(5),
+div.prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(6):last-child
+  )
+  th:nth-child(5),
+div.prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(6):last-child
+  )
+  td:nth-child(5) {
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: break-word;
+  vertical-align: top;
+}
+
+/* 6：末列（取数路径/说明/示例 等长文）取消固定 30%，改 auto + 上沿，长串在格内可断行 */
+#nd-docs-layout
+  .prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(6):last-child
+  )
+  th:nth-child(6),
+#nd-docs-layout
+  .prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(6):last-child
+  )
+  td:nth-child(6),
+div.prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(6):last-child
+  )
+  th:nth-child(6),
+div.prose
+  :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
+    > * > tr:first-child > *:nth-child(6):last-child
+  )
+  td:nth-child(6) {
+  width: auto;
+  max-width: min(44%, 28rem);
+  min-width: 0;
+  word-break: break-all;
+  overflow-wrap: break-word;
+  white-space: normal;
+  vertical-align: top;
+}

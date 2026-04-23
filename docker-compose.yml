@@ -1,0 +1,46 @@
+# 启动：在 website/ 下执行
+#   docker compose up -d
+# 首次 / 改动了 NEXT_PUBLIC_* 或业务代码 后需重建：
+#   docker compose up -d --build
+#
+# 环境变量：优先用本目录 .env（与本地 .env.local 可合并，见下方 env_file）
+# 与「少重启」说明：Node 在进程启动时读一次环境，改 .env 后需让容器**重建进程**
+#   → docker compose up -d（会复用未改镜像、只换新 env，一般数秒内完成；无需整站「停机维护」级别重启）
+# NEXT_PUBLIC_* 在 next build 时内联进静态资源，改这些必须 --build，无法仅靠 env 热改。
+
+services:
+  docs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # 与 shell/.env 中同名，compose 自动从本目录 .env 读取以替换
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-}
+    image: rpa-hero-docs:local
+    container_name: rpa-hero-docs
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    env_file:
+      # 后者覆盖前者中同名项；文件不存在不报错（需 Docker Compose 2.24+）
+      - path: .env
+        required: false
+      - path: .env.local
+        required: false
+    environment:
+      NODE_ENV: production
+      # 与 Dockerfile 中一致；若需改容器内端口可在此覆盖
+      PORT: 3000
+      HOSTNAME: "0.0.0.0"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s

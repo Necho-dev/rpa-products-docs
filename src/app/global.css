@@ -1,0 +1,71 @@
+@import 'tailwindcss';
+@import 'fumadocs-ui/css/neutral.css';
+@import 'fumadocs-ui/css/preset.css';
+@import './fd-color-presets.css';
+@import '../fonts/noto-sans-sc.css';
+
+/* next/font/local 注入 --font-inter / --font-jetbrains-mono；Noto 见 src/fonts/noto-sans-sc.css */
+@theme inline {
+  --font-noto-sc: 'Noto Sans SC Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-jetbrains-mono), var(--font-noto-sc), var(--font-inter), ui-sans-serif, system-ui,
+    'Apple Color Emoji', 'Segoe UI Emoji', sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, 'Cascadia Mono', 'Menlo', 'Monaco', 'Consolas',
+    'Microsoft YaHei Mono', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei UI', monospace;
+}
+
+
+
+/* ─── 代码块字体增大加粗 ─── */
+figure.shiki pre {
+  font-size: 0.875rem !important;
+  line-height: 1.6 !important;
+}
+
+figure.shiki pre * {
+  font-weight: 500 !important;
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+html > body[data-scroll-locked] {
+  margin-right: 0px !important;
+  --removed-body-scroll-bar-size: 0px !important;
+}
+
+
+/*
+ * 文档区网格（见 fumadocs #nd-docs-layout）：主栏宽度 ≈
+ *   minmax(0, var(--fd-layout-width) - var(--fd-sidebar-width) - var(--fd-toc-width))
+ * 略缩侧栏 / TOC、略抬总宽，让中间正文更宽；小屏仍用默认（侧栏抽屉、TOC 为 popover）。
+ */
+@media (width >= 48rem) and (width < 64rem) {
+  #nd-docs-layout {
+    --fd-sidebar-width: 15rem !important;
+    --fd-layout-width: 114rem !important;
+  }
+}
+
+@media (width >= 64rem) and (width < 80rem) {
+  #nd-docs-layout {
+    --fd-sidebar-width: 18rem !important;
+    --fd-layout-width: 120rem !important;
+  }
+}
+
+@media (width >= 80rem) {
+  #nd-docs-layout {
+    --fd-sidebar-width: 24rem !important;
+    --fd-layout-width: 134rem !important;
+    /* 默认 TOC 268px，收窄后把像素还给主栏 */
+    --fd-toc-width: 13.5rem !important;
+  }
+}
+
+/* 小屏抽屉侧栏：原 max-w-[380px] */
+@media (width < 48rem) {
+  #nd-sidebar-mobile {
+    max-width: min(28rem, 92vw) !important;
+  }
+}

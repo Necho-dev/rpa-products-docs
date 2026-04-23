@@ -1,0 +1,41 @@
+---
+title: 拼多多商家后台
+description: 覆盖拼多多商家后台数据与经营的 rpa-conn-pinduoduo-all 包说明与安装
+entry: rpa-conn-pinduoduo-all
+---
+
+<ConnectorMeta
+  platform="拼多多商家后台"
+  platformUrl="https://mms.pinduoduo.com/"
+  components={[{ pkg: 'rpa-comp-login-pinduoduo', type: 'login' }]}
+  requireLogin
+  sdkConstraint="rpa-hero-sdk >=3.0.0"
+/>
+
+## 安装 PyPI 包
+
+```bash
+pip install -i https://nexus.yucekj.cn/repository/pypi-hero/simple/ rpa-conn-pinduoduo-all
+```
+
+## 内含连接器
+
+### 店铺/Shop
+
+<Cards className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+  <ModuleCard
+    title="评价管理-评价列表"
+    href="./rpa-conn-pinduoduo-shop-comment-list"
+    code="rpa.conn.pinduoduo.shop.comment.list"
+  />
+</Cards>
+
+### 商品/Item
+
+<Cards className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+  <ModuleCard
+    title="数据中心-商品数据明细"
+    href="./rpa-conn-pinduoduo-item-goods-data"
+    code="rpa.conn.pinduoduo.item.goods.data"
+  />
+</Cards>

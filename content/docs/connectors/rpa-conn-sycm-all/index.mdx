@@ -1,0 +1,51 @@
+---
+title: 生意参谋工作台
+description: 覆盖生意参谋流量与商品等分析能力的 rpa-conn-sycm-all 包说明与安装
+entry: rpa-conn-sycm-all
+---
+
+<ConnectorMeta
+  platform="生意参谋"
+  platformUrl="https://sycm.taobao.com"
+  components={[{ pkg: 'rpa-comp-login-qianniu', type: 'login' }]}
+  requireLogin
+  sdkConstraint="rpa-hero-sdk >=3.0.0"
+/>
+
+## 安装 PyPI 包
+
+```bash
+pip install -i https://nexus.yucekj.cn/repository/pypi-hero/simple/ rpa-conn-sycm-all
+```
+
+## 内含连接器
+
+### 流量/Flow
+
+<Cards className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+  <ModuleCard
+    title="流量分析-推荐分析-推荐概况下载"
+    href="./rpa-conn-sycm-flow-recommend-analysis"
+    code="rpa.conn.sycm.flow.recommend.analysis"
+  />
+  <ModuleCard
+    title="流量分析-店铺来源-明细下载"
+    href="./rpa-conn-sycm-flow-shop-source"
+    code="rpa.conn.sycm.flow.shop.source"
+  />
+  <ModuleCard
+    title="流量分析-引流搜索关键词下载"
+    href="./rpa-conn-sycm-flow-drainage-keyword"
+    code="rpa.conn.sycm.flow.drainage.keyword"
+  />
+</Cards>
+
+### 商品/Item
+
+<Cards className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+  <ModuleCard
+    title="商品-商品360-流量来源下载"
+    href="./rpa-conn-sycm-item-archives-flow-source"
+    code="rpa.conn.sycm.item.archives.flow.source"
+  />
+</Cards>

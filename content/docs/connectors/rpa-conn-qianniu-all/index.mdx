@@ -1,0 +1,81 @@
+---
+title: 千牛商家工作台
+description: 覆盖千牛/店铺/商品/服务等场景的 rpa-conn-qianniu-all 包说明与安装
+entry: rpa-conn-qianniu-all
+---
+
+<ConnectorMeta
+  platform="千牛商家工作台"
+  platformUrl="https://myseller.taobao.com"
+  components={[{ pkg: 'rpa-comp-login-qianniu', type: 'login' }]}
+  requireLogin
+  sdkConstraint="rpa-hero-sdk >=3.0.0"
+/>
+
+## 安装 PyPI 包
+
+```bash
+pip install -i https://nexus.yucekj.cn/repository/pypi-hero/simple/ rpa-conn-qianniu-all
+```
+
+## 内含连接器
+
+### 商品/Item
+
+<Cards className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+  <ModuleCard
+    title="高价限流商品报表导出"
+    href="./rpa-conn-qianniu-item-price-flow-limit"
+    code="rpa.conn.qianniu.item.price.flow.limit"
+  />
+  <ModuleCard
+    title="商品价格优惠明细批量导出"
+    href="./rpa-conn-qianniu-item-price-discount-list"
+    code="rpa.conn.qianniu.item.price.discount.list"
+  />
+  <ModuleCard
+    title="商品质量分明细采集"
+    href="./rpa-conn-qianniu-item-quality-score-list"
+    code="rpa.conn.qianniu.item.quality.score.list"
+  />
+  <ModuleCard
+    title="商品体验分 PXI 导出"
+    href="./rpa-conn-qianniu-item-voc-pxi-list"
+    code="rpa.conn.qianniu.item.voc.pxi.list"
+  />
+  <ModuleCard
+    title="体验问题订单率采集"
+    href="./rpa-conn-qianniu-item-voc-abnormal-order-list"
+    code="rpa.conn.qianniu.item.voc.abnormal.order.list"
+  />
+</Cards>
+
+### 店铺/Shop
+
+<Cards className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+  <ModuleCard
+    title="店铺违规记录采集"
+    href="./rpa-conn-qianniu-shop-violation-list"
+    code="rpa.conn.qianniu.shop.violation.list"
+  />
+  <ModuleCard
+    title="店铺评价列表采集"
+    href="./rpa-conn-qianniu-shop-comment-list"
+    code="rpa.conn.qianniu.shop.comment.list"
+  />
+  <ModuleCard
+    title="店铺品牌资质列表采集"
+    href="./rpa-conn-qianniu-shop-qualification-brand-list"
+    code="rpa.conn.qianniu.shop.qualification.brand.list"
+  />
+  <ModuleCard
+    title="店铺体验分采集"
+    href="./rpa-conn-qianniu-shop-voc-score-index"
+    code="rpa.conn.qianniu.shop.voc.score.index"
+  />
+  <ModuleCard
+    title="聚合账单收支明细导出"
+    href="./rpa-conn-shop-aggregated-fund-bill-detail"
+    code="rpa.conn.shop.aggregated.fund.bill.detail"
+  />
+</Cards>
