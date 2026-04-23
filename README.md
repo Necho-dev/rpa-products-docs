@@ -111,6 +111,13 @@ docker compose up -d
 
 服务默认绑定宿主机 `3000` 端口，可在 `.env` 中通过 `PORT` 变量修改映射端口。
 
+### 构建加速（国内 / 首构建慢）
+
+- **启用 BuildKit**（本 Dockerfile 已使用 `npm` 缓存挂卷，需 BuildKit 才生效；Compose v2+ 一般默认已开）  
+  若需显式打开：`export DOCKER_BUILDKIT=1`
+- **拉取 `node:22-bookworm-slim` 慢**：在 Docker 守护进程上配置**镜像加速**（如阿里云、DaoCloud 等）指向 Docker Hub 或自建缓存，会显著减少「大层下载」的等待。
+- **避免重复 `apt-get`**：当前 Dockerfile 在依赖与构建阶段**不再**安装 `ca-certificates`（`node:bookworm-slim` 已含运行 Node 与访问 npm 所需根证书；运行阶段用 `useradd` 建非 root 用户，**不跑** `apt`），避免以前每个 stage 各花几分钟连 `deb.debian.org` 的问题。
+
 ### 方式二：手动 docker build
 
 ```bash
@@ -130,9 +137,9 @@ docker run -d \
 
 Dockerfile 采用三阶段构建：
 
-1. **deps**：安装 npm 依赖（可缓存）
-2. **builder**：执行 `next build`，输出 `output: standalone` 产物
-3. **runner**：仅复制 standalone 产物，最终镜像不含 `node_modules` 源码
+1. **deps**：`npm ci`（BuildKit 挂载 `~/.npm` 缓存；不跑 `apt`）
+2. **builder**：`postinstall` + `next build`，输出 `output: standalone`
+3. **runner**：复制 standalone 与静态资源；**不跑 `apt`**，用 `useradd`/`groupadd` 创建 `nextjs` 用户
 
 ---
 

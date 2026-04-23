@@ -1,46 +1,43 @@
-# syntax=docker/dockerfile:1
+# syntax=docker/dockerfile:1.4
 # 推荐在 documents/ 用 Compose：docker compose up -d
 # 单独构建：docker build -t rpa-products-docs .
+# 拉取基镜像/国内加速见 README「Docker 部署 / 构建加速」
 
 # Node 22 满足所有依赖的 engines 要求（chevrotain@12 需要 >=22）
 ARG NODE_VERSION=22
 
-# ── 依赖层（可缓存） ──
+# ── 依赖层（可缓存）──
 FROM node:${NODE_VERSION}-bookworm-slim AS deps
 WORKDIR /app
-RUN apt-get update -y && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json ./
-# --ignore-scripts：跳过 postinstall（fumadocs-mdx 需要源码，在 builder 阶段单独运行）
-RUN npm ci --ignore-scripts
+# 不跑 apt：避免每个 stage 都连接 debian 源（国内常极慢，且与 deps 重复三次）
+# BuildKit 缓存加速重复执行 npm 时的元数据与包缓存
+RUN --mount=type=cache,target=/root/.npm,sharing=locked \
+  npm ci --ignore-scripts
 
 # ── 构建 ──
 FROM node:${NODE_VERSION}-bookworm-slim AS builder
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN apt-get update -y && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# 源码就位后手动运行 postinstall（fumadocs-mdx 生成类型声明）
-RUN npm run postinstall
-# 无 public/ 时 Next 不生成该目录，COPY 会失败
+RUN --mount=type=cache,target=/root/.npm,sharing=locked \
+  npm run postinstall
 RUN mkdir -p public
-# NEXT_PUBLIC_* 需在 build 时注入，例如: docker build --build-arg NEXT_PUBLIC_SITE_URL=https://docs.example.com .
 ARG NEXT_PUBLIC_SITE_URL
 ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
-RUN npm run build
+RUN --mount=type=cache,target=/root/.npm,sharing=locked \
+  npm run build
 
-# ── 运行：standalone ──
+# ── 运行：standalone（无 apt，用 useradd 建非 root 用户，秒级）──
 FROM node:${NODE_VERSION}-bookworm-slim AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-# 容器内需监听 0.0.0.0
 ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
 
-RUN apt-get update -y && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/* \
-  && addgroup --system --gid 1001 nodejs \
-  && adduser --system --uid 1001 nextjs
+RUN groupadd -r -g 1001 nodejs && useradd -r -u 1001 -g nodejs -s /usr/sbin/nologin nextjs
 
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
