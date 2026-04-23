@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # 推荐在 documents/ 用 Compose：docker compose up -d
-# 单独构建：docker build -t rpa-hero-docs .
+# 单独构建：docker build -t rpa-products-docs .
 
 # Node 22 满足所有依赖的 engines 要求（chevrotain@12 需要 >=22）
 ARG NODE_VERSION=22

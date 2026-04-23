@@ -117,13 +117,13 @@ docker compose up -d
 # 在 documents/ 目录下执行
 docker build \
   --build-arg NEXT_PUBLIC_SITE_URL=https://docs.example.com \
-  -t rpa-hero-docs:latest .
+  -t rpa-products-docs:latest .
 
 docker run -d \
   -p 3000:3000 \
   -e NODE_ENV=production \
-  --name rpa-hero-docs \
-  rpa-hero-docs:latest
+  --name rpa-products-docs \
+  rpa-products-docs:latest
 ```
 
 ### 构建说明

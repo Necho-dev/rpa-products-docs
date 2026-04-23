@@ -16,8 +16,8 @@ services:
       args:
         # 与 shell/.env 中同名，compose 自动从本目录 .env 读取以替换
         NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-}
-    image: rpa-hero-docs:local
-    container_name: rpa-hero-docs
+    image: rpa-products-docs:local
+    container_name: rpa-products-docs
     restart: unless-stopped
     ports:
       - "${PORT:-3000}:3000"
