@@ -6,7 +6,7 @@ import { baseOptions } from '@/lib/layout.shared';
 import { DocsThemeToolbar } from '@/components/docs-theme-toolbar';
 import { DocsSidebarTreeFolder, DocsSidebarTreeItem } from '@/components/docs-sidebar-tree';
 import { AISearch, AISearchPanel, AISearchTrigger } from '@/components/ai/search';
-import { MessageCircleIcon } from 'lucide-react';
+import { SparklesIcon } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { buttonVariants } from 'fumadocs-ui/components/ui/button';
 
@@ -39,12 +39,12 @@ export default async function Layout({ children }: LayoutProps<'/docs'>) {
           className={cn(
             buttonVariants({
               variant: 'secondary',
-              className: 'text-fd-muted-foreground rounded-2xl',
+              className: 'group text-fd-muted-foreground rounded-2xl gap-1.5',
             }),
           )}
         >
-          <MessageCircleIcon className="size-3.5" />
-          Ask AI
+          <SparklesIcon className="size-3.5 transition-[transform] duration-300 group-hover:rotate-12 group-hover:scale-110" />
+          <span className="whitespace-nowrap">Ask AI</span>
         </AISearchTrigger>
         {children}
       </AISearch>

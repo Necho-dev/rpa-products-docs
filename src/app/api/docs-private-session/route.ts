@@ -39,7 +39,11 @@ export async function POST(req: Request) {
   }
 
   const val = computePrivateDocSessionCookie();
-  const secure = process.env.NODE_ENV === 'production';
+  // 仅在 HTTPS 请求时设置 Secure 标志：通过反代时依赖 X-Forwarded-Proto，直连时看请求 URL scheme
+  const proto =
+    req.headers.get('x-forwarded-proto') ??
+    (req.url.startsWith('https://') ? 'https' : 'http');
+  const secure = proto === 'https';
   const cookieHeader = [
     `${PRIVATE_DOC_COOKIE}=${encodeURIComponent(val)}`,
     'Path=/',
@@ -53,11 +57,14 @@ export async function POST(req: Request) {
 }
 
 /** 清除会话 Cookie（登出） */
-export async function DELETE() {
+export async function DELETE(req: Request) {
   if (!isPrivateDocAccessConfigured()) {
     return Response.json({ ok: true });
   }
-  const secure = process.env.NODE_ENV === 'production';
+  const proto =
+    req.headers.get('x-forwarded-proto') ??
+    (req.url.startsWith('https://') ? 'https' : 'http');
+  const secure = proto === 'https';
   const clear = [
     `${PRIVATE_DOC_COOKIE}=`,
     'Path=/',

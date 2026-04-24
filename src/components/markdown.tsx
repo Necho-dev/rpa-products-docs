@@ -19,6 +19,9 @@ import { cn } from '@/lib/cn';
 import { getLanguageLabel } from '@/lib/code-block-language';
 import { SKIP, visitParents } from 'unist-util-visit-parents';
 import type { ElementContent, Root, RootContent } from 'hast';
+import { Mermaid } from '@/components/mdx/mermaid';
+import { TableWithExport } from '@/components/mdx/table-export';
+import { CodeDownloadButton } from '@/components/mdx/code-download-button';
 
 export interface Processor {
   process: (content: string) => Promise<ReactNode>;
@@ -112,6 +115,7 @@ function createProcessor(): Processor {
         components: {
           ...defaultMdxComponents,
           pre: MarkdownCodePre,
+          table: TableWithExport,
           img: undefined, // use JSX
         },
       });
@@ -131,19 +135,25 @@ function MarkdownCodePre(props: ComponentProps<'pre'>) {
       .find((v) => v.startsWith('language-'))
       ?.slice('language-'.length) ?? 'text';
 
+  if (lang === 'mermaid') {
+    return <Mermaid chart={content.trim()} />;
+  }
+
   if (lang === 'mdx') lang = 'md';
 
   const langLabel = getLanguageLabel(lang);
 
+  const codeText = content.trimEnd();
+
   return (
     <DynamicCodeBlock
       lang={lang}
-      code={content.trimEnd()}
+      code={codeText}
       options={{ themes: { ...shikiDocsThemes } }}
       codeblock={{
-        keepBackground: true,
+        // keepBackground: true,
         className: cn(
-          'rounded-lg border-fd-border/70 shadow-none ring-1 ring-fd-border/25 dark:ring-fd-border/40',
+          'rounded-lg border-fd-border/70 shadow-none ring-1 ring-fd-border/25 dark:ring-fd-border/40 focus:outline-none',
           props.className,
         ),
         title: (
@@ -153,6 +163,11 @@ function MarkdownCodePre(props: ComponentProps<'pre'>) {
             </span>
           </span>
         ) as unknown as string,
+        Actions: ({ className: actionsCls, children: actionChildren }) => (
+          <CodeDownloadButton code={codeText} lang={lang} className={actionsCls}>
+            {actionChildren}
+          </CodeDownloadButton>
+        ),
       }}
     />
   );

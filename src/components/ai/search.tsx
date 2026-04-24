@@ -14,7 +14,9 @@ import {
 } from 'react';
 import {
   Bot,
+  Check,
   ChevronDown,
+  Copy,
   History,
   Loader2,
   MessageCircleIcon,
@@ -79,8 +81,7 @@ const aiChatMarkdownClass = cn(
   '[&_th]:bg-fd-muted/50 [&_th]:px-3 [&_th]:py-2.5 [&_th]:text-left [&_th]:font-semibold [&_th]:whitespace-nowrap',
   '[&_td]:border-b [&_td]:border-fd-border/50 [&_td]:px-3 [&_td]:py-2.5 [&_td]:align-top',
   '[&_tr:last-child_td]:border-b-0',
-  '[&_pre]:my-3 [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_pre]:rounded-xl [&_pre]:border [&_pre]:border-fd-border [&_pre]:bg-fd-muted/35 [&_pre]:p-3.5',
-  '[&_pre_code]:block [&_pre_code]:whitespace-pre [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-[12px] [&_pre_code]:leading-relaxed',
+  '[&_figure]:my-3 [&_figure]:max-w-full',
   '[&_p]:my-2.5 [&_p]:leading-relaxed',
   '[&_ul]:my-2 [&_ol]:my-2 [&_li]:my-1',
   '[&_h1]:mb-3 [&_h1]:mt-0 [&_h1]:text-lg [&_h1]:font-semibold',
@@ -391,12 +392,29 @@ export function AISearchInput(props: ComponentProps<'form'>) {
 
 function List(props: Omit<ComponentProps<'div'>, 'dir'>) {
   const containerRef = useRef<HTMLDivElement>(null);
+  /** true = user has scrolled up, suppress auto-scroll */
+  const userScrolledRef = useRef(false);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const onScroll = () => {
+      const distFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+      // If user scrolled more than 80px from bottom, consider it intentional
+      userScrolledRef.current = distFromBottom > 80;
+    };
+
+    container.addEventListener('scroll', onScroll, { passive: true });
+    return () => container.removeEventListener('scroll', onScroll);
+  }, []);
 
   useEffect(() => {
     if (!containerRef.current) return;
     function callback() {
       const container = containerRef.current;
       if (!container) return;
+      if (userScrolledRef.current) return;
 
       container.scrollTo({
         top: container.scrollHeight,
@@ -452,7 +470,7 @@ function Input(props: ComponentProps<'textarea'>) {
 
 const roleName: Record<string, string> = {
   user: 'You',
-  assistant: 'Agent',
+  assistant: 'Assistant',
 };
 
 /** 流式或提交中时，当前正在进行的「用户提问」对应的消息 id（用于隐藏该条上的重试） */
@@ -594,8 +612,13 @@ function Message({ message, ...props }: { message: InkeepUIMessage } & Component
   const { messages: allMessages, status, regenerate } = useChatContext();
   const visibleMessages = allMessages.filter((m) => m.role !== 'system');
   const activeUserId = getActiveTurnUserId(visibleMessages, status);
+  const isStreaming = status === 'streaming' || status === 'submitted';
   const showRetryOnUser =
     message.role === 'user' && (activeUserId === undefined || message.id !== activeUserId);
+  const isAssistant = message.role === 'assistant';
+  const isActiveAssistant = isAssistant && isStreaming && message.id === visibleMessages.at(-1)?.id;
+
+  const [copied, setCopied] = useState(false);
 
   const segments: ReactNode[] = [];
   let textBuf = '';
@@ -644,16 +667,30 @@ function Message({ message, ...props }: { message: InkeepUIMessage } & Component
   const showLegacyLinks =
     Boolean(linksFromParts?.length) && !hasProvideLinksToolPart;
 
+  /** Plain text of the full assistant reply, used for copy */
+  const plainText = (message.parts ?? [])
+    .filter((p) => p.type === 'text')
+    .map((p) => (p as { text: string }).text)
+    .join('');
+
+  const handleCopy = () => {
+    void navigator.clipboard.writeText(plainText).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
   return (
     <div onClick={(e) => e.stopPropagation()} {...props}>
+      {/* Header row */}
       <div
         className={cn(
           'mb-1 flex items-center justify-between gap-2 text-sm font-medium text-fd-muted-foreground',
-          message.role === 'assistant' && 'text-fd-primary',
+          isAssistant && 'text-fd-primary',
         )}
       >
         <span className="flex min-w-0 items-center gap-2">
-          {message.role === 'assistant' ? (
+          {isAssistant ? (
             <Bot className="size-4 shrink-0 text-fd-primary" aria-hidden />
           ) : message.role === 'user' ? (
             <User className="size-4 shrink-0 opacity-80" aria-hidden />
@@ -679,7 +716,11 @@ function Message({ message, ...props }: { message: InkeepUIMessage } & Component
           </button>
         ) : null}
       </div>
+
+      {/* Body */}
       <div className="flex flex-col gap-2">{segments}</div>
+
+      {/* Legacy reference links */}
       {showLegacyLinks && linksFromParts ? (
         <div className="mt-2 flex flex-row flex-wrap items-center gap-1">
           {linksFromParts.map((item, i) => (
@@ -692,6 +733,31 @@ function Message({ message, ...props }: { message: InkeepUIMessage } & Component
               <p className="text-fd-muted-foreground">Reference {item.label}</p>
             </Link>
           ))}
+        </div>
+      ) : null}
+
+      {/* Footer: copy button — only for completed assistant messages */}
+      {isAssistant && !isActiveAssistant && plainText.length > 0 ? (
+        <div className="mt-3">
+          <button
+            type="button"
+            title={copied ? '已复制' : '复制回答'}
+            aria-label={copied ? '已复制' : '复制回答'}
+            onClick={handleCopy}
+            className={cn(
+              'flex h-7 items-center gap-1.5 rounded-md border px-2.5 text-xs font-medium transition-colors',
+              copied
+                ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+                : 'border-fd-border bg-fd-background text-fd-muted-foreground hover:border-fd-border/80 hover:bg-fd-accent hover:text-fd-accent-foreground',
+            )}
+          >
+            {copied ? (
+              <Check className="size-3.5" aria-hidden />
+            ) : (
+              <Copy className="size-3.5" aria-hidden />
+            )}
+            {copied ? '已复制' : '复制回答'}
+          </button>
         </div>
       ) : null}
     </div>
@@ -866,8 +932,8 @@ export function AISearchTrigger({
         position === 'float' && [
           /* 视口右下角（inline-end = LTR 下右侧），与官方文档布局示意一致；避免无效 calc 导致定位失效 */
           'fixed z-40 flex flex-row items-center justify-center gap-2 shadow-lg transition-[translate,opacity]',
-          'bottom-[max(1rem,env(safe-area-inset-bottom,0px))]',
-          'inset-e-[max(1rem,calc(1rem+var(--removed-body-scroll-bar-size,0px)),env(safe-area-inset-end,0px))]',
+          'bottom-[max(5rem,env(safe-area-inset-bottom,0px))]',
+          'inset-e-[max(5rem,calc(5rem+var(--removed-body-scroll-bar-size,0px)),env(safe-area-inset-end,0px))]',
           open && 'translate-y-10 opacity-0 pointer-events-none',
         ],
         className,
@@ -955,15 +1021,15 @@ export function AISearchPanel() {
           className={cn(
             /* 悬浮层，不占用任何布局空间 */
             'fixed z-40 overflow-hidden bg-fd-card text-fd-card-foreground shadow-2xl border rounded-2xl',
-            '[--ai-chat-width:min(calc(100vw-1.25rem),560px)]',
+            '[--ai-chat-width:min(calc(100vw-1.25rem),640px)]',
             /* 小屏：铺满视口 */
             'max-lg:inset-x-1.5 max-lg:inset-y-3',
             /* 大屏：右下角浮窗；必须同时设 h（或 height）才能让内部 flex 列正确分配 */
-            'lg:[--ai-chat-width:520px]',
+            'lg:[--ai-chat-width:600px]',
             'lg:bottom-[max(4.5rem,calc(env(safe-area-inset-bottom,0px)+4.5rem))]',
             'lg:inset-e-[max(1.25rem,calc(1.25rem+var(--removed-body-scroll-bar-size,0px)))]',
-            /* 固定高度：默认 880px，视口不够时收缩，保底 400px */
-            'lg:h-[min(880px,calc(100dvh-6rem))] lg:min-h-[400px]',
+            /* 固定高度：默认 960px，视口不够时收缩，保底 400px */
+            'lg:h-[min(960px,calc(100dvh-6rem))] lg:min-h-[400px]',
             open
               ? 'animate-fd-dialog-in'
               : 'animate-fd-dialog-out',

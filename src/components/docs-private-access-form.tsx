@@ -60,6 +60,8 @@ export function DocsPrivateAccessForm({ fallbackNext }: Props) {
 
   return (
     <form onSubmit={onSubmit} className="mt-8 space-y-4">
+      {/* 隐藏 username 字段：满足浏览器无障碍要求，密码管理器不会错误填充 */}
+      <input type="text" name="username" autoComplete="username" aria-hidden="true" className="hidden" readOnly tabIndex={-1} />
       <label className="block text-sm font-medium text-fd-foreground">
         访问令牌
         <input
