@@ -16,7 +16,7 @@ entry: rpa.conn.pinduoduo.finance.bill.list
 
 ### 目标页面
 
-> **路径**：拼多多商家后台 → 对账中心 → 账单
+> **路径**：拼多多商家后台—对账中心—账单
 >
 > **网址**：[https://cashier.pinduoduo.com/main/bills](https://cashier.pinduoduo.com/main/bills?tab=4001&__app_code=113)
 
