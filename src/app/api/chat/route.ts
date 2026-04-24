@@ -29,7 +29,27 @@ const openai = createOpenAICompatible({
 });
 
 export async function POST(req: Request, _ctx: RouteContext<"/api/chat">) {
-  const reqJson = await req.json();
+  let reqJson: unknown;
+  try {
+    reqJson = await req.json();
+  } catch {
+    return new Response(JSON.stringify({ error: '请求体格式无效，需要 JSON' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  if (
+    !reqJson ||
+    typeof reqJson !== 'object' ||
+    !Array.isArray((reqJson as Record<string, unknown>).messages)
+  ) {
+    return new Response(JSON.stringify({ error: '缺少必要字段：messages' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   const siteOrigin = inferSiteOrigin(req);
   const access = getDocAccessContext(req);
 
@@ -78,7 +98,7 @@ After every tool call, you MUST continue and write a clear reply in the same lan
         },
       }),
     },
-    messages: await convertToModelMessages<InkeepUIMessage>(reqJson.messages, {
+    messages: await convertToModelMessages<InkeepUIMessage>((reqJson as { messages: InkeepUIMessage[] }).messages, {
       ignoreIncompleteToolCalls: true,
       convertDataPart(part) {
         if (part.type === 'data-client')

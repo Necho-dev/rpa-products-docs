@@ -28,6 +28,7 @@ import {
   X,
 } from 'lucide-react';
 import { cn } from '../../lib/cn';
+import { safeWriteClipboard } from '@/lib/code-block-utils';
 import { buttonVariants } from '../ui/button';
 import Link from 'fumadocs-core/link';
 import { useChat, type UseChatHelpers } from '@ai-sdk/react';
@@ -66,6 +67,12 @@ const Context = createContext<{
   modelDisplayName?: string;
   /** IndexedDB 已就绪，可发送消息 */
   chatBooted: boolean;
+  /** IndexedDB 初始化失败的错误信息 */
+  bootError: string | null;
+  /** useChat 的网络/API 错误（本次运行时） */
+  chatError: Error | undefined;
+  /** 上次关闭/刷新前持久化的错误消息 */
+  persistedError: string | null;
   sessions: SessionListItem[];
   activeSessionId: string;
   newChatSession: () => Promise<void>;
@@ -94,7 +101,7 @@ export function AISearchPanelHeader({ className, ...props }: ComponentProps<'div
   const { setOpen, sessions, activeSessionId, chatBooted, chat } = useAISearchContext();
 
   const headingTitle = useMemo(() => {
-    if (!chatBooted) return 'Chat with AI';
+    if (!chatBooted) return 'AI 对话';
     const visible = chat.messages.filter((m) => m.role !== 'system');
     const live = deriveTitleFromMessages(visible);
     if (live !== '新对话') return live;
@@ -342,7 +349,7 @@ export function AISearchInput(props: ComponentProps<'form'>) {
     <form {...props} className={cn('flex items-start pe-2', props.className)} onSubmit={onStart}>
       <Input
         value={input}
-        placeholder={isLoading ? 'AI is answering...' : 'Ask a question'}
+        placeholder={isLoading ? '正在回答...' : '请输入问题...'}
         autoFocus
         className="p-3"
         disabled={!chatBooted || status === 'streaming' || status === 'submitted'}
@@ -369,7 +376,7 @@ export function AISearchInput(props: ComponentProps<'form'>) {
           onClick={stop}
         >
           <Loader2 className="size-4 animate-spin text-fd-muted-foreground" />
-          Abort Answer
+          停止回答
         </button>
       ) : (
         <button
@@ -390,51 +397,57 @@ export function AISearchInput(props: ComponentProps<'form'>) {
   );
 }
 
-function List(props: Omit<ComponentProps<'div'>, 'dir'>) {
+function List({ scrollToBottomKey, ...props }: Omit<ComponentProps<'div'>, 'dir'> & {
+  /** 变化时强制滚动到底部（如面板打开、切换会话） */
+  scrollToBottomKey?: unknown;
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
   /** true = user has scrolled up, suppress auto-scroll */
   const userScrolledRef = useRef(false);
 
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = 'instant') => {
+    const container = containerRef.current;
+    if (!container) return;
+    container.scrollTo({ top: container.scrollHeight, behavior });
+  }, []);
+
+  // 监听用户手动上滚
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-
     const onScroll = () => {
       const distFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
-      // If user scrolled more than 80px from bottom, consider it intentional
       userScrolledRef.current = distFromBottom > 80;
     };
-
     container.addEventListener('scroll', onScroll, { passive: true });
     return () => container.removeEventListener('scroll', onScroll);
   }, []);
 
+  // 面板打开或切换会话时，强制重置并滚底
   useEffect(() => {
-    if (!containerRef.current) return;
-    function callback() {
-      const container = containerRef.current;
-      if (!container) return;
+    userScrolledRef.current = false;
+    scrollToBottom('instant');
+  }, [scrollToBottomKey, scrollToBottom]);
+
+  // 内容增长时（流式回复）自动跟随底部
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const observer = new ResizeObserver(() => {
       if (userScrolledRef.current) return;
+      scrollToBottom('instant');
+    });
 
-      container.scrollTo({
-        top: container.scrollHeight,
-        behavior: 'instant',
-      });
-    }
+    // 观察直接子节点，子节点增高时触发
+    const inner = container.firstElementChild;
+    if (inner) observer.observe(inner);
 
-    const observer = new ResizeObserver(callback);
-    callback();
+    // 初始也滚一次
+    scrollToBottom('instant');
 
-    const element = containerRef.current?.firstElementChild;
-
-    if (element) {
-      observer.observe(element);
-    }
-
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
+    return () => observer.disconnect();
+  }, [scrollToBottom]);
 
   return (
     <div
@@ -447,23 +460,42 @@ function List(props: Omit<ComponentProps<'div'>, 'dir'>) {
   );
 }
 
+const MAX_INPUT_HEIGHT = 300;
+
 function Input(props: ComponentProps<'textarea'>) {
-  const ref = useRef<HTMLDivElement>(null);
-  const shared = cn('col-start-1 row-start-1', props.className);
+  const taRef = useRef<HTMLTextAreaElement>(null);
+
+  const adjust = () => {
+    const ta = taRef.current;
+    if (!ta) return;
+    ta.style.height = 'auto';
+    const next = Math.min(ta.scrollHeight, MAX_INPUT_HEIGHT);
+    ta.style.height = `${next}px`;
+    ta.style.overflowY = ta.scrollHeight > MAX_INPUT_HEIGHT ? 'auto' : 'hidden';
+  };
+
+  useEffect(() => {
+    adjust();
+  }, [props.value]);
 
   return (
-    <div className="grid flex-1">
+    <div className="flex-1 min-w-0">
       <textarea
+        ref={taRef}
         id="nd-ai-input"
+        rows={3}
         {...props}
+        style={{ overflowY: 'hidden', ...props.style }}
         className={cn(
-          'resize-none bg-transparent placeholder:text-fd-muted-foreground focus-visible:outline-none',
-          shared,
+          'w-full resize-none bg-transparent placeholder:text-fd-muted-foreground focus-visible:outline-none',
+          '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+          props.className,
         )}
+        onInput={(e) => {
+          adjust();
+          props.onInput?.(e);
+        }}
       />
-      <div ref={ref} className={cn(shared, 'break-all invisible')}>
-        {`${props.value?.toString() ?? ''}\n`}
-      </div>
     </div>
   );
 }
@@ -486,6 +518,20 @@ function getActiveTurnUserId(messages: InkeepUIMessage[], status: string): strin
   return undefined;
 }
 
+/** 将原始 AI SDK 错误转为用户可读的中文描述 */
+function friendlyChatError(err: Error): string {
+  const msg = err.message;
+  if (/inference limit|rate.?limit|quota|limit.*reached/i.test(msg))
+    return '模型调用次数已达上限，请稍后再试或在后台调整用量配置。';
+  if (/unauthorized|invalid.*key|api.?key/i.test(msg))
+    return 'API 密钥无效，请联系管理员检查配置。';
+  if (/network|fetch.*fail|ECONNREFUSED|ETIMEDOUT/i.test(msg))
+    return '网络连接失败，请检查网络后重试。';
+  if (/5\d\d|server.?error|internal/i.test(msg))
+    return '服务端异常，请稍后重试。';
+  return msg;
+}
+
 const toolDisplayName: Record<string, string> = {
   listDocumentationPages: '查看文档目录',
   searchDocumentationPages: '搜索文档',
@@ -505,7 +551,7 @@ function formatToolPayload(value: unknown, maxLen: number): string {
   if (value === undefined || value === null) return '';
   const raw = typeof value === 'string' ? value : JSON.stringify(value, null, 2);
   if (raw.length <= maxLen) return raw;
-  return `${raw.slice(0, maxLen)}\n…（已截断）`;
+  return `${raw.slice(0, maxLen)}\n...[已截断]`;
 }
 
 function ToolTraceCard({
@@ -619,6 +665,7 @@ function Message({ message, ...props }: { message: InkeepUIMessage } & Component
   const isActiveAssistant = isAssistant && isStreaming && message.id === visibleMessages.at(-1)?.id;
 
   const [copied, setCopied] = useState(false);
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const segments: ReactNode[] = [];
   let textBuf = '';
@@ -673,10 +720,17 @@ function Message({ message, ...props }: { message: InkeepUIMessage } & Component
     .map((p) => (p as { text: string }).text)
     .join('');
 
+  useEffect(() => {
+    return () => {
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+    };
+  }, []);
+
   const handleCopy = () => {
-    void navigator.clipboard.writeText(plainText).then(() => {
+    void safeWriteClipboard(plainText).then(() => {
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+      copyTimerRef.current = setTimeout(() => setCopied(false), 2000);
     });
   };
 
@@ -774,6 +828,8 @@ export function AISearch({
 }) {
   const [open, setOpen] = useState(false);
   const [booted, setBooted] = useState(false);
+  const [bootError, setBootError] = useState<string | null>(null);
+  const [persistedError, setPersistedError] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState('');
   const [seedMessages, setSeedMessages] = useState<InkeepUIMessage[]>([]);
   const [sessions, setSessions] = useState<SessionListItem[]>([]);
@@ -783,32 +839,46 @@ export function AISearch({
     sessionIdRef.current = sessionId;
   }, [sessionId]);
 
+  const messagesRef = useRef<InkeepUIMessage[]>([]);
+
   const persistTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastPersistRef = useRef<string>('');
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      const { activeId, messages } = await idbBootstrap();
-      const list = await idbListSessions();
-      if (cancelled) return;
-      setSessionId(activeId);
-      setSeedMessages(messages);
-      setSessions(list);
-      setBooted(true);
+      try {
+        const { activeId, messages, lastError } = await idbBootstrap();
+        const list = await idbListSessions();
+        if (cancelled) return;
+        setSessionId(activeId);
+        setSeedMessages(messages);
+        setSessions(list);
+        setPersistedError(lastError ?? null);
+        setBooted(true);
+      } catch (err) {
+        if (cancelled) return;
+        setBootError(err instanceof Error ? err.message : '存储初始化失败，对话记录可能无法保存');
+        setBooted(true);
+      }
     })();
     return () => {
       cancelled = true;
     };
   }, []);
 
-  const flushSession = useCallback(async (sid: string, messages: InkeepUIMessage[]) => {
+  const flushSession = useCallback(async (
+    sid: string,
+    messages: InkeepUIMessage[],
+    lastError?: string | null,
+  ) => {
     const title = deriveTitleFromMessages(messages);
     await idbPutSession({
       id: sid,
       title,
       updatedAt: Date.now(),
       messages,
+      lastError: lastError ?? null,
     });
     setSessions(await idbListSessions());
   }, []);
@@ -821,7 +891,18 @@ export function AISearch({
       api: '/api/chat',
     }),
     onFinish: ({ messages }) => {
-      void flushSession(sessionIdRef.current, messages);
+      messagesRef.current = messages;
+      setPersistedError(null);
+      void flushSession(sessionIdRef.current, messages, null);
+    },
+    onError: (err) => {
+      console.error('[AI Chat] 请求失败：', err);
+      const errMsg = err instanceof Error ? err.message : String(err);
+      setPersistedError(errMsg);
+      const current = messagesRef.current;
+      if (current.length > 0) {
+        void flushSession(sessionIdRef.current, current, errMsg);
+      }
     },
   });
 
@@ -835,6 +916,8 @@ export function AISearch({
 
   useEffect(() => {
     if (!booted || !sessionId) return;
+    // 实时同步最新消息到 ref，供 onError 回调使用
+    messagesRef.current = chat.messages;
     const serialized = JSON.stringify(chat.messages);
     if (serialized === lastPersistRef.current) return;
     if (persistTimerRef.current) clearTimeout(persistTimerRef.current);
@@ -849,20 +932,24 @@ export function AISearch({
   }, [booted, sessionId, chat.messages, flushSession]);
 
   const newChatSession = useCallback(async () => {
+    chat.stop();
     const id = await idbCreateSession();
     setSeedMessages([]);
+    setPersistedError(null);
     setSessionId(id);
     setSessions(await idbListSessions());
-  }, []);
+  }, [chat]);
 
   const selectChatSession = useCallback(async (id: string) => {
     if (id === sessionIdRef.current) return;
+    chat.stop();
     const rec = await idbGetSession(id);
     if (!rec) return;
     await idbSetActiveSessionId(id);
     setSeedMessages(rec.messages);
+    setPersistedError(rec.lastError ?? null);
     setSessionId(id);
-  }, []);
+  }, [chat]);
 
   const deleteChatSession = useCallback(async (id: string) => {
     await idbDeleteSession(id);
@@ -894,6 +981,9 @@ export function AISearch({
       setOpen,
       modelDisplayName,
       chatBooted: booted,
+      bootError,
+      chatError: chat.error,
+      persistedError,
       sessions,
       activeSessionId: sessionId,
       newChatSession,
@@ -905,6 +995,8 @@ export function AISearch({
       open,
       modelDisplayName,
       booted,
+      bootError,
+      persistedError,
       sessions,
       sessionId,
       newChatSession,
@@ -1056,10 +1148,15 @@ export function AISearchPanel() {
 
 export function AISearchPanelList({ className, style, ...props }: ComponentProps<'div'>) {
   const chat = useChatContext();
+  const { bootError, chatError, persistedError, open, activeSessionId } = useAISearchContext();
   const messages = chat.messages.filter((msg) => msg.role !== 'system');
+
+  // 优先展示运行时错误，其次展示持久化的历史错误（刷新后恢复）
+  const displayError = chatError ?? (persistedError ? new Error(persistedError) : undefined);
 
   return (
     <List
+      scrollToBottomKey={`${String(open)}-${activeSessionId}`}
       className={cn('py-4 overscroll-contain', className)}
       style={{
         maskImage:
@@ -1068,16 +1165,33 @@ export function AISearchPanelList({ className, style, ...props }: ComponentProps
       }}
       {...props}
     >
-      {messages.length === 0 ? (
+      {bootError && (
+        <div className="mx-1 mb-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 text-xs text-amber-700 dark:text-amber-300">
+          <p className="font-semibold">会话存储不可用</p>
+          <p className="mt-0.5 opacity-80">对话记录将不会被保存。{bootError}</p>
+        </div>
+      )}
+      {messages.length === 0 && !displayError ? (
         <div className="text-sm text-fd-muted-foreground/80 size-full flex flex-col items-center justify-center text-center gap-2">
           <MessageCircleIcon fill="currentColor" stroke="none" />
-          <p onClick={(e) => e.stopPropagation()}>Start a new chat with AI.</p>
+          <p onClick={(e) => e.stopPropagation()}>向 AI 提问以开始对话</p>
         </div>
       ) : (
         <div className="flex flex-col gap-5 px-1 sm:px-2 lg:px-1">
           {messages.map((item) => (
             <Message key={item.id} message={item} />
           ))}
+          {displayError && (
+            <div className="flex items-start gap-2.5 rounded-xl border border-red-500/25 bg-red-500/8 px-3 py-2.5 text-xs text-red-700 dark:text-red-300">
+              <svg className="mt-px size-3.5 shrink-0 fill-current opacity-70" viewBox="0 0 16 16" aria-hidden>
+                <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1Zm-.75 4.5h1.5v4h-1.5v-4Zm0 5h1.5v1.5h-1.5V10.5Z" />
+              </svg>
+              <div className="min-w-0">
+                <p className="font-semibold leading-snug">回复失败</p>
+                <p className="mt-0.5 opacity-80">{friendlyChatError(displayError)}</p>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </List>
@@ -1088,6 +1202,13 @@ export function useHotKey() {
   const { open, setOpen } = useAISearchContext();
 
   const onKeyPress = useEffectEvent((e: KeyboardEvent) => {
+    const target = e.target as HTMLElement | null;
+    const isEditableTarget =
+      target instanceof HTMLInputElement ||
+      target instanceof HTMLTextAreaElement ||
+      target instanceof HTMLSelectElement ||
+      target?.isContentEditable;
+
     if (e.key === 'Escape' && open) {
       setOpen(false);
       e.preventDefault();
@@ -1098,7 +1219,8 @@ export function useHotKey() {
       (e.metaKey || e.ctrlKey) &&
       (e.key === '/' || e.key === 'i' || e.key === 'I');
 
-    if (isToggleShortcut) {
+    // 在可编辑元素内不触发 toggle（除非是 AI 输入框本身，允许 Escape 关闭）
+    if (isToggleShortcut && !isEditableTarget) {
       setOpen(!open);
       e.preventDefault();
     }

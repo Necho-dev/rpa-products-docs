@@ -1,6 +1,7 @@
 import { remark } from 'remark';
 import remarkGfm from 'remark-gfm';
 import remarkRehype from 'remark-rehype';
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import { toJsxRuntime } from 'hast-util-to-jsx-runtime';
 import {
   Children,
@@ -99,8 +100,24 @@ export function rehypeWrapWords() {
   };
 }
 
+/** rehype-sanitize schema：在默认白名单基础上保留代码高亮所需的 class/style 属性 */
+const sanitizeSchema = {
+  ...defaultSchema,
+  attributes: {
+    ...defaultSchema.attributes,
+    code: [...(defaultSchema.attributes?.code ?? []), 'className'],
+    span: [...(defaultSchema.attributes?.span ?? []), 'className', 'style'],
+    div: [...(defaultSchema.attributes?.div ?? []), 'className', 'style'],
+    pre: [...(defaultSchema.attributes?.pre ?? []), 'className', 'style'],
+  },
+};
+
 function createProcessor(): Processor {
-  const processor = remark().use(remarkGfm).use(remarkRehype).use(rehypeWrapWords);
+  const processor = remark()
+    .use(remarkGfm)
+    .use(remarkRehype)
+    .use(rehypeSanitize, sanitizeSchema)
+    .use(rehypeWrapWords);
 
   return {
     async process(content) {
@@ -151,7 +168,6 @@ function MarkdownCodePre(props: ComponentProps<'pre'>) {
       code={codeText}
       options={{ themes: { ...shikiDocsThemes } }}
       codeblock={{
-        // keepBackground: true,
         className: cn(
           'rounded-lg border-fd-border/70 shadow-none ring-1 ring-fd-border/25 dark:ring-fd-border/40 focus:outline-none',
           props.className,
@@ -163,10 +179,9 @@ function MarkdownCodePre(props: ComponentProps<'pre'>) {
             </span>
           </span>
         ) as unknown as string,
-        Actions: ({ className: actionsCls, children: actionChildren }) => (
-          <CodeDownloadButton code={codeText} lang={lang} className={actionsCls}>
-            {actionChildren}
-          </CodeDownloadButton>
+        allowCopy: false,
+        Actions: ({ className: actionsCls }) => (
+          <CodeDownloadButton code={codeText} lang={lang} className={actionsCls} showCopy />
         ),
       }}
     />
@@ -185,11 +200,30 @@ export function Markdown({ text }: { text: string }) {
   );
 }
 
+const CACHE_MAX = 100;
 const cache = new Map<string, Promise<ReactNode>>();
 
+function cacheGet(key: string): Promise<ReactNode> | undefined {
+  const hit = cache.get(key);
+  if (hit) {
+    // LRU: 将命中项移到末尾
+    cache.delete(key);
+    cache.set(key, hit);
+  }
+  return hit;
+}
+
+function cacheSet(key: string, value: Promise<ReactNode>): void {
+  if (cache.size >= CACHE_MAX) {
+    // 删除最久未使用的项（Map 迭代顺序即插入顺序）
+    cache.delete(cache.keys().next().value!);
+  }
+  cache.set(key, value);
+}
+
 function Renderer({ text }: { text: string }) {
-  const result = cache.get(text) ?? processor.process(text);
-  cache.set(text, result);
+  const result = cacheGet(text) ?? processor.process(text);
+  cacheSet(text, result);
 
   return use(result);
 }

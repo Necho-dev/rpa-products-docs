@@ -12,6 +12,8 @@ export type StoredChatSession = {
   title: string;
   updatedAt: number;
   messages: InkeepUIMessage[];
+  /** 上次请求失败时的错误消息，下次打开会话时可展示 */
+  lastError?: string | null;
 };
 
 const KV_ACTIVE = 'activeSessionId';
@@ -156,22 +158,27 @@ export async function idbCreateSession(): Promise<string> {
 }
 
 /** 首次启动：恢复上次活跃会话；若无则使用最近一条；库为空则新建 */
-export async function idbBootstrap(): Promise<{ activeId: string; messages: InkeepUIMessage[] }> {
+export async function idbBootstrap(): Promise<{
+  activeId: string;
+  messages: InkeepUIMessage[];
+  lastError?: string | null;
+}> {
   const active = await idbGetActiveSessionId();
   let rec = active ? await idbGetSession(active) : undefined;
   if (rec) {
-    return { activeId: rec.id, messages: rec.messages ?? [] };
+    return { activeId: rec.id, messages: rec.messages ?? [], lastError: rec.lastError };
   }
   const list = await idbListSessions();
   if (list.length > 0) {
     const latest = list[0];
     await idbSetActiveSessionId(latest.id);
     const r = await idbGetSession(latest.id);
-    if (r) return { activeId: r.id, messages: r.messages ?? [] };
+    if (r) return { activeId: r.id, messages: r.messages ?? [], lastError: r.lastError };
   }
   const id = await idbCreateSession();
   const created = await idbGetSession(id);
-  return { activeId: created!.id, messages: created!.messages ?? [] };
+  if (!created) throw new Error(`idbBootstrap: 无法读取刚创建的会话 id=${id}`);
+  return { activeId: created.id, messages: created.messages ?? [], lastError: null };
 }
 
 export function deriveTitleFromMessages(messages: InkeepUIMessage[]): string {
