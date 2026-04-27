@@ -6,6 +6,7 @@ import {
   FileTextIcon,
   LayersIcon,
   PackageIcon,
+  PuzzleIcon,
   RssIcon,
   ServerIcon,
   SparklesIcon,
@@ -197,6 +198,16 @@ export default function HomePage() {
             >
               <FileTextIcon className="size-3.5 shrink-0 opacity-85" aria-hidden />
               LLMS
+            </Link>
+            <span className="px-1 text-fd-border select-none" aria-hidden>
+              |
+            </span>
+            <Link
+              href="/skills/SKILL.md"
+              className="inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 underline-offset-4 transition-colors hover:text-fd-foreground hover:underline"
+            >
+              <PuzzleIcon className="size-3.5 shrink-0 opacity-85" aria-hidden />
+              SKILL.md
             </Link>
           </nav>
         </footer>
