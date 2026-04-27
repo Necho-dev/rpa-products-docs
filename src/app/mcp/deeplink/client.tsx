@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { CheckIcon, CopyIcon, ExternalLinkIcon, ServerIcon } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { safeWriteClipboard } from '@/lib/code-block-utils';
 
 interface Props {
   mcpUrl: string;
@@ -56,11 +57,31 @@ const clients: {
 
 export function McpDeeplinkClient({ mcpUrl, privateDocsAccessEnabled }: Props) {
   const [copied, setCopied] = useState(false);
+  const [configCopied, setConfigCopied] = useState(false);
 
   function handleCopy() {
-    navigator.clipboard.writeText(mcpUrl).then(() => {
+    void safeWriteClipboard(mcpUrl).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  const configJson = JSON.stringify(
+    {
+      mcpServers: {
+        docs: privateDocsAccessEnabled
+          ? { url: mcpUrl, headers: { Authorization: 'Bearer <DOCS_PRIVATE_ACCESS_TOKEN 访问令牌>' } }
+          : { url: mcpUrl },
+      },
+    },
+    null,
+    2,
+  );
+
+  function handleConfigCopy() {
+    void safeWriteClipboard(configJson).then(() => {
+      setConfigCopied(true);
+      setTimeout(() => setConfigCopied(false), 2000);
     });
   }
 
@@ -149,26 +170,24 @@ export function McpDeeplinkClient({ mcpUrl, privateDocsAccessEnabled }: Props) {
               在客户端 MCP 配置文件中添加以下内容（名称 <code className="font-mono">docs</code>{' '}
               可按需修改）：
             </p>
-            <pre className="overflow-x-auto rounded-md bg-fd-muted p-3 font-mono text-xs text-fd-foreground">
-              {JSON.stringify(
-                {
-                  mcpServers: {
-                    docs: privateDocsAccessEnabled
-                      ? {
-                          url: mcpUrl,
-                          headers: {
-                            Authorization: 'Bearer <DOCS_PRIVATE_ACCESS_TOKEN 访问令牌>',
-                          },
-                        }
-                      : {
-                          url: mcpUrl,
-                        },
-                  },
-                },
-                null,
-                2,
-              )}
-            </pre>
+            <div className="relative">
+              <pre className="overflow-x-auto rounded-md bg-fd-muted p-3 font-mono text-xs text-fd-foreground">
+                {configJson}
+              </pre>
+              <button
+                onClick={handleConfigCopy}
+                className={cn(
+                  'absolute right-2 top-2 flex items-center gap-1 rounded px-1.5 py-1 text-[11px] font-medium transition-colors',
+                  configCopied
+                    ? 'bg-green-500/10 text-green-600 dark:text-green-400'
+                    : 'bg-fd-background/80 text-fd-muted-foreground hover:bg-fd-accent hover:text-fd-accent-foreground',
+                )}
+                title={configCopied ? '已复制' : '复制配置'}
+              >
+                {configCopied ? <CheckIcon className="size-3" /> : <CopyIcon className="size-3" />}
+                {configCopied ? '已复制' : '复制'}
+              </button>
+            </div>
             {privateDocsAccessEnabled ? (
               <p className="mt-3 text-xs text-fd-muted-foreground">
                 请自行将 <code className="font-mono text-[11px]">&lt;DOCS_PRIVATE_ACCESS_TOKEN 访问令牌&gt;</code> 替换为正确的访问令牌，只需在首次安装/使用时配置一次即可。

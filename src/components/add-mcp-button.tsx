@@ -6,6 +6,7 @@ import { CheckIcon, ChevronDownIcon, CopyIcon, ExternalLinkIcon, ServerIcon } fr
 import { buttonVariants } from 'fumadocs-ui/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from 'fumadocs-ui/components/ui/popover';
 import { cn } from '@/lib/cn';
+import { safeWriteClipboard } from '@/lib/code-block-utils';
 
 interface Props {
   mcpUrl: string;
@@ -16,7 +17,7 @@ export function AddMcpButton({ mcpUrl, className }: Props) {
   const [copied, setCopied] = useState(false);
 
   function handleCopy() {
-    navigator.clipboard.writeText(mcpUrl).then(() => {
+    void safeWriteClipboard(mcpUrl).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
