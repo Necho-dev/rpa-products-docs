@@ -1,38 +1,46 @@
 ---
 title: 数据中心-商品数据-商品明细
-description: 按统计日期查看商品维度的流量、转化、成交与环比/同行等指标的明细数据，按商品销售额（成交金额）降序排列
+description: 在商品数据明细页按所选统计周期采集各商品的流量、转化、成交与环比及同行等指标，列表按成交金额降序，支持翻页汇总（单任务上限 100 页）
 entry: rpa.conn.pinduoduo.item.goods.data
 ---
 
-| 属性 | 值 |
-| ---------------- | ---------------- |
-| **连接器类型**   | `RPA 连接器` |
-| **连接器代码**   | `rpa.conn.pinduoduo.item.goods.data`|
-| **归属 PyPI 包** | `rpa-conn-pinduoduo-all`|
+| 属性             | 值                  |
+| ---------------- | ------------------- |
+| **连接器类型**   | `RPA 连接器`        |
+| **连接器代码**   | `rpa.conn.pinduoduo.item.goods.data` |
+| **归属 PyPI 包** | `rpa-conn-pinduoduo-all` |
 | **操作类型**     | 浏览器自动化操作 + 网络请求监听 |
-| **目标网页**     | `https://mms.pinduoduo.com/sycm/goods_effect?msfrom=mms_sidenav`|
-| **适用场景**     | 按统计日期查看商品维度的流量、转化、成交与环比/同行等指标的明细数据，按**商品销售额（成交金额）**降序排列；默认配置最大翻页次数 100            |
+| **目标网页**     | `https://mms.pinduoduo.com/sycm/goods_effect?msfrom=mms_sidenav` |
+| **适用场景**     | 在商品数据明细页按所选统计周期采集各商品的流量、转化、成交与环比及同行等指标，列表按成交金额降序，支持翻页汇总（单任务上限 100 页） |
 
 
 ### 目标页面
 
 > **路径**：拼多多商家后台—数据中心—商品数据—商品明细
 >
-> **网址**：[https://mms.pinduoduo.com/sycm/goods_effect](https://mms.pinduoduo.com/sycm/goods_effect?msfrom=mms_sidenav)
+> **网址**：[https://mms.pinduoduo.com/sycm/goods_effect?msfrom=mms_sidenav](https://mms.pinduoduo.com/sycm/goods_effect?msfrom=mms_sidenav)
 
 ![拼多多商家后台—数据中心—商品数据—商品明细](../../public/images/pinduoduo/item_goods_data_20260423.png)
 
 ### 业务入参
 
-| 字段         | 中文释义 | 数据类型  | 必填 | 默认值 | 说明 |
-| ------------ | -------- | --------- | ---- | ------ | ---- |
-| `biz_date`   | 业务日期 | `string`  | 否   | 昨天 T-1  | 格式：`YYYYMMDD` |
+| 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
+| ---- | -------- | -------- | ---- | ------ | ---- |
+| `date_type` | 统计周期类型 | `string` | 否 | `昨日` | 取值：`实时`、`昨日`、`7日`、`30日`、`周`、`月`、`自定义` |
+| `biz_date` | 业务日期 | `string` | 否 | — | 格式：`YYYYMMDD`。当 `date_type` 为 `周`、`月`、`自定义` 时必填，用于匹配自然周/月或自定义单日；`biz_date` 晚于昨天会校验失败。选 `自定义` 时若日期超出平台可查范围，任务会失败并提示可选日期区间（约最近 25 天）。未传时输出中的 `bizDate` 默认取昨天（`T-1`） |
 
 ### 入参样例
 
 ```json
 {
-    "biz_date": "20260419"
+    "date_type": "昨日"
+}
+```
+
+```json
+{
+    "date_type": "自定义",
+    "biz_date": "20260501"
 }
 ```
 
@@ -101,7 +109,7 @@ entry: rpa.conn.pinduoduo.item.goods.data
 | `goodsFavCntPprIsPercent` | 收藏环比为百分比 | `boolean` | 否 | `goodsDetailList[].goodsFavCntPprIsPercent` | true |
 | `payOrdrGoodsQtyPprIsPercent` | 成交件数环比为百分比 | `boolean` | 否 | `goodsDetailList[].payOrdrGoodsQtyPprIsPercent` | true |
 | `payOrdrUsrCntPprIsPercent` | 成交买家数环比为百分比 | `boolean` | 否 | `goodsDetailList[].payOrdrUsrCntPprIsPercent` | true |
-| `payOrdrAmtPprIsPercent` | 成交金额环比为百分比 | `boole an` | 否 | `goodsDetailList[].payOrdrAmtPprIsPercent` | true |
+| `payOrdrAmtPprIsPercent` | 成交金额环比为百分比 | `boolean` | 否 | `goodsDetailList[].payOrdrAmtPprIsPercent` | true |
 | `cfmOrdrCntPprIsPercent` | 确认订单数环比为百分比 | `boolean` | 否 | `goodsDetailList[].cfmOrdrCntPprIsPercent` | true |
 | `cfmOrdrGoodsQtyPprIsPercent` | 确认件数环比为百分比 | `boolean` | 否 | `goodsDetailList[].cfmOrdrGoodsQtyPprIsPercent` | true |
 | `imprUsrCntPprIsPercent` | 曝光环比为百分比 | `boolean` | 否 | `goodsDetailList[].imprUsrCntPprIsPercent` | true |
@@ -143,8 +151,9 @@ entry: rpa.conn.pinduoduo.item.goods.data
 | `activityInfo` | 活动信息 | `Object` | 是 | `goodsDetailList[].activityInfo` | null |
 | `showCol` | 展示列标记 | `number` | 否 | `goodsDetailList[].showCol` | 0 |
 | `hotGoodsActivityInfo` | 热门商品活动信息 | `object` | 是 | `goodsDetailList[].hotGoodsActivityInfo` | 见数据样例 `hotGoodsActivityInfo` |
-| `bizDate`           | 业务日期         | `string`  | 否     | 附加              |      |
-| `accountId`         | 授权 ID          | `string`  | 否     | 附加              |      |
+| `taskId` | 任务 ID | `string` | 否 | 附加 |  |
+| `bizDate` | 业务日期 | `string` | 否 | 附加 |  |
+| `accountId` | 授权 ID | `string` | 否 | 附加 |  |
 
 ### 数据样例
 
@@ -258,7 +267,8 @@ entry: rpa.conn.pinduoduo.item.goods.data
       "showEntry": false
     },
     "bizDate": "20260419",
-    "accountId": "test_account_6"
+    "accountId": "***",
+    "taskId": "***"
   }
 ]
 ```
