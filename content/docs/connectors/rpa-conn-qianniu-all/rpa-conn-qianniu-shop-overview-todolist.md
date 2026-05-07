@@ -36,34 +36,59 @@ entry: rpa.conn.qianniu.shop.overview.todolist
 
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
-| `logisticsMonitor` | 物流监控模块 | `Dict` | 否 | 见数据样例 `logisticsMonitor` | 见数据样例 `logisticsMonitor` |
+| `logisticsMonitor` | 物流监控模块 | `Dict` | 否 | `data.result[?todoId==3]` | 见数据样例 |
+| `presale` | 售前模块 | `Dict` | 否 | `data.result[?todoId==1]` | 见数据样例 |
+| `aftersale` | 售后模块 | `Dict` | 否 | `data.result[?todoId==2]` | 见数据样例 |
+| `itemManage` | 宝贝管理模块 | `Dict` | 否 | `data.result[?todoId==4]` | 见数据样例 |
+| `xiaoerReminder` | 小二提醒模块 | `Dict` | 否 | `data.result[?todoId==5]` | 见数据样例 |
+| `bizDate` | 业务日期 | `string` | 否 | 附加 |  |
+| `accountId` | 授权 ID | `string` | 否 | 附加 |  |
+
+#### 物流监控（logisticsMonitor）
+
+| 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
+| ---- | -------- | -------- | ------ | -------- | ---- |
 | `logisticsMonitor.totalCount` | 物流监控汇总数 | `number` | 否 | `data.result[?todoId==3].todoCount` | `1` |
 | `logisticsMonitor.willTimeoutCnt` | 发货即将超时 | `number` | 否 | `data.result[?todoId==3].todoListDetail[?uiCode=='willTimeOutDelivery'].count` | `0` |
 | `logisticsMonitor.timeoutCnt` | 发货超时包裹 | `number` | 否 | `data.result[?todoId==3].todoListDetail[?uiCode=='timeOutDelivery'].count` | `1` |
 | `logisticsMonitor.collectTimeoutCnt` | 揽收异常包裹 | `number` | 否 | `data.result[?todoId==3].todoListDetail[?uiCode=='payGotException'].count` | `0` |
 | `logisticsMonitor.updateTimeoutCnt` | 运输异常包裹 | `number` | 否 | `data.result[?todoId==3].todoListDetail[?uiCode=='updateException'].count` | `0` |
 | `logisticsMonitor.deliveryTimeoutCnt` | 派送异常包裹 | `number` | 否 | `data.result[?todoId==3].todoListDetail[?uiCode=='deliveryException'].count` | `0` |
-| `presale` | 售前模块 | `Dict` | 否 | 见数据样例 `presale` | 见数据样例 `presale` |
+
+#### 售前（presale）
+
+| 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
+| ---- | -------- | -------- | ------ | -------- | ---- |
 | `presale.totalCount` | 售前汇总数 | `number` | 否 | `data.result[?todoId==1].todoCount` | `54` |
 | `presale.notDeliveryCnt` | 待发货 | `number` | 否 | `data.result[?todoId==1].todoListDetail[?uiCode=='notDelivery'].count` | `23` |
 | `presale.waitForRatedCnt` | 待评价 | `number` | 否 | `data.result[?todoId==1].todoListDetail[?uiCode=='waitForRated'].count` | `31` |
-| `aftersale` | 售后模块 | `Dict` | 否 | 见数据样例 `aftersale` | 见数据样例 `aftersale` |
+
+#### 售后（aftersale）
+
+| 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
+| ---- | -------- | -------- | ------ | -------- | ---- |
 | `aftersale.totalCount` | 售后汇总数 | `number` | 否 | `data.result[?todoId==2].todoCount` | `195` |
 | `aftersale.pendingAftersaleCnt` | 待处理售后 | `number` | 否 | `data.result[?todoId==2].todoListDetail[?uiCode=='pendingAfterSale'].count` | `3` |
 | `aftersale.invoiceApplyCnt` | 临赔发票申请 | `number` | 否 | `data.result[?todoId==2].todoListDetail[?uiCode=='invoiceApply'].count` | `29` |
 | `aftersale.updateAddressCnt` | 改地址申请 | `number` | 否 | `data.result[?todoId==2].todoListDetail[?uiCode=='updateAddress'].count` | `163` |
-| `itemManage` | 宝贝管理模块 | `Dict` | 否 | 见数据样例 `itemManage` | 见数据样例 `itemManage` |
+
+#### 宝贝管理（itemManage）
+
+| 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
+| ---- | -------- | -------- | ------ | -------- | ---- |
 | `itemManage.totalCount` | 宝贝管理汇总数 | `number` | 否 | `data.result[?todoId==4].todoCount` | `109` |
 | `itemManage.onSaleCnt` | 出售中的宝贝数 | `number` | 否 | `data.result[?todoId==4].todoListDetail[?uiCode=='onSale'].count` | `49` |
 | `itemManage.inStockCnt` | 等待上架的宝贝数 | `number` | 否 | `data.result[?todoId==4].todoListDetail[?uiCode=='inStock'].count` | `60` |
-| `xiaoerReminder` | 小二提醒模块 | `Dict` | 否 | 见数据样例 `xiaoerReminder` | 见数据样例 `xiaoerReminder` |
+
+#### 小二提醒（xiaoerReminder）
+
+| 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
+| ---- | -------- | -------- | ------ | -------- | ---- |
 | `xiaoerReminder.totalCount` | 小二提醒汇总数 | `number` | 否 | `data.result[?todoId==5].todoCount` | `0` |
 | `xiaoerReminder.pendingComplaintCnt` | 待处理投诉 | `number` | 否 | `data.result[?todoId==5].todoListDetail[?uiCode=='pendingPunishComplaint'].count` | `0` |
 | `xiaoerReminder.pendingPunishCnt` | 待处理违规 | `number` | 否 | `data.result[?todoId==5].todoListDetail[?uiCode=='pendingPunish'].count` | `0` |
 | `xiaoerReminder.pendingOrderCnt` | 待处理工单 | `number` | 否 | `data.result[?todoId==5].todoListDetail[?uiCode=='pendingOrder'].count` | `0` |
 | `xiaoerReminder.mktRiskCnt` | 营销风险 | `number` | 否 | `data.result[?todoId==5].todoListDetail[?uiCode=='mktPortalRisk'].count` | `0` |
-| `bizDate` | 业务日期 | `string` | 否 | 附加 |  |
-| `accountId` | 授权 ID | `string` | 否 | 附加 |  |
 
 ### 数据样例
 
