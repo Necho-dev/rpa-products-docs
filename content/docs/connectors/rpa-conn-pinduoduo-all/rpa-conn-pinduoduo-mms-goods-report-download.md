@@ -87,6 +87,7 @@ entry: rpa.conn.pinduoduo.mms.goods.report.download
 | `follow_cost` | 关注花费(元) | `number` | 是 | `XLSX.0.关注花费(元)` | 0.0 |
 | `follow_count` | 关注量 | `number` | 是 | `XLSX.0.关注量` | 0.0 |
 | `avg_follow_cost` | 平均关注成本(元) | `number` | 是 | `XLSX.0.平均关注成本(元)` | 0.0 |
+| `taskId` | 任务 ID | `string` | 否 | 附加 | dev-0-b917e3b4 |
 | `bizDate` | 业务日期 | `string` | 否 | 附加 |  |
 | `accountId` | 授权 ID | `string` | 否 | 附加 |  |
 
@@ -141,6 +142,7 @@ entry: rpa.conn.pinduoduo.mms.goods.report.download
     "follow_cost": 0.0,
     "follow_count": 0.0,
     "avg_follow_cost": 0.0,
+    "taskId": "dev-0-b917e3b4",
     "bizDate": "20260429",
     "accountId": "104"
   }

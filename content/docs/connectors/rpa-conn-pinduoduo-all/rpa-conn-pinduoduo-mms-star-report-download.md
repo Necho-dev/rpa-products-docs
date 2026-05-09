@@ -53,6 +53,7 @@ entry: rpa.conn.pinduoduo.mms.star.report.download
 | `cost_per_deal` | 每笔成交花费(元) | `number` | 是 | `XLSX.0.每笔成交花费(元)` | 5.02 |
 | `amount_per_deal` | 每笔成交金额(元) | `number` | 是 | `XLSX.0.每笔成交金额(元)` | 53.43 |
 | `goods_favorite_count` | 商品收藏量 | `number` | 是 | `XLSX.0.商品收藏量` | 48 |
+| `taskId` | 任务 ID | `string` | 否 | 附加 | dev-0-b917e3b4 |
 | `bizDate` | 业务日期 | `string` | 否 | 附加 |  |
 | `accountId` | 授权 ID | `string` | 否 | 附加 |  |
 
@@ -73,6 +74,7 @@ entry: rpa.conn.pinduoduo.mms.star.report.download
     "cost_per_deal": 5.02,
     "amount_per_deal": 53.43,
     "goods_favorite_count": 48,
+    "taskId": "dev-0-b917e3b4",
     "bizDate": "20260429",
     "accountId": "104"
   }

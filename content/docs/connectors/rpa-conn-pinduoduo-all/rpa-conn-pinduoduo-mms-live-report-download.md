@@ -58,6 +58,7 @@ entry: rpa.conn.pinduoduo.mms.live.report.download
 | `fans_per_mille` | 千次曝光增粉数 | `number` | 是 | `XLSX.0.千次曝光增粉数` | — |
 | `comment_count` | 直播评论量 | `number` | 是 | `XLSX.0.直播评论量` | — |
 | `goods_favorite_count` | 商品收藏量 | `number` | 是 | `XLSX.0.商品收藏量` | — |
+| `taskId` | 任务 ID | `string` | 否 | 附加 | dev-0-b917e3b4 |
 | `bizDate` | 业务日期 | `string` | 否 | 附加 |  |
 | `accountId` | 授权 ID | `string` | 否 | 附加 |  |
 
