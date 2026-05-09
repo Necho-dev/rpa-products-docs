@@ -1,13 +1,13 @@
 ---
 title: 推广平台-商品推广-推广商品报表下载
 description: 从拼多多推广平台下载「商品推广-推广商品」分天数据报表，支持快捷日期与自定义日期范围
-entry: rpa.conn.pinduoduo.mms.goods.report.download
+entry: rpa.conn.pinduoduo.promotion.goods.report.download
 ---
 
 | 属性             | 值                                                                |
 | ---------------- | ----------------------------------------------------------------- |
 | **连接器类型**   | `RPA 连接器`                                                      |
-| **连接器代码**   | `rpa.conn.pinduoduo.mms.goods.report.download`                    |
+| **连接器代码**   | `rpa.conn.pinduoduo.promotion.goods.report.download`                    |
 | **归属 PyPI 包** | `rpa-conn-pinduoduo-all`                                          |
 | **操作类型**     | 浏览器自动化操作 + XLSX 文件导出                                  |
 | **目标网页**     | `https://yingxiao.pinduoduo.com/tools/report/download`            |
@@ -153,7 +153,7 @@ entry: rpa.conn.pinduoduo.mms.goods.report.download
 
 ```json
 {
-    "name": "rpa.conn.pinduoduo.mms.goods.report.download",
+    "name": "rpa.conn.pinduoduo.promotion.goods.report.download",
     "package": "rpa-conn-pinduoduo-all",
     "version": null,
     "mode": "Eager"
