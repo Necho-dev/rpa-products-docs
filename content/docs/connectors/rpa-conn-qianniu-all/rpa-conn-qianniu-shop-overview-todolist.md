@@ -43,6 +43,7 @@ entry: rpa.conn.qianniu.shop.overview.todolist
 | `xiaoerReminder` | 小二提醒模块 | `Dict` | 否 | `data.result[?todoId==5]` | 见数据样例 |
 | `bizDate` | 业务日期 | `string` | 否 | 附加 |  |
 | `accountId` | 授权 ID | `string` | 否 | 附加 |  |
+| `taskId` | 任务 ID | `string` | 否 | 附加 |  |
 
 #### 物流监控（logisticsMonitor）
 
@@ -59,26 +60,26 @@ entry: rpa.conn.qianniu.shop.overview.todolist
 
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
-| `presale.totalCount` | 售前汇总数 | `number` | 否 | `data.result[?todoId==1].todoCount` | `54` |
+| `presale.totalCount` | 售前汇总数 | `number` | 否 | `data.result[?todoId==1].todoCount` | `58` |
 | `presale.notDeliveryCnt` | 待发货 | `number` | 否 | `data.result[?todoId==1].todoListDetail[?uiCode=='notDelivery'].count` | `23` |
-| `presale.waitForRatedCnt` | 待评价 | `number` | 否 | `data.result[?todoId==1].todoListDetail[?uiCode=='waitForRated'].count` | `31` |
+| `presale.waitForRatedCnt` | 待评价 | `number` | 否 | `data.result[?todoId==1].todoListDetail[?uiCode=='waitForRated'].count` | `35` |
 
 #### 售后（aftersale）
 
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
-| `aftersale.totalCount` | 售后汇总数 | `number` | 否 | `data.result[?todoId==2].todoCount` | `195` |
-| `aftersale.pendingAftersaleCnt` | 待处理售后 | `number` | 否 | `data.result[?todoId==2].todoListDetail[?uiCode=='pendingAfterSale'].count` | `3` |
-| `aftersale.invoiceApplyCnt` | 临赔发票申请 | `number` | 否 | `data.result[?todoId==2].todoListDetail[?uiCode=='invoiceApply'].count` | `29` |
-| `aftersale.updateAddressCnt` | 改地址申请 | `number` | 否 | `data.result[?todoId==2].todoListDetail[?uiCode=='updateAddress'].count` | `163` |
+| `aftersale.totalCount` | 售后汇总数 | `number` | 否 | `data.result[?todoId==2].todoCount` | `205` |
+| `aftersale.pendingAftersaleCnt` | 待处理售后 | `number` | 否 | `data.result[?todoId==2].todoListDetail[?uiCode=='pendingAfterSale'].count` | `0` |
+| `aftersale.invoiceApplyCnt` | 临赔发票申请 | `number` | 否 | `data.result[?todoId==2].todoListDetail[?uiCode=='invoiceApply'].count` | `40` |
+| `aftersale.updateAddressCnt` | 改地址申请 | `number` | 否 | `data.result[?todoId==2].todoListDetail[?uiCode=='updateAddress'].count` | `165` |
 
 #### 宝贝管理（itemManage）
 
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
 | `itemManage.totalCount` | 宝贝管理汇总数 | `number` | 否 | `data.result[?todoId==4].todoCount` | `109` |
-| `itemManage.onSaleCnt` | 出售中的宝贝数 | `number` | 否 | `data.result[?todoId==4].todoListDetail[?uiCode=='onSale'].count` | `49` |
-| `itemManage.inStockCnt` | 等待上架的宝贝数 | `number` | 否 | `data.result[?todoId==4].todoListDetail[?uiCode=='inStock'].count` | `60` |
+| `itemManage.onSaleCnt` | 出售中的宝贝数 | `number` | 否 | `data.result[?todoId==4].todoListDetail[?uiCode=='onSale'].count` | `46` |
+| `itemManage.inStockCnt` | 等待上架的宝贝数 | `number` | 否 | `data.result[?todoId==4].todoListDetail[?uiCode=='inStock'].count` | `63` |
 
 #### 小二提醒（xiaoerReminder）
 
@@ -94,8 +95,9 @@ entry: rpa.conn.qianniu.shop.overview.todolist
 
 ```json
 {
-  "bizDate": "20260428",
+  "bizDate": "20260509",
   "accountId": "101",
+  "taskId": "dev-0-58ef9132",
   "logisticsMonitor": {
     "totalCount": 1,
     "willTimeoutCnt": 0,
@@ -105,20 +107,20 @@ entry: rpa.conn.qianniu.shop.overview.todolist
     "deliveryTimeoutCnt": 0
   },
   "presale": {
-    "totalCount": 54,
+    "totalCount": 58,
     "notDeliveryCnt": 23,
-    "waitForRatedCnt": 31
+    "waitForRatedCnt": 35
   },
   "aftersale": {
-    "totalCount": 195,
-    "pendingAftersaleCnt": 3,
-    "invoiceApplyCnt": 29,
-    "updateAddressCnt": 163
+    "totalCount": 205,
+    "pendingAftersaleCnt": 0,
+    "invoiceApplyCnt": 40,
+    "updateAddressCnt": 165
   },
   "itemManage": {
     "totalCount": 109,
-    "onSaleCnt": 49,
-    "inStockCnt": 60
+    "onSaleCnt": 46,
+    "inStockCnt": 63
   },
   "xiaoerReminder": {
     "totalCount": 0,
