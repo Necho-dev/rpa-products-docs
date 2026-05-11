@@ -1,13 +1,13 @@
 ---
 title: 商品-宏观监控(日)-数据下载
 description: 采集生意参谋宏观监控页面按日维度的商品经营数据，含支付、加购、访客、转化率等核心指标
-entry: rpa.conn.sycm.macro.monitor
+entry: rpa.conn.sycm.item.macro.monitor
 ---
 
 | 属性             | 值                                                                                           |
 | ---------------- | -------------------------------------------------------------------------------------------- |
 | **连接器类型**   | `RPA 连接器`                                                                                 |
-| **连接器代码**   | `rpa.conn.sycm.macro.monitor`                                                               |
+| **连接器代码**   | `rpa.conn.sycm.item.macro.monitor`                                                          |
 | **归属 PyPI 包** | `rpa-conn-sycm-all`                                                                         |
 | **操作类型**     | 浏览器自动化操作 + XLS 文件导出                                                              |
 | **目标网页**     | `https://sycm.taobao.com/cc/macro_monitor`                                                  |
@@ -111,7 +111,7 @@ entry: rpa.conn.sycm.macro.monitor
 
 ```json
 {
-    "name": "rpa.conn.sycm.macro.monitor",
+    "name": "rpa.conn.sycm.item.macro.monitor",
     "package": "rpa-conn-sycm-all",
     "version": null,
     "mode": "Eager"
