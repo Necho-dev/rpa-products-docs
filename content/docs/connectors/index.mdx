@@ -3,7 +3,7 @@ title: 连接器
 description: 按平台/应用的 RPA 连接器集合包，按照 PyPI 包划分模块
 ---
 
-import { BarChart2, Bot, Store } from 'lucide-react';
+import { BarChart2, Bot, Store, ShoppingBag } from 'lucide-react';
 
 ### 淘宝 / 天猫
 
@@ -33,6 +33,18 @@ import { BarChart2, Bot, Store } from 'lucide-react';
     href="./rpa-conn-pinduoduo-all"
     code="rpa-conn-pinduoduo-all"
     url="https://mms.pinduoduo.com/"
+  />
+</Cards>
+
+### 抖店
+
+<Cards className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+  <ModuleCard
+    icon={<ShoppingBag className="text-rose-600 dark:text-rose-400" />}
+    title="抖店商家后台"
+    href="./rpa-conn-doudian-all"
+    code="rpa-conn-doudian-all"
+    url="https://fxg.jinritemai.com"
   />
 </Cards>
 
