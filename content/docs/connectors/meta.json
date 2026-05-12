@@ -5,6 +5,7 @@
     "./rpa-conn-qianniu-all",
     "./rpa-conn-sycm-all",
     "./rpa-conn-pinduoduo-all",
-    "./rpa-conn-doudian-all"
+    "./rpa-conn-doudian-all",
+    "./rpa-conn-alimm-all"
   ]
 }
