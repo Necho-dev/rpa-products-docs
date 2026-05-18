@@ -1,6 +1,7 @@
 import React from 'react';
 import defaultMdxComponents from 'fumadocs-ui/mdx';
 import type { MDXComponents } from 'mdx/types';
+import * as TabsComponents from 'fumadocs-ui/components/tabs';
 import { ImageZoom } from 'fumadocs-ui/components/image-zoom';
 import { cn } from '@/lib/cn';
 import { getLanguageIdFromPreProps, getLanguageLabel } from '@/lib/code-block-language';
@@ -47,6 +48,7 @@ export function getMDXComponents(components?: MDXComponents) {
 
   return {
     ...defaultMdxComponents,
+    ...TabsComponents,
     Mermaid,
     SearchOpenCard,
     AIChatOpenCard,
