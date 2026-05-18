@@ -45,7 +45,7 @@ export function DocsThemeToolbar({ className }: { className?: string }) {
   }, [preset]);
 
   useEffect(() => {
-    setMounted(true);
+    queueMicrotask(() => setMounted(true));
   }, []);
 
   return (
