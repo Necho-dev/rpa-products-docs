@@ -2,6 +2,9 @@
 title: 推广平台-商品推广-推广商品报表下载
 description: 从拼多多推广平台下载「商品推广-推广商品」分天数据报表，支持快捷日期与自定义日期范围
 entry: rpa.conn.pinduoduo.promotion.goods.report.download
+badge:
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                |

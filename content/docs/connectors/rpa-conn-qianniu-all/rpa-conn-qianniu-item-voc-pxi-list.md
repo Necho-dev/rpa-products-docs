@@ -2,6 +2,9 @@
 title: 店铺-真实体验分-商品体验分（PXI）
 description: 导出「商品体验分 PXI—按商品查看」商品明细报表，按商品查看近 30 天问题/成交订单与 PXI 得分、同类目排名描述
 entry: rpa.conn.qianniu.item.voc.pxi.list
+badge:
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                 |

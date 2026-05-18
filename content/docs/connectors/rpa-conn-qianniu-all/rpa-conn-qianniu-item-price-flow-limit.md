@@ -2,6 +2,9 @@
 title: 商品-价格力竞争-同款价格力-高价限流商品
 description: 导出店铺高价限流商品报表，将原始 XLSX 转为结构化数据
 entry: rpa.conn.qianniu.item.price.flow.limit
+badge:
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                          |

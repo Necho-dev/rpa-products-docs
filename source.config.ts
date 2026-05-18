@@ -8,6 +8,12 @@ import rehypeKatex from 'rehype-katex';
 import { z } from 'zod';
 import { shikiDocsThemes } from './src/lib/shiki-docs-themes';
 
+const docBadgeSchema = z.object({
+  label: z.string(),
+  /** 任意 CSS 颜色，如 `orange`、`#e67e22`、`hsl(...)` */
+  color: z.string().optional(),
+});
+
 /** 页面：不写 `access` 时继承目录 meta；可写 `public` 强制公开 */
 const docsPageSchema = pageSchema.extend({
   access: z.enum(['public', 'private']).optional(),
@@ -16,6 +22,10 @@ const docsPageSchema = pageSchema.extend({
    * 与 `title`（中文标题）搭配使用，文件路径/slug 仍决定文档 URL。
    */
   entry: z.string().optional(),
+  /** 文档描述下方展示的填充胶囊标签 */
+  tags: z.array(z.string()).optional(),
+  /** 侧栏文档名右侧背景色徽章（与 `entry` 可同时存在） */
+  badge: docBadgeSchema.optional(),
 });
 
 /** 目录 meta：`access: private` 时其下所有页面默认私有（除非某页写 `access: public`） */

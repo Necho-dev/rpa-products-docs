@@ -2,6 +2,9 @@
 title: 店铺-店铺管理-真实体验分
 description: 获取真实体验分及子指标（宝贝质量、物流、服务等）数据以及同行对比值，用于店铺体验治理
 entry: rpa.conn.qianniu.shop.voc.score.index
+badge:
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                    |

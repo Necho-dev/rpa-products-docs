@@ -2,6 +2,9 @@
 title: 店铺-营销活动-报名记录
 description: 采集拼多多商家后台营销活动报名记录数据，支持按状态、商品ID、提交时间筛选
 entry: rpa.conn.pinduoduo.shop.register.record
+badge:
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                      |

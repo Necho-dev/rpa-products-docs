@@ -2,6 +2,9 @@
 title: 流量-店铺来源-明细下载
 description: 拼接「全店流量来源」与「分载体流量来源」两个 Sheet 数据，获得流量载体与多级流量来源构成指标
 entry: rpa.conn.sycm.flow.shop.source
+badge:
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性 | 值 |

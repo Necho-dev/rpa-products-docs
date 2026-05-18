@@ -2,6 +2,9 @@
 title: 淘宝联盟-商家中心-数据概览
 description: 采集淘宝联盟商家中心 Dashboard 数据概览指标，支持快捷日期与自定义日期范围
 entry: rpa.conn.alimm.tblm.home.overview
+badge:
+  label: 待上线
+  color: "#EA580C"
 ---
 
 | 属性             | 值                                                                                       |

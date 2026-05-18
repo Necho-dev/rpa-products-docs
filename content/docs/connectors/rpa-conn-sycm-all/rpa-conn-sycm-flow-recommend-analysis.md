@@ -2,6 +2,9 @@
 title: 流量-推荐分析-推荐概况
 description: 根据统计日期 LEFT JOIN 合并「推荐概况」和「同行同层平均」两个 Sheet 字段， 推荐流量渗透、全屏/双列/互动等行为指标
 entry: rpa.conn.sycm.flow.recommend.analysis
+badge:
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性| 值|

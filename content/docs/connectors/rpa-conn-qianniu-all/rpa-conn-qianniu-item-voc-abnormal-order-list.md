@@ -2,6 +2,9 @@
 title: 店铺-真实体验分-体验问题订单率
 description: 导出店铺体验问题订单率「商品分析」明细报表，附加页面提供的汇总指标数据
 entry: rpa.conn.qianniu.item.voc.abnormal.order.list
+badge:
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                        |

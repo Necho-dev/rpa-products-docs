@@ -2,6 +2,9 @@
 title: 商品-商品质量分-全部
 description: 按页获取商品质量分、30日销量与访客数信息，用于质量诊断与运营跟进
 entry: rpa.conn.qianniu.item.quality.score.list
+badge:
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                                    |

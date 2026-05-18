@@ -2,6 +2,9 @@
 title: 商品-商品360-流量来源
 description: 按商品 ID 和统计日期查询指定商品的流量来源数据，导出获取的单品维度的流量来源拆解
 entry: rpa.conn.sycm.item.archives.flow.source
+badge:
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                      |

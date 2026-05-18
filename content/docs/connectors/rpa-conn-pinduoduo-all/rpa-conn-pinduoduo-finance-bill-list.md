@@ -2,6 +2,9 @@
 title: 对账中心-账单明细
 description: 按日期区间从拼多多对账中心导出并下载账单明细，支持单日或最多 31 天区间，解析 ZIP 内 CSV 并映射为结构化记录
 entry: rpa.conn.pinduoduo.finance.bill.list
+badge:
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                          |

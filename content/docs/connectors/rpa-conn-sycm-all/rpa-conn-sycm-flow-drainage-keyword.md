@@ -2,6 +2,9 @@
 title: 流量-搜索词分析-引流搜索关键词
 description: 导出「引流搜索关键词」明细报表，获得引流侧搜索词效果（UV、加购、收藏、支付、UV 价值等）与流量转化
 entry: rpa.conn.sycm.flow.drainage.keyword
+badge:
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                |

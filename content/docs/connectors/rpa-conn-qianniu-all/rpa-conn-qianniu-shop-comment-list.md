@@ -2,6 +2,9 @@
 title: 店铺-评价管理-来自买家的评价
 description: 按全部/正面/中性/负面及评价日期筛选，用于客服与口碑分析；默认配置最大翻页次数 100
 entry: rpa.conn.qianniu.shop.comment.list
+badge:
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                                                |

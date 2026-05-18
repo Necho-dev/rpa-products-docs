@@ -13,6 +13,7 @@ import {
   useFolderDepth,
 } from 'fumadocs-ui/components/sidebar/base';
 import { cn } from '@/lib/cn';
+import type { SidebarFolderWithBadge, SidebarItemWithBadge } from '@/lib/docs-entry-in-sidebar-plugin';
 
 /** 与 `fumadocs-ui/layouts/docs/slots/sidebar` 中 itemVariants 一致；双行时顶对齐图标与标题行 */
 const rowBase =
@@ -82,11 +83,23 @@ function PageTreeSubline({ children }: { children: ReactNode }) {
   );
 }
 
+function DocBadge({ label, color }: { label: string; color?: string }) {
+  return (
+    <span
+      className="shrink-0 rounded px-1.5 py-0.5 text-[11px] font-medium leading-none text-fd-card"
+      style={{ backgroundColor: color ?? '#6366f1' }}
+    >
+      {label}
+    </span>
+  );
+}
+
 /** 页面树叶子：主标题 + 可选 `entry`（由 frontmatter 经插件挂到 `description`） */
 export function DocsSidebarTreeItem({ item }: { item: Item }) {
   const pathname = usePathname();
   const depth = useFolderDepth();
   const hasSub = item.description != null && item.description !== '';
+  const badge = (item as SidebarItemWithBadge).badge;
   return (
     <SidebarItem
       href={item.url}
@@ -103,9 +116,12 @@ export function DocsSidebarTreeItem({ item }: { item: Item }) {
       style={{ paddingInlineStart: getItemOffset(depth) }}
     >
       <div className="flex min-w-0 min-h-0 flex-1 flex-col gap-0.5">
-        <TruncatedLabel depth={depth} className="min-h-0">
-          {item.name}
-        </TruncatedLabel>
+        <div className="flex min-w-0 flex-1 flex-row items-center gap-1.5">
+          <TruncatedLabel depth={depth} className="min-h-0 min-w-0 flex-1">
+            {item.name}
+          </TruncatedLabel>
+          {badge ? <DocBadge label={badge.label} color={badge.color} /> : null}
+        </div>
         {hasSub ? <PageTreeSubline>{item.description}</PageTreeSubline> : null}
       </div>
     </SidebarItem>
@@ -118,6 +134,7 @@ function FolderLabelRow({ item, pathname }: { item: Folder; pathname: string }) 
   const labelDepth = Math.max(0, depth - 1);
   const pad = getItemOffset(labelDepth);
   const hasSub = item.description != null && item.description !== '';
+  const badge = (item as SidebarFolderWithBadge).badge;
 
   if (item.index) {
     return (
@@ -136,9 +153,12 @@ function FolderLabelRow({ item, pathname }: { item: Folder; pathname: string }) 
       >
         {item.icon}
         <div className="flex min-w-0 min-h-0 flex-1 flex-col gap-0.5">
-          <TruncatedLabel depth={labelDepth} className="min-h-0">
-            {item.name}
-          </TruncatedLabel>
+          <div className="flex min-w-0 flex-1 flex-row items-center gap-1.5">
+            <TruncatedLabel depth={labelDepth} className="min-h-0 min-w-0 flex-1">
+              {item.name}
+            </TruncatedLabel>
+            {badge ? <DocBadge label={badge.label} color={badge.color} /> : null}
+          </div>
           {hasSub ? <PageTreeSubline>{item.description}</PageTreeSubline> : null}
         </div>
       </SidebarFolderLink>
@@ -152,9 +172,12 @@ function FolderLabelRow({ item, pathname }: { item: Folder; pathname: string }) 
     >
       {item.icon}
       <div className="flex min-w-0 min-h-0 flex-1 flex-col gap-0.5">
-        <TruncatedLabel depth={labelDepth} className="min-h-0">
-          {item.name}
-        </TruncatedLabel>
+        <div className="flex min-w-0 flex-1 flex-row items-center gap-1.5">
+          <TruncatedLabel depth={labelDepth} className="min-h-0 min-w-0 flex-1">
+            {item.name}
+          </TruncatedLabel>
+          {badge ? <DocBadge label={badge.label} color={badge.color} /> : null}
+        </div>
         {hasSub ? <PageTreeSubline>{item.description}</PageTreeSubline> : null}
       </div>
     </SidebarFolderTrigger>

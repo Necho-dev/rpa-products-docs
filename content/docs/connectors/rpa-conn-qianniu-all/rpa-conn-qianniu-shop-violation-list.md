@@ -2,6 +2,9 @@
 title: 店铺-店铺体检-违规记录
 description: 获取店铺违规管理中心记录，查询待处理/全部/已撤销违规，按违规时间范围筛选，用于违规处理跟进
 entry: rpa.conn.qianniu.shop.violation.list
+badge:
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                                                   |

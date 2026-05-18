@@ -2,6 +2,12 @@
 title: 商品-商品价格管理-价格查询
 description: 按商品 ID 批量导出价格优惠明细，支持按价格类型、导出维度筛选，一次最多 800 个商品；
 entry: rpa.conn.qianniu.item.price.discount.list
+badge:
+  label: 已上线
+  color: "#16A34A"
+tags:
+  - 商品
+  - 文件导出
 ---
 
 | 属性             | 值                                                                                       |

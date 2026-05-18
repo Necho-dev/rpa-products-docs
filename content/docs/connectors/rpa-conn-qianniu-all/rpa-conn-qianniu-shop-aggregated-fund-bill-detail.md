@@ -2,6 +2,9 @@
 title: 店铺-财务-聚合账单(收支明细)导出
 description: 导出「财务-聚合结算-收支明细」明细数据，支持按入账日区间拉取（起止日期遵循平台规则限制）
 entry: rpa.conn.qianniu.shop.aggregated.fund.bill.detail
+badge:
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                          |

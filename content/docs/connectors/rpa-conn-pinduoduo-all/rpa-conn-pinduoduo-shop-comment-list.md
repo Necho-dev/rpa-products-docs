@@ -2,6 +2,9 @@
 title: 商品-商品管理-评价管理
 description: 按时间/评分/内容类型/回复状态/活动/订单/商品/关键词获取商品评价明细数据
 entry: rpa.conn.pinduoduo.shop.comment.list
+badge:
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                                   |

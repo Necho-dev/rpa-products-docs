@@ -2,6 +2,9 @@
 title: 多多进宝-推广效果-订单明细
 description: 从拼多多多多进宝推广效果页面导出订单明细数据，支持按时间范围、订单ID、推广类型、活动ID、状态筛选
 entry: rpa.conn.pinduoduo.jinbao.order.detail
+badge:
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                          |

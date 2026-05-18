@@ -2,6 +2,9 @@
 title: 数据中心-商品数据-商品明细
 description: 在商品数据明细页按所选统计周期采集各商品的流量、转化、成交与环比及同行等指标，列表按成交金额降序，支持翻页汇总（单任务上限 100 页）
 entry: rpa.conn.pinduoduo.item.goods.data
+badge:
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                  |

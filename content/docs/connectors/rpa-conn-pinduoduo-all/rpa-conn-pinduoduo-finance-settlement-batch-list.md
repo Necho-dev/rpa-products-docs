@@ -2,6 +2,9 @@
 title: 财务-营销结算-结算批次列表
 description: 采集拼多多商家后台营销活动结算批次列表数据，支持按批次号、商品ID、结算状态筛选
 entry: rpa.conn.pinduoduo.finance.settlement.batch.list
+badge:
+  label: 待上线
+  color: "#EA580C"
 ---
 
 | 属性             | 值                                                                                       |

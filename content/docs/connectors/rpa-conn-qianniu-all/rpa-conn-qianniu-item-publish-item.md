@@ -2,6 +2,9 @@
 title: 商品-发布-商品上架发布
 description: 在千牛商品发布页按照 publish_cate_template 输出的模板骨架，自动完成类目选择、基础信息、销售信息、物流服务、图文描述的填写，并执行提交上架或保存草稿操作。
 entry: rpa.conn.qianniu.item.publish.item
+badge:
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                                                                 |

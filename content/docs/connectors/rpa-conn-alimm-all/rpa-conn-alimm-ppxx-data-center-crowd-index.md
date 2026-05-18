@@ -2,6 +2,9 @@
 title: 品牌新享-超级新品孵化-数据导出
 description: 采集阿里妈妈品牌新享数据中心「超级新品孵化」模块的新品数据指标
 entry: rpa.conn.alimm.ppxx.data.center.crowd.index
+badge:
+  label: 待上线
+  color: "#EA580C"
 ---
 
 | 属性             | 值                                                                          |

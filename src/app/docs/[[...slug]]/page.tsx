@@ -50,8 +50,23 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
 
   return (
     <DocsPage toc={page.data.toc} full={page.data.full} className={docsPageArticleClassName}>
-      <DocsTitle>{page.data.title}</DocsTitle>
-      <DocsDescription className="mb-0">{page.data.description}</DocsDescription>
+      <div className="flex flex-col gap-1.5">
+        <DocsTitle className="mb-2">{page.data.title}</DocsTitle>
+        <DocsDescription className="mb-0">{page.data.description}</DocsDescription>
+        {Array.isArray(page.data.tags) && page.data.tags.length > 0 ? (
+          <div className="flex flex-wrap gap-1.5 pt-1">
+            {page.data.tags.map((tag) => (
+              <span
+                key={tag}
+                className="inline-flex items-center gap-1 rounded-md border border-fd-border bg-fd-muted/50 px-2 py-0.5 text-xs font-medium text-fd-muted-foreground"
+              >
+                <span className="text-fd-primary/60 select-none">#</span>
+                {tag}
+              </span>
+            ))}
+          </div>
+        ) : null}
+      </div>
       <div className="flex flex-row gap-2 items-center border-b pb-6">
         <MarkdownCopyButton markdownUrl={markdownUrl} />
         <ViewOptionsPopover
