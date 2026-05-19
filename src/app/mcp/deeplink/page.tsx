@@ -1,6 +1,7 @@
 import { headers } from 'next/headers';
-import { isPrivateDocAccessConfigured } from '@/lib/doc-access';
-import { inferSiteOrigin } from '@/lib/site-origin';
+import { isPrivateDocAccessConfigured } from '@/lib/docs/access/doc-access';
+import { getMcpDisplayName } from '@/lib/agent/mcp-config';
+import { inferSiteOrigin } from '@/lib/core/site-origin';
 import { McpDeeplinkClient } from './client';
 
 export default async function McpDeeplinkPage() {
@@ -16,6 +17,7 @@ export default async function McpDeeplinkPage() {
   return (
     <McpDeeplinkClient
       mcpUrl={mcpUrl}
+      mcpDisplayName={getMcpDisplayName()}
       privateDocsAccessEnabled={isPrivateDocAccessConfigured()}
     />
   );

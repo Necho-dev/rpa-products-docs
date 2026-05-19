@@ -1,6 +1,6 @@
-import { getDocAccessContext } from '@/lib/doc-access';
-import { isDocPageAccessible } from '@/lib/docs-site-tools';
-import { getLLMText, source } from '@/lib/source';
+import { getDocAccessContext } from '@/lib/docs/access/doc-access';
+import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
+import { getLLMText, source } from '@/lib/docs/source/source';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

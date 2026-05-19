@@ -1,4 +1,4 @@
-import { oauthProtectedResourceMetadata } from '@/lib/mcp-public-oauth';
+import { oauthProtectedResourceMetadata } from '@/lib/auth/mcp-public-oauth';
 
 export const dynamic = 'force-dynamic';
 

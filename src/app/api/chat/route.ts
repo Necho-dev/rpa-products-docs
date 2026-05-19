@@ -1,4 +1,4 @@
-import { ProvideLinksToolSchema } from '../../../lib/ai/inkeep-qa-schema';
+import { ProvideLinksToolSchema } from '@/lib/ai/inkeep-qa-schema';
 import {
   GetDocumentationPageInputSchema,
   GetDocumentationPageMetaInputSchema,
@@ -12,13 +12,13 @@ import {
   SearchDocumentationInputSchema,
   searchDocumentation,
   searchDocsToolDescription,
-} from '@/lib/docs-site-tools';
-import { getDocAccessContext } from '@/lib/doc-access';
-import { inferSiteOrigin } from '@/lib/site-origin';
+} from '@/lib/docs/docs-site-tools';
+import { getDocAccessContext } from '@/lib/docs/access/doc-access';
+import { inferSiteOrigin } from '@/lib/core/site-origin';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { convertToModelMessages, stepCountIs, streamText, tool } from 'ai';
-import { docsRoute } from '@/lib/shared';
-import type { InkeepUIMessage } from '@/lib/ai-chat-types';
+import { docsRoute } from '@/lib/core/shared';
+import type { InkeepUIMessage } from '@/lib/ai/chat-types';
 
 export type { InkeepUIMessage };
 

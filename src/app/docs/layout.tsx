@@ -1,13 +1,13 @@
-import { getDocAccessContextFromRequest } from '@/lib/doc-access-react';
-import { filterPageTreeForAccess } from '@/lib/docs-page-tree-access';
-import { source } from '@/lib/source';
+import { getDocAccessContextFromRequest } from '@/lib/docs/access/doc-access-react';
+import { filterPageTreeForAccess } from '@/lib/docs/access/docs-page-tree-access';
+import { source } from '@/lib/docs/source/source';
 import { DocsLayout } from 'fumadocs-ui/layouts/docs';
-import { baseOptions } from '@/lib/layout.shared';
-import { DocsThemeToolbar } from '@/components/docs-theme-toolbar';
-import { DocsSidebarTreeFolder, DocsSidebarTreeItem } from '@/components/docs-sidebar-tree';
+import { baseOptions } from '@/lib/ui/layout.shared';
+import { DocsThemeToolbar } from '@/components/docs/theme-toolbar';
+import { DocsSidebarTreeFolder, DocsSidebarTreeItem } from '@/components/docs/sidebar-tree';
 import { AISearch, AISearchPanel, AISearchTrigger } from '@/components/ai/search';
 import { SparklesIcon } from 'lucide-react';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/core/cn';
 import { buttonVariants } from 'fumadocs-ui/components/ui/button';
 
 export default async function Layout({ children }: LayoutProps<'/docs'>) {

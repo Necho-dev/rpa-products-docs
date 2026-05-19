@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
-import { DocsPrivateAccessForm } from '@/components/docs-private-access-form';
-import { docsRoute } from '@/lib/shared';
+import { DocsPrivateAccessForm } from '@/components/docs/private-access-form';
+import { docsRoute } from '@/lib/core/shared';
 
 export const metadata = {
   title: '内容访问验证',

@@ -1,7 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
-import type { DocAccessContext } from '@/lib/doc-access';
-import { searchDocumentation, searchDocsToolDescription } from '@/lib/docs-site-tools';
+import type { DocAccessContext } from '@/lib/docs/access/doc-access';
+import { searchDocumentation, searchDocsToolDescription } from '@/lib/docs/docs-site-tools';
 
 export function registerSearchDocsTool(
   server: McpServer,
@@ -9,7 +9,7 @@ export function registerSearchDocsTool(
   access: DocAccessContext,
 ): void {
   server.registerTool(
-    'search-docs',
+    'search_docs',
     {
       description: searchDocsToolDescription,
       inputSchema: {

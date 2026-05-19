@@ -1,11 +1,11 @@
-import { getDocAccessContext } from '@/lib/doc-access';
-import { getEffectiveDocAccess } from '@/lib/docs-access-effective';
-import { isDocPageAccessible } from '@/lib/docs-site-tools';
-import { getPageImage, source } from '@/lib/source';
+import { getDocAccessContext } from '@/lib/docs/access/doc-access';
+import { getEffectiveDocAccess } from '@/lib/docs/access/docs-access-effective';
+import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
+import { getPageImage, source } from '@/lib/docs/source/source';
 import { notFound } from 'next/navigation';
 import { ImageResponse } from 'next/og';
 import { generate as DefaultImage } from 'fumadocs-ui/og';
-import { siteName } from '@/lib/shared';
+import { siteName } from '@/lib/core/shared';
 import fs from 'node:fs';
 import path from 'node:path';
 

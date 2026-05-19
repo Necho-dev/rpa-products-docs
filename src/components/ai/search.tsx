@@ -27,12 +27,12 @@ import {
   User,
   X,
 } from 'lucide-react';
-import { cn } from '../../lib/cn';
-import { safeWriteClipboard } from '@/lib/code-block-utils';
-import { buttonVariants } from '../ui/button';
+import { cn } from '@/lib/core/cn';
+import { safeWriteClipboard } from '@/lib/ui/code-block-utils';
+import { buttonVariants } from '@/components/ui/button';
 import Link from 'fumadocs-core/link';
 import { useChat, type UseChatHelpers } from '@ai-sdk/react';
-import type { ProvideLinksToolSchema } from '../../lib/ai/inkeep-qa-schema';
+import type { ProvideLinksToolSchema } from '@/lib/ai/inkeep-qa-schema';
 import type { z } from 'zod';
 import {
   DefaultChatTransport,
@@ -41,13 +41,13 @@ import {
   type DynamicToolUIPart,
   type ToolUIPart,
 } from 'ai';
-import { Markdown } from '../markdown';
+import { Markdown } from '@/components/docs/markdown';
 import { Presence } from '@radix-ui/react-presence';
 import { Popover, PopoverContent, PopoverTrigger } from 'fumadocs-ui/components/ui/popover';
 import { buttonVariants as fdButtonVariants } from 'fumadocs-ui/components/ui/button';
 import { Card } from 'fumadocs-ui/components/card';
-import type { InkeepUIMessage } from '@/lib/ai-chat-types';
-import type { SessionListItem } from '@/lib/ai-chat-idb';
+import type { InkeepUIMessage } from '@/lib/ai/chat-types';
+import type { SessionListItem } from '@/lib/ai/chat-idb';
 import {
   deriveTitleFromMessages,
   idbBootstrap,
@@ -58,7 +58,7 @@ import {
   idbPutSession,
   idbSetActiveSessionId,
   formatChatSessionUpdatedAt,
-} from '@/lib/ai-chat-idb';
+} from '@/lib/ai/chat-idb';
 
 const Context = createContext<{
   open: boolean;
@@ -541,10 +541,10 @@ const toolDisplayName: Record<string, string> = {
 };
 
 const mcpAlias: Record<string, string> = {
-  listDocumentationPages: 'list-pages',
-  searchDocumentationPages: 'search-docs',
-  getDocumentationPageMeta: 'get-page-meta',
-  getDocumentationPage: 'get-page',
+  listDocumentationPages: 'list_docs',
+  searchDocumentationPages: 'search_docs',
+  getDocumentationPageMeta: 'get_docs_meta',
+  getDocumentationPage: 'get_docs_content',
 };
 
 function formatToolPayload(value: unknown, maxLen: number): string {

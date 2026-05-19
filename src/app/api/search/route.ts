@@ -1,13 +1,8 @@
-import { getDocAccessContext } from '@/lib/doc-access';
-import { filterSearchHitsByDocAccess } from '@/lib/docs-site-tools';
-import { getDocsSearchApi } from '@/lib/docs-search-server';
+import { getDocAccessContext } from '@/lib/docs/access/doc-access';
+import { filterSearchHitsByDocAccess } from '@/lib/docs/docs-site-tools';
+import { getDocsSearchApi } from '@/lib/docs/search/docs-search-server';
 
 export const runtime = 'nodejs';
-
-/**
- * 与 fumadocs `createFromSource` 的 GET 行为一致，并在返回前按 `access` 过滤私有页。
- * @see https://github.com/fuma-nama/fumadocs/blob/main/packages/core/src/search/server/endpoint.ts
- */
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const query = url.searchParams.get('query');

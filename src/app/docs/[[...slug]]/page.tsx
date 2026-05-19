@@ -1,6 +1,6 @@
-import { getDocAccessContextFromRequest } from '@/lib/doc-access-react';
-import { isDocPageAccessible } from '@/lib/docs-site-tools';
-import { getPageImage, getPageMarkdownUrl, source } from '@/lib/source';
+import { getDocAccessContextFromRequest } from '@/lib/docs/access/doc-access-react';
+import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
+import { getPageImage, getPageMarkdownUrl, source } from '@/lib/docs/source/source';
 import {
   DocsBody,
   DocsDescription,
@@ -9,15 +9,15 @@ import {
   PageLastUpdate,
   ViewOptionsPopover,
 } from 'fumadocs-ui/layouts/docs/page';
-import { MarkdownCopyButton } from '@/components/markdown-copy-button';
+import { MarkdownCopyButton } from '@/components/docs/markdown-copy-button';
 import { notFound, redirect } from 'next/navigation';
-import { getMDXComponents } from '@/components/mdx';
+import { getMDXComponents } from '@/components/docs/mdx';
 import type { Metadata } from 'next';
 import { createRelativeLink } from 'fumadocs-ui/mdx';
-import { getGitBlobEditUrlForDocPath, getSiteDescription, siteName } from '@/lib/shared';
-import { AddMcpButton } from '@/components/add-mcp-button';
+import { getGitBlobEditUrlForDocPath, getSiteDescription, siteName } from '@/lib/core/shared';
+import { AddMcpButton } from '@/components/docs/add-mcp-button';
 import { headers } from 'next/headers';
-import { inferSiteOrigin } from '@/lib/site-origin';
+import { inferSiteOrigin } from '@/lib/core/site-origin';
 
 /** 路由段配置须为静态字面量；按请求做私有文档鉴权也需动态渲染 */
 export const dynamic = 'force-dynamic';

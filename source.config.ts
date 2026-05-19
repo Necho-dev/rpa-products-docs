@@ -6,7 +6,7 @@ import { remarkMdxMermaid } from 'fumadocs-core/mdx-plugins';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { z } from 'zod';
-import { shikiDocsThemes } from './src/lib/shiki-docs-themes';
+import { shikiDocsThemes } from './src/lib/ui/shiki-docs-themes';
 
 const docBadgeSchema = z.object({
   label: z.string(),

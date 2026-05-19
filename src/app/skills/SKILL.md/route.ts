@@ -1,6 +1,6 @@
-import { getDocAccessContext } from '@/lib/doc-access';
-import { buildSkillMarkdown } from '@/lib/skill-builder';
-import { inferSiteOrigin } from '@/lib/site-origin';
+import { getDocAccessContext } from '@/lib/docs/access/doc-access';
+import { buildSkillMarkdown } from '@/lib/agent/skill-builder';
+import { inferSiteOrigin } from '@/lib/core/site-origin';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

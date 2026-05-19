@@ -6,14 +6,14 @@ import {
   FileTextIcon,
   LayersIcon,
   PackageIcon,
-  PuzzleIcon,
+  FanIcon,
   RssIcon,
   ServerIcon,
   SparklesIcon,
 } from 'lucide-react';
 import { AISearch, AISearchPanel, AISearchTrigger } from '@/components/ai/search';
-import { cn } from '@/lib/cn';
-import { docsRoute, siteName } from '@/lib/shared';
+import { cn } from '@/lib/core/cn';
+import { docsRoute, siteName } from '@/lib/core/shared';
 
 const cards = [
   {
@@ -21,28 +21,28 @@ const cards = [
     icon: BotIcon,
     title: 'Connector 连接器',
     description:
-      '定义具体业务逻辑的最小单元，一个任务类型对应一个连接器；遵循「1+1+N」开发模式，即 1 个新平台 = 1个登录组件 + N个连接器。',
+      '定义具体业务逻辑的最小单元, 一个任务类型对应一个连接器, 遵循「1+1+N」开发模式, 即 1 个新平台 = 1个登录组件 + N个连接器。',
   },
   {
     href: `${docsRoute}/components`,
     icon: LayersIcon,
     title: 'Component 组件',
     description:
-      '可跨连接器复用的业务能力单元，Component 组件封装的是通用能力（比如常用的登录、验证码等），提供 @auth 装饰器支持声明式使用。',
+      '可跨连接器复用的业务能力单元, Component 组件封装的是通用能力（比如常用的登录、验证码等）, 提供 @auth 装饰器支持声明式使用。',
   },
   {
     href: `${docsRoute}/apps`,
     icon: PackageIcon,
     title: 'App 应用',
     description:
-      '具备通过 Git 仓库 / PyPI 包快速分发的能力，提供 deploy 脚本即可快速部署到执行机的 CLI 应用，提供完整的封装、部署 SOP 说明。',
+      '具备通过 Git 仓库 / PyPI 包快速分发的能力, 提供 deploy 脚本即可快速部署到执行机的 CLI 应用, 提供完整的封装、部署 SOP 说明。',
   },
   {
     href: '/mcp/deeplink',
     icon: ServerIcon,
     title: 'RSS & MCP 服务',
     description:
-      '提供原生 RSS 订阅更新、 MCP 服务能力，添加 MCP 服务到 Cursor、Claude Code，即可在 AI 客户端中快速检索和访问文档内容。',
+      '提供原生 RSS 订阅更新、 MCP 服务能力, 添加 MCP 服务到 Cursor、Claude Code, 即可在 AI 客户端中快速检索和访问文档内容。',
   },
 ] as const;
 
@@ -197,7 +197,7 @@ export default function HomePage() {
               className="inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 underline-offset-4 transition-colors hover:text-fd-foreground hover:underline"
             >
               <FileTextIcon className="size-3.5 shrink-0 opacity-85" aria-hidden />
-              LLMS
+              LLMs.txt
             </Link>
             <span className="px-1 text-fd-border select-none" aria-hidden>
               |
@@ -206,7 +206,7 @@ export default function HomePage() {
               href="/skills/SKILL.md"
               className="inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 underline-offset-4 transition-colors hover:text-fd-foreground hover:underline"
             >
-              <PuzzleIcon className="size-3.5 shrink-0 opacity-85" aria-hidden />
+              <FanIcon className="size-3.5 shrink-0 opacity-85" aria-hidden />
               SKILL.md
             </Link>
           </nav>

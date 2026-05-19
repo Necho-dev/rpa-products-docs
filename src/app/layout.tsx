@@ -5,11 +5,11 @@ import './global.css';
 import 'katex/dist/katex.css';
 /** 在 Tailwind/typography 与 KaTeX 之后覆盖文档 blockquote，避免层叠被吃掉 */
 import './docs-prose-override.css';
-import { FD_COLOR_PRESET_DEFAULT, FD_COLOR_PRESET_STORAGE_KEY } from '@/lib/fd-color-preset';
+import { FD_COLOR_PRESET_DEFAULT, FD_COLOR_PRESET_STORAGE_KEY } from '@/lib/ui/fd-color-preset';
 import localFont from 'next/font/local';
-import { cn } from '@/lib/cn';
-import { DocumentTitleDefault } from '@/components/document-title-default';
-import { getPublicSiteUrl, getPublicSiteUrlIfSet, getSiteDescription, siteName } from '@/lib/shared';
+import { cn } from '@/lib/core/cn';
+import { DocumentTitleDefault } from '@/components/docs/document-title-default';
+import { getPublicSiteUrl, getPublicSiteUrlIfSet, getSiteDescription, siteName } from '@/lib/core/shared';
 
 /** 拉丁正文（本地 woff2，见 src/fonts） */
 const inter = localFont({

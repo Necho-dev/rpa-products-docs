@@ -1,4 +1,4 @@
-import { oauthAuthorizationServerMetadata } from '@/lib/mcp-public-oauth';
+import { oauthAuthorizationServerMetadata } from '@/lib/auth/mcp-public-oauth';
 
 export const dynamic = 'force-dynamic';
 

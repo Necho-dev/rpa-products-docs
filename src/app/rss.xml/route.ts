@@ -1,5 +1,5 @@
-import { getDocAccessContext } from '@/lib/doc-access';
-import { getRSS } from '@/lib/rss';
+import { getDocAccessContext } from '@/lib/docs/access/doc-access';
+import { getRSS } from '@/lib/docs/rss';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

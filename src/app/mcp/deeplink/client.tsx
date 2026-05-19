@@ -2,36 +2,37 @@
 
 import { useState } from 'react';
 import { CheckIcon, CopyIcon, ExternalLinkIcon, ServerIcon } from 'lucide-react';
-import { cn } from '@/lib/cn';
-import { safeWriteClipboard } from '@/lib/code-block-utils';
+import { cn } from '@/lib/core/cn';
+import { safeWriteClipboard } from '@/lib/ui/code-block-utils';
 
 interface Props {
   mcpUrl: string;
+  /** Cursor / Claude 安装展示名（来自 `MCP_DISPLAY_NAME` 或 `NEXT_PUBLIC_SITE_NAME`） */
+  mcpDisplayName: string;
   /** 服务端已配置 `DOCS_PRIVATE_ACCESS_TOKEN` 时需携带 Bearer 访问私有文档 */
   privateDocsAccessEnabled: boolean;
 }
-
-const MCP_SERVER_NAME = 'Docs MCP';
 
 /**
  * Cursor deeplink 格式：
  *   cursor://anysphere.cursor-deeplink/mcp/install?name=NAME&config=BASE64_JSON
  * config 是 JSON.stringify({ url }) 后的 base64，对应 mcp.json 中单个 server 的 transport 配置
  */
-function buildCursorDeeplink(mcpUrl: string): string {
+function buildCursorDeeplink(mcpUrl: string, displayName: string): string {
   const config = btoa(JSON.stringify({ url: mcpUrl }));
   return `cursor://anysphere.cursor-deeplink/mcp/install?${new URLSearchParams({
-    name: MCP_SERVER_NAME,
+    name: displayName,
     config,
   })}`;
 }
 
-const clients: {
+function buildClients(displayName: string): {
   name: string;
   description: string;
   icon: React.ReactNode;
   getHref: (url: string) => string;
-}[] = [
+}[] {
+  return [
   {
     name: 'Cursor',
     description: '在 Cursor 中直接添加 MCP Server',
@@ -40,7 +41,7 @@ const clients: {
         <path d="M11.503.131 1.891 5.678a.84.84 0 0 0-.42.726v11.188c0 .3.162.575.42.724l9.609 5.55a1 1 0 0 0 .998 0l9.61-5.55a.84.84 0 0 0 .42-.724V6.404a.84.84 0 0 0-.42-.726L12.497.131a1.01 1.01 0 0 0-.996 0M2.657 6.338h18.55c.263 0 .43.287.297.515L12.23 22.918c-.062.107-.229.064-.229-.06V12.335a.59.59 0 0 0-.295-.51l-9.11-5.257c-.109-.063-.064-.23.061-.23" />
       </svg>
     ),
-    getHref: buildCursorDeeplink,
+    getHref: (url) => buildCursorDeeplink(url, displayName),
   },
   {
     name: 'Claude',
@@ -51,11 +52,13 @@ const clients: {
       </svg>
     ),
     getHref: (url) =>
-      `claude://settings/integrations/install?${new URLSearchParams({ name: MCP_SERVER_NAME, url })}`,
+      `claude://settings/integrations/install?${new URLSearchParams({ name: displayName, url })}`,
   },
-];
+  ];
+}
 
-export function McpDeeplinkClient({ mcpUrl, privateDocsAccessEnabled }: Props) {
+export function McpDeeplinkClient({ mcpUrl, mcpDisplayName, privateDocsAccessEnabled }: Props) {
+  const clients = buildClients(mcpDisplayName);
   const [copied, setCopied] = useState(false);
   const [configCopied, setConfigCopied] = useState(false);
 

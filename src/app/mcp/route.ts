@@ -1,5 +1,5 @@
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js';
-import { getDocAccessContext } from '@/lib/doc-access';
+import { getDocAccessContext } from '@/lib/docs/access/doc-access';
 import { createDocsMcpServer } from '@/server/mcp/docs-mcp-server';
 
 export const runtime = 'nodejs';
