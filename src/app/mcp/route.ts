@@ -1,4 +1,5 @@
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js';
+import { inferSiteOrigin } from '@/lib/core/site-origin';
 import { getDocAccessContext } from '@/lib/docs/access/doc-access';
 import { createDocsMcpServer } from '@/server/mcp/docs-mcp-server';
 
@@ -14,7 +15,7 @@ export const dynamic = 'force-dynamic';
  * - GET: 405 — no long-lived SSE; client continues POST-only (see StreamableHTTPClientTransport).
  */
 async function mcpPost(request: Request): Promise<Response> {
-  const origin = new URL(request.url).origin;
+  const origin = inferSiteOrigin(request);
   const access = getDocAccessContext(request);
   const mcp = createDocsMcpServer(origin, access);
   const transport = new WebStandardStreamableHTTPServerTransport({
