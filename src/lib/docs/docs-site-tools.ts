@@ -174,9 +174,44 @@ Returns ranked hits with url, type (page/heading/text), and snippet content.`;
 
 export const getPageMetaToolDescription = `Returns page metadata and table of contents without the full body (token-efficient).
 
+Includes title, description, path, url, entry (technical id), tags, badge (status label/color), toc, and lastModified.
+
 WHEN TO USE: You need structure, headings, or links before loading full content.
 
 WHEN NOT TO USE: When you need the complete document text — use get_docs_content instead.`;
+
+type DocPageMetaFields = {
+  entry?: string;
+  tags?: string[];
+  badge?: { label: string; color?: string };
+  toc?: unknown;
+  lastModified?: string | Date;
+};
+
+function tocTitleToString(title: unknown): string {
+  if (typeof title === 'string') return title;
+  if (title == null) return '';
+  if (typeof title === 'number' || typeof title === 'boolean') return String(title);
+  if (Array.isArray(title)) return title.map(tocTitleToString).join('');
+  if (typeof title === 'object' && 'props' in title) {
+    const children = (title as { props?: { children?: unknown } }).props?.children;
+    return tocTitleToString(children);
+  }
+  return '';
+}
+
+/** 将 Fumadocs TOC（标题可能为 React 节点）转为可 JSON 序列化的纯对象 */
+function serializeTocForMeta(toc: unknown): { depth: number; url: string; title: string }[] | null {
+  if (!Array.isArray(toc)) return null;
+  return toc.map((item) => {
+    const row = item as { depth?: number; url?: string; title?: unknown };
+    return {
+      depth: row.depth ?? 0,
+      url: row.url ?? '',
+      title: tocTitleToString(row.title),
+    };
+  });
+}
 
 export const SearchDocumentationInputSchema = z.object({
   query: z.string().min(2).describe('Search query (natural language or keywords).'),
@@ -257,17 +292,17 @@ export async function getDocumentationPageMeta(
   }
 
   const base = siteOrigin.replace(/\/$/, '');
-  const data = page.data as {
-    toc?: unknown;
-    lastModified?: string | Date;
-  };
+  const data = page.data as DocPageMetaFields;
 
   const payload = {
     title: page.data.title,
     description: page.data.description,
     path: page.url,
     url: `${base}${page.url}`,
-    toc: data.toc ?? null,
+    entry: data.entry ?? null,
+    tags: data.tags ?? null,
+    badge: data.badge ?? null,
+    toc: serializeTocForMeta(data.toc),
     lastModified: data.lastModified ?? null,
   };
 
