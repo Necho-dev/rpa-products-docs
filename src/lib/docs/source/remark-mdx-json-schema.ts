@@ -44,11 +44,18 @@ const remarkMdxJsonSchema: Plugin<[], Root> = () => {
         });
       }
 
+      const metaSuffix = collapsed ? ' collapsed' : '';
+      const originalCodeBlock = `\`\`\`json-schema${metaSuffix}\n${node.value.trim()}\n\`\`\``;
+
       (parent.children as unknown[])[idx] = {
         type: 'mdxJsxFlowElement',
         name: 'JsonSchema',
         attributes,
         children: [],
+        // View as Markdown / llms 导出走 processed 时，还原为原始 json-schema 代码块
+        data: {
+          _stringify: { text: originalCodeBlock },
+        },
       };
     });
   };

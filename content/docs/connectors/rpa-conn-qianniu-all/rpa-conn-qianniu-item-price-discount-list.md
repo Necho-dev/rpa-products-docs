@@ -53,6 +53,64 @@ tags:
 }
 ```
 
+### 入参校验
+
+```json-schema collapsed
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "千牛商品价格管理-价格查询 - 查询入参",
+  "description": "按商品 ID 批量导出价格优惠明细，支持按价格类型、导出维度筛选，一次最多 800 个商品",
+  "type": "object",
+  "properties": {
+    "item_ids": {
+      "description": "商品 ID 列表，支持英文逗号或空格分隔的字符串，或字符串数组；最多 800 个；中文逗号会转为英文逗号",
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^\\d+([,， ]\\d+)*$"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^\\d+$"
+          },
+          "minItems": 1,
+          "maxItems": 800
+        }
+      ]
+    },
+    "effective_time": {
+      "type": "string",
+      "description": "优惠生效时间，格式：YYYY-MM-DD HH:MM:SS；不传则保持页面默认",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$"
+    },
+    "price_type": {
+      "type": "string",
+      "description": "价格类型",
+      "enum": [
+        "1件预估价(公域)",
+        "预估最低到手价"
+      ],
+      "default": "1件预估价(公域)"
+    },
+    "export_type": {
+      "type": "string",
+      "description": "导出维度",
+      "enum": [
+        "商品维度",
+        "SKU维度"
+      ],
+      "default": "SKU维度"
+    }
+  },
+  "required": [
+    "item_ids"
+  ],
+  "additionalProperties": false
+}
+```
+
 ### 数据字段
 
 `bizDate` 格式为 `YYYYMMDD`。`header=2`，`rename_columns` 将表头中文列映射为下列字段名。
