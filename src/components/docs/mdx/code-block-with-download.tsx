@@ -1,15 +1,17 @@
 'use client';
 
-import { useRef } from 'react';
-import { Copy, Check, FileDown } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { Copy, Check, FileDown, PanelTopClose, PanelTopOpen } from 'lucide-react';
 import { CodeBlock, Pre } from 'fumadocs-ui/components/codeblock';
 import { cn } from '@/lib/core/cn';
 import { useCopyButton } from 'fumadocs-ui/utils/use-copy-button';
 import type { ReactNode } from 'react';
 import { downloadTextAsFile, safeWriteClipboard } from '@/lib/ui/code-block-utils';
 
-const btnCls =
-  'inline-flex items-center justify-center rounded-md p-1 text-sm transition-colors duration-100 [&_svg]:size-4 hover:bg-fd-accent hover:text-fd-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring';
+export const btnCls =
+  'inline-flex items-center justify-center rounded-md p-1 text-sm transition-colors duration-100 hover:bg-fd-accent hover:text-fd-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring';
+
+const iconCls = 'size-4';
 
 const codeBlockChromeClassName =
   'rounded-lg border-fd-border/70 shadow-none ring-1 ring-fd-border/25 dark:ring-fd-border/40';
@@ -48,7 +50,7 @@ function CodeActions({
         onClick={onCopy}
         className={btnCls}
       >
-        {copied ? <Check /> : <Copy />}
+        {copied ? <Check className={iconCls} /> : <Copy className={iconCls} />}
       </button>
       <button
         type="button"
@@ -57,9 +59,32 @@ function CodeActions({
         onClick={() => downloadTextAsFile(code, ext)}
         className={btnCls}
       >
-        <FileDown />
+        <FileDown className={iconCls} />
       </button>
     </div>
+  );
+}
+
+/** Shared collapse toggle button — icon order: Copy · Download · [this] */
+export function CollapseButton({
+  collapsed,
+  onToggle,
+  className,
+}: {
+  collapsed: boolean;
+  onToggle: () => void;
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={collapsed ? '展开代码块' : '折叠代码块'}
+      title={collapsed ? '展开' : '折叠'}
+      onClick={onToggle}
+      className={cn(btnCls, className)}
+    >
+      {collapsed ? <PanelTopOpen className={iconCls} /> : <PanelTopClose className={iconCls} />}
+    </button>
   );
 }
 
@@ -69,6 +94,7 @@ export function CodeBlockWithDownload({
   title,
   className,
   children,
+  defaultCollapsed = false,
   ...rest
 }: {
   code: string;
@@ -76,19 +102,33 @@ export function CodeBlockWithDownload({
   title?: ReactNode;
   className?: string;
   children?: ReactNode;
+  /** 默认是否折叠，对应 meta 中的 `collapsed` 关键字 */
+  defaultCollapsed?: boolean;
   [key: string]: unknown;
 }) {
   const containerRef = useRef<HTMLElement>(null);
+  const [collapsed, setCollapsed] = useState(defaultCollapsed);
+  const toggle = () => setCollapsed((v) => !v);
 
   return (
     <CodeBlock
       {...(rest as object)}
       ref={containerRef}
-      title={title as string}
+      title={
+        (title ? (
+          <span className="flex min-w-0 flex-1 items-center gap-1.5">
+            <span className="min-w-0 flex-1">{title}</span>
+          </span>
+        ) : undefined) as string | undefined
+      }
       allowCopy={false}
       className={cn(codeBlockChromeClassName, className)}
+      viewportProps={collapsed ? { style: { display: 'none' } } : undefined}
       Actions={({ className: actionsCls }) => (
-        <CodeActions code={code} lang={lang} className={actionsCls} containerRef={containerRef} />
+        <div className={cn('flex items-center', actionsCls)}>
+          <CodeActions code={code} lang={lang} containerRef={containerRef} />
+          <CollapseButton collapsed={collapsed} onToggle={toggle} />
+        </div>
       )}
     >
       <Pre>{children}</Pre>

@@ -91,6 +91,8 @@ export function getLanguageLabel(langId: string | undefined): string {
     dockerfile: 'DOCKER',
     diff: 'DIFF',
     http: 'HTTP',
+    'json-schema': 'JSON SCHEMA',
+    jsonschema: 'JSON SCHEMA',
   };
   const raw = k.replace(/[^a-z0-9+#.]/gi, '').slice(0, 12).toUpperCase();
   return map[k] ?? (raw.length > 0 ? raw : 'CODE');

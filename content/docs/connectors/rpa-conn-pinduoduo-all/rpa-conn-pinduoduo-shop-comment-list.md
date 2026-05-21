@@ -59,6 +59,131 @@ badge:
 }
 ```
 
+### 入参校验
+```json-schema collapsed
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "拼多多商品评价管理 - 查询入参",
+  "description": "按时间/评分/内容类型/回复状态/活动/订单/商品/关键词获取商品评价明细数据",
+  "type": "object",
+  "properties": {
+    "time_range": {
+      "type": "string",
+      "description": "评价时间范围",
+      "enum": [
+        "30d",
+        "90d",
+        "180d",
+        "custom"
+      ],
+      "default": "90d"
+    },
+    "custom_start_date": {
+      "type": "string",
+      "description": "自定义开始日期，time_range = custom 时必填。格式：YYYYMMDD",
+      "pattern": "^\\d{8}$"
+    },
+    "custom_end_date": {
+      "type": "string",
+      "description": "自定义结束日期，time_range = custom 时必填。格式：YYYYMMDD",
+      "pattern": "^\\d{8}$"
+    },
+    "user_scores": {
+      "type": "array",
+      "description": "用户评分列表，可选项：1(1星)、2(2星)、3(3星)、4(4星)、5(5星)",
+      "items": {
+        "type": "integer",
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "uniqueItems": true,
+      "default": []
+    },
+    "content_types": {
+      "type": "array",
+      "description": "评价内容筛选",
+      "items": {
+        "type": "string",
+        "enum": [
+          "有图片",
+          "有视频",
+          "主评有文字",
+          "有追加评价",
+          "已举报"
+        ]
+      },
+      "uniqueItems": true,
+      "default": []
+    },
+    "reply_status": {
+      "type": "array",
+      "description": "商家回复筛选",
+      "items": {
+        "type": "string",
+        "enum": [
+          "已回复",
+          "未回复"
+        ]
+      },
+      "uniqueItems": true,
+      "default": []
+    },
+    "activity": {
+      "type": "array",
+      "description": "参与活动筛选",
+      "items": {
+        "type": "string",
+        "enum": [
+          "评价有礼"
+        ]
+      },
+      "uniqueItems": true,
+      "default": []
+    },
+    "order_sn": {
+      "type": "string",
+      "description": "订单编号，如 260410-662259689903207"
+    },
+    "goods_id": {
+      "type": "string",
+      "description": "商品 ID，如 930005554830"
+    },
+    "keyword": {
+      "type": "string",
+      "description": "关键词，如 牙膏"
+    }
+  },
+  "required": [],
+  "additionalProperties": false,
+  "if": {
+    "properties": {
+      "time_range": {
+        "const": "custom"
+      }
+    }
+  },
+  "then": {
+    "required": [
+      "custom_start_date",
+      "custom_end_date"
+    ],
+    "dependentRequired": {
+      "custom_start_date": [
+        "custom_end_date"
+      ],
+      "custom_end_date": [
+        "custom_start_date"
+      ]
+    }
+  }
+}
+```
+
 ### 数据字段
 
 

@@ -2,7 +2,9 @@ import { stat } from 'node:fs/promises';
 import { defineConfig, defineDocs } from 'fumadocs-mdx/config';
 import { metaSchema, pageSchema } from 'fumadocs-core/source/schema';
 import lastModified from 'fumadocs-mdx/plugins/last-modified';
-import { remarkMdxMermaid } from 'fumadocs-core/mdx-plugins';
+import { remarkDirectiveAdmonition, remarkMdxFiles, remarkMdxMermaid, rehypeCodeDefaultOptions } from 'fumadocs-core/mdx-plugins';
+import { remarkMdxJsonSchema } from './src/lib/docs/source/remark-mdx-json-schema';
+import remarkDirective from 'remark-directive';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { z } from 'zod';
@@ -73,13 +75,29 @@ const lastModifiedPlugin = lastModified(
 
 export default defineConfig({
   mdxOptions: {
-    remarkPlugins: [remarkMdxMermaid, remarkMath],
+    remarkPlugins: [
+      remarkDirective,
+      remarkDirectiveAdmonition,
+      remarkMdxJsonSchema,
+      remarkMdxFiles,
+      remarkMdxMermaid,
+      remarkMath,
+    ],
     // rehypeKatex 必须在语法高亮之前执行，用函数形式前置插入
     rehypePlugins: (v) => [rehypeKatex, ...v],
     rehypeCodeOptions: {
       themes: { ...shikiDocsThemes },
       inline: 'tailing-curly-colon',
       addLanguageClass: true,
+      // Extend the default parseMetaString (which handles title/tab/lineNumbers)
+      // to also inject `data-collapsed` when the `collapsed` keyword is present.
+      parseMetaString(meta, node, tree) {
+        const base = rehypeCodeDefaultOptions.parseMetaString?.(meta, node, tree) ?? {};
+        if (/\bcollapsed\b/.test(meta)) {
+          return { ...base, 'data-collapsed': true };
+        }
+        return base;
+      },
     },
   },
   plugins: [lastModifiedPlugin],

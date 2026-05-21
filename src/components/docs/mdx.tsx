@@ -1,6 +1,7 @@
 import React from 'react';
 import defaultMdxComponents from 'fumadocs-ui/mdx';
 import type { MDXComponents } from 'mdx/types';
+import { File, Files, Folder } from 'fumadocs-ui/components/files';
 import * as TabsComponents from 'fumadocs-ui/components/tabs';
 import { ImageZoom } from 'fumadocs-ui/components/image-zoom';
 import { cn } from '@/lib/core/cn';
@@ -8,6 +9,7 @@ import { getLanguageIdFromPreProps, getLanguageLabel } from '@/lib/ui/code-block
 import { AIChatOpenCard } from '@/components/ai/search';
 import { CodeBlockWithDownload } from '@/components/docs/mdx/code-block-with-download';
 import { ConnectorMeta } from '@/components/docs/mdx/connector-meta';
+import { JsonSchema } from '@/components/docs/mdx/json-schema';
 import { Mermaid } from '@/components/docs/mdx/mermaid';
 import { ModuleCard } from '@/components/docs/mdx/module-card';
 import { SearchOpenCard } from '@/components/docs/mdx/search-open-card';
@@ -49,7 +51,11 @@ export function getMDXComponents(components?: MDXComponents) {
   return {
     ...defaultMdxComponents,
     ...TabsComponents,
+    Files,
+    Folder,
+    File,
     Mermaid,
+    JsonSchema,
     SearchOpenCard,
     AIChatOpenCard,
     ModuleCard,
@@ -74,11 +80,17 @@ export function getMDXComponents(components?: MDXComponents) {
       const langId = getLanguageIdFromPreProps(className, children) ?? '';
       const langLabel = getLanguageLabel(langId);
       const codeText = extractText(children).trimEnd();
+
+      // `data-collapsed` is injected by parseMetaString in source.config.ts
+      // when the code fence meta contains the `collapsed` keyword.
+      const defaultCollapsed = (rest as Record<string, unknown>)['data-collapsed'] === true;
+
       return (
         <CodeBlockWithDownload
           {...rest}
           code={codeText}
           lang={langId}
+          defaultCollapsed={defaultCollapsed}
           title={
             <CodeBlockTitle metaTitle={typeof metaTitle === 'string' ? metaTitle : undefined} langLabel={langLabel} />
           }

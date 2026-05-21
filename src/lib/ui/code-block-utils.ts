@@ -13,13 +13,13 @@ export function getExportFilename(ext: string): string {
   return `${prefix}_${ts}.${ext}`;
 }
 
-/** 将文本内容以文件形式下载到本地 */
-export function downloadTextAsFile(content: string, ext: string): void {
+/** 将文本内容以文件形式下载到本地, 支持自定义文件名(不含扩展名) */
+export function downloadTextAsFile(content: string, ext: string, filename?: string): void {
   const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = getExportFilename(ext);
+  a.download = filename ? `${filename}.${ext}` : getExportFilename(ext);
   a.click();
   URL.revokeObjectURL(url);
 }
