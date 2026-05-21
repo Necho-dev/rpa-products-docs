@@ -25,7 +25,7 @@ tags:
 >
 > **网址**：[https://myseller.taobao.com/home.htm/PriceManagement/?source=qianniulist&TabCode=Price](https://myseller.taobao.com/home.htm/PriceManagement/?source=qianniulist&TabCode=Price)
 
-![千牛后台—营销—营销风险—商品价格管理—价格查询](../../public/images/qianniu/price_discount_20260423.png)
+![千牛后台—营销—营销风险—商品价格管理—价格查询](../../public/images/qianniu/item_price_discount_list_20260521.png)
 
 ### 业务入参
 

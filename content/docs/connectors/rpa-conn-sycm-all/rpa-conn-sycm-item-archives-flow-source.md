@@ -22,7 +22,7 @@ badge:
 >
 > **网址**：[https://sycm.taobao.com/cc/item_archives](https://sycm.taobao.com/cc/item_archives?activeKey=flow&activeTab=diagnosis)
 
-![生意参谋—商品360—流量来源](../../public/images/sycm/item_archives_flow_source_20260423.png)
+![生意参谋—商品360—流量来源](../../public/images/sycm/item_archives_flow_source_20260521.png)
 
 ### 业务入参
 

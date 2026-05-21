@@ -22,7 +22,7 @@ badge:
 >
 > **网址**：[https://sycm.taobao.com/flow/recommend/analysis](https://sycm.taobao.com/flow/recommend/analysis)
 
-![生意参谋—推荐分析—推荐概况](../../public/images/sycm/flow_recommend_analysis_20260423.png)
+![生意参谋—推荐分析—推荐概况](../../public/images/sycm/flow_recommend_analysis_20260521.png)
 
 ### 业务入参
 

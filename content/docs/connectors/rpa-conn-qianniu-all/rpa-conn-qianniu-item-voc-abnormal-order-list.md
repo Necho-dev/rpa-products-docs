@@ -22,7 +22,7 @@ badge:
 >
 > **网址**：[https://myseller.taobao.com/home.htm/voc-tmall/task/QuestionReporter](https://myseller.taobao.com/home.htm/voc-tmall/task/QuestionReporter)
 
-![千牛后台—体验问题订单率](../../public/images/qianniu/item_voc_abnormal_order_list_20260423.png)
+![千牛后台—体验问题订单率](../../public/images/qianniu/item_voc_abnormal_order_list_20260521.png)
 
 ### 业务入参
 

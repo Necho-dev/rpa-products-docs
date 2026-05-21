@@ -22,7 +22,7 @@ badge:
 >
 > **网址**：[https://myseller.taobao.com/home.htm/voc-tmall/task/pxi](https://myseller.taobao.com/home.htm/voc-tmall/task/pxi)
 
-![千牛后台—商品体验分 PXI](../../public/images/qianniu/item_voc_pxi_list_20260423.png)
+![千牛后台—商品体验分 PXI](../../public/images/qianniu/item_voc_pxi_list_20260521.png)
 
 ### 业务入参
 

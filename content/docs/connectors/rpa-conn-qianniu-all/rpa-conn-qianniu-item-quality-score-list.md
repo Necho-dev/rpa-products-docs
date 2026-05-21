@@ -22,7 +22,7 @@ badge:
 >
 > **网址**：https://qn.taobao.com/home.htm/item-diagnose-manage/?onlyHaveExposure=false&autoGovernance=false&openAllIssueGovernanceV2=false&queryDiagnoseCode=ALL&current=1&pageSize=5
 
-![千牛后台—商品质量分—全部](../../public/images/qianniu/item_quality_score_list_20260423.png)
+![千牛后台—商品质量分—全部](../../public/images/qianniu/item_quality_score_list_20260521.png)
 
 ### 业务入参
 

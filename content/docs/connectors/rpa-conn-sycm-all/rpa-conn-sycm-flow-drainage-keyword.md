@@ -22,7 +22,7 @@ badge:
 >
 > **网址**：[https://sycm.taobao.com/flow/monitor/keyword_assistant](https://sycm.taobao.com/flow/monitor/keyword_assistant)
 
-![生意参谋—引流搜索关键词](../../public/images/sycm/flow_drainage_keyword_20260423.png)
+![生意参谋—引流搜索关键词](../../public/images/sycm/flow_drainage_keyword_20260521.png)
 
 ### 业务入参
 

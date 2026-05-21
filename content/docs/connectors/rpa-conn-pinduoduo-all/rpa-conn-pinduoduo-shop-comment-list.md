@@ -23,7 +23,7 @@ badge:
 >
 > **网址**：[https://mms.pinduoduo.com/goods/evaluation/index](https://mms.pinduoduo.com/goods/evaluation/index?msfrom=mms_sidenav)
 
-![拼多多商家后台—评价管理—评价列表](../../public/images/pinduoduo/shop_comment_list_20260423.png)
+![拼多多商家后台—评价管理—评价列表](../../public/images/pinduoduo/shop_comment_list_20260521.png)
 
 ### 业务入参
 

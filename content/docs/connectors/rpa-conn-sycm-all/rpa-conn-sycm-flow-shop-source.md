@@ -22,7 +22,7 @@ badge:
 >
 > **网址**：[https://sycm.taobao.com/flow/monitor/shopsource/construction](https://sycm.taobao.com/flow/monitor/shopsource/construction)
 
-![生意参谋—店铺来源—流量来源构成](../../public/images/sycm/flow_shop_source_20260423.png)
+![生意参谋—店铺来源—流量来源构成](../../public/images/sycm/flow_shop_source_20260521.png)
 
 ### 业务入参
 

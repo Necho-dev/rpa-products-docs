@@ -22,7 +22,7 @@ badge:
 >
 > **网址**：https://myseller.taobao.com/home.htm/starb/price-home
 
-![千牛后台—价格力竞争—高价限流商品](../../public/images/qianniu/item_price_flow_limit_20260423.png)
+![千牛后台—价格力竞争—高价限流商品](../../public/images/qianniu/item_price_flow_limit_20260521.png)
 
 ### 业务入参
 

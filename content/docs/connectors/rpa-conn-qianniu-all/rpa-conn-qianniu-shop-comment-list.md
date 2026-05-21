@@ -22,7 +22,7 @@ badge:
 >
 > **网址**：[https://myseller.taobao.com/home.htm/comment-manage/list/rateWait4PC](https://myseller.taobao.com/home.htm/comment-manage/list/rateWait4PC)
 
-![千牛后台—评价管理—来自买家的评价](../../public/images/qianniu/shop_comment_list_20260423.png)
+![千牛后台—评价管理—来自买家的评价](../../public/images/qianniu/shop_comment_list_20260521.png)
 
 ### 业务入参
 
