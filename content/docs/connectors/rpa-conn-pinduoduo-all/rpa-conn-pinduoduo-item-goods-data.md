@@ -23,7 +23,7 @@ badge:
 >
 > **网址**：[https://mms.pinduoduo.com/sycm/goods_effect?msfrom=mms_sidenav](https://mms.pinduoduo.com/sycm/goods_effect?msfrom=mms_sidenav)
 
-![拼多多商家后台—数据中心—商品数据—商品明细](../../public/images/pinduoduo/item_goods_data_20260423.png)
+![拼多多商家后台—数据中心—商品数据—商品明细](../../public/images/pinduoduo/item_goods_data_20260521.png)
 
 ### 业务入参
 
