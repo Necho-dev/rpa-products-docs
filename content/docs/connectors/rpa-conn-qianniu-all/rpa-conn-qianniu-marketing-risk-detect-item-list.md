@@ -28,9 +28,11 @@ badge:
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `risk_codes` | 风险类型代码列表 | `List[string]` | 是 | — | 可多选。可选值：`item_predict_risk`（商品资损风险）、`price_delist_protect`（商品价格风险下架保护）、`zero_price_order`（已产生0元订单）、`ultra_low_price_order`（已产生超低价订单）、`shop_coupon_upcoming`（店铺宝即将生效）、`shop_coupon_expiring`（店铺宝即将失效） |
+| `risk_codes` | 风险类型代码 | `string \| List[string]` | 是 | — | 支持数组或英文逗号分隔的字符串，可多选。可选值：`item_predict_risk`（商品资损风险）、`price_delist_protect`（商品价格风险下架保护）、`zero_price_order`（已产生0元订单）、`ultra_low_price_order`（已产生超低价订单）、`shop_coupon_upcoming`（店铺宝即将生效）、`shop_coupon_expiring`（店铺宝即将失效） |
 
 ### 入参样例
+
+**数组形式：**
 
 ```json
 {
@@ -42,6 +44,14 @@ badge:
         "shop_coupon_upcoming",
         "shop_coupon_expiring"
     ]
+}
+```
+
+**逗号分隔字符串形式：**
+
+```json
+{
+    "risk_codes": "item_predict_risk,price_delist_protect,zero_price_order"
 }
 ```
 

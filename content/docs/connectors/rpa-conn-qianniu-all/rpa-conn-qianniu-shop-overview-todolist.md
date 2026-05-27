@@ -5,6 +5,8 @@ entry: rpa.conn.qianniu.shop.overview.todolist
 badge:
   label: 待上线
   color: "#EA580C"
+tags:
+  - 不支持淘宝C店
 ---
 
 | 属性             | 值                                                                |
