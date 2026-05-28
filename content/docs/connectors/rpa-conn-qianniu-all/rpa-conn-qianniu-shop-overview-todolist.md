@@ -3,8 +3,8 @@ title: 店铺-工作台-首页待办总览
 description: 采集千牛工作台首页各模块待办数据（物流监控、售前售后、宝贝管理、小二提醒）
 entry: rpa.conn.qianniu.shop.overview.todolist
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 tags:
   - 不支持淘宝C店
 ---

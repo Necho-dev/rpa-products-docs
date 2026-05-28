@@ -3,8 +3,8 @@ title: 营销-风险检测-商品维度列表
 description: 按指定商品维度风险类型采集营销风险检测记录全量列表，用于价格与促销风险监控与处置跟进；默认配置每个风险选项卡最大翻页次数 100
 entry: rpa.conn.qianniu.marketing.risk.detect.item.list
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                                      |
