@@ -23,7 +23,8 @@ yarn-error.log*
 # others
 .env
 .env*.local
-.secrets/
+.secrets/*
+!.secrets/*.example
 secrets.json
 .vercel
 next-env.d.ts

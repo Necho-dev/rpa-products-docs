@@ -35,13 +35,25 @@ return RedirectResponse(logout_url)
 - `DOCS_SESSION_REAUTH_AFTER`（默认 7 天）：浏览器 Session 需重新经 docsAuth
 - `DOCS_MCP_TOKEN_TTL`（默认 30 天）：MCP Bearer 独立 TTL，不与 7 天绑定
 
+## Secrets 文件（仅 SSO 分支 / 部署）
+
+魔方 `sh` → App Secret 映射放在 **`.secrets/dev-secrets.json`**（已在 `.gitignore`，勿提交）：
+
+```bash
+cp .secrets/dev-secrets.json.example .secrets/dev-secrets.json
+# 将示例 sh 替换为魔方 callback 中的 sh，值为对应 App Secret
+```
+
+`.env` / `.env.local` 中设置 `DOCS_SECRETS_FILE=.secrets/dev-secrets.json`（见 `.env.example`）。  
+主分支无 SSO 网关，不需要此文件。
+
 ## 环境变量（SSO 生产）
 
 | 变量 | 必需 | 说明 |
 |------|------|------|
 | `DOCS_CUBE_SSO_ENABLED` | 是 | `true` |
 | `DOCS_SESSION_SECRET` | 是 | 文档站会话签名密钥 |
-| `DOCS_SECRETS_FILE` | 是 | 与魔方 `sh` 对应的 secrets.json |
+| `DOCS_SECRETS_FILE` | 是 | 默认 `.secrets/dev-secrets.json`，与魔方 `sh` 映射 |
 | `NEXT_PUBLIC_SITE_URL` | 是 | canonical URL，影响 MCP aud |
 | `DOCS_PRIVATE_ACCESS_TOKEN` | **否** | SSO 下不使用，请勿配置 |
 
