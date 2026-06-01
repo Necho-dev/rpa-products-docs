@@ -1,3 +1,5 @@
+import { isCubeSsoEnabled } from '@/lib/auth/auth-config';
+import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { DocsPrivateAccessForm } from '@/components/docs/private-access-form';
 import { docsRoute } from '@/lib/core/shared';
@@ -7,13 +9,26 @@ export const metadata = {
   robots: { index: false, follow: false },
 };
 
+export const dynamic = 'force-dynamic';
+
 function AccessFallback() {
   return (
     <p className="px-4 py-12 text-center text-sm text-fd-muted-foreground">加载中…</p>
   );
 }
 
-export default function DocsAccessPage() {
+export default async function DocsAccessPage({
+  searchParams,
+}: PageProps<'/docs/access'>) {
+  if (isCubeSsoEnabled()) {
+    const params = await searchParams;
+    const next =
+      typeof params.next === 'string' && params.next.startsWith('/')
+        ? params.next
+        : docsRoute;
+    redirect(`/auth/login?redirect=${encodeURIComponent(next)}`);
+  }
+
   return (
     <div className="mx-auto max-w-lg px-4 py-12">
       <h1 className="text-xl font-semibold tracking-tight text-fd-foreground">

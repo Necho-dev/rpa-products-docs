@@ -1,0 +1,75 @@
+# 单 Next.js upstream（/auth 内建于同一进程，与同事 Flask+Next+MCP 三进程方案不同）
+upstream docs_next {
+    server 127.0.0.1:3000;
+    keepalive 32;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name docs.yucekj.com;
+
+    # ssl_certificate     /etc/nginx/ssl/docs.yucekj.com.crt;
+    # ssl_certificate_key /etc/nginx/ssl/docs.yucekj.com.key;
+
+    location /auth/ {
+        proxy_pass http://docs_next;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location = /auth/validate {
+        internal;
+        proxy_pass http://docs_next/auth/validate;
+        proxy_pass_request_body off;
+        proxy_set_header Content-Length "";
+        proxy_set_header Cookie $http_cookie;
+        proxy_set_header Authorization $http_authorization;
+    }
+
+    location = /mcp {
+        if ($http_origin !~ "^$|^https://docs\.yucekj\.com$") {
+            return 403;
+        }
+
+        auth_request /auth/validate;
+        auth_request_set $auth_set_cookie $upstream_http_set_cookie;
+        add_header Set-Cookie $auth_set_cookie always;
+        error_page 401 = @mcp_unauthorized;
+
+        proxy_pass http://docs_next;
+        proxy_http_version 1.1;
+        proxy_buffering off;
+        proxy_read_timeout 300s;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location @mcp_unauthorized {
+        default_type application/json;
+        add_header WWW-Authenticate 'Bearer realm="mcp"' always;
+        return 401 '{"error":"unauthorized","message":"请在文档站登录后访问 /mcp/deeplink 重新获取 MCP Bearer"}';
+    }
+
+    location / {
+        auth_request /auth/validate;
+        auth_request_set $auth_set_cookie $upstream_http_set_cookie;
+        add_header Set-Cookie $auth_set_cookie always;
+        error_page 401 = @need_login;
+
+        proxy_pass http://docs_next;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        add_header Cache-Control "no-cache,no-store" always;
+    }
+
+    location @need_login {
+        return 302 /auth/login?redirect=$request_uri;
+    }
+}

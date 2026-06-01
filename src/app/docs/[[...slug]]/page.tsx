@@ -1,3 +1,4 @@
+import { isCubeSsoEnabled } from '@/lib/auth/auth-config';
 import { getDocAccessContextFromRequest } from '@/lib/docs/access/doc-access-react';
 import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
 import { getPageImage, getPageMarkdownUrl, source } from '@/lib/docs/source/source';
@@ -33,6 +34,9 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
 
   const access = await getDocAccessContextFromRequest();
   if (!isDocPageAccessible(page, access)) {
+    if (isCubeSsoEnabled()) {
+      redirect(`/auth/login?redirect=${encodeURIComponent(page.url)}`);
+    }
     redirect(`/docs/access?next=${encodeURIComponent(page.url)}`);
   }
 

@@ -1,0 +1,30 @@
+/*
+ * Auth 登录页画布：与 AuthLoginBackground 底色一致。
+ *
+ * 根因（实测 innerWidth 1379 vs clientWidth 1364）：
+ * - global `scrollbar-gutter: stable` 在 layout viewport 右侧预留 ~15px 槽位；
+ * - html/body 宽度等于 clientWidth，该槽位不在任何元素内，默认白底；
+ * - `fixed inset-0` 仅铺满 clientWidth；body overflow 还会裁切 w-screen 装饰层。
+ *
+ * 对策：Auth 路由关闭 stable gutter；html 扩至 100vw 并同色；装饰层 w-screen。
+ */
+html:has([data-auth-canvas]) {
+  scrollbar-gutter: auto;
+  width: 100vw;
+  overflow-x: hidden;
+  background-color: #e8edf5;
+}
+
+html:has([data-auth-canvas]) body {
+  width: 100%;
+  overflow-x: hidden;
+  background-color: #e8edf5;
+}
+
+html.dark:has([data-auth-canvas]) {
+  background-color: #0a0f18;
+}
+
+html.dark:has([data-auth-canvas]) body {
+  background-color: #0a0f18;
+}

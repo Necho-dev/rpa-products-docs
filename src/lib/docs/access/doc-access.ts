@@ -1,4 +1,6 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
+import { isCubeSsoEnabled } from '@/lib/auth/auth-config';
+import { resolveAuthContext } from '@/lib/auth/auth-core';
 
 /** HttpOnly Cookie，与服务端配置的令牌派生绑定（不存放明文令牌） */
 export const PRIVATE_DOC_COOKIE = 'fd_private_docs';
@@ -6,8 +8,12 @@ export const PRIVATE_DOC_COOKIE = 'fd_private_docs';
 const HMAC_SALT = 'fumadocs-private-docs-session-v1';
 
 export type DocAccessContext = {
-  /** 已持有 Bearer 或与令牌绑定的 Cookie */
+  /** 已持有 Bearer、Cube 会话或与令牌绑定的 Cookie */
   canAccessPrivate: boolean;
+  /** Cube SSO 用户名（若已识别） */
+  userName?: string;
+  /** secrets.json 中的 sh（若已识别） */
+  secretHash?: string;
 };
 
 function configuredToken(): string | undefined {
@@ -16,6 +22,7 @@ function configuredToken(): string | undefined {
 
 /** 是否启用私有文档（配置了 `DOCS_PRIVATE_ACCESS_TOKEN`） */
 export function isPrivateDocAccessConfigured(): boolean {
+  if (isCubeSsoEnabled()) return true;
   return Boolean(configuredToken());
 }
 
@@ -41,12 +48,11 @@ function bearerMatches(token: string | undefined, bearer: string): boolean {
   return timingSafeCompare(bearer, t);
 }
 
-/** 从 HTTP 请求解析 Cookie / Bearer，得到访问上下文（用于 Route Handler、MCP） */
-export function getDocAccessContext(req: Request): DocAccessContext {
-  if (!isPrivateDocAccessConfigured()) {
+function fromLegacyPrivateToken(req: Request): DocAccessContext {
+  const token = configuredToken();
+  if (!token) {
     return { canAccessPrivate: true };
   }
-  const token = configuredToken()!;
 
   const auth = req.headers.get('authorization');
   if (auth?.startsWith('Bearer ')) {
@@ -68,4 +74,31 @@ export function getDocAccessContext(req: Request): DocAccessContext {
   }
 
   return { canAccessPrivate: false };
+}
+
+function fromCubeSso(req: Request): DocAccessContext {
+  const ctx = resolveAuthContext(req);
+  if (ctx.mcp) {
+    return {
+      canAccessPrivate: true,
+      userName: ctx.mcp.u,
+      secretHash: ctx.mcp.s,
+    };
+  }
+  if (ctx.session) {
+    return {
+      canAccessPrivate: true,
+      userName: ctx.session.u,
+      secretHash: ctx.session.s,
+    };
+  }
+  return { canAccessPrivate: false };
+}
+
+/** 从 HTTP 请求解析 Cookie / Bearer，得到访问上下文（用于 Route Handler、MCP） */
+export function getDocAccessContext(req: Request): DocAccessContext {
+  if (isCubeSsoEnabled()) {
+    return fromCubeSso(req);
+  }
+  return fromLegacyPrivateToken(req);
 }

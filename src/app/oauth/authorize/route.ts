@@ -1,8 +1,18 @@
-import { stubAuthorizationCode } from '@/lib/auth/mcp-public-oauth';
+import {
+  isMcpPublicOAuthStubEnabled,
+  stubAuthorizationCode,
+} from '@/lib/auth/mcp-public-oauth';
 
 export const dynamic = 'force-dynamic';
 
 export function GET(request: Request) {
+  if (!isMcpPublicOAuthStubEnabled()) {
+    return new Response(
+      'OAuth authorization stub is disabled when Cube SSO is enabled. Configure Bearer via /mcp/deeplink.',
+      { status: 404 },
+    );
+  }
+
   const url = new URL(request.url);
   const redirectUri = url.searchParams.get('redirect_uri');
   if (!redirectUri) {

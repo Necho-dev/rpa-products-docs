@@ -1,3 +1,4 @@
+import { isCubeSsoEnabled } from '@/lib/auth/auth-config';
 import { isPrivateDocAccessConfigured } from '@/lib/docs/access/doc-access';
 import { siteName } from '@/lib/core/shared';
 import { source } from '@/lib/docs/source/source';
@@ -15,6 +16,7 @@ export function GET() {
     docs: {
       pages: pageCount,
       privateAccessConfigured: isPrivateDocAccessConfigured(),
+      cubeSsoEnabled: isCubeSsoEnabled(),
     },
     runtime: {
       node: process.version,

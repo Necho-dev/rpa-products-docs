@@ -1,8 +1,19 @@
-import { stubAuthorizationCode, stubTokenResponse } from '@/lib/auth/mcp-public-oauth';
+import {
+  isMcpPublicOAuthStubEnabled,
+  stubAuthorizationCode,
+  stubTokenResponse,
+} from '@/lib/auth/mcp-public-oauth';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
+  if (!isMcpPublicOAuthStubEnabled()) {
+    return new Response(
+      'OAuth token stub is disabled when Cube SSO is enabled. Configure Bearer via /mcp/deeplink.',
+      { status: 404 },
+    );
+  }
+
   const raw = await request.text();
   const params = new URLSearchParams(raw);
   const grant = params.get('grant_type');
