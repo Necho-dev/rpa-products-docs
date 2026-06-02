@@ -5,11 +5,11 @@ services:
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-}
-    image: rpa-products-docs:local
-    container_name: rpa-products-docs
+    image: yuce-knowledge-sso:local
+    container_name: yuce-knowledge-sso
     restart: unless-stopped
     ports:
-      - "${PORT:-3000}:3000"
+      - "${PORT:-3001}:3001"
     env_file:
       - path: .env
         required: false
@@ -17,7 +17,7 @@ services:
         required: false
     environment:
       NODE_ENV: production
-      PORT: 3000
+      PORT: 3001
       HOSTNAME: "0.0.0.0"
     healthcheck:
       test:
@@ -25,7 +25,7 @@ services:
           "CMD",
           "node",
           "-e",
-          "fetch('http://127.0.0.1:3000/health').then(r=>r.json()).then(j=>process.exit(j.status==='ok'?0:1)).catch(()=>process.exit(1))",
+          "fetch('http://127.0.0.1:3001/health').then(r=>r.json()).then(j=>process.exit(j.status==='ok'?0:1)).catch(()=>process.exit(1))",
         ]
       interval: 30s
       timeout: 5s
