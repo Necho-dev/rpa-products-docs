@@ -41,8 +41,11 @@ return RedirectResponse(logout_url)
 
 ```bash
 cp .secrets/dev-secrets.json.example .secrets/dev-secrets.json
-# 将示例 sh 替换为魔方 callback 中的 sh，值为对应 App Secret
+# key = SHA256(App Secret) hex；value = App Secret 明文
+# 生成 key：python3 -c "import hashlib; print(hashlib.sha256(b'YOUR_SECRET').hexdigest())"
 ```
+
+参考 **`.secrets/format.json.example`**（含字段说明）；生产可复制 **`.secrets/prod-secrets.json.example`**。
 
 `.env` / `.env.local` 中设置 `DOCS_SECRETS_FILE=.secrets/dev-secrets.json`（见 `.env.example`）。  
 主分支无 SSO 网关，不需要此文件。

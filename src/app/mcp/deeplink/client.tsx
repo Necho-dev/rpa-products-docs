@@ -66,7 +66,7 @@ function buildClients(displayName: string, bearer?: string): {
   return [
     {
       name: 'Cursor',
-      description: '在 Cursor 中直接添加 MCP Server',
+      description: '在 Cursor 中直接添加 MCP Server 配置',
       icon: (
         <svg fill="currentColor" role="img" viewBox="0 0 24 24" className="size-5">
           <path d="M11.503.131 1.891 5.678a.84.84 0 0 0-.42.726v11.188c0 .3.162.575.42.724l9.609 5.55a1 1 0 0 0 .998 0l9.61-5.55a.84.84 0 0 0 .42-.724V6.404a.84.84 0 0 0-.42-.726L12.497.131a1.01 1.01 0 0 0-.996 0M2.657 6.338h18.55c.263 0 .43.287.297.515L12.23 22.918c-.062.107-.229.064-.229-.06V12.335a.59.59 0 0 0-.295-.51l-9.11-5.257c-.109-.063-.064-.23.061-.23" />
@@ -76,7 +76,7 @@ function buildClients(displayName: string, bearer?: string): {
     },
     {
       name: 'Claude',
-      description: '在 Claude Desktop 中添加 MCP Server',
+      description: '在 Claude Desktop 中添加 MCP Server 配置',
       icon: (
         <svg fill="currentColor" role="img" viewBox="0 0 24 24" className="size-5">
           <path d="M17.3041 3.541h-3.6718l6.696 16.918H24Zm-10.6082 0L0 20.459h3.7442l1.3693-3.5527h7.0052l1.3693 3.5528h3.7442L10.5363 3.5409Zm-.3712 10.2232 2.2914-5.9456 2.2914 5.9456Z" />
@@ -106,7 +106,7 @@ function buildConfigJson(
   return JSON.stringify(
     {
       mcpServers: {
-        docs: needsBearer
+        knowledge: needsBearer
           ? { url: mcpUrl, headers: { Authorization: authorization } }
           : { url: mcpUrl },
       },
@@ -249,7 +249,7 @@ export function McpDeeplinkClient({
           </span>
           <h1 className="text-xl font-semibold text-fd-foreground">添加 MCP 服务</h1>
           <p className="mt-2 text-sm text-fd-muted-foreground">
-            将本站 MCP 服务添加到你本地的 AI 开发工具（比如 Cursor、Claude Code），即可在 AI 客户端中直接访问和检索文档内容。
+            添加 {mcpDisplayName} MCP 服务到你本地的 AI 开发工具（比如 Cursor / Trae / Claude Code ），即可在 AI 客户端中直接访问和检索文档内容。
           </p>
         </div>
 
@@ -259,14 +259,12 @@ export function McpDeeplinkClient({
             role="note"
           >
             <p className="text-sm font-medium text-fd-foreground">
-              {cubeSsoEnabled ? 'MCP Bearer Token（必需）' : '私有文档访问令牌（必需）'}
+              {cubeSsoEnabled ? 'MCP Bearer Token' : '私有文档访问令牌'} [必需]
             </p>
             {cubeSsoEnabled ? (
               <>
                 <p className="mt-2 text-xs leading-relaxed text-fd-muted-foreground">
-                  须先通过魔方登录文档站。同一登录会话在 30 天内复用同一个 Token（由浏览器
-                  HttpOnly Cookie 绑定，按用户 + 魔方环境区分）；打开本页时若仍有效则不会重复签发。
-                  请复制到本地 mcp.json 的 <code className="font-mono text-[11px]">Authorization</code>。
+                  本站通过魔方身份认证（SSO）进行访问控制（有效期 30 天），相同登录会话在有效期内只签发一次 MCP Bearer Token；重复打开本页面不会重复签发。
                 </p>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <button
@@ -276,17 +274,17 @@ export function McpDeeplinkClient({
                     className="inline-flex items-center gap-1.5 rounded-md bg-fd-secondary px-2.5 py-1.5 text-xs font-medium text-fd-secondary-foreground hover:bg-fd-accent"
                   >
                     {tokenLoading ? <Loader2Icon className="size-3.5 animate-spin" /> : null}
-                    {tokenLoading ? '获取中…' : '重新签发 Token'}
+                    {tokenLoading ? '正在获取…' : '重新签发'}
                   </button>
                   {bearer && !tokenLoading ? (
-                    <span className="text-xs text-green-600 dark:text-green-400">已获取</span>
+                    <span className="text-xs text-green-600 dark:text-green-400 font-bold">已获取</span>
                   ) : null}
                   {expiresLabel ? (
                     <span className="text-xs text-fd-muted-foreground">有效期至 {expiresLabel}</span>
                   ) : null}
                 </div>
                 {tokenLoading && !bearer ? (
-                  <p className="mt-3 text-xs text-fd-muted-foreground">正在获取 Token…</p>
+                  <p className="mt-3 text-xs text-fd-muted-foreground">正在获取…</p>
                 ) : null}
                 {bearer ? (
                   <div className="mt-3 rounded-md border border-fd-border/80 bg-fd-background/80 p-3">
@@ -304,18 +302,17 @@ export function McpDeeplinkClient({
                       >
                         {tokenCopied ? (
                           <CheckIcon className="size-3" />
-                        ) : (
+                        ) : ( 
                           <CopyIcon className="size-3" />
                         )}
-                        {tokenCopied ? '已复制' : '复制 Token'}
+                        {tokenCopied ? 'Copied' : 'Copy'}
                       </button>
                     </div>
                     <code className="block max-h-28 overflow-y-auto break-all rounded-md bg-fd-muted px-2 py-2 font-mono text-[11px] leading-relaxed text-fd-foreground">
                       {bearer}
                     </code>
                     <p className="mt-2 text-[11px] leading-relaxed text-fd-muted-foreground">
-                      在 Cursor / Claude 的 MCP 配置中，将上述值填入{' '}
-                      <code className="font-mono">headers.Authorization</code>，无需展开下方完整配置。
+                      请将上述值更新到 MCP 配置的 <code className="font-mono">headers.Authorization</code> 内，或者直接复制使用下方「自定义 MCP 配置说明」提供的配置示例。
                     </p>
                   </div>
                 ) : null}
@@ -329,9 +326,9 @@ export function McpDeeplinkClient({
                   当前已启用内容访问验证，MCP 请求须携带正确的 Bearer 访问令牌，否则无法列出、搜索或读取已配置私有访问的文档内容或目录。
                 </p>
                 <p className="mt-2 text-xs leading-relaxed text-fd-muted-foreground">
-                  一键安装通常 <strong>不会</strong> 自动写入请求头；安装完成后请在 MCP 配置中为该 MCP 服务添加{' '}
+                  快速添加通常 <strong>不会</strong> 自动写入请求头；安装完成后请在 MCP 配置中为该 MCP 服务添加{' '}
                   <code className="font-mono text-[11px]">Authorization: Bearer {'<访问令牌>'}</code>
-                  ，或直接使用下方「手动配置说明」中提供 <code className="font-mono text-[11px]">headers</code> 的示例。
+                  ，或直接复制使用下方「自定义 MCP 配置说明」中提供的完整示例。
                 </p>
               </>
             )}
@@ -360,7 +357,7 @@ export function McpDeeplinkClient({
         </div>
 
         <div className="flex flex-col gap-2">
-          <p className="mb-1 text-xs font-medium text-fd-muted-foreground">一键添加到客户端</p>
+          <p className="mb-1 text-xs font-medium text-fd-muted-foreground">快速添加到客户端</p>
           {clients.map(({ name, description, icon, getHref }) => (
             <a
               key={name}
@@ -379,12 +376,11 @@ export function McpDeeplinkClient({
 
         <details className="mt-6 rounded-lg border border-fd-border bg-fd-card">
           <summary className="cursor-pointer select-none px-4 py-3 text-sm font-medium text-fd-muted-foreground hover:text-fd-foreground">
-            手动配置说明
+            自定义 MCP 配置说明
           </summary>
           <div className="border-t border-fd-border px-4 pb-4 pt-3">
             <p className="mb-2 text-xs text-fd-muted-foreground">
-              在客户端 MCP 配置文件中添加以下内容（名称 <code className="font-mono">docs</code>{' '}
-              可按需修改）：
+              在客户端 MCP 配置文件中添加以下内容（默认名称 <code className="font-mono">knowledge</code> 可按需修改）：
             </p>
             <div className="relative">
               <pre className="overflow-x-auto rounded-md bg-fd-muted p-3 font-mono text-xs text-fd-foreground">
@@ -398,10 +394,10 @@ export function McpDeeplinkClient({
                     ? 'bg-green-500/10 text-green-600 dark:text-green-400'
                     : 'bg-fd-background/80 text-fd-muted-foreground hover:bg-fd-accent hover:text-fd-accent-foreground',
                 )}
-                title={configCopied ? '已复制' : '复制配置'}
+                title={configCopied ? 'Copied' : 'Copy'}
               >
                 {configCopied ? <CheckIcon className="size-3" /> : <CopyIcon className="size-3" />}
-                {configCopied ? '已复制' : '复制'}
+                {configCopied ? 'Copied' : 'Copy'}
               </button>
             </div>
             {privateDocsAccessEnabled && !cubeSsoEnabled ? (
@@ -411,8 +407,7 @@ export function McpDeeplinkClient({
             ) : null}
             {cubeSsoEnabled ? (
               <p className="mt-3 text-xs text-fd-muted-foreground">
-                Token 过期或需更换时，点击「重新签发 Token」并更新本地 mcp.json；重新从魔方登录也会清除旧
-                Token 绑定。
+                MCP Bearer Token 过期或需更换时，需要重新访问本页面，重新签发并更新本地客户端的 MCP 配置文件；重新登录魔方也会清除旧的 MCP Bearer Token 绑定。
               </p>
             ) : null}
           </div>
