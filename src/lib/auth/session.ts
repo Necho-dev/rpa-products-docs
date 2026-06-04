@@ -1,5 +1,6 @@
 import {
   DOCS_CUBE_ORIGIN_COOKIE,
+  DOCS_CUBE_USER_COOKIE,
   DOCS_SESSION_COOKIE,
 } from '@/lib/auth/cookie-names';
 import {
@@ -121,6 +122,39 @@ export function cubeOriginCookieHeader(origin: string, request: Request): string
   ].join('; ');
 }
 
+export function accessUserCookieHeader(
+  userName: string,
+  request: Request,
+  maxAgeSec: number = sessionTtlSec(),
+): string {
+  const secure =
+    request.url.startsWith('https://') ||
+    request.headers.get('x-forwarded-proto') === 'https';
+  return [
+    `${DOCS_CUBE_USER_COOKIE}=${encodeURIComponent(userName)}`,
+    'Path=/',
+    'HttpOnly',
+    'SameSite=Lax',
+    `Max-Age=${maxAgeSec}`,
+    ...(secure ? ['Secure'] : []),
+  ].join('; ');
+}
+
+export function readAccessUserFromCookieHeader(cookieHeader: string | null): string | null {
+  if (!cookieHeader) return null;
+  const match = cookieHeader.match(
+    new RegExp(`(?:^|;\\s*)${DOCS_CUBE_USER_COOKIE}=([^;]*)`),
+  );
+  const raw = match?.[1];
+  if (!raw) return null;
+  try {
+    const decoded = decodeURIComponent(raw);
+    return decoded || null;
+  } catch {
+    return raw || null;
+  }
+}
+
 export function appendSessionCookie(
   headers: Headers,
   request: Request,
@@ -128,6 +162,7 @@ export function appendSessionCookie(
 ): void {
   const token = issueSessionToken(payload);
   headers.append('Set-Cookie', sessionCookieHeader(token, request));
+  headers.append('Set-Cookie', accessUserCookieHeader(payload.u, request));
 }
 
 export function withSessionRefresh(

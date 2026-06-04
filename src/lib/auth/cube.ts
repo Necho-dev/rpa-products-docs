@@ -1,9 +1,18 @@
-import { createDecipheriv, createHash } from 'node:crypto';
+import { createDecipheriv, createHash, timingSafeEqual } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { cubeOriginPatternSource, secretsFilePath } from '@/lib/auth/auth-config';
 
 export function sha256Hex(input: string): string {
   return createHash('sha256').update(input, 'utf8').digest('hex');
+}
+
+export function timingSafeHexEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  try {
+    return timingSafeEqual(Buffer.from(a, 'utf8'), Buffer.from(b, 'utf8'));
+  } catch {
+    return false;
+  }
 }
 
 /** 对齐 PyCryptodome AES-ECB + PKCS7 unpad（密钥为 appSecret ASCII 字节） */

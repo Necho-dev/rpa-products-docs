@@ -34,8 +34,7 @@ server {
         }
 
         auth_request /auth/validate;
-        auth_request_set $auth_set_cookie $upstream_http_set_cookie;
-        add_header Set-Cookie $auth_set_cookie always;
+        # MCP 同理：Bearer 校验靠 auth_request；Session 续期靠 Next 主响应
         error_page 401 = @mcp_unauthorized;
 
         proxy_pass http://docs_next;
@@ -57,8 +56,7 @@ server {
 
     location / {
         auth_request /auth/validate;
-        auth_request_set $auth_set_cookie $upstream_http_set_cookie;
-        add_header Set-Cookie $auth_set_cookie always;
+        # 401 拦截；续期 Cookie 由 Next.js proxy 主响应下发（避免 $upstream_http_set_cookie 只能透传单个 Set-Cookie）
         error_page 401 = @need_login;
 
         proxy_pass http://docs_next;

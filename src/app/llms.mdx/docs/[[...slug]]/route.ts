@@ -1,13 +1,39 @@
-import { getDocAccessContext } from '@/lib/docs/access/doc-access';
+import { getDocAccessContext, getDocAccessContextForEmbed } from '@/lib/docs/access/doc-access';
 import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
-import { getLLMText, source } from '@/lib/docs/source/source';
+import { getEmbedMarkdown, getLLMText, source } from '@/lib/docs/source/source';
+import { inferSiteOrigin } from '@/lib/core/site-origin';
+import { getEmbedRenderMode, verifyCubeEmbedRequest } from '@/lib/auth/cube-embed';
 import { notFound } from 'next/navigation';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request, { params }: RouteContext<'/llms.mdx/docs/[[...slug]]'>) {
-  const access = getDocAccessContext(req);
+  // 嵌入通道判定：
+  // proxy.ts rewrite 时会同时设置 x-embed-verified-sh（已验签的 sh）以及原始签名头，
+  // 这里在 route handler 层做二次 HMAC 验签，防止外部直接请求并伪造 x-embed-verified-sh 头绕过鉴权。
+  const claimedSh = req.headers.get('x-embed-verified-sh');
+  const hasRenderMode = getEmbedRenderMode(req) !== null;
+
+  let isEmbedRequest = false;
+  let embedSh: string | null = null;
+  let embedUser: string | null = null;
+
+  if (claimedSh && hasRenderMode) {
+    // 二次验签：重新校验原始 BFF 签名头
+    const verified = verifyCubeEmbedRequest(req);
+    if (verified && verified.sh === claimedSh) {
+      isEmbedRequest = true;
+      embedSh = verified.sh;
+      embedUser = verified.user;
+    }
+    // 验签失败：不是合法的嵌入请求，下面走 getDocAccessContext（Cookie/Bearer）鉴权
+  }
+
+  const access = isEmbedRequest
+    ? getDocAccessContextForEmbed(embedSh!, embedUser)
+    : getDocAccessContext(req);
+
   const { slug } = await params;
   const rawSlug = slug ?? [];
   const last = rawSlug[rawSlug.length - 1];
@@ -21,7 +47,16 @@ export async function GET(req: Request, { params }: RouteContext<'/llms.mdx/docs
   if (!page) notFound();
   if (!isDocPageAccessible(page, access)) notFound();
 
-  return new Response(await getLLMText(page), {
+  let body: string;
+  if (isEmbedRequest) {
+    // 嵌入通道：图片重写为绝对 URL
+    const siteOrigin = inferSiteOrigin(req);
+    body = await getEmbedMarkdown(page, siteOrigin);
+  } else {
+    body = await getLLMText(page);
+  }
+
+  return new Response(body, {
     headers: {
       'Content-Type': 'text/markdown; charset=utf-8',
       'Cache-Control': 'private, no-store',

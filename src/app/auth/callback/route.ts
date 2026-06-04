@@ -1,6 +1,6 @@
 import { appendSessionCookie, cubeOriginCookieHeader, safeRedirectPath } from '@/lib/auth/session';
 import { signatureWindowMs } from '@/lib/auth/auth-config';
-import { aesEcbDecrypt, getSecretByHash, isValidCubeOrigin, sha256Hex } from '@/lib/auth/cube';
+import { aesEcbDecrypt, getSecretByHash, isValidCubeOrigin, sha256Hex, timingSafeHexEqual } from '@/lib/auth/cube';
 import { clearMcpTokenCookieHeader } from '@/lib/auth/mcp-token';
 
 export const runtime = 'nodejs';
@@ -38,7 +38,7 @@ export function GET(request: Request) {
     return new Response('unknown secret hash', { status: 401 });
   }
 
-  if (sha256Hex(`${ed}${tm}${secret}`) !== sg) {
+  if (!timingSafeHexEqual(sha256Hex(`${ed}${tm}${secret}`), sg)) {
     return new Response('bad signature', { status: 401 });
   }
 

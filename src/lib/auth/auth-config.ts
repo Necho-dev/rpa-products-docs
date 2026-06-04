@@ -1,5 +1,6 @@
 export {
   DOCS_CUBE_ORIGIN_COOKIE,
+  DOCS_CUBE_USER_COOKIE,
   DOCS_MCP_TOKEN_COOKIE,
   DOCS_SESSION_COOKIE,
 } from '@/lib/auth/cookie-names';

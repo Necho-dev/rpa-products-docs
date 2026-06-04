@@ -2,6 +2,7 @@ import type { NextRequest } from 'next/server';
 import { isCubeSsoEnabled, isSecureCookieRequest } from '@/lib/auth/auth-config';
 import {
   DOCS_CUBE_ORIGIN_COOKIE,
+  DOCS_CUBE_USER_COOKIE,
   DOCS_SESSION_COOKIE,
 } from '@/lib/auth/cookie-names';
 import { isValidCubeOrigin } from '@/lib/auth/cube';
@@ -83,6 +84,7 @@ function clearCookieHeader(name: string, request: Request): string {
 /** 清除文档站 SSO / MCP / 私有访问相关 Cookie。 */
 export function appendClearAuthSessionCookies(headers: Headers, request: Request): void {
   headers.append('Set-Cookie', clearCookieHeader(DOCS_SESSION_COOKIE, request));
+  headers.append('Set-Cookie', clearCookieHeader(DOCS_CUBE_USER_COOKIE, request));
   headers.append('Set-Cookie', clearMcpTokenCookieHeader(request));
   headers.append('Set-Cookie', clearCookieHeader(DOCS_CUBE_ORIGIN_COOKIE, request));
   headers.append('Set-Cookie', clearCookieHeader(PRIVATE_DOC_COOKIE, request));

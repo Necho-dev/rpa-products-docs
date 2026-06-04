@@ -8,6 +8,18 @@ import {
   sessionNeedsSilentRefresh,
 } from '@/lib/auth/session';
 import { docsContentRoute, docsRoute } from '@/lib/core/shared';
+import {
+  getEmbedRenderMode,
+  verifyCubeEmbedRequest,
+} from '@/lib/auth/cube-embed';
+import {
+  isBlockedUserAgent,
+  isUserAgentGateEnabled,
+  shouldApplyUserAgentGate,
+} from '@/lib/auth/user-agent-gate';
+
+/** 嵌入 HTML 路由前缀（对应 src/app/llms.htm/docs/[[...slug]]） */
+const embedHtmlRoute = '/llms.htm/docs';
 
 const { rewrite: rewriteDocs } = rewritePath(
   `${docsRoute}{/*path}`,
@@ -20,7 +32,7 @@ const { rewrite: rewriteSuffix } = rewritePath(
 
 const MCP_UNAUTHORIZED_BODY = {
   error: 'unauthorized',
-  message: '请在文档站登录后访问 /mcp/deeplink 重新获取 MCP Bearer',
+  message: '请在登录后重新访问 /mcp/deeplink 获取 MCP Bearer Token',
 };
 
 function isPublicPath(pathname: string): boolean {
@@ -29,6 +41,8 @@ function isPublicPath(pathname: string): boolean {
   if (pathname.startsWith('/_next/')) return true;
   if (pathname.startsWith('/.well-known/')) return true;
   if (pathname.startsWith('/oauth/')) return true;
+  /** 嵌入 HTML 引用的绝对图片 URL；扩展名白名单由 route handler 二次校验 */
+  if (pathname.startsWith('/resources/images/')) return true;
   if (/\.(?:ico|png|jpg|jpeg|gif|webp|svg|woff2?)$/i.test(pathname)) return true;
   return false;
 }
@@ -79,7 +93,104 @@ function applyCubeSsoGate(request: NextRequest): NextResponse | null {
   return maybeRefreshSession(NextResponse.next(), request);
 }
 
+/**
+ * 嵌入通道分流 (通道 A)
+ *
+ * 触发条件: `X-Render-Mode` 或 Query `render` 为 markdown / html。
+ * - 验签(来源站 HMAC), 若失败直接 401, 禁止 302。
+ * - 通过后 rewrite 到对应嵌入路由 (不经过 applyCubeSsoGate)。
+ * - 图片路径 /resources/images/...*.png 被 matcher 直接排除, 不进入本函数, 无需额外处理。
+ *
+ * 安全说明:
+ * - `x-embed-verified-sh` 头由本函数在验签通过后写入, 下游 route handler 信任此头。
+ * - 外部请求若直接携带此头但未经本函数 (即直接访问 /llms.htm/ 或 /llms.mdx/), 会被 blockEmbedInternalRoutes() 拦截返回 404, 防止伪造绕过。
+ */
+function applyEmbedGate(request: NextRequest): NextResponse | null {
+  const renderMode = getEmbedRenderMode(request);
+  if (!renderMode) return null;
+
+  // 仅对 /docs/** 路径启用嵌入通道
+  const { pathname } = request.nextUrl;
+  if (!pathname.startsWith(`${docsRoute}/`) && pathname !== docsRoute) return null;
+
+  // 必须先验签
+  const verified = verifyCubeEmbedRequest(request);
+  if (!verified) {
+    return NextResponse.json(
+      { error: 'unauthorized', message: '来源站身份校验失败或签名已过期' },
+      { status: 401 },
+    );
+  }
+
+  // 将 X-Render-Mode 以及验签结果透传给下游 route handler
+  const forwardHeaders = new Headers(request.headers);
+  forwardHeaders.set('x-embed-verified-sh', verified.sh);
+  if (verified.user) forwardHeaders.set('x-embed-verified-user', verified.user);
+
+  if (renderMode === 'markdown') {
+    // rewrite 到现有 llms.mdx/docs/[[...slug]] 路由
+    const suffix = pathname === docsRoute ? '/index.md' : `${pathname.slice(docsRoute.length)}.md`;
+    const target = new URL(`${docsContentRoute}${suffix}`, request.nextUrl);
+    return NextResponse.rewrite(target, { request: { headers: forwardHeaders } });
+  }
+
+  // html：rewrite 到 llms.htm/docs 路由
+  const suffix = pathname === docsRoute ? '/index' : pathname.slice(docsRoute.length);
+  const target = new URL(`${embedHtmlRoute}${suffix}`, request.nextUrl);
+  return NextResponse.rewrite(target, { request: { headers: forwardHeaders } });
+}
+
+/**
+ * 拦截对嵌入内部路由的直接外部访问, 防止伪造 `x-embed-verified-sh` 头绕过鉴权
+ *
+ * `/llms.htm/docs/**` 只应由 proxy rewrite 访问 (X-Render-Mode: html 通道),
+ * 外部客户端直接访问此路径应得到 404 (避免暴露内部路由存在)
+ *
+ * 注意: `/llms.mdx/docs/**` 是对外公开的 Markdown 导出路由 (浏览器 / MCP 可直接访问),
+ * 不在此拦截范围内; 该路由的嵌入场景通过 `x-embed-verified-sh` 头区分,
+ * 无此头时走原有的 Cookie / Bearer 鉴权
+ */
+function blockEmbedInternalRoutes(request: NextRequest): NextResponse | null {
+  const { pathname } = request.nextUrl;
+  if (pathname.startsWith(`${embedHtmlRoute}/`) || pathname === embedHtmlRoute) {
+    return new NextResponse(null, { status: 404 });
+  }
+  return null;
+}
+
+/**
+ * User-Agent 门禁：拦截 curl / httpx / apifox 等脚本客户端。
+ * - 嵌入通道（验签通过）已在 applyEmbedGate 提前返回，BFF 使用 httpx 不受影响。
+ * - MCP / llms 导出 / auth 等 API 路径不在 gated 范围内。
+ */
+function applyUserAgentGate(request: NextRequest): NextResponse | null {
+  if (!isUserAgentGateEnabled()) return null;
+
+  const { pathname } = request.nextUrl;
+  if (!shouldApplyUserAgentGate(pathname)) return null;
+
+  if (isBlockedUserAgent(request.headers.get('user-agent'))) {
+    return NextResponse.json(
+      { error: 'forbidden', message: '请使用浏览器访问；脚本/调试客户端已被拒绝' },
+      { status: 403, headers: { 'Content-Type': 'application/json; charset=utf-8' } },
+    );
+  }
+
+  return null;
+}
+
 export function proxy(request: NextRequest) {
+  // 嵌入通道优先 (通道 A): 有 X-Render-Mode 时跳过 SSO Cookie 门禁
+  const embedGate = applyEmbedGate(request);
+  if (embedGate) return embedGate;
+
+  // 阻断对嵌入内部路由的直接外部访问 (防止伪造 x-embed-verified-sh 绕过)
+  const blockEmbed = blockEmbedInternalRoutes(request);
+  if (blockEmbed) return blockEmbed;
+
+  const uaGate = applyUserAgentGate(request);
+  if (uaGate) return uaGate;
+
   const gate = applyCubeSsoGate(request);
   if (gate) return gate;
 

@@ -1,0 +1,362 @@
+/*
+ * 嵌入 HTML 片段样式（X-Render-Mode: html 通道）
+ *
+ * ── 复用策略 ──────────────────────────────────────────────────────────────────
+ * 文档站使用 Tailwind CSS + fumadocs-ui prose 类 + CSS 变量体系（--color-fd-*），
+ * 嵌入 HTML 是独立文档，无法通过 @import / <link> 直接复用（无 Tailwind 运行时、
+ * 无变量注入、无 prose 类名）。
+ *
+ * 复用方式：
+ * 1. 排版规则（字体/间距/颜色）：参照 fumadocs-ui neutral.css 的 light 默认值，
+ *    将 CSS 变量值固化为具体 HSL/HEX 颜色，与站内视觉对齐。
+ * 2. 表格列宽规则：直接从 src/app/docs-prose-override.css 移植，
+ *    选择器从 `.prose table` 替换为 `.fd-embed-doc table`，逻辑完全一致。
+ *    ⚠️  当 docs-prose-override.css 的表格规则有变更时，同步更新此文件。
+ * 3. Shiki 代码高亮：使用 github-light 主题，与站内一致。
+ *
+ * 设计约束：
+ * - 所有颜色值直接硬编码（无 CSS 变量依赖）
+ * - 字体降级为系统字体栈（与站内 JetBrains Mono / Noto Sans SC 方向一致）
+ * - 所有选择器限定在 .fd-embed-doc 内，避免污染宿主页面
+ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 1.25rem 1.5rem 2rem;
+  /* 对齐站内字体栈：JetBrains Mono → Noto Sans SC → Inter → 系统 */
+  font-family:
+    "JetBrains Mono", ui-monospace,
+    "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+    -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 14px;
+  line-height: 1.75;
+  color: #111827;
+  background: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Article wrapper ─── */
+.fd-embed-doc {
+  max-width: 900px;
+  margin: 0 auto;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-all; /* 对齐 docs-prose-override.css：长 URL 等无空格文本任意位置断行 */
+}
+
+/* ─── Headings ─── */
+.fd-embed-doc h1,
+.fd-embed-doc h2,
+.fd-embed-doc h3,
+.fd-embed-doc h4,
+.fd-embed-doc h5,
+.fd-embed-doc h6 {
+  font-weight: 600;
+  line-height: 1.35;
+  margin-top: 1.75em;
+  margin-bottom: 0.5em;
+  color: #111827;
+  letter-spacing: -0.01em;
+}
+.fd-embed-doc h1 { font-size: 1.6rem; margin-top: 0; }
+.fd-embed-doc h2 {
+  font-size: 1.3rem;
+  padding-bottom: 0.35em;
+  border-bottom: 1px solid #e5e7eb;
+}
+.fd-embed-doc h3 { font-size: 1.1rem; }
+.fd-embed-doc h4 { font-size: 1rem; color: #374151; }
+
+/* ─── Paragraphs ─── */
+.fd-embed-doc p {
+  margin: 0.75em 0;
+}
+
+.fd-embed-doc strong { font-weight: 600; }
+.fd-embed-doc em { font-style: italic; }
+.fd-embed-doc del { text-decoration: line-through; opacity: 0.55; }
+
+/* ─── Links ─── */
+.fd-embed-doc a {
+  color: #2563eb;
+  text-decoration: underline;
+  text-decoration-color: rgba(37, 99, 235, 0.3);
+  text-underline-offset: 2px;
+  word-break: break-all;
+}
+.fd-embed-doc a:hover {
+  text-decoration-color: rgba(37, 99, 235, 0.75);
+}
+
+/* ─── Lists ─── */
+.fd-embed-doc ul,
+.fd-embed-doc ol {
+  margin: 0.75em 0;
+  padding-left: 1.6em;
+}
+.fd-embed-doc li { margin: 0.3em 0; }
+.fd-embed-doc ul { list-style-type: disc; }
+.fd-embed-doc ol { list-style-type: decimal; }
+
+/* ─── Blockquote（对齐站内：无斜体、无引号、左边框、淡底色） ─── */
+.fd-embed-doc blockquote {
+  margin: 1em 0;
+  padding: 0.6em 1em;
+  border-left: 3px solid #d1d5db;
+  background: #f9fafb;
+  border-radius: 0 6px 6px 0;
+  color: #6b7280;
+  font-style: normal;
+  font-weight: 400;
+  quotes: none;
+}
+.fd-embed-doc blockquote > p {
+  margin: 0;
+}
+.fd-embed-doc blockquote > p + p {
+  margin-top: 0.35em;
+}
+.fd-embed-doc blockquote a {
+  color: #2563eb;
+  font-style: normal;
+}
+
+/* ─── Horizontal Rule ─── */
+.fd-embed-doc hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 1.5em 0;
+}
+
+/* ─── Tables（基础样式 + 列宽规则，对齐 docs-prose-override.css） ─── */
+
+/* wrapper div 负责横向滚动，表格本身保持 display: table 以正确撑满宽度 */
+.fd-embed-doc .fd-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  margin: 1em 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.fd-embed-doc table {
+  width: 100%;
+  min-width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875em;
+  margin: 0;
+  table-layout: auto;
+  word-break: keep-all;
+}
+
+/* 空表格占位行（由 embed/html.ts 后处理注入 .fd-empty-row） */
+.fd-embed-doc .fd-empty-row td,
+.fd-embed-doc td.fd-empty-placeholder {
+  text-align: center;
+  color: #9ca3af;
+  font-style: italic;
+  padding: 0.6em 0.75em;
+  background: #fafafa;
+  white-space: normal;
+}
+.fd-embed-doc thead {
+  background: #f9fafb;
+}
+.fd-embed-doc th,
+.fd-embed-doc td {
+  border: 1px solid #e5e7eb;
+  padding: 0.45em 0.75em;
+  text-align: left;
+  vertical-align: top;
+  line-height: 1.55;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+.fd-embed-doc th {
+  font-weight: 600;
+  color: #374151;
+  background: #f3f4f6;
+}
+.fd-embed-doc tr:nth-child(even) td {
+  background: #fafafa;
+}
+
+/* 2列「属性|值」：左列按内容定宽，右列占满 */
+.fd-embed-doc table:has(> * > tr:first-child > *:nth-child(2):last-child) {
+  table-layout: auto;
+}
+.fd-embed-doc table:has(> * > tr:first-child > *:nth-child(2):last-child) th:first-child,
+.fd-embed-doc table:has(> * > tr:first-child > *:nth-child(2):last-child) td:first-child {
+  width: 1%;
+  min-width: max(9em, 7rem);
+  padding-inline-end: 1.25rem;
+  white-space: nowrap;
+  vertical-align: top;
+}
+.fd-embed-doc table:has(> * > tr:first-child > *:nth-child(2):last-child) th:last-child,
+.fd-embed-doc table:has(> * > tr:first-child > *:nth-child(2):last-child) td:last-child {
+  width: auto;
+  max-width: none;
+  min-width: 0;
+  word-break: break-all;
+  overflow-wrap: break-word;
+}
+
+/* 3列：首列窄标签、后两列等分 */
+.fd-embed-doc table:has(> * > tr:first-child > *:nth-child(3):last-child) {
+  table-layout: fixed;
+  width: 100%;
+}
+.fd-embed-doc table:has(> * > tr:first-child > *:nth-child(3):last-child) th:nth-child(1),
+.fd-embed-doc table:has(> * > tr:first-child > *:nth-child(3):last-child) td:nth-child(1) {
+  width: 12%;
+  min-width: 3.5rem;
+  white-space: nowrap;
+  vertical-align: top;
+}
+.fd-embed-doc table:has(> * > tr:first-child > *:nth-child(3):last-child) th:nth-child(2),
+.fd-embed-doc table:has(> * > tr:first-child > *:nth-child(3):last-child) td:nth-child(2),
+.fd-embed-doc table:has(> * > tr:first-child > *:nth-child(3):last-child) th:last-child,
+.fd-embed-doc table:has(> * > tr:first-child > *:nth-child(3):last-child) td:last-child {
+  width: 44%;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  vertical-align: top;
+}
+
+/* 6列（数据字段表）：auto 布局，各列给下限 */
+.fd-embed-doc table:has(> * > tr:first-child > *:nth-child(6):last-child) {
+  table-layout: auto;
+  width: 100%;
+}
+.fd-embed-doc table:has(> * > tr:first-child > *:nth-child(6):last-child) th:nth-child(2),
+.fd-embed-doc table:has(> * > tr:first-child > *:nth-child(6):last-child) td:nth-child(2) {
+  min-width: 9em;
+  padding-inline-end: 0.75rem;
+  word-break: normal;
+  overflow-wrap: break-word;
+  vertical-align: top;
+}
+.fd-embed-doc table:has(> * > tr:first-child > *:nth-child(6):last-child) th:nth-child(3),
+.fd-embed-doc table:has(> * > tr:first-child > *:nth-child(6):last-child) td:nth-child(3) {
+  min-width: 10em;
+  word-break: normal;
+  overflow-wrap: break-word;
+  vertical-align: top;
+}
+.fd-embed-doc table:has(> * > tr:first-child > *:nth-child(6):last-child) th:nth-child(4),
+.fd-embed-doc table:has(> * > tr:first-child > *:nth-child(6):last-child) td:nth-child(4) {
+  min-width: 4em;
+  white-space: nowrap;
+  word-break: normal;
+  overflow-wrap: break-word;
+  vertical-align: top;
+}
+.fd-embed-doc table:has(> * > tr:first-child > *:nth-child(6):last-child) th:nth-child(5),
+.fd-embed-doc table:has(> * > tr:first-child > *:nth-child(6):last-child) td:nth-child(5) {
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: break-word;
+  vertical-align: top;
+}
+.fd-embed-doc table:has(> * > tr:first-child > *:nth-child(6):last-child) th:nth-child(6),
+.fd-embed-doc table:has(> * > tr:first-child > *:nth-child(6):last-child) td:nth-child(6) {
+  max-width: min(44%, 28rem);
+  word-break: break-all;
+  overflow-wrap: break-word;
+  vertical-align: top;
+}
+/* 表格内 code 的断行 */
+.fd-embed-doc th code,
+.fd-embed-doc td code {
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+.fd-embed-doc th:last-child code,
+.fd-embed-doc td:last-child code {
+  word-break: break-all;
+}
+
+/* ─── Inline Code ─── */
+.fd-embed-doc :not(pre) > code {
+  font-family: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.875em;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  padding: 0.1em 0.35em;
+  color: #be185d;
+}
+
+/* ─── Code Blocks (Shiki github-light 输出) ─── */
+.fd-embed-doc pre {
+  margin: 1em 0;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  border: 1px solid #e5e7eb;
+}
+/* Shiki 输出的 pre 已有 background，兜底设置 */
+.fd-embed-doc pre:not([style*="background"]) {
+  background: #f6f8fa;
+  padding: 1em 1.25em;
+}
+.fd-embed-doc pre code {
+  font-family: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-weight: 500;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  color: inherit;
+  font-size: inherit;
+}
+/* Shiki 容器：内边距 */
+.fd-embed-doc pre.shiki {
+  padding: 1em 1.25em;
+}
+
+/* ─── Images ─── */
+.fd-embed-doc img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  display: block;
+  margin: 1em auto;
+}
+
+/* ─── Mermaid (源码降级显示) ─── */
+.fd-embed-doc .fd-mermaid-fallback {
+  margin: 1em 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.fd-embed-doc .fd-mermaid-fallback-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.5em 1em;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 0.75em;
+  font-weight: 600;
+  color: #6b7280;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.fd-embed-doc .fd-mermaid-fallback pre {
+  margin: 0;
+  border: none;
+  border-radius: 0;
+}

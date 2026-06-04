@@ -7,17 +7,21 @@ BASE="${1:-http://127.0.0.1:3000}"
 COOKIE_JAR="$(mktemp)"
 trap 'rm -f "$COOKIE_JAR"' EXIT
 
+# UA 门禁开启时 curl 默认 UA 会 403；浏览器 UA 仍走 SSO 重定向
+BROWSER_UA='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+CURL_UA=(-H "User-Agent: ${BROWSER_UA}")
+
 pass() { echo "PASS: $*"; }
 fail() { echo "FAIL: $*" >&2; exit 1; }
 
-code=$(curl -sS -o /dev/null -w '%{http_code}' "$BASE/docs")
+code=$(curl -sS -o /dev/null -w '%{http_code}' "${CURL_UA[@]}" "$BASE/docs")
 if [[ "$code" == "302" || "$code" == "307" ]]; then
   pass "无 Cookie 访问 /docs → $code"
 else
   fail "无 Cookie 访问 /docs 期望 302/307，实际 $code"
 fi
 
-loc=$(curl -sS -o /dev/null -w '%{redirect_url}' "$BASE/docs")
+loc=$(curl -sS -o /dev/null -w '%{redirect_url}' "${CURL_UA[@]}" "$BASE/docs")
 if [[ "$loc" == *"/auth/login"* ]]; then
   pass "重定向目标含 /auth/login"
 else
@@ -61,7 +65,7 @@ else
   fail "OAuth AS metadata 异常: $code"
 fi
 
-code=$(curl -sS -o /dev/null -w '%{http_code}' "$BASE/docs/access")
+code=$(curl -sS -o /dev/null -w '%{http_code}' "${CURL_UA[@]}" "$BASE/docs/access")
 if [[ "$code" == "302" || "$code" == "307" ]]; then
   pass "SSO 下 /docs/access → 重定向 /auth/login"
 else

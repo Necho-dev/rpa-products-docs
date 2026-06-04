@@ -1,8 +1,9 @@
 import { docs } from 'collections/server';
 import { loader } from 'fumadocs-core/source';
 import { lucideIconsPlugin } from 'fumadocs-core/source/lucide-icons';
-import { docsContentRoute, docsImageRoute, docsRoute } from '@/lib/core/shared';
+import { docsContentRoute, docsImageRoute, docsRoute, getPublicSiteUrl } from '@/lib/core/shared';
 import { docsEntryInSidebarPlugin } from '@/lib/docs/source/docs-entry-in-sidebar-plugin';
+import { rewriteMarkdownImagesForEmbed } from '@/lib/docs/embed/markdown';
 
 // See https://fumadocs.dev/docs/headless/source-api for more info
 export const source = loader({
@@ -38,4 +39,21 @@ export async function getLLMText(page: (typeof source)['$inferPage']) {
   return `# ${page.data.title} (${page.url})
 
 ${processed}`;
+}
+
+/**
+ * 嵌入导出：返回 LLM Markdown 文本，并将图片路径重写为绝对 `/resources/images/...` HTTP URL。
+ * 适用于 X-Render-Mode: markdown 通道，图片在外部 iframe 中可直接访问。
+ */
+export async function getEmbedMarkdown(
+  page: (typeof source)['$inferPage'],
+  siteOrigin?: string,
+): Promise<string> {
+  const [processed, raw] = await Promise.all([
+    page.data.getText('processed'),
+    page.data.getText('raw'),
+  ]);
+  const origin = siteOrigin ?? getPublicSiteUrl();
+  const body = rewriteMarkdownImagesForEmbed(processed, raw, page.path, origin);
+  return `# ${page.data.title} (${page.url})\n\n${body}`;
 }
