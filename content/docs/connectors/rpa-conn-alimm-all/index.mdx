@@ -1,12 +1,12 @@
 ---
 title: 阿里妈妈
-description: 覆盖阿里妈妈品牌新享等场景的 rpa-conn-alimm-all 包说明与安装
+description: 覆盖阿里妈妈各场景的 rpa-conn-alimm-all 包说明与安装
 entry: rpa-conn-alimm-all
 ---
 
 <ConnectorMeta
   platform="阿里妈妈"
-  platformUrl="https://ppxk.tmall.com"
+  platformUrl="https://one.alimama.com"
   components={[{ pkg: 'rpa-comp-login-qianniu', type: 'login' }]}
   requireLogin
   sdkConstraint="rpa-hero-sdk >=3.3.0"
@@ -20,42 +20,27 @@ pip install -i https://nexus.yucekj.cn/repository/pypi-hero/simple/ rpa-conn-ali
 
 ## 内含连接器
 
-### 品牌新享/PPXX
+### 淘宝联盟/Tblm
 
 <Cards className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
   <ModuleCard
-    title="超级新客加速-数据导出"
-    href="./rpa-conn-alimm-ppxx-data-center-tyroacc-index"
-    code="rpa.conn.alimm.ppxx.data.center.tyroacc.index"
-  />
-  <ModuleCard
-    title="超级新品孵化-数据导出"
-    href="./rpa-conn-alimm-ppxx-data-center-crowd-index"
-    code="rpa.conn.alimm.ppxx.data.center.crowd.index"
-  />
-  <ModuleCard
-    title="超级会员加速-数据导出"
-    href="./rpa-conn-alimm-ppxx-data-center-memacc-index"
-    code="rpa.conn.alimm.ppxx.data.center.memacc.index"
-  />
-  <ModuleCard
-    title="超级复购加速-数据导出"
-    href="./rpa-conn-alimm-ppxx-data-center-memacc-repurchase-index"
-    code="rpa.conn.alimm.ppxx.data.center.memacc.repurchase.index"
-  />
-  <ModuleCard
-    title="超级老客加速-数据导出"
-    href="./rpa-conn-alimm-ppxx-data-center-old-index"
-    code="rpa.conn.alimm.ppxx.data.center.old.index"
+    title="商家中心数据概览"
+    href="./rpa-conn-alimm-tblm-home-overview"
+    code="rpa.conn.alimm.tblm.home.overview"
   />
 </Cards>
 
-### 淘宝联盟/TBLM
+### 万相台/Wxt
 
 <Cards className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
   <ModuleCard
-    title="商家中心-数据概览"
-    href="./rpa-conn-alimm-tblm-home-overview"
-    code="rpa.conn.alimm.tblm.home.overview"
+    title="商品违规列表采集"
+    href="./rpa-conn-alimm-wxt-item-violation"
+    code="rpa.conn.alimm.wxt.item.violation"
+  />
+  <ModuleCard
+    title="短视频违规列表采集"
+    href="./rpa-conn-alimm-wxt-short-video-violation"
+    code="rpa.conn.alimm.wxt.short.video.violation"
   />
 </Cards>
