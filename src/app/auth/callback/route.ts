@@ -53,6 +53,15 @@ export function GET(request: Request) {
   if (typeof target !== 'string' || !target.startsWith('/')) {
     return new Response('illegal target', { status: 400 });
   }
+  // 禁止 SSO 回跳携带 render=, 避免通道 B 误开通道 A (嵌入须走 BFF HMAC)
+  try {
+    const probe = new URL(target, 'http://localhost');
+    if (probe.searchParams.has('render')) {
+      return new Response('illegal target', { status: 400 });
+    }
+  } catch {
+    return new Response('illegal target', { status: 400 });
+  }
 
   const userName = payload.userName ?? '';
   if (!userName) {

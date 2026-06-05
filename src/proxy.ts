@@ -8,8 +8,13 @@ import {
   sessionNeedsSilentRefresh,
 } from '@/lib/auth/session';
 import { docsContentRoute, docsRoute } from '@/lib/core/shared';
+import { resourcesRequireEmbedSign } from '@/lib/auth/auth-config';
 import {
+  EMBED_VERIFIED_CUBE_ORIGIN_HEADER,
+  EMBED_VERIFIED_SH_HEADER,
+  EMBED_VERIFIED_USER_HEADER,
   getEmbedRenderMode,
+  stripClientEmbedVerifiedHeaders,
   verifyCubeEmbedRequest,
 } from '@/lib/auth/cube-embed';
 import {
@@ -41,8 +46,10 @@ function isPublicPath(pathname: string): boolean {
   if (pathname.startsWith('/_next/')) return true;
   if (pathname.startsWith('/.well-known/')) return true;
   if (pathname.startsWith('/oauth/')) return true;
-  /** 嵌入 HTML 引用的绝对图片 URL；扩展名白名单由 route handler 二次校验 */
-  if (pathname.startsWith('/resources/images/')) return true;
+  /** 开启资源验签后, 图片走 route handler 内 HMAC 校验, 不再视为 SSO 公开路径 */
+  if (pathname.startsWith('/resources/images/')) {
+    return !resourcesRequireEmbedSign();
+  }
   if (/\.(?:ico|png|jpg|jpeg|gif|webp|svg|woff2?)$/i.test(pathname)) return true;
   return false;
 }
@@ -122,10 +129,14 @@ function applyEmbedGate(request: NextRequest): NextResponse | null {
     );
   }
 
-  // 将 X-Render-Mode 以及验签结果透传给下游 route handler
+  // 将 X-Render-Mode 以及验签结果透传给下游
   const forwardHeaders = new Headers(request.headers);
-  forwardHeaders.set('x-embed-verified-sh', verified.sh);
-  if (verified.user) forwardHeaders.set('x-embed-verified-user', verified.user);
+  stripClientEmbedVerifiedHeaders(forwardHeaders);
+  forwardHeaders.set(EMBED_VERIFIED_SH_HEADER, verified.sh);
+  if (verified.user) forwardHeaders.set(EMBED_VERIFIED_USER_HEADER, verified.user);
+  if (verified.cubeOrigin) {
+    forwardHeaders.set(EMBED_VERIFIED_CUBE_ORIGIN_HEADER, verified.cubeOrigin);
+  }
 
   if (renderMode === 'markdown') {
     // rewrite 到现有 llms.mdx/docs/[[...slug]] 路由

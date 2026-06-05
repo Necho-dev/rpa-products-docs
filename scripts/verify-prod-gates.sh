@@ -12,6 +12,7 @@ set -euo pipefail
 
 BASE="${1:-http://127.0.0.1:3000}"
 SECRETS_FILE="${DOCS_SECRETS_FILE:-.secrets/dev-secrets.json}"
+CUBE_ORIGIN="${MOCK_CUBE_BASE_HOST:-http://127.0.0.1:8765}"
 
 BROWSER_UA='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
 DOC_PATH='/docs/connectors/rpa-conn-qianniu-all/rpa-conn-qianniu-item-quality-score-list'
@@ -56,9 +57,9 @@ code=$(curl_code "$BASE${DOC_PATH}?render=html")
 
 # --- 嵌入 BFF 签名（需 secrets 文件） ---
 if [[ -f "$SECRETS_FILE" ]]; then
-  embed_headers=$(python3 - "$SECRETS_FILE" "$DOC_PATH" <<'PY'
+  embed_headers=$(python3 - "$SECRETS_FILE" "$DOC_PATH" "$CUBE_ORIGIN" <<'PY'
 import hashlib, json, sys, time
-secrets_path, doc_path = sys.argv[1], sys.argv[2]
+secrets_path, doc_path, cube_origin = sys.argv[1], sys.argv[2], sys.argv[3]
 with open(secrets_path) as f:
     data = json.load(f)
 sh = secret = None
@@ -75,6 +76,7 @@ print(f"X-Render-Mode: html")
 print(f"X-Cube-Secret-Hash: {sh}")
 print(f"X-Cube-Timestamp: {tm}")
 print(f"X-Cube-Signature: {sg}")
+print(f"X-Cube-Origin: {cube_origin.rstrip('/')}")
 PY
 )
   embed_args=()
@@ -86,12 +88,32 @@ PY
   body_head=$(curl -sS "${embed_args[@]}" "$BASE${DOC_PATH}" | head -c 40 | tr -d '\n\r')
   [[ "$body_head" == "<!DOCTYPE html>"* ]] && pass "Embed: 返回完整 HTML 文档" || fail "Embed HTML 异常: $body_head"
 
-  img_url=$(curl -sS "${embed_args[@]}" "$BASE${DOC_PATH}" | grep -o 'src="[^"]*/resources/images/[^"]*"' | head -1 | sed 's/src="//;s/"$//')
+  img_url=$(curl -sS "${embed_args[@]}" "$BASE${DOC_PATH}" | grep -oE 'src="[^"]*docsResources\?path=[^"]*"' | head -1 | sed 's/src="//;s/"$//')
   if [[ -n "$img_url" ]]; then
-    code=$(curl_code_ua "$img_url")
-    [[ "$code" == "200" ]] && pass "Iframe: 嵌入 HTML 内图片浏览器可加载 → 200" || fail "嵌入图片期望 200，实际 $code"
+    pass "Embed: HTML 内图片为 docsResources 代理 URL"
+    if [[ "$img_url" == http* ]]; then
+      code=$(curl_code_ua "$img_url")
+      note "docsResources 直连（依赖魔方 Mock）HTTP $code"
+    else
+      note "相对 docsResources URL，需在魔方页内加载: $img_url"
+    fi
   else
-    note "未解析到嵌入图片 URL，跳过图片加载测试"
+    legacy=$(curl -sS "${embed_args[@]}" "$BASE${DOC_PATH}" | grep -o 'src="[^"]*/resources/images/[^"]*"' | head -1 || true)
+    if [[ -n "$legacy" ]]; then
+      fail "Embed: 仍输出文档站裸链图片 URL（应改为 docsResources）"
+    else
+      note "未解析到嵌入图片 URL，跳过 docsResources 测试"
+    fi
+  fi
+
+  # 资源验签（仅当 DOCS_RESOURCES_REQUIRE_EMBED_SIGN=true 时严格 401）
+  code=$(curl_code_ua "$BASE${IMG_PATH}")
+  if [[ "$code" == "401" ]]; then
+    pass "Resource: 无签名裸链 /resources/images → 401"
+  elif [[ "$code" == "200" ]]; then
+    note "Resource: 裸链仍可访问（未开启 DOCS_RESOURCES_REQUIRE_EMBED_SIGN）"
+  else
+    note "Resource: 裸链 /resources/images → $code"
   fi
 else
   note "未找到 $SECRETS_FILE，跳过 BFF 嵌入签名测试"

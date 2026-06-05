@@ -2,7 +2,6 @@ import { getDocAccessContextForEmbed } from '@/lib/docs/access/doc-access';
 import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
 import { source } from '@/lib/docs/source/source';
 import { renderDocPageToHtml } from '@/lib/docs/embed/html';
-import { inferSiteOrigin } from '@/lib/core/site-origin';
 import { verifyCubeEmbedRequest } from '@/lib/auth/cube-embed';
 import { notFound } from 'next/navigation';
 
@@ -38,8 +37,8 @@ export async function GET(req: Request, { params }: RouteContext<'/llms.htm/docs
   if (!page) notFound();
   if (!isDocPageAccessible(page, access)) notFound();
 
-  const siteOrigin = inferSiteOrigin(req);
-  const html = await renderDocPageToHtml(page, siteOrigin);
+  const cubeOrigin = verified.cubeOrigin;
+  const html = await renderDocPageToHtml(page, cubeOrigin);
 
   return new Response(html, {
     headers: {

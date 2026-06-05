@@ -1,7 +1,6 @@
 import { getDocAccessContext, getDocAccessContextForEmbed } from '@/lib/docs/access/doc-access';
 import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
 import { getEmbedMarkdown, getLLMText, source } from '@/lib/docs/source/source';
-import { inferSiteOrigin } from '@/lib/core/site-origin';
 import { getEmbedRenderMode, verifyCubeEmbedRequest } from '@/lib/auth/cube-embed';
 import { notFound } from 'next/navigation';
 
@@ -18,6 +17,7 @@ export async function GET(req: Request, { params }: RouteContext<'/llms.mdx/docs
   let isEmbedRequest = false;
   let embedSh: string | null = null;
   let embedUser: string | null = null;
+  let embedCubeOrigin: string | null = null;
 
   if (claimedSh && hasRenderMode) {
     // 二次验签：重新校验原始 BFF 签名头
@@ -26,8 +26,9 @@ export async function GET(req: Request, { params }: RouteContext<'/llms.mdx/docs
       isEmbedRequest = true;
       embedSh = verified.sh;
       embedUser = verified.user;
+      embedCubeOrigin = verified.cubeOrigin;
     }
-    // 验签失败：不是合法的嵌入请求，下面走 getDocAccessContext（Cookie/Bearer）鉴权
+    // 验签失败: 不是合法的嵌入请求, 下面走 getDocAccessContext (Cookie/Bearer 鉴权)
   }
 
   const access = isEmbedRequest
@@ -49,9 +50,7 @@ export async function GET(req: Request, { params }: RouteContext<'/llms.mdx/docs
 
   let body: string;
   if (isEmbedRequest) {
-    // 嵌入通道：图片重写为绝对 URL
-    const siteOrigin = inferSiteOrigin(req);
-    body = await getEmbedMarkdown(page, siteOrigin);
+    body = await getEmbedMarkdown(page, embedCubeOrigin);
   } else {
     body = await getLLMText(page);
   }

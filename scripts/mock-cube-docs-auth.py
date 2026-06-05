@@ -65,6 +65,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import posixpath
 import sys
 import time
 from pathlib import Path
@@ -119,6 +120,41 @@ def bff_signature(method: str, path: str, timestamp: int, app_secret: str) -> st
     return sha256_hex(payload)
 
 
+def build_signed_docs_embed_url(docs_path: str, render: str) -> str:
+    """构建带 Query 签名的文档站嵌入 URL（供浏览器 iframe src 直连文档站）。"""
+    docs_base = DOCS_BASE_URL.rstrip("/")
+    sh = sha256_hex(APP_SECRET)
+    timestamp = int(time.time() * 1000)
+    sg = bff_signature("GET", docs_path, timestamp, APP_SECRET)
+    cube_origin = CUBE_BASE_HOST.rstrip("/")
+    query = urlencode(
+        {
+            "render": render,
+            "sh": sh,
+            "tm": str(timestamp),
+            "sg": sg,
+            "user": MOCK_USER,
+            "cubeOrigin": cube_origin,
+        },
+        quote_via=quote,
+    )
+    return f"{docs_base}{docs_path}?{query}"
+
+
+def build_iframe_src(path: str, render: str, auth: str) -> str:
+    """
+    嵌入 iframe src（html | markdown 均支持）：
+    - auth=query：浏览器跨域直连文档站（Query 凭证）
+    - auth=header：同源加载 Mock /docsContent（BFF 服务端带头请求文档站）
+    """
+    if render not in ("html", "markdown"):
+        return ""
+    if auth == "query":
+        return build_signed_docs_embed_url(path, render)
+    proxy_query = urlencode({"path": path, "render": render, "auth": auth}, quote_via=quote)
+    return f"/docsContent?{proxy_query}"
+
+
 def fetch_embed_content(docs_path: str, render: str, *, auth_via_query: bool = False) -> Response:
     """
     方案 A 嵌入分支 & 方案 B 共用：魔方 BFF 服务端向文档站发起请求，返回文档正文。
@@ -133,6 +169,7 @@ def fetch_embed_content(docs_path: str, render: str, *, auth_via_query: bool = F
     timestamp = int(time.time() * 1000)
     sg = bff_signature("GET", parsed_path, timestamp, APP_SECRET)
 
+    cube_origin = CUBE_BASE_HOST.rstrip("/")
     if auth_via_query:
         query = urlencode(
             {
@@ -141,6 +178,7 @@ def fetch_embed_content(docs_path: str, render: str, *, auth_via_query: bool = F
                 "tm": str(timestamp),
                 "sg": sg,
                 "user": MOCK_USER,
+                "cubeOrigin": cube_origin,
             },
             quote_via=quote,
         )
@@ -154,6 +192,7 @@ def fetch_embed_content(docs_path: str, render: str, *, auth_via_query: bool = F
             "X-Cube-Timestamp": str(timestamp),
             "X-Cube-Signature": sg,
             "X-Cube-User": MOCK_USER,
+            "X-Cube-Origin": cube_origin,
         }
 
     try:
@@ -284,7 +323,7 @@ def index() -> str:
 
   <section>
     <h2>🖼 iframe 嵌入测试 <span class="badge" style="background:#f0fdf4;color:#166534">可视化</span></h2>
-    <p>在浏览器中直接预览文档嵌入效果（服务端拉取 + <code>srcdoc</code> 渲染）。</p>
+    <p>在浏览器中直接预览文档嵌入效果（<code>&lt;iframe src&gt;</code>：Query 直连文档站 / Header 走 BFF 代理）。</p>
     <ul>
       <li><a href="/iframe-test">打开 iframe 测试页</a></li>
       <li><a href="/iframe-test?path={sample_doc}&render=html">HTML 模式预览（商品质量分）</a></li>
@@ -346,32 +385,29 @@ def iframe_test(
     auth: str = Query("header", description="header | query — 文档站鉴权传参方式"),
 ) -> str:
     """
-    iframe 嵌入测试页：在浏览器中直观查看嵌入效果。
-    - html  → <iframe srcdoc="..."> 渲染文档 HTML 片段
-    - markdown → <pre> 显示返回的 Markdown 文本（含图片 URL）
+    iframe 嵌入测试页：html / markdown 均通过 <iframe src="..."> 加载。
+    - Query 鉴权：iframe 直连文档站 signed URL
+    - Header 鉴权：iframe 加载同源 /docsContent BFF 代理
+    markdown 在 iframe 内为浏览器原生展示的纯文本（非渲染后的 HTML）。
     """
     content_resp = fetch_embed_content(path, render, auth_via_query=(auth == "query"))
     raw_body = content_resp.body.decode("utf-8", errors="replace") if isinstance(content_resp.body, bytes) else ""
     status = content_resp.status_code
+
+    iframe_src = build_iframe_src(path, render, auth) if status == 200 else ""
 
     if status != 200:
         preview_html = f"""<div style="padding:1rem;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;color:#991b1b">
   <strong>错误 {status}</strong>
   <pre style="margin:.5rem 0 0;font-size:.85em;white-space:pre-wrap">{raw_body}</pre>
 </div>"""
-    elif render == "html":
-        # 用 srcdoc 嵌入完整 HTML（同源，无跨域问题）
-        escaped = raw_body.replace("&", "&amp;").replace('"', "&quot;")
-        preview_html = f"""<iframe
-  srcdoc="{escaped}"
-  style="width:100%;min-height:600px;border:1px solid #e5e7eb;border-radius:8px;background:#fff"
-  sandbox="allow-same-origin allow-scripts"
-  title="文档嵌入预览"
-></iframe>"""
     else:
-        # markdown 文本展示
-        escaped_pre = raw_body.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-        preview_html = f"""<pre style="background:#f6f8fa;border:1px solid #e5e7eb;border-radius:8px;padding:1rem;overflow-x:auto;font-size:.85em;line-height:1.6;white-space:pre-wrap">{escaped_pre}</pre>"""
+        preview_html = f"""<iframe
+  src="{iframe_src.replace('"', "&quot;")}"
+  style="width:100%;min-height:600px;border:1px solid #e5e7eb;border-radius:8px;background:#fff"
+  title="文档嵌入预览"
+  referrerpolicy="no-referrer"
+></iframe>"""
 
     all_docs = [
         "/docs/connectors/rpa-conn-qianniu-all/rpa-conn-qianniu-item-quality-score-list",
@@ -392,6 +428,11 @@ def iframe_test(
     render_html = "selected" if render == "html" else ""
     auth_header = "selected" if auth != "query" else ""
     auth_query = "selected" if auth == "query" else ""
+    iframe_src_meta = (
+        f'<span>·</span><span>iframe src：<code>{iframe_src}</code></span>'
+        if iframe_src
+        else ""
+    )
 
     return f"""<!doctype html>
 <html lang="zh-CN">
@@ -461,6 +502,7 @@ def iframe_test(
       <span>鉴权：<code>{auth}</code></span>
       <span>·</span>
       <span class="{'badge-ok' if status == 200 else 'badge-err'}">HTTP {status}</span>
+      {iframe_src_meta}
     </div>
   </form>
   <div class="preview">
@@ -468,6 +510,52 @@ def iframe_test(
   </div>
 </body>
 </html>"""
+
+
+ALLOWED_IMAGE_EXTS = frozenset({"png", "jpg", "jpeg", "gif", "webp", "svg"})
+
+
+@app.get("/docsResources")
+def docs_resources(
+    path: str = Query(..., description="相对 content/docs/ 的图片路径"),
+) -> Response:
+    """
+    模拟魔方图片代理：浏览器带 Mock 会话（本 Mock 不校验 Cookie，仅作联调）。
+    回源文档站 /resources/images/{path}，PATH 参与 BFF HMAC。
+    """
+    normalized = posixpath.normpath(path.strip())
+    if normalized.startswith("..") or path.strip().startswith("/"):
+        return Response(content="forbidden", status_code=403, media_type="text/plain")
+    ext = normalized.rsplit(".", 1)[-1].lower() if "." in normalized else ""
+    if ext not in ALLOWED_IMAGE_EXTS:
+        return Response(content="forbidden", status_code=403, media_type="text/plain")
+
+    resource_path = f"/resources/images/{normalized}"
+    timestamp = int(time.time() * 1000)
+    sh = sha256_hex(APP_SECRET)
+    sg = bff_signature("GET", resource_path, timestamp, APP_SECRET)
+    docs_url = f"{DOCS_BASE_URL.rstrip('/')}{resource_path}"
+    headers = {
+        "X-Cube-Secret-Hash": sh,
+        "X-Cube-Timestamp": str(timestamp),
+        "X-Cube-Signature": sg,
+        "X-Cube-Origin": CUBE_BASE_HOST.rstrip("/"),
+    }
+    try:
+        resp = httpx.get(docs_url, headers=headers, follow_redirects=False, timeout=15.0)
+    except Exception as exc:
+        return Response(
+            content=f"回源文档站失败：{exc}",
+            status_code=502,
+            media_type="text/plain; charset=utf-8",
+        )
+    content_type = resp.headers.get("content-type", "application/octet-stream")
+    return Response(
+        content=resp.content,
+        status_code=resp.status_code,
+        media_type=content_type,
+        headers={"Cache-Control": "private, no-store"},
+    )
 
 
 @app.get("/health")

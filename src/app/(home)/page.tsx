@@ -42,7 +42,7 @@ const cards = [
     icon: ServerIcon,
     title: 'RSS & MCP 服务',
     description:
-      '提供原生 RSS 订阅更新、 MCP 服务能力, 添加 MCP 服务到 Cursor、Claude Code, 即可在 AI 客户端中快速检索和访问文档内容。',
+      '提供 RSS 订阅更新、 MCP 服务能力, 添加 MCP 服务到 Cursor 或Claude Code, 即可在 AI 客户端中快速检索和访问文档内容。',
   },
 ] as const;
 

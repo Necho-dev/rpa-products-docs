@@ -4,7 +4,6 @@ import remarkRehype from 'remark-rehype';
 import rehypeStringify from 'rehype-stringify';
 import { codeToHtml } from 'shiki';
 import { rewriteMarkdownImagesForEmbed } from '@/lib/docs/embed/markdown';
-import { getPublicSiteUrl } from '@/lib/core/shared';
 import type { source } from '@/lib/docs/source/source';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -144,17 +143,16 @@ async function markdownToHtml(markdown: string): Promise<string> {
  */
 export async function renderDocPageToHtml(
   page: DocPage,
-  siteOrigin?: string,
+  cubeOrigin: string | null,
 ): Promise<string> {
-  const origin = siteOrigin ?? getPublicSiteUrl();
-
   const [processedText, rawText] = await Promise.all([
     page.data.getText('processed'),
     page.data.getText('raw'),
   ]);
 
-  // 图片 URL 重写（传入 page.path 以支持任意目录下的图片）
-  let markdown = rewriteMarkdownImagesForEmbed(processedText, rawText, page.path, origin);
+  let markdown = rewriteMarkdownImagesForEmbed(processedText, rawText, page.path, {
+    cubeOrigin,
+  });
 
   // 组件降级
   markdown = postProcessMarkdownForHtml(markdown);

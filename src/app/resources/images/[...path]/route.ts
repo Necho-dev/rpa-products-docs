@@ -2,6 +2,11 @@ import { readFile } from 'node:fs/promises';
 import { join, normalize } from 'node:path';
 import { NextResponse } from 'next/server';
 import {
+  resourcesPublicPrefixes,
+  resourcesRequireEmbedSign,
+} from '@/lib/auth/auth-config';
+import { verifyResourceRequest } from '@/lib/auth/sign-resource';
+import {
   isBlockedUserAgent,
   isUserAgentGateEnabled,
   userAgentForbiddenResponse,
@@ -40,6 +45,15 @@ function mimeFromExt(ext: string): string {
   }
 }
 
+function isPublicResourceRelativePath(relative: string): boolean {
+  const prefixes = resourcesPublicPrefixes();
+  if (prefixes.length === 0) return false;
+  const normalized = relative.replace(/^\/+/, '');
+  return prefixes.some(
+    (prefix) => normalized === prefix || normalized.startsWith(`${prefix}/`),
+  );
+}
+
 export async function GET(
   req: Request,
   { params }: RouteContext<'/resources/images/[...path]'>,
@@ -62,6 +76,16 @@ export async function GET(
 
   // 防路径穿越：规范化后必须仍在 DOCS_BASE_DIR 内
   const relative = path.join('/');
+
+  if (resourcesRequireEmbedSign() && !isPublicResourceRelativePath(relative)) {
+    if (!verifyResourceRequest(req)) {
+      return NextResponse.json(
+        { error: 'unauthorized', message: '访问资源请携带有效的 BFF 签名' },
+        { status: 401, headers: { 'Content-Type': 'application/json; charset=utf-8' } },
+      );
+    }
+  }
+
   const resolved = normalize(join(DOCS_BASE_DIR, relative));
   if (!resolved.startsWith(DOCS_BASE_DIR + '/') && resolved !== DOCS_BASE_DIR) {
     return new NextResponse('forbidden', { status: 403 });
@@ -77,11 +101,15 @@ export async function GET(
     throw err;
   }
 
+  const cacheControl = resourcesRequireEmbedSign()
+    ? 'private, no-store'
+    : 'public, max-age=86400, stale-while-revalidate=604800';
+
   return new NextResponse(data.buffer as ArrayBuffer, {
     status: 200,
     headers: {
       'Content-Type': mimeFromExt(ext),
-      'Cache-Control': 'public, max-age=86400, stale-while-revalidate=604800',
+      'Cache-Control': cacheControl,
     },
   });
 }

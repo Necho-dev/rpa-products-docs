@@ -76,6 +76,37 @@ export function mcpResourceUrl(siteOrigin: string): string {
   return `${siteOrigin.replace(/\/$/, '')}/mcp`;
 }
 
+function envBool(key: string, defaultValue = false): boolean {
+  const raw = trimEnv(key);
+  if (!raw) return defaultValue;
+  return raw === '1' || raw.toLowerCase() === 'true' || raw.toLowerCase() === 'yes';
+}
+
+  /**
+ * 为 true 时 `/resources/images/**` 须带 BFF HMAC (公开前缀除外)
+ * 未显式配置时: 生产环境且 `DOCS_CUBE_SSO_ENABLED` 为 true -> 默认 true
+ */
+export function resourcesRequireEmbedSign(): boolean {
+  const raw = trimEnv('DOCS_RESOURCES_REQUIRE_EMBED_SIGN');
+  if (raw !== undefined) {
+    return envBool('DOCS_RESOURCES_REQUIRE_EMBED_SIGN');
+  }
+  if (process.env.NODE_ENV === 'production' && isCubeSsoEnabled()) {
+    return true;
+  }
+  return false;
+}
+
+/** 逗号分隔, 相对 `content/docs/` 的路径前缀, 免 embed 验签 (如 `public/images/`) */
+export function resourcesPublicPrefixes(): string[] {
+  const raw = trimEnv('DOCS_RESOURCES_PUBLIC_PREFIXES');
+  if (!raw) return [];
+  return raw
+    .split(',')
+    .map((s) => s.trim().replace(/^\/+/, ''))
+    .filter(Boolean);
+}
+
 export function isSecureCookieRequest(request: Request): boolean {
   const proto =
     request.headers.get('x-forwarded-proto') ??
