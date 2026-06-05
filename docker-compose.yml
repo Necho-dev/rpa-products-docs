@@ -19,6 +19,10 @@ services:
       NODE_ENV: production
       PORT: 3001
       HOSTNAME: "0.0.0.0"
+    volumes:
+      # SSO: 只读挂载宿主机密钥 (与 DOCS_SECRETS_FILE 容器内路径一致, 默认 /opt/secrets/secrets.json)
+      # 宿主机文件须对容器用户 nextjs (uid 1001) 可读, 例如 chmod 644 或 chown 1001:1001
+      - ${DOCS_SECRETS_HOST_PATH:-/opt/secrets/secrets.json}:/opt/secrets/secrets.json:ro
     healthcheck:
       test:
         [
