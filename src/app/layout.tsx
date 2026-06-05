@@ -50,7 +50,16 @@ export default function Layout({ children }: LayoutProps<'/'>) {
         />
       </head>
       <body className="flex min-h-screen flex-col font-sans antialiased">
-        <RootProvider>
+        <RootProvider
+          i18n={{
+            locale: 'zh-CN',
+            translations: {
+              search: '搜索',
+              toc: '页面导航',
+              lastUpdate: '最后更新于',
+            },
+          }}
+        >
           <DocumentTitleDefault defaultTitle={siteName} />
           {children}
         </RootProvider>

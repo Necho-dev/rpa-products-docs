@@ -12,6 +12,7 @@ import {
   SparklesIcon,
 } from 'lucide-react';
 import { AISearch, AISearchPanel, AISearchTrigger } from '@/components/ai/search';
+import { DocsFloatingAnchors } from '@/components/docs/floating-anchors';
 import { cn } from '@/lib/core/cn';
 import { docsRoute, siteName } from '@/lib/core/shared';
 
@@ -86,13 +87,16 @@ export default function HomePage() {
               进入知识库
             </Link>
             <AISearchTrigger
-              title="快捷键：⌘ I 或 Ctrl + I 打开 / 关闭"
+              aria-label="有疑问找 AI"
+              title="有疑问找 AI · 快捷键 ⌘ I 或 Ctrl + I"
               aria-keyshortcuts="Meta+KeyI Control+KeyI"
               className={cn(
                 'group relative inline-flex h-10 shrink-0 items-center gap-2 overflow-hidden rounded-xl px-4 text-sm font-medium sm:h-11 sm:px-5 sm:font-semibold',
                 'border border-fd-primary/35 bg-fd-card/90 text-fd-primary shadow-sm backdrop-blur-sm',
+                'dark:border-fd-primary/50 dark:bg-fd-muted/90 dark:shadow-[0_2px_16px_rgba(0,0,0,0.45)]',
                 'transition-all duration-300 ease-out',
                 'hover:-translate-y-0.5 hover:border-fd-primary/60 hover:bg-linear-to-br hover:from-fd-primary/10 hover:to-violet-500/8 hover:shadow-md hover:shadow-fd-primary/12',
+                'dark:hover:border-fd-primary/70 dark:hover:bg-fd-accent/60 dark:hover:shadow-[0_4px_20px_rgba(59,130,246,0.12)]',
                 'active:translate-y-0 active:scale-[0.98]',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring focus-visible:ring-offset-2 focus-visible:ring-offset-fd-background',
               )}
@@ -105,14 +109,16 @@ export default function HomePage() {
                 className="size-4 shrink-0 transition-transform duration-300 ease-out group-hover:rotate-12 group-hover:scale-110 motion-reduce:transform-none"
                 aria-hidden
               />
-              <span className="whitespace-nowrap">Ask AI</span>
+              <span className="whitespace-nowrap">有疑问找 AI</span>
               <span
                 className="hidden items-center gap-0.5 border-l border-fd-primary/25 pl-2 text-[10px] font-normal tabular-nums text-fd-muted-foreground sm:inline-flex"
                 aria-hidden
               >
-                <kbd className="rounded border border-fd-border/90 bg-fd-muted/40 px-1 py-px font-sans">⌘</kbd>
+                <kbd className="rounded border border-fd-border/90 bg-fd-muted/40 px-1 py-px font-sans dark:border-fd-border dark:bg-fd-background/60">
+                  ⌘
+                </kbd>
                 <span className="opacity-70">+</span>
-                <kbd className="min-w-4.5 rounded border border-fd-border/90 bg-fd-muted/40 px-1 py-px text-center font-sans">
+                <kbd className="min-w-4.5 rounded border border-fd-border/90 bg-fd-muted/40 px-1 py-px text-center font-sans dark:border-fd-border dark:bg-fd-background/60">
                   I
                 </kbd>
               </span>
@@ -212,6 +218,7 @@ export default function HomePage() {
           </nav>
         </footer>
       </main>
+      <DocsFloatingAnchors />
     </AISearch>
   );
 }

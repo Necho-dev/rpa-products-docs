@@ -21,6 +21,15 @@ export function getPageImage(page: (typeof source)['$inferPage']) {
   };
 }
 
+export function getPageSharePoster(page: (typeof source)['$inferPage']) {
+  const segments = [...page.slugs, 'poster.png'];
+
+  return {
+    segments,
+    url: `${docsImageRoute}/${segments.join('/')}`,
+  };
+}
+
 export function getPageMarkdownUrl(page: (typeof source)['$inferPage']) {
   const slugs = page.slugs;
   const segments = slugs.length > 0

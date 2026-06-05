@@ -5,10 +5,8 @@ import { DocsLayout } from 'fumadocs-ui/layouts/docs';
 import { baseOptions } from '@/lib/ui/layout.shared';
 import { DocsThemeToolbar } from '@/components/docs/theme-toolbar';
 import { DocsSidebarTreeFolder, DocsSidebarTreeItem } from '@/components/docs/sidebar-tree';
-import { AISearch, AISearchPanel, AISearchTrigger } from '@/components/ai/search';
-import { SparklesIcon } from 'lucide-react';
-import { cn } from '@/lib/core/cn';
-import { buttonVariants } from 'fumadocs-ui/components/ui/button';
+import { AISearch, AISearchPanel } from '@/components/ai/search';
+import { DocsFloatingAnchors } from '@/components/docs/floating-anchors';
 
 export default async function Layout({ children }: LayoutProps<'/docs'>) {
   const modelDisplayName = process.env.LLM_MODEL?.trim() || undefined;
@@ -33,19 +31,7 @@ export default async function Layout({ children }: LayoutProps<'/docs'>) {
     >
       <AISearch modelDisplayName={modelDisplayName}>
         <AISearchPanel />
-        <AISearchTrigger
-          position="float"
-          title="快捷键：⌘ I 或 Ctrl + I 打开 / 关闭"
-          className={cn(
-            buttonVariants({
-              variant: 'secondary',
-              className: 'group text-fd-muted-foreground rounded-2xl gap-1.5',
-            }),
-          )}
-        >
-          <SparklesIcon className="size-3.5 transition-[transform] duration-300 group-hover:rotate-12 group-hover:scale-110" />
-          <span className="whitespace-nowrap">Ask AI</span>
-        </AISearchTrigger>
+        <DocsFloatingAnchors />
         {children}
       </AISearch>
     </DocsLayout>

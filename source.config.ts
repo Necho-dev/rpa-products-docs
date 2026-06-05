@@ -2,12 +2,19 @@ import { stat } from 'node:fs/promises';
 import { defineConfig, defineDocs } from 'fumadocs-mdx/config';
 import { metaSchema, pageSchema } from 'fumadocs-core/source/schema';
 import lastModified from 'fumadocs-mdx/plugins/last-modified';
-import { remarkDirectiveAdmonition, remarkMdxFiles, remarkMdxMermaid, rehypeCodeDefaultOptions } from 'fumadocs-core/mdx-plugins';
+import {
+  remarkDirectiveAdmonition,
+  remarkMdxFiles,
+  remarkMdxMermaid,
+  rehypeCodeDefaultOptions,
+} from 'fumadocs-core/mdx-plugins';
+import { remarkSteps } from 'fumadocs-core/mdx-plugins/remark-steps';
 import { remarkMdxJsonSchema } from './src/lib/docs/source/remark-mdx-json-schema';
 import remarkDirective from 'remark-directive';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { z } from 'zod';
+import { codeBlockIconExtensions, codeBlockIconShortcuts } from './src/lib/ui/code-block-icons';
 import { shikiDocsThemes } from './src/lib/ui/shiki-docs-themes';
 
 const docBadgeSchema = z.object({
@@ -78,6 +85,7 @@ export default defineConfig({
     remarkPlugins: [
       remarkDirective,
       remarkDirectiveAdmonition,
+      remarkSteps,
       remarkMdxJsonSchema,
       remarkMdxFiles,
       remarkMdxMermaid,
@@ -89,6 +97,10 @@ export default defineConfig({
       themes: { ...shikiDocsThemes },
       inline: 'tailing-curly-colon',
       addLanguageClass: true,
+      icon: {
+        shortcuts: codeBlockIconShortcuts,
+        extend: codeBlockIconExtensions,
+      },
       // Extend the default parseMetaString (which handles title/tab/lineNumbers)
       // to also inject `data-collapsed` when the `collapsed` keyword is present.
       parseMetaString(meta, node, tree) {

@@ -60,22 +60,54 @@ div.prose {
  * - 中文正文：`word-break: keep-all` 减轻在窄列里逐字竖排。
  * - 特例：在需完全自控的表外包一层 `div.not-prose` 或使用主题自带表格组件。
  */
+/*
+ * 表格横向滚动：外层 .docs-table-scroll 限制在正文宽度内 overflow-x:auto；
+ * 内层 table 用 max-content 宽度，列宽不足时横向滑动而非挤压单元格。
+ */
+.docs-table-scroll {
+  overflow-x: auto;
+  overscroll-x: contain;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+  border-radius: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-fd-muted-foreground) 35%, transparent) transparent;
+}
+
+.docs-table-scroll:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-fd-ring) 65%, transparent);
+  outline-offset: 2px;
+}
+
+.docs-table-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.docs-table-scroll::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--color-fd-muted-foreground) 35%, transparent);
+}
+
 /* 表格：与 typography 的 not-prose 规则一致，避免误伤嵌套在 not-prose 内的表 */
 #nd-docs-layout
   .prose
   :where(table):not(
     :where([class~='not-prose'], [class~='not-prose'] *)),
-div.prose :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+div.prose :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)),
+.docs-table-scroll .docs-table {
   table-layout: auto;
-  width: 100%;
+  width: max-content;
+  min-width: 100%;
 }
 
-/* 表头/单元格：合理断行；keep-all 优先在 CJK 词/短语边界断行（不逐字） */
+/* 表头/单元格：保持列内容最小可读宽度，窄屏由外层横向滚动承接 */
 #nd-docs-layout .prose th,
 #nd-docs-layout .prose td,
 div.prose th,
-div.prose td {
-  min-width: 0;
+div.prose td,
+.docs-table-scroll .docs-table th,
+.docs-table-scroll .docs-table td {
+  min-width: min-content;
   word-break: keep-all;
   overflow-wrap: break-word;
 }
@@ -175,7 +207,7 @@ div.prose
   td:last-child {
   width: auto;
   max-width: none;
-  min-width: 0;
+  min-width: min-content;
   word-break: break-all;
   overflow-wrap: break-word;
 }
@@ -190,8 +222,9 @@ div.prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(3):last-child
   ) {
-  table-layout: fixed;
-  width: 100%;
+  table-layout: auto;
+  width: max-content;
+  min-width: 100%;
 }
 
 #nd-docs-layout
@@ -216,8 +249,8 @@ div.prose
     > * > tr:first-child > *:nth-child(3):last-child
   )
   td:nth-child(1) {
-  width: 12%;
-  min-width: 3.5rem;
+  width: auto;
+  min-width: max(3.5rem, min-content);
   max-width: none;
   white-space: nowrap;
   vertical-align: top;
@@ -245,8 +278,8 @@ div.prose
     > * > tr:first-child > *:nth-child(3):last-child
   )
   td:nth-child(2) {
-  width: 44%;
-  min-width: 0;
+  width: auto;
+  min-width: max(14rem, min-content);
   max-width: none;
   white-space: normal;
   word-break: keep-all;
@@ -276,8 +309,8 @@ div.prose
     > * > tr:first-child > *:nth-child(3):last-child
   )
   td:last-child {
-  width: 44%;
-  min-width: 0;
+  width: auto;
+  min-width: max(14rem, min-content);
   max-width: none;
   white-space: normal;
   word-break: keep-all;
@@ -339,7 +372,8 @@ div.prose
     > * > tr:first-child > *:nth-child(6):last-child
   ) {
   table-layout: auto;
-  width: 100%;
+  width: max-content;
+  min-width: 100%;
 }
 
 /* 1–2：字段名 + 中文释义：给第 2 列下限与右留白，减竖向堆行；2 与 3 列之间不贴死 */
@@ -365,7 +399,7 @@ div.prose
     > * > tr:first-child > *:nth-child(6):last-child
   )
   td:nth-child(1) {
-  min-width: 0;
+  min-width: min-content;
   vertical-align: top;
 }
 
@@ -490,7 +524,7 @@ div.prose
   )
   td:nth-child(5) {
   width: auto;
-  min-width: 0;
+  min-width: min-content;
   max-width: none;
   white-space: normal;
   word-break: normal;
@@ -522,8 +556,8 @@ div.prose
   )
   td:nth-child(6) {
   width: auto;
-  max-width: min(44%, 28rem);
-  min-width: 0;
+  max-width: 28rem;
+  min-width: max(12rem, min-content);
   word-break: break-all;
   overflow-wrap: break-word;
   white-space: normal;

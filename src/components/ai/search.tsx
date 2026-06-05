@@ -83,7 +83,8 @@ const Context = createContext<{
 /** Scoped typography for assistant markdown (tables, code, headings). */
 const aiChatMarkdownClass = cn(
   'prose prose-sm max-w-none min-w-0 w-full text-fd-foreground/95',
-  '[&_table]:my-3 [&_table]:w-full [&_table]:border-collapse [&_table]:text-[13px]',
+  '[&_.docs-table-scroll]:my-3 [&_.docs-table-scroll]:max-w-full [&_.docs-table-scroll]:overflow-x-auto',
+  '[&_table]:border-collapse [&_table]:text-[13px] [&_table]:min-w-full [&_table]:w-max',
   '[&_thead]:border-b [&_thead]:border-fd-border',
   '[&_th]:bg-fd-muted/50 [&_th]:px-3 [&_th]:py-2.5 [&_th]:text-left [&_th]:font-semibold [&_th]:whitespace-nowrap',
   '[&_td]:border-b [&_td]:border-fd-border/50 [&_td]:px-3 [&_td]:py-2.5 [&_td]:align-top',
@@ -1008,19 +1009,39 @@ export function AISearch({
   return <Context value={contextValue}>{children}</Context>;
 }
 
+const circleTriggerClassName = cn(
+  'relative flex size-11 items-center justify-center rounded-full overflow-hidden',
+  'border border-fd-border/80 bg-fd-card/90 text-fd-primary shadow-lg backdrop-blur-sm',
+  'dark:border-fd-border dark:bg-fd-muted dark:shadow-[0_4px_20px_rgba(0,0,0,0.5)] dark:ring-1 dark:ring-fd-primary/30',
+  'transition-[transform,box-shadow,opacity] duration-300 ease-out',
+  'hover:scale-105 hover:shadow-xl hover:shadow-fd-primary/15 hover:ring-2 hover:ring-fd-primary/25',
+  'dark:hover:ring-fd-primary/45 dark:hover:shadow-[0_4px_24px_rgba(59,130,246,0.18)]',
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring focus-visible:ring-offset-2 focus-visible:ring-offset-fd-background',
+  'active:scale-95 motion-reduce:transition-none motion-reduce:hover:scale-100',
+);
+
 export function AISearchTrigger({
   position = 'default',
+  variant = 'default',
   className,
   ...props
-}: ComponentProps<'button'> & { position?: 'default' | 'float' }) {
+}: ComponentProps<'button'> & {
+  position?: 'default' | 'float' | 'anchor';
+  variant?: 'default' | 'circle';
+}) {
   const { open, setOpen } = useAISearchContext();
 
   return (
     <button
       data-state={open ? 'open' : 'closed'}
       data-fd-ai-chat-float={position === 'float' ? '' : undefined}
-      aria-label={position === 'float' ? '打开 AI 对话' : undefined}
+      aria-label={
+        position === 'float' || position === 'anchor' || variant === 'circle'
+          ? '打开 AI 对话'
+          : undefined
+      }
       className={cn(
+        variant === 'circle' && circleTriggerClassName,
         position === 'float' && [
           /* 视口右下角（inline-end = LTR 下右侧），与官方文档布局示意一致；避免无效 calc 导致定位失效 */
           'fixed z-40 flex flex-row items-center justify-center gap-2 shadow-lg transition-[translate,opacity]',
@@ -1104,7 +1125,7 @@ export function AISearchPanel() {
       <Presence present={open}>
         <div
           data-state={open ? 'open' : 'closed'}
-          className="fixed inset-0 z-30 backdrop-blur-xs bg-fd-overlay data-[state=open]:animate-fd-fade-in data-[state=closed]:animate-fd-fade-out lg:hidden"
+          className="fixed inset-0 z-40 backdrop-blur-xs bg-fd-overlay data-[state=open]:animate-fd-fade-in data-[state=closed]:animate-fd-fade-out lg:hidden"
           onClick={() => setOpen(false)}
         />
       </Presence>
@@ -1112,7 +1133,7 @@ export function AISearchPanel() {
         <div
           className={cn(
             /* 悬浮层，不占用任何布局空间 */
-            'fixed z-40 overflow-hidden bg-fd-card text-fd-card-foreground shadow-2xl border rounded-2xl',
+            'fixed z-50 overflow-hidden bg-fd-card text-fd-card-foreground shadow-2xl border rounded-2xl',
             '[--ai-chat-width:min(calc(100vw-1.25rem),640px)]',
             /* 小屏：铺满视口 */
             'max-lg:inset-x-1.5 max-lg:inset-y-3',

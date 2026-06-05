@@ -1,7 +1,8 @@
 import { isCubeSsoEnabled } from '@/lib/auth/auth-config';
 import { getDocAccessContextFromRequest } from '@/lib/docs/access/doc-access-react';
 import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
-import { getPageImage, getPageMarkdownUrl, source } from '@/lib/docs/source/source';
+import { DocShareButton } from '@/components/docs/doc-share-dialog';
+import { getPageImage, getPageMarkdownUrl, getPageSharePoster, source } from '@/lib/docs/source/source';
 import {
   DocsBody,
   DocsDescription,
@@ -71,13 +72,19 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
           </div>
         ) : null}
       </div>
-      <div className="flex flex-row gap-2 items-center border-b pb-6">
+      <div className="flex flex-row flex-wrap gap-2 items-center border-b pb-6">
         <MarkdownCopyButton markdownUrl={markdownUrl} />
         <ViewOptionsPopover
           markdownUrl={markdownUrl}
           githubUrl={gitSourceUrl}
         />
         <AddMcpButton mcpUrl={mcpUrl} />
+        <DocShareButton
+          title={page.data.title}
+          description={page.data.description}
+          pageUrl={`${origin}${page.url}`}
+          posterUrl={`${origin}${getPageSharePoster(page).url}`}
+        />
       </div>
       <DocsBody>
         <MDX
@@ -112,13 +119,18 @@ export async function generateMetadata(props: PageProps<'/docs/[[...slug]]'>): P
   const title = page.data.title?.trim() || siteName;
   const description = page.data.description?.trim() || getSiteDescription();
 
+  const hdrs = await headers();
+  const origin = inferSiteOrigin(
+    new Request(`http://${hdrs.get('host') ?? 'localhost'}/`, { headers: Object.fromEntries(hdrs.entries()) }),
+  );
+
   return {
     title,
     description,
     openGraph: {
       title,
       description,
-      images: getPageImage(page).url,
+      images: `${origin}${getPageImage(page).url}`,
     },
   };
 }

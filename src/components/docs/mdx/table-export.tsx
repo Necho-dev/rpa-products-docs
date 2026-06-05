@@ -3,6 +3,7 @@
 import { useRef } from 'react';
 import { Download } from 'lucide-react';
 import type { ComponentProps } from 'react';
+import { cn } from '@/lib/core/cn';
 
 function getExportFilename() {
   // Use last path segment of current URL as prefix, fallback to "Table"
@@ -39,11 +40,11 @@ function exportTableToCSV(table: HTMLTableElement) {
   URL.revokeObjectURL(url);
 }
 
-export function TableWithExport(props: ComponentProps<'table'>) {
+export function TableWithExport({ className, ...props }: ComponentProps<'table'>) {
   const tableRef = useRef<HTMLTableElement>(null);
 
   return (
-    <div className="group relative">
+    <div className="group relative my-4">
       <button
         type="button"
         onClick={() => tableRef.current && exportTableToCSV(tableRef.current)}
@@ -54,7 +55,9 @@ export function TableWithExport(props: ComponentProps<'table'>) {
         <Download className="size-3.5" />
         <span>导出</span>
       </button>
-      <table ref={tableRef} {...props} />
+      <div className="docs-table-scroll" tabIndex={0} role="region" aria-label="可横向滚动的表格">
+        <table ref={tableRef} className={cn('docs-table', className)} {...props} />
+      </div>
     </div>
   );
 }

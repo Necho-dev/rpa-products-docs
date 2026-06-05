@@ -69,3 +69,100 @@ html > body[data-scroll-locked] {
     max-width: min(28rem, 92vw) !important;
   }
 }
+
+/* 右侧 AI 锚点动效（随机时长由组件内联 --ai-* 变量控制） */
+@keyframes ai-anchor-breathe {
+  0%,
+  100% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.07;
+  }
+}
+
+@keyframes ai-anchor-float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -4px;
+  }
+}
+
+@keyframes ai-anchor-glow {
+  0%,
+  100% {
+    opacity: 0.35;
+    scale: 1;
+  }
+  50% {
+    opacity: 0.85;
+    scale: 1.12;
+  }
+}
+
+@keyframes ai-anchor-wiggle {
+  0%,
+  100% {
+    rotate: 0deg;
+  }
+  20% {
+    rotate: -6deg;
+  }
+  40% {
+    rotate: 6deg;
+  }
+  60% {
+    rotate: -4deg;
+  }
+  80% {
+    rotate: 4deg;
+  }
+}
+
+@keyframes ai-anchor-orbit {
+  0% {
+    rotate: 0deg;
+    opacity: 0.9;
+  }
+  50% {
+    opacity: 0.45;
+  }
+  100% {
+    rotate: 360deg;
+    opacity: 0.9;
+  }
+}
+
+@keyframes back-to-top-rocket-launch {
+  0% {
+    translate: 0 3px;
+  }
+  35% {
+    translate: 0 -1px;
+  }
+  65% {
+    translate: 0 -7px;
+  }
+  100% {
+    translate: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-anchor-animated {
+    animation: none !important;
+  }
+
+  .ai-anchor-glow-ring,
+  .ai-anchor-orbit-dot {
+    animation: none !important;
+    opacity: 0.5 !important;
+  }
+
+  .back-to-top-rocket-launch {
+    animation: none !important;
+  }
+}

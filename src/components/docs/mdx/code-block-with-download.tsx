@@ -110,9 +110,12 @@ export function CodeBlockWithDownload({
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const toggle = () => setCollapsed((v) => !v);
 
+  // icon 由 CodeBlockTitle 渲染，勿再传给 CodeBlock（否则会重复显示）
+  const { icon: _icon, ...codeBlockRest } = rest as { icon?: ReactNode };
+
   return (
     <CodeBlock
-      {...(rest as object)}
+      {...codeBlockRest}
       ref={containerRef}
       title={
         (title ? (

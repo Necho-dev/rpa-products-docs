@@ -27,16 +27,41 @@ function extractText(node: React.ReactNode): string {
   return '';
 }
 
+/** Shiki transformerIcon 注入的 SVG HTML 或 React 节点 */
+function CodeBlockLangIcon({ icon }: { icon?: React.ReactNode }) {
+  if (!icon) return null;
+  if (typeof icon === 'string') {
+    return (
+      <span
+        className="shrink-0 text-fd-muted-foreground [&_svg]:size-3.5"
+        dangerouslySetInnerHTML={{ __html: icon }}
+      />
+    );
+  }
+  return <span className="shrink-0 text-fd-muted-foreground [&_svg]:size-3.5">{icon}</span>;
+}
+
 function CodeBlockTitle({
   metaTitle,
   langLabel,
+  icon,
 }: {
   metaTitle?: string;
   langLabel: string;
+  icon?: React.ReactNode;
 }) {
+  if (metaTitle) {
+    return (
+      <span className="flex min-w-0 flex-1 items-center gap-2">
+        <CodeBlockLangIcon icon={icon} />
+        <span className="truncate font-medium text-fd-foreground">{metaTitle}</span>
+      </span>
+    );
+  }
+
   return (
     <span className="flex min-w-0 flex-1 items-center gap-2">
-      {metaTitle ? <span className="truncate font-medium text-fd-foreground">{metaTitle}</span> : null}
+      <CodeBlockLangIcon icon={icon} />
       <span className="shrink-0 rounded-md border border-fd-border/80 bg-fd-muted/60 px-1.5 py-0.5 font-mono text-[10px] font-semibold tracking-wide text-fd-muted-foreground">
         {langLabel}
       </span>
@@ -76,7 +101,10 @@ export function getMDXComponents(components?: MDXComponents) {
         />
       );
     },
-    pre: ({ ref: _ref, title: metaTitle, children, className, ...rest }) => {
+    pre: (props) => {
+      const { ref: _ref, title: metaTitle, icon, children, className, ...rest } = props as React.ComponentProps<'pre'> & {
+        icon?: React.ReactNode;
+      };
       const langId = getLanguageIdFromPreProps(className, children) ?? '';
       const langLabel = getLanguageLabel(langId);
       const codeText = extractText(children).trimEnd();
@@ -92,7 +120,11 @@ export function getMDXComponents(components?: MDXComponents) {
           lang={langId}
           defaultCollapsed={defaultCollapsed}
           title={
-            <CodeBlockTitle metaTitle={typeof metaTitle === 'string' ? metaTitle : undefined} langLabel={langLabel} />
+            <CodeBlockTitle
+              metaTitle={typeof metaTitle === 'string' ? metaTitle : undefined}
+              langLabel={langLabel}
+              icon={icon}
+            />
           }
           className={className}
         >
