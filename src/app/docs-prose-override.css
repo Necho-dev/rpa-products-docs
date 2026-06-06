@@ -88,6 +88,12 @@ div.prose {
   background: color-mix(in srgb, var(--color-fd-muted-foreground) 35%, transparent);
 }
 
+/* 滚动容器内表格取消 typography 上下 margin，避免导出按钮与表头之间出现空白 */
+.docs-table-scroll > .docs-table {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
 /* 表格：与 typography 的 not-prose 规则一致，避免误伤嵌套在 not-prose 内的表 */
 #nd-docs-layout
   .prose

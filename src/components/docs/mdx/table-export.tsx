@@ -44,18 +44,23 @@ export function TableWithExport({ className, ...props }: ComponentProps<'table'>
   const tableRef = useRef<HTMLTableElement>(null);
 
   return (
-    <div className="group relative my-4">
-      <button
-        type="button"
-        onClick={() => tableRef.current && exportTableToCSV(tableRef.current)}
-        title="导出 CSV"
-        aria-label="导出表格为 CSV"
-        className="absolute right-0 top-0 z-10 flex items-center gap-1 rounded-bl-md rounded-tr-md border border-fd-border/60 bg-fd-background/90 px-2 py-1 text-xs text-fd-muted-foreground opacity-0 shadow-sm backdrop-blur-sm transition-opacity hover:text-fd-foreground group-hover:opacity-100"
+    <div className="my-4">
+      <div
+        className="docs-table-scroll group relative"
+        tabIndex={0}
+        role="region"
+        aria-label="可横向滚动的表格"
       >
-        <Download className="size-3.5" />
-        <span>导出</span>
-      </button>
-      <div className="docs-table-scroll" tabIndex={0} role="region" aria-label="可横向滚动的表格">
+        <button
+          type="button"
+          onClick={() => tableRef.current && exportTableToCSV(tableRef.current)}
+          title="导出 CSV"
+          aria-label="导出表格为 CSV"
+          className="absolute right-0 top-0 z-10 flex items-center gap-1 rounded-bl-md rounded-tr-md border border-fd-border/60 bg-fd-background/90 px-2 py-1 text-xs text-fd-muted-foreground opacity-0 shadow-sm backdrop-blur-sm transition-opacity hover:text-fd-foreground group-hover:opacity-100"
+        >
+          <Download className="size-3.5" />
+          <span>导出</span>
+        </button>
         <table ref={tableRef} className={cn('docs-table', className)} {...props} />
       </div>
     </div>
