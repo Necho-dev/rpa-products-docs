@@ -9,13 +9,17 @@ export type OgFontData = {
   jetBrainsMono: Buffer;
 };
 
+function readFont(fileName: string): Buffer {
+  const filePath = path.join(process.cwd(), 'src/fonts', fileName);
+  return fs.readFileSync(filePath);
+}
+
 function loadFontData(): OgFontData {
-  const fontsDir = path.join(process.cwd(), 'src/fonts');
   return {
-    inter: fs.readFileSync(path.join(fontsDir, 'inter-400-regular.ttf')),
-    notoSc: fs.readFileSync(path.join(fontsDir, 'noto-sans-sc-400-regular.ttf')),
-    notoScSemibold: fs.readFileSync(path.join(fontsDir, 'noto-sans-sc-600-medium.otf')),
-    jetBrainsMono: fs.readFileSync(path.join(fontsDir, 'jetbrains-mono-400-regular.woff')),
+    inter: readFont('inter-700-bold.woff'),
+    notoSc: readFont('noto-sans-sc-600-medium.otf'),
+    notoScSemibold: readFont('noto-sans-sc-600-medium.otf'),
+    jetBrainsMono: readFont('jetbrains-mono-400-regular.woff'),
   };
 }
 
@@ -29,6 +33,7 @@ export function getOgFontData(): OgFontData {
 export function ogImageFonts(fonts: OgFontData) {
   return [
     { name: 'Inter', data: fonts.inter, weight: 400 as const, style: 'normal' as const },
+    { name: 'Inter', data: fonts.inter, weight: 700 as const, style: 'normal' as const },
     { name: 'Noto Sans SC', data: fonts.notoSc, weight: 400 as const, style: 'normal' as const },
     { name: 'Noto Sans SC', data: fonts.notoScSemibold, weight: 600 as const, style: 'normal' as const },
     { name: 'JetBrains Mono', data: fonts.jetBrainsMono, weight: 400 as const, style: 'normal' as const },

@@ -17,6 +17,67 @@ export type StoredChatSession = {
 };
 
 const KV_ACTIVE = 'activeSessionId';
+const KV_DRAFT_INPUT = 'aiSearchInputDraft';
+const LEGACY_DRAFT_INPUT_KEY = '__ai_search_input';
+
+export async function idbGetKv(key: string): Promise<string | null> {
+  const db = await openDb();
+  try {
+    const tx = db.transaction(STORE_KV, 'readonly');
+    const raw = await reqToPromise(tx.objectStore(STORE_KV).get(key));
+    return typeof raw === 'string' ? raw : null;
+  } finally {
+    db.close();
+  }
+}
+
+export async function idbSetKv(key: string, value: string): Promise<void> {
+  const db = await openDb();
+  try {
+    const tx = db.transaction(STORE_KV, 'readwrite');
+    tx.objectStore(STORE_KV).put(value, key);
+    await txDone(tx);
+  } finally {
+    db.close();
+  }
+}
+
+export async function idbRemoveKv(key: string): Promise<void> {
+  const db = await openDb();
+  try {
+    const tx = db.transaction(STORE_KV, 'readwrite');
+    tx.objectStore(STORE_KV).delete(key);
+    await txDone(tx);
+  } finally {
+    db.close();
+  }
+}
+
+export async function idbGetDraftInput(): Promise<string> {
+  return (await idbGetKv(KV_DRAFT_INPUT)) ?? '';
+}
+
+export async function idbSetDraftInput(value: string): Promise<void> {
+  await idbSetKv(KV_DRAFT_INPUT, value);
+}
+
+export async function idbClearDraftInput(): Promise<void> {
+  await idbRemoveKv(KV_DRAFT_INPUT);
+}
+
+/** 一次性：将旧版 localStorage 草稿迁入 IndexedDB */
+export async function idbMigrateDraftInputFromLocalStorage(): Promise<void> {
+  if (typeof localStorage === 'undefined') return;
+  try {
+    const legacy = localStorage.getItem(LEGACY_DRAFT_INPUT_KEY);
+    if (!legacy) return;
+    const current = await idbGetDraftInput();
+    if (!current.trim()) await idbSetDraftInput(legacy);
+    localStorage.removeItem(LEGACY_DRAFT_INPUT_KEY);
+  } catch {
+    /* ignore migration errors */
+  }
+}
 
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -164,6 +225,7 @@ export async function idbBootstrap(): Promise<{
   lastError?: string | null;
 }> {
   const active = await idbGetActiveSessionId();
+  await idbMigrateDraftInputFromLocalStorage();
   let rec = active ? await idbGetSession(active) : undefined;
   if (rec) {
     return { activeId: rec.id, messages: rec.messages ?? [], lastError: rec.lastError };

@@ -57,6 +57,7 @@ export async function POST(req: Request, _ctx: RouteContext<"/api/chat">) {
     model: openai(process.env.LLM_MODEL ?? ''),
     system: `You are a helpful assistant for this documentation site. The docs live under ${docsRoute}.
 When the user asks about documentation, topics, connectors, apps, or anything that may be covered in the site docs, you MUST use the documentation tools to read real catalog, search hits, or page content — do not guess paths or invent content.
+When Client Context includes a selection field, prioritize answering about that selected excerpt while using documentation tools if needed for broader context.
 Prefer searchDocumentationPages when the user is vague or keyword-driven; use listDocumentationPages to browse the full catalog; use getDocumentationPageMeta before getDocumentationPage when you only need headings/TOC; use getDocumentationPage for full body text.
 
 After every tool call, you MUST continue and write a clear reply in the same language as the user (e.g. 简体中文), summarizing what you found — do not end the turn with only tool output; the user cannot see raw tool JSON as the final answer.`,

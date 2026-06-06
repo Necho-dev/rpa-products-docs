@@ -51,12 +51,15 @@ import type { SessionListItem } from '@/lib/ai/chat-idb';
 import {
   deriveTitleFromMessages,
   idbBootstrap,
+  idbClearDraftInput,
   idbCreateSession,
   idbDeleteSession,
+  idbGetDraftInput,
   idbGetSession,
   idbListSessions,
   idbPutSession,
   idbSetActiveSessionId,
+  idbSetDraftInput,
   formatChatSessionUpdatedAt,
 } from '@/lib/ai/chat-idb';
 
@@ -78,6 +81,12 @@ const Context = createContext<{
   newChatSession: () => Promise<void>;
   selectChatSession: (id: string) => Promise<void>;
   deleteChatSession: (id: string) => Promise<void>;
+  /** 文档选区上下文，随首条消息发送 */
+  selectionContext: { text: string; pageUrl: string; pageTitle?: string } | null;
+  clearSelectionContext: () => void;
+  openWithSelection: (ctx: { text: string; pageUrl: string; pageTitle?: string }) => void;
+  inputSeed: string | null;
+  inputSeedVersion: number;
 } | null>(null);
 
 /** Scoped typography for assistant markdown (tables, code, headings). */
@@ -312,12 +321,31 @@ export function AISearchPanelFooter({ className, ...props }: ComponentProps<'div
   );
 }
 
-const StorageKeyInput = '__ai_search_input';
-export function AISearchInput(props: ComponentProps<'form'>) {
+const DRAFT_SAVE_DEBOUNCE_MS = 300;
+
+function AISearchInputInner({
+  initialInput,
+  ...props
+}: ComponentProps<'form'> & { initialInput: string }) {
   const { status, sendMessage, stop } = useChatContext();
-  const { chatBooted } = useAISearchContext();
-  const [input, setInput] = useState(() => localStorage.getItem(StorageKeyInput) ?? '');
+  const { chatBooted, selectionContext, clearSelectionContext } = useAISearchContext();
+  const [input, setInput] = useState(initialInput);
+  const draftSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isLoading = status === 'streaming' || status === 'submitted';
+
+  useEffect(() => {
+    return () => {
+      if (draftSaveTimerRef.current) clearTimeout(draftSaveTimerRef.current);
+    };
+  }, []);
+
+  const persistDraft = useCallback((value: string) => {
+    if (draftSaveTimerRef.current) clearTimeout(draftSaveTimerRef.current);
+    draftSaveTimerRef.current = setTimeout(() => {
+      void idbSetDraftInput(value);
+    }, DRAFT_SAVE_DEBOUNCE_MS);
+  }, []);
+
   const onStart = (e?: SyntheticEvent) => {
     e?.preventDefault();
     const message = input.trim();
@@ -330,6 +358,15 @@ export function AISearchInput(props: ComponentProps<'form'>) {
           type: 'data-client',
           data: {
             location: location.href,
+            ...(selectionContext
+              ? {
+                  selection: {
+                    text: selectionContext.text,
+                    pageTitle: selectionContext.pageTitle,
+                    pageUrl: selectionContext.pageUrl,
+                  },
+                }
+              : {}),
           },
         },
         {
@@ -339,7 +376,9 @@ export function AISearchInput(props: ComponentProps<'form'>) {
       ],
     });
     setInput('');
-    localStorage.removeItem(StorageKeyInput);
+    if (draftSaveTimerRef.current) clearTimeout(draftSaveTimerRef.current);
+    void idbClearDraftInput();
+    clearSelectionContext();
   };
 
   useEffect(() => {
@@ -355,8 +394,9 @@ export function AISearchInput(props: ComponentProps<'form'>) {
         className="p-3"
         disabled={!chatBooted || status === 'streaming' || status === 'submitted'}
         onChange={(e) => {
-          setInput(e.target.value);
-          localStorage.setItem(StorageKeyInput, e.target.value);
+          const value = e.target.value;
+          setInput(value);
+          persistDraft(value);
         }}
         onKeyDown={(event) => {
           if (!event.shiftKey && event.key === 'Enter') {
@@ -396,6 +436,53 @@ export function AISearchInput(props: ComponentProps<'form'>) {
       )}
     </form>
   );
+}
+
+export function AISearchInput(props: ComponentProps<'form'>) {
+  const { inputSeed, inputSeedVersion, chatBooted } = useAISearchContext();
+
+  if (inputSeed !== null) {
+    return (
+      <AISearchInputInner key={inputSeedVersion} initialInput={inputSeed} {...props} />
+    );
+  }
+
+  return (
+    <AISearchInputFromIdb
+      key={inputSeedVersion}
+      chatBooted={chatBooted}
+      {...props}
+    />
+  );
+}
+
+function AISearchInputFromIdb({
+  chatBooted,
+  ...props
+}: ComponentProps<'form'> & { chatBooted: boolean }) {
+  const [savedDraft, setSavedDraft] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!chatBooted) return;
+
+    let cancelled = false;
+    void idbGetDraftInput().then((draft) => {
+      if (!cancelled) setSavedDraft(draft);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [chatBooted]);
+
+  if (!chatBooted || savedDraft === null) {
+    return (
+      <form {...props} className={cn('flex items-start pe-2', props.className)}>
+        <Input value="" placeholder="请输入问题..." disabled className="p-3" />
+      </form>
+    );
+  }
+
+  return <AISearchInputInner initialInput={savedDraft} {...props} />;
 }
 
 function List({ scrollToBottomKey, ...props }: Omit<ComponentProps<'div'>, 'dir'> & {
@@ -834,6 +921,13 @@ export function AISearch({
   const [sessionId, setSessionId] = useState('');
   const [seedMessages, setSeedMessages] = useState<InkeepUIMessage[]>([]);
   const [sessions, setSessions] = useState<SessionListItem[]>([]);
+  const [selectionContext, setSelectionContext] = useState<{
+    text: string;
+    pageUrl: string;
+    pageTitle?: string;
+  } | null>(null);
+  const [inputSeed, setInputSeed] = useState<string | null>(null);
+  const [inputSeedVersion, setInputSeedVersion] = useState(0);
 
   const sessionIdRef = useRef(sessionId);
   useEffect(() => {
@@ -975,6 +1069,33 @@ export function AISearch({
     setSessions(list);
   }, []);
 
+  const clearSelectionContext = useCallback(() => {
+    setSelectionContext(null);
+    setInputSeed(null);
+  }, []);
+
+  const openWithSelection = useCallback((ctx: {
+    text: string;
+    pageUrl: string;
+    pageTitle?: string;
+  }) => {
+    setSelectionContext({
+      text: ctx.text,
+      pageUrl: ctx.pageUrl,
+      pageTitle: ctx.pageTitle,
+    });
+    const draft = ctx.pageTitle
+      ? `关于「${ctx.pageTitle}」中的这段内容，请帮我解释：\n\n> ${ctx.text}`
+      : `请帮我解释以下内容：\n\n> ${ctx.text}`;
+    setInputSeed(draft);
+    setInputSeedVersion((v) => v + 1);
+    void idbSetDraftInput(draft);
+    setOpen(true);
+    requestAnimationFrame(() => {
+      document.getElementById('nd-ai-input')?.focus();
+    });
+  }, []);
+
   const contextValue = useMemo(
     () => ({
       chat,
@@ -990,6 +1111,11 @@ export function AISearch({
       newChatSession,
       selectChatSession,
       deleteChatSession,
+      selectionContext,
+      clearSelectionContext,
+      openWithSelection,
+      inputSeed,
+      inputSeedVersion,
     }),
     [
       chat,
@@ -1003,6 +1129,11 @@ export function AISearch({
       newChatSession,
       selectChatSession,
       deleteChatSession,
+      selectionContext,
+      clearSelectionContext,
+      openWithSelection,
+      inputSeed,
+      inputSeedVersion,
     ],
   );
 

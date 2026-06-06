@@ -2,6 +2,7 @@ import { siteName } from '@/lib/core/shared';
 import { computeHeroDisplayHeight, loadHeroImageAsset } from '@/lib/docs/og/hero-image';
 import { POSTER_WIDTH } from '@/lib/docs/og/poster-height';
 import { generateQrDataUrl } from '@/lib/docs/og/qr';
+import type { OgQuoteCardProps } from '@/lib/docs/og/template-quote';
 import type { OgShareBaseProps, OgSharePosterProps } from '@/lib/docs/og/types';
 import type { source } from '@/lib/docs/source/source';
 
@@ -61,5 +62,24 @@ export async function buildOgSharePosterProps(
     qrDataUrl,
     heroImageDataUrl: heroImage?.dataUrl,
     heroImageHeight,
+  };
+}
+
+export async function buildOgQuoteCardProps(
+  page: Page,
+  origin: string,
+  quoteText: string,
+  options?: { pageUrl?: string; sectionHeading?: string },
+): Promise<OgQuoteCardProps> {
+  const base = buildOgShareBaseProps(page, origin);
+  const pageUrl = options?.pageUrl ?? `${origin}${page.url}`;
+  const qrDataUrl = await generateQrDataUrl(pageUrl);
+
+  return {
+    ...base,
+    quoteText,
+    pageUrl,
+    qrDataUrl,
+    sectionHeading: options?.sectionHeading,
   };
 }

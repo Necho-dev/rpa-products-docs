@@ -7,6 +7,7 @@ import { DocsThemeToolbar } from '@/components/docs/theme-toolbar';
 import { DocsSidebarTreeFolder, DocsSidebarTreeItem } from '@/components/docs/sidebar-tree';
 import { AISearch, AISearchPanel } from '@/components/ai/search';
 import { DocsFloatingAnchors } from '@/components/docs/floating-anchors';
+import { DocSelectionProvider } from '@/components/docs/selection/selection-provider';
 
 export default async function Layout({ children }: LayoutProps<'/docs'>) {
   const modelDisplayName = process.env.LLM_MODEL?.trim() || undefined;
@@ -32,6 +33,7 @@ export default async function Layout({ children }: LayoutProps<'/docs'>) {
       <AISearch modelDisplayName={modelDisplayName}>
         <AISearchPanel />
         <DocsFloatingAnchors />
+        <DocSelectionProvider />
         {children}
       </AISearch>
     </DocsLayout>

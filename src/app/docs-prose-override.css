@@ -759,3 +759,119 @@ div.prose .docs-table-scroll .docs-table td code {
   word-break: break-all;
   overflow-wrap: anywhere;
 }
+
+/* 文档选区划线：柔和标记带 + 细下划线（参考阅读类产品的「划线」观感） */
+html:not(.dark) {
+  --doc-highlight-line-yellow: hsl(221 83% 48%);
+  --doc-highlight-line-green: hsl(152 58% 38%);
+  --doc-highlight-line-blue: hsl(221 75% 45%);
+  --doc-highlight-bg-yellow: hsl(221 92% 56% / 0.14);
+  --doc-highlight-bg-green: hsl(152 62% 42% / 0.14);
+  --doc-highlight-bg-blue: hsl(221 88% 52% / 0.14);
+  --doc-highlight-bg-yellow-hover: hsl(221 92% 56% / 0.22);
+  --doc-highlight-bg-green-hover: hsl(152 62% 42% / 0.22);
+  --doc-highlight-bg-blue-hover: hsl(221 88% 52% / 0.22);
+}
+
+html.dark {
+  --doc-highlight-line-yellow: hsl(46 96% 62%);
+  --doc-highlight-line-green: hsl(142 55% 62%);
+  --doc-highlight-line-blue: hsl(217 88% 72%);
+  --doc-highlight-bg-yellow: hsl(46 96% 58% / 0.2);
+  --doc-highlight-bg-green: hsl(142 55% 55% / 0.18);
+  --doc-highlight-bg-blue: hsl(217 85% 65% / 0.18);
+  --doc-highlight-bg-yellow-hover: hsl(46 96% 58% / 0.3);
+  --doc-highlight-bg-green-hover: hsl(142 55% 55% / 0.28);
+  --doc-highlight-bg-blue-hover: hsl(217 85% 65% / 0.28);
+}
+
+#nd-page .doc-highlight-mark,
+#nd-docs-layout .prose .doc-highlight-mark,
+div.prose .doc-highlight-mark {
+  --doc-highlight-bg: var(--doc-highlight-bg-yellow);
+  --doc-highlight-bg-hover: var(--doc-highlight-bg-yellow-hover);
+  --doc-highlight-line: var(--doc-highlight-line-yellow);
+  /* 背景高亮带高度约 99%，上下各留 0.5% 空隙 */
+  --doc-highlight-bg-inset: 0.5%;
+
+  position: relative;
+  color: inherit;
+  cursor: pointer;
+  border-radius: 3px;
+  padding: 0 2px;
+  margin: 0 -2px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+
+  /* 标记带：垂直居中，高度约 85% */
+  background-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent var(--doc-highlight-bg-inset),
+    var(--doc-highlight-bg) var(--doc-highlight-bg-inset),
+    var(--doc-highlight-bg) calc(100% - var(--doc-highlight-bg-inset)),
+    transparent calc(100% - var(--doc-highlight-bg-inset)),
+    transparent 100%
+  ) !important;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-color: transparent !important;
+
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 2px;
+  text-decoration-skip-ink: none;
+  text-decoration-color: var(--doc-highlight-line);
+
+  transition:
+    background-image 0.15s ease,
+    text-decoration-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+#nd-page .doc-highlight-mark:hover,
+#nd-docs-layout .prose .doc-highlight-mark:hover,
+div.prose .doc-highlight-mark:hover {
+  background-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent var(--doc-highlight-bg-inset),
+    var(--doc-highlight-bg-hover) var(--doc-highlight-bg-inset),
+    var(--doc-highlight-bg-hover) calc(100% - var(--doc-highlight-bg-inset)),
+    transparent calc(100% - var(--doc-highlight-bg-inset)),
+    transparent 100%
+  ) !important;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+html.dark #nd-page .doc-highlight-mark,
+html.dark #nd-docs-layout .prose .doc-highlight-mark,
+html.dark div.prose .doc-highlight-mark {
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+html.dark #nd-page .doc-highlight-mark:hover,
+html.dark #nd-docs-layout .prose .doc-highlight-mark:hover,
+html.dark div.prose .doc-highlight-mark:hover {
+  text-decoration-thickness: 2.5px;
+  text-underline-offset: 4px;
+}
+
+#nd-page .doc-highlight-mark[data-highlight-color='green'],
+#nd-docs-layout .prose .doc-highlight-mark[data-highlight-color='green'],
+div.prose .doc-highlight-mark[data-highlight-color='green'] {
+  --doc-highlight-bg: var(--doc-highlight-bg-green);
+  --doc-highlight-bg-hover: var(--doc-highlight-bg-green-hover);
+  --doc-highlight-line: var(--doc-highlight-line-green);
+}
+
+#nd-page .doc-highlight-mark[data-highlight-color='blue'],
+#nd-docs-layout .prose .doc-highlight-mark[data-highlight-color='blue'],
+div.prose .doc-highlight-mark[data-highlight-color='blue'] {
+  --doc-highlight-bg: var(--doc-highlight-bg-blue);
+  --doc-highlight-bg-hover: var(--doc-highlight-bg-blue-hover);
+  --doc-highlight-line: var(--doc-highlight-line-blue);
+}

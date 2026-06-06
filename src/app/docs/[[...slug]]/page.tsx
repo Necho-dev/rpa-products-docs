@@ -72,7 +72,7 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
           </div>
         ) : null}
       </div>
-      <div className="flex flex-row flex-wrap gap-2 items-center border-b pb-6">
+      <div className="flex flex-row flex-wrap gap-2 items-center border-b pb-6" data-no-select>
         <MarkdownCopyButton markdownUrl={markdownUrl} />
         <ViewOptionsPopover
           markdownUrl={markdownUrl}
