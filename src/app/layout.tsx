@@ -9,7 +9,7 @@ import { FD_COLOR_PRESET_DEFAULT, FD_COLOR_PRESET_STORAGE_KEY } from '@/lib/ui/f
 import localFont from 'next/font/local';
 import { cn } from '@/lib/core/cn';
 import { DocumentTitleDefault } from '@/components/docs/document-title-default';
-import { getPublicSiteUrl, getPublicSiteUrlIfSet, getSiteDescription, siteName } from '@/lib/core/shared';
+import { getPublicSiteUrl, getPublicSiteUrlIfSet, getSiteDescription, getSiteName, siteName } from '@/lib/core/shared';
 
 /** 拉丁正文（本地 woff2，见 src/fonts） */
 const inter = localFont({
@@ -35,7 +35,30 @@ if (process.env.NODE_ENV === 'production' && !getPublicSiteUrlIfSet()) {
   );
 }
 
+export function generateMetadata(): Metadata {
+  const siteName = getSiteName();
+  return {
+    title: {
+      default: siteName,
+      template: `%s | ${siteName}`,
+    },
+    description: getSiteDescription(),
+    alternates: {
+      types: {
+        'application/rss+xml': [
+          {
+            title: siteName,
+            url: `${getPublicSiteUrl()}/rss.xml`,
+          },
+        ],
+      },
+    },
+  };
+}
+
 export default function Layout({ children }: LayoutProps<'/'>) {
+  const siteName = getSiteName();
+
   return (
     <html
       lang="zh-CN"
@@ -68,20 +91,3 @@ export default function Layout({ children }: LayoutProps<'/'>) {
   );
 }
 
-export const metadata: Metadata = {
-  title: {
-    default: siteName,
-    template: `%s | ${siteName}`,
-  },
-  description: getSiteDescription(),
-  alternates: {
-    types: {
-      'application/rss+xml': [
-        {
-          title: siteName,
-          url: `${getPublicSiteUrl()}/rss.xml`,
-        },
-      ],
-    },
-  },
-};

@@ -16,15 +16,69 @@ import { AskAIIcon } from '@/components/ai/ask-ai-icon';
 import { BackToTopRocketIcon } from '@/components/docs/back-to-top-rocket-icon';
 import { AISearchTrigger, useAISearchContext } from '@/components/ai/search';
 
-const TOOLTIP_MESSAGES = [
+/** 任意时段均可轮播的通用文案 */
+const STATIC_TOOLTIP_MESSAGES = [
   '有问题随时找我～',
   '读不懂？问我就好',
-  '⌘I / Ctrl+I 快捷打开',
   '卡住了？我来帮你',
   '文档太长？我可以帮你梳理',
+  '内容太多？我来帮你总结',
   '需要总结或对比？交给我',
   '悄悄告诉你，我很擅长查文档',
+  '想快速定位？描述一下你的问题',
+  '术语看不懂？我可以帮你解释',
+  '多个页面来回切？问我更高效',
 ] as const;
+
+function formatTimeHms(date: Date): string {
+  return date.toLocaleTimeString('zh-CN', { hour12: false });
+}
+
+/** 按当前时刻追加情境文案（与通用文案合并后轮播） */
+function getContextualTooltipMessages(date: Date): string[] {
+  const hour = date.getHours();
+  const minute = date.getMinutes();
+  const time = formatTimeHms(date);
+  const weekday = date.getDay();
+  const messages: string[] = [];
+
+  if (weekday === 0 || weekday === 6) {
+    messages.push('周末也在充电？有问题找我');
+    messages.push('周末愉快，文档疑问交给我');
+  }
+
+  if (hour >= 23 || hour < 5) {
+    messages.push(`现在是 ${time}，明天再看吧～`);
+    messages.push('夜深了，早点休息哦');
+    messages.push('这么晚还在查文档？辛苦了');
+    messages.push('夜猫子模式？有问题我陪你');
+  } else if (hour < 9) {
+    messages.push('早上好，又是活力满满的一天！');
+    messages.push('新的一天，从搞懂一个问题开始');
+    messages.push('晨读文档？有疑问随时问我');
+  } else if (hour < 12) {
+    messages.push('上午好，需要查什么尽管说');
+    messages.push('专注力在线的时段，卡住就问我');
+  } else if (hour < 14 && (hour > 11 || (hour === 11 && minute >= 30))) {
+    messages.push('午休片刻，有问题先问我～');
+    messages.push('吃完饭歇一歇，文档疑问我来答');
+  } else if (hour < 18) {
+    messages.push('下午好，卡住的话我来帮你');
+    messages.push('午后容易犯困？让我帮你划重点');
+  } else if (hour < 22) {
+    messages.push('晚上好，还在查文档吗？');
+    messages.push('收工前想把问题搞清楚？问我');
+  } else {
+    messages.push(`已经 ${time} 了，别熬太晚哦`);
+    messages.push('夜深将至，看完这段就休息吧');
+  }
+
+  return messages;
+}
+
+function buildTooltipPool(date: Date): string[] {
+  return [...STATIC_TOOLTIP_MESSAGES, ...getContextualTooltipMessages(date)];
+}
 
 const INITIAL_TOOLTIP_DELAY_MS = 8_000;
 const AUTO_TOOLTIP_MIN_INTERVAL_MS = 45_000;
@@ -128,6 +182,7 @@ function RotatingTooltip({
 }
 
 function useRotatingTooltip(enabled: boolean) {
+  const [message, setMessage] = useState(() => buildTooltipPool(new Date())[0]!);
   const [messageIndex, setMessageIndex] = useState(0);
   const [autoVisible, setAutoVisible] = useState(false);
   const [hovered, setHovered] = useState(false);
@@ -135,7 +190,12 @@ function useRotatingTooltip(enabled: boolean) {
   const pausedRef = useRef(false);
 
   const advanceMessage = useCallback(() => {
-    setMessageIndex((i) => (i + 1) % TOOLTIP_MESSAGES.length);
+    const pool = buildTooltipPool(new Date());
+    setMessageIndex((i) => {
+      const next = (i + 1) % pool.length;
+      setMessage(pool[next]!);
+      return next;
+    });
   }, []);
 
   useEffect(() => {
@@ -168,7 +228,6 @@ function useRotatingTooltip(enabled: boolean) {
   }, [advanceMessage, enabled]);
 
   const visible = hovered || focused || autoVisible;
-  const message = TOOLTIP_MESSAGES[messageIndex]!;
 
   return {
     message,

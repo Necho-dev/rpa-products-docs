@@ -14,7 +14,7 @@ import {
 import { AISearch, AISearchPanel, AISearchTrigger } from '@/components/ai/search';
 import { DocsFloatingAnchors } from '@/components/docs/floating-anchors';
 import { cn } from '@/lib/core/cn';
-import { docsRoute, siteName } from '@/lib/core/shared';
+import { docsRoute, getSiteDescription, getSiteName } from '@/lib/core/shared';
 
 const cards = [
   {
@@ -49,6 +49,8 @@ const cards = [
 
 export default function HomePage() {
   const modelDisplayName = process.env.LLM_MODEL?.trim() || undefined;
+  const siteName = getSiteName();
+  const siteDescription = getSiteDescription();
 
   return (
     <AISearch modelDisplayName={modelDisplayName}>
@@ -74,8 +76,7 @@ export default function HomePage() {
           </h1>
 
           <p className="mt-5 max-w-xl text-pretty text-sm leading-relaxed text-fd-muted-foreground sm:mt-6 sm:max-w-2xl sm:text-base">
-            面向内部的 RPA 公共知识沉淀：收录 RPA 连接器数据模型、Component 可复用组件使用和 Apps
-            应用部署说明。提供全文检索和 RSS 订阅，内置 AI 智能助手和 MCP 服务。
+            {siteDescription}
           </p>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-2 sm:mt-10 sm:gap-3">

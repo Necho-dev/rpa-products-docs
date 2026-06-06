@@ -17,12 +17,18 @@ export const docsContentRoute = '/llms.mdx/docs';
 /**
  * 文档站对外展示名称（导航、RSS、OG、订阅发现等）。
  * 在 `.env.local` 中设置 `NEXT_PUBLIC_SITE_NAME`。
+ * 请通过本函数在服务端渲染时读取, 避免静态页缓存旧值。
  */
-export const siteName = trimEnv('NEXT_PUBLIC_SITE_NAME') ?? 'RPA公共知识库';
+export function getSiteName(): string {
+  return trimEnv('NEXT_PUBLIC_SITE_NAME') ?? 'RPA公共知识库';
+}
+
+/** @deprecated 优先使用 `getSiteName()`；模块级常量可能在静态构建时被固化 */
+export const siteName = getSiteName();
 
 /** RSS / 站点简介（未设置时用站点名拼接默认文案） */
 export function getSiteDescription(): string {
-  return trimEnv('NEXT_PUBLIC_SITE_DESCRIPTION') ?? `${siteName} 文档站页面更新订阅`;
+  return trimEnv('NEXT_PUBLIC_SITE_DESCRIPTION') ?? `${getSiteName()} 文档站页面更新订阅`;
 }
 
 /**

@@ -248,8 +248,8 @@ export function McpDeeplinkClient({
             <ServerIcon className="size-6" />
           </span>
           <h1 className="text-xl font-semibold text-fd-foreground">添加 MCP 服务</h1>
-          <p className="mt-2 text-sm text-fd-muted-foreground">
-            添加 {mcpDisplayName} MCP 服务到你本地的 AI 开发工具（比如 Cursor / Trae / Claude Code ），即可在 AI 客户端中直接访问和检索文档内容。
+          <p className="mt-2 text-start text-sm text-fd-muted-foreground">
+            添加 <code className="font-mono text-sm font-semibold">[{mcpDisplayName}]</code> MCP 服务到你的 AI 开发工具（比如 Trae / Cursor / Claude Code ），即可在 AI 客户端中快速检索和读取文档内容
           </p>
         </div>
 
