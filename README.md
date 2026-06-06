@@ -99,17 +99,23 @@ cp .env.example .env
 
 ```bash
 # 首次启动（自动构建镜像）
-docker compose up -d
+docker compose up -d --build
 
 # 代码或 NEXT_PUBLIC_* 变更后需重建镜像
 docker compose up -d --build
 
-# 仅修改了 .env 中的运行时变量（非 NEXT_PUBLIC_*）
-# 不需要重建镜像，只需重启容器
+# 仅修改了 .env / .env.local 中的运行时变量（LLM_*、DOCS_* 等）
+# 使用 up -d 让 Compose 检测 env 变化并重建容器（不要用 restart）
 docker compose up -d
+
+# 可先核对 Compose 解析后的配置
+docker compose config
 ```
 
-服务默认绑定宿主机 `3000` 端口，可在 `.env` 中通过 `PORT` 变量修改映射端口。
+服务默认绑定宿主机 `3001` 端口；在项目根 `.env` 中设置 `PORT` 可改**宿主机映射端口**（容器内固定监听 `3001`）。
+
+> **注意**：`docker compose restart` 不会重新加载 `env_file`；改 env 后请用 `docker compose up -d`。  
+> `NEXT_PUBLIC_*` 在 `next build` 时内联进客户端 bundle，须 `docker compose up -d --build`；服务端通过 `getSiteName()` 等读取的同名变量在 `up -d` 重建后即可更新。
 
 ### 构建加速（国内 / 首构建慢）
 
