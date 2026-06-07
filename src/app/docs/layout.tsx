@@ -8,6 +8,9 @@ import { DocsSidebarTreeFolder, DocsSidebarTreeItem } from '@/components/docs/si
 import { AISearch, AISearchPanel } from '@/components/ai/search';
 import { DocsFloatingAnchors } from '@/components/docs/floating-anchors';
 import { DocSelectionProvider } from '@/components/docs/selection/selection-provider';
+import { ExcerptCollectionProvider } from '@/components/docs/selection/excerpt-collection-context';
+import { ExcerptCollectionDrawer } from '@/components/docs/selection/excerpt-collection-drawer';
+import { ExcerptAiToolsBridge } from '@/components/docs/selection/excerpt-ai-tools-bridge';
 
 export default async function Layout({ children }: LayoutProps<'/docs'>) {
   const modelDisplayName = process.env.LLM_MODEL?.trim() || undefined;
@@ -31,10 +34,14 @@ export default async function Layout({ children }: LayoutProps<'/docs'>) {
       }}
     >
       <AISearch modelDisplayName={modelDisplayName}>
-        <AISearchPanel />
-        <DocsFloatingAnchors />
-        <DocSelectionProvider />
-        {children}
+        <ExcerptCollectionProvider>
+          <ExcerptAiToolsBridge />
+          <AISearchPanel />
+          <ExcerptCollectionDrawer />
+          <DocsFloatingAnchors />
+          <DocSelectionProvider />
+          {children}
+        </ExcerptCollectionProvider>
       </AISearch>
     </DocsLayout>
   );

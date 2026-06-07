@@ -38,6 +38,7 @@ import {
   DefaultChatTransport,
   getToolName,
   isToolUIPart,
+  lastAssistantMessageIsCompleteWithToolCalls,
   type DynamicToolUIPart,
   type ToolUIPart,
 } from 'ai';
@@ -47,6 +48,18 @@ import { Popover, PopoverContent, PopoverTrigger } from 'fumadocs-ui/components/
 import { buttonVariants as fdButtonVariants } from 'fumadocs-ui/components/ui/button';
 import { Card } from 'fumadocs-ui/components/card';
 import type { InkeepUIMessage } from '@/lib/ai/chat-types';
+import {
+  getExcerptToolExecutors,
+} from '@/lib/docs/selection/excerpt-ai-tools-registry';
+import {
+  isExcerptClientToolName,
+  type DeleteExcerptInput,
+} from '@/lib/docs/selection/excerpt-ai-tools';
+import { ExcerptDeleteConfirmPanel } from '@/components/docs/selection/excerpt-delete-confirm-panel';
+import {
+  idbGetHighlightById,
+  type DocHighlight,
+} from '@/lib/docs/selection/highlight-idb';
 import type { SessionListItem } from '@/lib/ai/chat-idb';
 import {
   deriveTitleFromMessages,
@@ -626,6 +639,10 @@ const toolDisplayName: Record<string, string> = {
   getDocumentationPageMeta: '读取页面元信息',
   getDocumentationPage: '读取文档内容',
   provideLinks: '引用链接',
+  listExcerpts: '查看摘录',
+  searchExcerpts: '搜索摘录',
+  addExcerpt: '添加摘录',
+  deleteExcerpt: '删除摘录',
 };
 
 const mcpAlias: Record<string, string> = {
@@ -640,6 +657,119 @@ function formatToolPayload(value: unknown, maxLen: number): string {
   const raw = typeof value === 'string' ? value : JSON.stringify(value, null, 2);
   if (raw.length <= maxLen) return raw;
   return `${raw.slice(0, maxLen)}\n...[已截断]`;
+}
+
+const EXCERPT_NOT_FOUND_MESSAGE = '未找到该摘录，可能已被删除';
+
+function DeleteExcerptApprovalBlock({
+  excerptId,
+  toolCallId,
+  approvalId,
+}: {
+  excerptId: string;
+  toolCallId: string;
+  approvalId: string;
+}) {
+  const { addToolOutput, addToolApprovalResponse } = useChatContext();
+  const [deleteTarget, setDeleteTarget] = useState<DocHighlight | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const autoResolvedRef = useRef(false);
+
+  const notFound = !loading && !deleteTarget && Boolean(error);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void idbGetHighlightById(excerptId).then((highlight) => {
+      if (cancelled) return;
+      setDeleteTarget(highlight);
+      setError(highlight ? null : EXCERPT_NOT_FOUND_MESSAGE);
+      setLoading(false);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [excerptId]);
+
+  useEffect(() => {
+    if (!notFound || autoResolvedRef.current) return;
+    autoResolvedRef.current = true;
+
+    void (async () => {
+      await addToolApprovalResponse({
+        id: approvalId,
+        approved: false,
+        reason: '摘录不存在',
+      });
+      await addToolOutput({
+        tool: 'deleteExcerpt',
+        toolCallId,
+        output: JSON.stringify(
+          {
+            ok: false,
+            error: 'Not found',
+            message: EXCERPT_NOT_FOUND_MESSAGE,
+            id: excerptId,
+          },
+          null,
+          2,
+        ),
+      });
+    })();
+  }, [notFound, excerptId, approvalId, toolCallId, addToolApprovalResponse, addToolOutput]);
+
+  const handleApproval = async (approved: boolean) => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      if (approved) {
+        const executors = getExcerptToolExecutors();
+        if (!executors) {
+          await addToolApprovalResponse({ id: approvalId, approved: false, reason: '摘录工具未就绪' });
+          await addToolOutput({
+            tool: 'deleteExcerpt',
+            toolCallId,
+            state: 'output-error',
+            errorText: '摘录工具未就绪，请刷新页面后重试',
+          });
+          return;
+        }
+        const result = await executors.deleteExcerpt({ id: excerptId });
+        await addToolApprovalResponse({ id: approvalId, approved: true });
+        await addToolOutput({
+          tool: 'deleteExcerpt',
+          toolCallId,
+          output: result,
+        });
+      } else {
+        await addToolApprovalResponse({ id: approvalId, approved: false, reason: '用户取消' });
+        await addToolOutput({
+          tool: 'deleteExcerpt',
+          toolCallId,
+          state: 'output-error',
+          errorText: '您取消了删除操作',
+        });
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <ExcerptDeleteConfirmPanel
+      className="mt-2"
+      variant={notFound ? 'not-found' : 'confirm'}
+      highlight={deleteTarget}
+      loading={loading}
+      notFoundMessage={notFound ? `${error} 无需确认，将自动继续对话` : error}
+      busy={busy}
+      onConfirm={() => void handleApproval(true)}
+      onCancel={() => void handleApproval(false)}
+    />
+  );
 }
 
 function ToolTraceCard({
@@ -668,14 +798,23 @@ function ToolTraceCard({
       : undefined;
   const output = 'output' in part ? part.output : undefined;
   const errorText = 'errorText' in part ? part.errorText : undefined;
+  const approval = 'approval' in part ? part.approval : undefined;
 
   const provideLinksInput = name === 'provideLinks' && input && 'links' in input ? input.links : null;
+
+  const deleteInput =
+    name === 'deleteExcerpt' && input && typeof input.id === 'string'
+      ? (input as DeleteExcerptInput)
+      : null;
+
+  const showDeleteApproval = name === 'deleteExcerpt' && state === 'approval-requested' && deleteInput;
 
   return (
     <div
       className={cn(
         'min-w-0 rounded-lg border border-fd-border bg-fd-muted/40 px-3 py-2.5 text-xs',
         state === 'output-error' && 'border-red-500/40 bg-red-500/5',
+        showDeleteApproval && 'border-destructive/25 bg-destructive/[0.02]',
       )}
     >
       <div className="flex flex-wrap items-center gap-2 mb-1.5">
@@ -690,6 +829,7 @@ function ToolTraceCard({
             'rounded px-1.5 py-0.5',
             state === 'output-available' && 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-200',
             state === 'output-error' && 'bg-red-500/15 text-red-800 dark:text-red-200',
+            state === 'approval-requested' && 'bg-amber-500/15 text-amber-900 dark:text-amber-100',
             (state === 'input-streaming' || state === 'input-available') &&
               'bg-amber-500/15 text-amber-900 dark:text-amber-100',
           )}
@@ -697,7 +837,7 @@ function ToolTraceCard({
           {stateLabel[state] ?? state}
         </span>
       </div>
-      {input !== undefined && Object.keys(input).length > 0 ? (
+      {input !== undefined && Object.keys(input).length > 0 && !showDeleteApproval ? (
         <details className="group/in mt-1">
           <summary className="cursor-pointer text-fd-muted-foreground hover:text-fd-foreground">
             调用参数
@@ -719,6 +859,14 @@ function ToolTraceCard({
       ) : null}
       {errorText ? (
         <p className="mt-1 text-red-600 dark:text-red-400 whitespace-pre-wrap wrap-break-word">{errorText}</p>
+      ) : null}
+      {showDeleteApproval && deleteInput && approval ? (
+        <DeleteExcerptApprovalBlock
+          key={`${part.toolCallId}:${deleteInput.id}`}
+          excerptId={deleteInput.id}
+          toolCallId={part.toolCallId}
+          approvalId={approval.id}
+        />
       ) : null}
       {Array.isArray(provideLinksInput) && provideLinksInput.length > 0 ? (
         <div className="mt-2 flex flex-row flex-wrap gap-1">
@@ -978,6 +1126,46 @@ export function AISearch({
     setSessions(await idbListSessions());
   }, []);
 
+  const addToolOutputRef = useRef<UseChatHelpers<InkeepUIMessage>['addToolOutput'] | null>(null);
+
+  const runExcerptClientTool = useCallback(
+    async (toolCall: { toolName: string; toolCallId: string; input: unknown }) => {
+      const toolName = toolCall.toolName;
+      if (!isExcerptClientToolName(toolName) || toolName === 'deleteExcerpt') return;
+
+      const addToolOutput = addToolOutputRef.current;
+      if (!addToolOutput) return;
+
+      const executors = getExcerptToolExecutors();
+      if (!executors) {
+        await addToolOutput({
+          tool: toolName,
+          toolCallId: toolCall.toolCallId,
+          state: 'output-error',
+          errorText: '摘录工具未就绪，请刷新页面后重试。',
+        });
+        return;
+      }
+
+      try {
+        const output = await executors[toolName](toolCall.input as never);
+        await addToolOutput({
+          tool: toolName,
+          toolCallId: toolCall.toolCallId,
+          output,
+        });
+      } catch (err) {
+        await addToolOutput({
+          tool: toolName,
+          toolCallId: toolCall.toolCallId,
+          state: 'output-error',
+          errorText: err instanceof Error ? err.message : String(err),
+        });
+      }
+    },
+    [],
+  );
+
   const chat = useChat<InkeepUIMessage>({
     id: booted ? sessionId : '__boot',
     messages: booted ? seedMessages : [],
@@ -985,6 +1173,12 @@ export function AISearch({
     transport: new DefaultChatTransport({
       api: '/api/chat',
     }),
+    sendAutomaticallyWhen: ({ messages }) =>
+      lastAssistantMessageIsCompleteWithToolCalls({ messages }),
+    onToolCall: ({ toolCall }) => {
+      // onToolCall 在 Chat SerialJobExecutor 内同步触发；此处 await addToolOutput 会死锁并卡在「即将执行」。
+      void runExcerptClientTool(toolCall);
+    },
     onFinish: ({ messages }) => {
       messagesRef.current = messages;
       setPersistedError(null);
@@ -1000,6 +1194,10 @@ export function AISearch({
       }
     },
   });
+
+  useEffect(() => {
+    addToolOutputRef.current = chat.addToolOutput;
+  }, [chat.addToolOutput]);
 
   useEffect(() => {
     lastPersistRef.current = '';

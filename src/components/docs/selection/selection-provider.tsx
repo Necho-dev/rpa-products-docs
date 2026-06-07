@@ -1,8 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { SharePosterDialog } from '@/components/docs/share-poster-dialog';
+import { SharedQuotePrompt } from '@/components/docs/selection/shared-quote-prompt';
+import { useExcerptCollectionOptional } from '@/components/docs/selection/excerpt-collection-context';
 import { SelectionShareLoading, SelectionToolbar } from '@/components/docs/selection/selection-toolbar';
 import { useAISearchContext } from '@/components/ai/search';
 import {
@@ -30,6 +32,15 @@ import {
   idbListHighlightsForPage,
   idbPutHighlight,
 } from '@/lib/docs/selection/highlight-idb';
+import { locateAndScrollToHighlight, flashHighlight } from '@/lib/docs/selection/scroll-to-highlight';
+import {
+  hasSharedQuoteQueryParams,
+  locateAndPreviewSharedQuote,
+  readSharedQuoteFromHash,
+  removeSharedPreviewHighlight,
+  type SharedQuotePayload,
+} from '@/lib/docs/selection/locate-shared-quote';
+import { verifySharedQuoteFromUrl } from '@/lib/docs/selection/verify-shared-quote';
 import { safeWriteClipboard } from '@/lib/ui/code-block-utils';
 import { docsRoute } from '@/lib/core/shared';
 
@@ -93,16 +104,27 @@ export function DocSelectionProvider() {
 
   if (!pagePath) return null;
 
-  return <DocSelectionProviderInner key={pagePath} pagePath={pagePath} />;
+  return (
+    <Suspense fallback={null}>
+      <DocSelectionProviderInner key={pagePath} pagePath={pagePath} />
+    </Suspense>
+  );
 }
 
 function DocSelectionProviderInner({ pagePath }: { pagePath: string }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const excerptCollection = useExcerptCollectionOptional();
+  const reportLocateError = excerptCollection?.reportLocateError;
+  const openExcerptPanel = excerptCollection?.setOpen;
   const { openWithSelection } = useAISearchContext();
 
   const [selection, setSelection] = useState<SelectionSnapshot | null>(null);
   const selectionRef = useRef<SelectionSnapshot | null>(null);
   const copyResetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const suppressSelectionHideUntilRef = useRef(0);
+  const hlHandledRef = useRef<string | null>(null);
+  const sharedQuoteHandledRef = useRef<string | null>(null);
 
   useEffect(() => {
     selectionRef.current = selection;
@@ -124,6 +146,9 @@ function DocSelectionProviderInner({ pagePath }: { pagePath: string }) {
   const [sharePageUrl, setSharePageUrl] = useState('');
   const [shareTitle, setShareTitle] = useState('');
   const [shareDescription, setShareDescription] = useState<string | undefined>();
+
+  const [sharedQuote, setSharedQuote] = useState<SharedQuotePayload | null>(null);
+  const [sharedQuotePromptOpen, setSharedQuotePromptOpen] = useState(false);
 
   const hideToolbar = useCallback(() => {
     setSelection(null);
@@ -334,6 +359,187 @@ function DocSelectionProviderInner({ pagePath }: { pagePath: string }) {
     };
   }, [pagePath]);
 
+  useEffect(() => {
+    const hlId = searchParams.get('hl');
+    if (!hlId || hlHandledRef.current === hlId) return;
+
+    let cancelled = false;
+
+    const locateFromQuery = async () => {
+      const highlight = await idbGetHighlightById(hlId);
+      if (cancelled || !highlight) return;
+
+      // 先等正文渲染，再恢复 mark 并定位（与 restore effect 的 400ms retry 对齐）
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      const highlights = await idbListHighlightsForPage(pagePath);
+      if (!cancelled) {
+        const container = findProseContainer();
+        if (container && highlights.length > 0) {
+          applyHighlightsToContainer(container, highlights);
+        }
+      }
+
+      if (cancelled) return;
+
+      hlHandledRef.current = hlId;
+      const ok = await locateAndScrollToHighlight(highlight, { maxAttempts: 20, intervalMs: 120 });
+      if (cancelled) return;
+
+      if (!ok) {
+        reportLocateError?.('原文已变更，无法定位到划线位置');
+        openExcerptPanel?.(true);
+      }
+
+      router.replace(pagePath, { scroll: false });
+    };
+
+    void locateFromQuery();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [pagePath, searchParams, router, reportLocateError, openExcerptPanel]);
+
+  useEffect(() => {
+    hlHandledRef.current = null;
+    sharedQuoteHandledRef.current = null;
+  }, [pagePath]);
+
+  useEffect(() => {
+    if (searchParams.get('hl')) return;
+
+    const hash =
+      typeof window !== 'undefined' && window.location.hash.includes(':~:text=')
+        ? window.location.hash
+        : '';
+    const handlerKey = hasSharedQuoteQueryParams(searchParams)
+      ? `q:${searchParams.get('q')}:${searchParams.get('sg') ?? ''}`
+      : hash || null;
+
+    if (!handlerKey || sharedQuoteHandledRef.current === handlerKey) return;
+
+    let cancelled = false;
+
+    const locateSharedFromUrl = async () => {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      let quote: SharedQuotePayload | null = null;
+      if (hasSharedQuoteQueryParams(searchParams)) {
+        const verified = await verifySharedQuoteFromUrl(pagePath, searchParams);
+        if (cancelled) return;
+
+        if (!verified.ok) {
+          sharedQuoteHandledRef.current = handlerKey;
+          if (verified.reason === 'forbidden') {
+            reportLocateError?.('无权访问该摘录所在的文档');
+          } else {
+            reportLocateError?.('分享链接无效或已损坏');
+          }
+          router.replace(pagePath, { scroll: false });
+          return;
+        }
+
+        quote = verified.quote;
+      } else {
+        quote = readSharedQuoteFromHash();
+      }
+
+      if (cancelled || !quote) return;
+
+      const existing = await idbFindHighlightByQuote(
+        pagePath,
+        quote.exact,
+        quote.prefix,
+        quote.suffix,
+      );
+
+      if (existing) {
+        sharedQuoteHandledRef.current = handlerKey;
+        const highlights = await idbListHighlightsForPage(pagePath);
+        if (!cancelled) {
+          const container = findProseContainer();
+          if (container && highlights.length > 0) {
+            applyHighlightsToContainer(container, highlights);
+          }
+        }
+        if (cancelled) return;
+
+        await locateAndScrollToHighlight(existing, { maxAttempts: 20, intervalMs: 120 });
+        router.replace(pagePath, { scroll: false });
+        return;
+      }
+
+      const { ok } = await locateAndPreviewSharedQuote(quote, {
+        maxAttempts: 20,
+        intervalMs: 120,
+      });
+      if (cancelled) return;
+
+      sharedQuoteHandledRef.current = handlerKey;
+      if (!ok) {
+        reportLocateError?.('无法定位到分享的摘录内容');
+        router.replace(pagePath, { scroll: false });
+        return;
+      }
+
+      setSharedQuote(quote);
+      setSharedQuotePromptOpen(true);
+      router.replace(pagePath, { scroll: false });
+    };
+
+    void locateSharedFromUrl();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [pagePath, searchParams, router, reportLocateError]);
+
+  const handleSharedQuoteDismiss = useCallback(() => {
+    const container = findProseContainer();
+    if (container) removeSharedPreviewHighlight(container);
+    setSharedQuotePromptOpen(false);
+    setSharedQuote(null);
+  }, []);
+
+  const handleSharedQuoteAdd = useCallback(async () => {
+    if (!sharedQuote) return;
+    const container = findProseContainer();
+    if (!container) return;
+
+    removeSharedPreviewHighlight(container);
+
+    const existing = await idbFindHighlightByQuote(
+      pagePath,
+      sharedQuote.exact,
+      sharedQuote.prefix,
+      sharedQuote.suffix,
+    );
+
+    if (existing) {
+      applyHighlightsToContainer(container, [existing]);
+      await locateAndScrollToHighlight(existing);
+      setSharedQuotePromptOpen(false);
+      setSharedQuote(null);
+      return;
+    }
+
+    const highlight = createHighlight({
+      pagePath,
+      pageTitle: getPageTitle(),
+      exact: sharedQuote.exact,
+      prefix: sharedQuote.prefix,
+      suffix: sharedQuote.suffix,
+      color: 'yellow',
+    });
+
+    await idbPutHighlight(highlight);
+    applyHighlightFromRange(container, highlight);
+    flashHighlight(collectHighlightSegments(highlight.id, container));
+    setSharedQuotePromptOpen(false);
+    setSharedQuote(null);
+  }, [sharedQuote, pagePath]);
+
   const handleHighlight = useCallback(async () => {
     if (!selection) return;
     const container = findProseContainer();
@@ -351,6 +557,7 @@ function DocSelectionProviderInner({ pagePath }: { pagePath: string }) {
 
     const highlight = createHighlight({
       pagePath,
+      pageTitle: getPageTitle(),
       exact: selection.exact,
       prefix: selection.prefix,
       suffix: selection.suffix,
@@ -377,6 +584,9 @@ function DocSelectionProviderInner({ pagePath }: { pagePath: string }) {
         slugs,
         text: selection.text,
         pageUrl: window.location.href.split('#')[0],
+        exact: selection.exact,
+        prefix: selection.prefix,
+        suffix: selection.suffix,
       });
 
       setShareTitle(pageTitle);
@@ -438,6 +648,11 @@ function DocSelectionProviderInner({ pagePath }: { pagePath: string }) {
         pageUrl={sharePageUrl}
         posterUrl={sharePosterUrl}
         downloadFileName="doc-quote-share.png"
+      />
+      <SharedQuotePrompt
+        open={sharedQuotePromptOpen}
+        onAdd={() => void handleSharedQuoteAdd()}
+        onDismiss={handleSharedQuoteDismiss}
       />
     </>
   );

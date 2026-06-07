@@ -3,6 +3,7 @@ export type HighlightColor = 'yellow' | 'green' | 'blue';
 export type DocHighlight = {
   id: string;
   pagePath: string;
+  pageTitle?: string;
   exact: string;
   prefix: string;
   suffix: string;
@@ -15,6 +16,24 @@ const DB_VERSION = 1;
 const STORE = 'highlights';
 /** 全站划线总量上限，超出时删除最旧记录 */
 const MAX_HIGHLIGHTS = 500;
+
+type HighlightChangeListener = () => void;
+const changeListeners = new Set<HighlightChangeListener>();
+
+function notifyHighlightChanges(): void {
+  for (const listener of changeListeners) {
+    try {
+      listener();
+    } catch (err) {
+      console.error('[highlight-idb] change listener failed', err);
+    }
+  }
+}
+
+export function subscribeHighlightChanges(listener: HighlightChangeListener): () => void {
+  changeListeners.add(listener);
+  return () => changeListeners.delete(listener);
+}
 
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -59,13 +78,13 @@ export async function idbListHighlightsForPage(pagePath: string): Promise<DocHig
   }
 }
 
-async function idbListAllHighlights(): Promise<DocHighlight[]> {
+export async function idbListAllHighlights(): Promise<DocHighlight[]> {
   const db = await openDb();
   try {
     const tx = db.transaction(STORE, 'readonly');
     const result = await reqToPromise(tx.objectStore(STORE).getAll());
     await txDone(tx);
-    return (result as DocHighlight[]).sort((a, b) => a.createdAt - b.createdAt);
+    return (result as DocHighlight[]).sort((a, b) => b.createdAt - a.createdAt);
   } finally {
     db.close();
   }
@@ -75,7 +94,8 @@ async function trimOldHighlights(): Promise<void> {
   const all = await idbListAllHighlights();
   if (all.length <= MAX_HIGHLIGHTS) return;
 
-  const drop = all.slice(0, all.length - MAX_HIGHLIGHTS);
+  const sortedAsc = [...all].sort((a, b) => a.createdAt - b.createdAt);
+  const drop = sortedAsc.slice(0, sortedAsc.length - MAX_HIGHLIGHTS);
   const db = await openDb();
   try {
     const tx = db.transaction(STORE, 'readwrite');
@@ -97,6 +117,7 @@ export async function idbPutHighlight(highlight: DocHighlight): Promise<void> {
     db.close();
   }
   await trimOldHighlights();
+  notifyHighlightChanges();
 }
 
 export async function idbDeleteHighlight(id: string): Promise<void> {
@@ -108,6 +129,7 @@ export async function idbDeleteHighlight(id: string): Promise<void> {
   } finally {
     db.close();
   }
+  notifyHighlightChanges();
 }
 
 export async function idbGetHighlightById(id: string): Promise<DocHighlight | null> {

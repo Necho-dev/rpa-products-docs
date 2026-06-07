@@ -1,7 +1,8 @@
 import { signatureWindowMs, sessionSecret } from '@/lib/auth/auth-config';
 import { sha256Hex, timingSafeHexEqual } from '@/lib/auth/cube';
+import { MAX_QUOTE_TEXT, normalizeQuoteText } from '@/lib/docs/selection/quote-text';
 
-export const MAX_QUOTE_TEXT = 500;
+export { MAX_QUOTE_TEXT, normalizeQuoteText, parseTextFragmentExact } from '@/lib/docs/selection/quote-text';
 
 function trimEnv(key: string): string | undefined {
   const v = process.env[key];
@@ -12,10 +13,6 @@ function trimEnv(key: string): string | undefined {
 
 export function quoteSignSecret(): string | undefined {
   return trimEnv('DOCS_QUOTE_SIGN_SECRET') ?? sessionSecret();
-}
-
-export function normalizeQuoteText(text: string): string {
-  return text.replace(/\s+/g, ' ').trim().slice(0, MAX_QUOTE_TEXT);
 }
 
 export function buildQuoteSignature(
@@ -75,4 +72,70 @@ export function buildPageUrlWithTextFragment(pageUrl: string, exact: string): st
   const base = pageUrl.split('#')[0];
   const encoded = encodeURIComponent(exact);
   return `${base}#:~:text=${encoded}`;
+}
+
+export function normalizeShareQuoteContext(prefix: string, suffix: string): {
+  prefix: string;
+  suffix: string;
+} {
+  return {
+    prefix: prefix.replace(/\s+/g, ' ').slice(-32),
+    suffix: suffix.replace(/\s+/g, ' ').slice(0, 32),
+  };
+}
+
+/** 分享页定位用签名（无过期时间，便于长期分享） */
+export function buildShareQuoteSignature(
+  pagePath: string,
+  exact: string,
+  prefix: string,
+  suffix: string,
+  secret: string,
+): string {
+  const normalized = normalizeQuoteText(exact);
+  const ctx = normalizeShareQuoteContext(prefix, suffix);
+  return sha256Hex(`share-quote\n${pagePath}\n${normalized}\n${ctx.prefix}\n${ctx.suffix}\n${secret}`);
+}
+
+export function verifyShareQuoteSignature(
+  pagePath: string,
+  exact: string,
+  prefix: string,
+  suffix: string,
+  sg: string,
+): boolean {
+  const secret = quoteSignSecret();
+  if (!secret) return process.env.NODE_ENV !== 'production';
+  if (!sg) return false;
+
+  const expected = buildShareQuoteSignature(pagePath, exact, prefix, suffix, secret);
+  return timingSafeHexEqual(expected, sg);
+}
+
+/** 生成带签名 query 的分享页 URL，并附加 Text Fragment 供浏览器原生定位 */
+export function buildSignedShareQuotePageUrl(
+  pageUrl: string,
+  exact: string,
+  prefix: string,
+  suffix: string,
+): string {
+  const base = pageUrl.split('#')[0];
+  const url = new URL(base);
+  const pagePath = url.pathname;
+  const normalized = normalizeQuoteText(exact);
+  const ctx = normalizeShareQuoteContext(prefix, suffix);
+
+  url.searchParams.set('q', normalized);
+  if (ctx.prefix) url.searchParams.set('p', ctx.prefix);
+  if (ctx.suffix) url.searchParams.set('s', ctx.suffix);
+
+  const secret = quoteSignSecret();
+  if (secret) {
+    url.searchParams.set(
+      'sg',
+      buildShareQuoteSignature(pagePath, normalized, ctx.prefix, ctx.suffix, secret),
+    );
+  }
+
+  return buildPageUrlWithTextFragment(url.toString(), normalized);
 }

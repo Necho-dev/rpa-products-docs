@@ -73,7 +73,7 @@ function findQuoteInNormalized(
   let searchFrom = 0;
   while (searchFrom < normalized.length) {
     const pos = normalized.indexOf(exact, searchFrom);
-    if (pos === -1) return null;
+    if (pos === -1) break;
 
     const before = normalized.slice(Math.max(0, pos - quote.prefix.length), pos);
     const after = normalized.slice(pos + exact.length, pos + exact.length + quote.suffix.length);
@@ -86,6 +86,12 @@ function findQuoteInNormalized(
     if (prefixOk && suffixOk) return pos;
     searchFrom = pos + 1;
   }
+
+  // 上下文匹配失败时：若 exact 在页内唯一，仍视为同一处
+  const first = normalized.indexOf(exact);
+  if (first === -1) return null;
+  const last = normalized.lastIndexOf(exact);
+  if (first === last) return first;
 
   return null;
 }
@@ -291,4 +297,23 @@ export function rangeFromHighlightSegments(segments: HTMLElement[]): Range | nul
   range.setStartBefore(segments[0]);
   range.setEndAfter(segments[segments.length - 1]);
   return range;
+}
+
+/** 在正文中定位划线对应的 Range（不写入 DOM 包裹） */
+export function findRangeForHighlightQuote(
+  container: HTMLElement,
+  highlight: Pick<DocHighlight, 'exact' | 'prefix' | 'suffix'>,
+): Range | null {
+  const { normalized, map } = buildNormalizedMap(container);
+  const pos = findQuoteInNormalized(normalized, highlight);
+  if (pos === null) return null;
+
+  const exactLen = normalizeText(highlight.exact).length;
+  return rangeFromNormalizedSpan(map, pos, pos + exactLen);
+}
+
+/** 确保划线 mark 已写入 DOM；若已存在则跳过 */
+export function ensureHighlightInDom(container: HTMLElement, highlight: DocHighlight): boolean {
+  if (container.querySelector(`[data-doc-highlight="${highlight.id}"]`)) return true;
+  return applyHighlightToDom(container, highlight, new Set());
 }

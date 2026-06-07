@@ -13,6 +13,16 @@ import {
   searchDocumentation,
   searchDocsToolDescription,
 } from '@/lib/docs/docs-site-tools';
+import {
+  AddExcerptInputSchema,
+  addExcerptToolDescription,
+  DeleteExcerptInputSchema,
+  deleteExcerptToolDescription,
+  ListExcerptsInputSchema,
+  listExcerptsToolDescription,
+  SearchExcerptsInputSchema,
+  searchExcerptsToolDescription,
+} from '@/lib/docs/selection/excerpt-ai-tools';
 import { getDocAccessContext } from '@/lib/docs/access/doc-access';
 import { inferSiteOrigin } from '@/lib/core/site-origin';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
@@ -60,6 +70,9 @@ When the user asks about documentation, topics, connectors, apps, or anything th
 When Client Context includes a selection field, prioritize answering about that selected excerpt while using documentation tools if needed for broader context.
 Prefer searchDocumentationPages when the user is vague or keyword-driven; use listDocumentationPages to browse the full catalog; use getDocumentationPageMeta before getDocumentationPage when you only need headings/TOC; use getDocumentationPage for full body text.
 
+Excerpt tools (listExcerpts, searchExcerpts, addExcerpt, deleteExcerpt) run in the user's browser against local IndexedDB — use them when the user asks about their saved highlights/excerpts collection. They do NOT bypass document access control; they only read or write local highlights for pages the user can open.
+For addExcerpt, prefer the user's current selection from Client Context when present; otherwise use tool parameters and the current page path from Client Context location. deleteExcerpt requires explicit user confirmation in the UI — do not assume deletion succeeded until tool output confirms it.
+
 After every tool call, you MUST continue and write a clear reply in the same language as the user (e.g. 简体中文), summarizing what you found — do not end the turn with only tool output; the user cannot see raw tool JSON as the final answer.`,
     stopWhen: stepCountIs(16),
     tools: {
@@ -97,6 +110,23 @@ After every tool call, you MUST continue and write a clear reply in the same lan
           const r = await getDocumentationPage(siteOrigin, path, access);
           return r.text;
         },
+      }),
+      listExcerpts: tool({
+        description: listExcerptsToolDescription,
+        inputSchema: ListExcerptsInputSchema,
+      }),
+      searchExcerpts: tool({
+        description: searchExcerptsToolDescription,
+        inputSchema: SearchExcerptsInputSchema,
+      }),
+      addExcerpt: tool({
+        description: addExcerptToolDescription,
+        inputSchema: AddExcerptInputSchema,
+      }),
+      deleteExcerpt: tool({
+        description: deleteExcerptToolDescription,
+        inputSchema: DeleteExcerptInputSchema,
+        needsApproval: true,
       }),
     },
     messages: await convertToModelMessages<InkeepUIMessage>((reqJson as { messages: InkeepUIMessage[] }).messages, {

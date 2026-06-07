@@ -4,6 +4,9 @@ export async function fetchQuotePosterUrl(input: {
   slugs: string[];
   text: string;
   pageUrl: string;
+  exact?: string;
+  prefix?: string;
+  suffix?: string;
 }): Promise<{ posterUrl: string; pageUrl: string }> {
   const res = await fetch('/api/docs/quote-poster-url', {
     method: 'POST',

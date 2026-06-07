@@ -119,7 +119,7 @@ function ToolbarButton({
       onClick={onClick}
       className={cn(
         buttonVariants({ color: 'ghost', size: 'sm' }),
-        'h-7 min-w-[4rem] gap-1 px-2 text-xs font-medium',
+        'h-7 min-w-16 gap-1 px-2 text-xs font-medium',
         'dark:hover:bg-white/10 dark:hover:text-white',
         active && 'text-fd-muted-foreground dark:text-white/70',
       )}

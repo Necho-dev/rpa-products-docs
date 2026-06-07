@@ -3,8 +3,8 @@ import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
 import { source } from '@/lib/docs/source/source';
 import { inferSiteOrigin } from '@/lib/core/site-origin';
 import {
-  buildPageUrlWithTextFragment,
   buildSignedQuotePosterUrl,
+  buildSignedShareQuotePageUrl,
   normalizeQuoteText,
 } from '@/lib/docs/selection/quote-sign';
 import { headers } from 'next/headers';
@@ -21,6 +21,9 @@ export async function POST(req: Request) {
   const slugs = (body as { slugs?: unknown }).slugs;
   const text = (body as { text?: unknown }).text;
   const pageUrl = (body as { pageUrl?: unknown }).pageUrl;
+  const exactRaw = (body as { exact?: unknown }).exact;
+  const prefixRaw = (body as { prefix?: unknown }).prefix;
+  const suffixRaw = (body as { suffix?: unknown }).suffix;
 
   if (!Array.isArray(slugs) || slugs.some((s) => typeof s !== 'string')) {
     return NextResponse.json({ error: 'slugs required' }, { status: 400 });
@@ -50,6 +53,12 @@ export async function POST(req: Request) {
   );
 
   const normalized = normalizeQuoteText(text);
+  const exact =
+    typeof exactRaw === 'string' && exactRaw.trim().length >= 2
+      ? normalizeQuoteText(exactRaw)
+      : normalized;
+  const prefix = typeof prefixRaw === 'string' ? prefixRaw : '';
+  const suffix = typeof suffixRaw === 'string' ? suffixRaw : '';
   const posterUrl = buildSignedQuotePosterUrl(origin, slugs, normalized);
   if (!posterUrl) {
     return NextResponse.json({ error: 'sign failed' }, { status: 500 });
@@ -57,6 +66,6 @@ export async function POST(req: Request) {
 
   return NextResponse.json({
     posterUrl,
-    pageUrl: buildPageUrlWithTextFragment(pageUrl, normalized),
+    pageUrl: buildSignedShareQuotePageUrl(pageUrl, exact, prefix, suffix),
   });
 }

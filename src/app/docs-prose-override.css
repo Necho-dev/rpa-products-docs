@@ -875,3 +875,260 @@ div.prose .doc-highlight-mark[data-highlight-color='blue'] {
   --doc-highlight-bg-hover: var(--doc-highlight-bg-blue-hover);
   --doc-highlight-line: var(--doc-highlight-line-blue);
 }
+
+@keyframes doc-highlight-flash {
+  0%,
+  100% {
+    box-shadow: none;
+  }
+  35%,
+  65% {
+    box-shadow:
+      0 0 0 3px color-mix(in srgb, var(--doc-highlight-line) 35%, transparent),
+      0 0 16px color-mix(in srgb, var(--doc-highlight-line) 25%, transparent);
+  }
+}
+
+#nd-page .doc-highlight-mark.doc-highlight-flash,
+#nd-docs-layout .prose .doc-highlight-mark.doc-highlight-flash,
+div.prose .doc-highlight-mark.doc-highlight-flash {
+  animation: doc-highlight-flash 1.5s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #nd-page .doc-highlight-mark.doc-highlight-flash,
+  #nd-docs-layout .prose .doc-highlight-mark.doc-highlight-flash,
+  div.prose .doc-highlight-mark.doc-highlight-flash {
+    animation: none;
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--doc-highlight-line) 45%, transparent);
+  }
+}
+
+/* 摘录集卡片引号装饰（参考阅读类产品的划线摘录卡片） */
+.excerpt-collection-card::before {
+  content: '\201C';
+  position: absolute;
+  top: 0.1rem;
+  inset-inline-start: 0.55rem;
+  z-index: 0;
+  font-size: 2.25rem;
+  line-height: 1;
+  font-family: Georgia, 'Times New Roman', 'Noto Serif SC', serif;
+  font-weight: 700;
+  color: var(--color-fd-primary, hsl(221 83% 53%));
+  opacity: 0.12;
+  pointer-events: none;
+  user-select: none;
+}
+
+html.dark .excerpt-collection-card::before {
+  opacity: 0.18;
+}
+
+.excerpt-collection-quote {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  text-indent: 0.1em;
+  /* 摘录含 camelCase / snake_case 字段名，允许任意位置断行 */
+  word-break: break-all;
+  line-break: anywhere;
+  overflow-wrap: anywhere;
+}
+
+/* 摘录删除确认：Ant Design Popconfirm 风格（卡片底部内联，不遮挡正文） */
+.excerpt-delete-confirm-inline .excerpt-delete-confirm-icon {
+  width: 0.875rem;
+  height: 0.875rem;
+  color: #faad14;
+}
+
+.excerpt-delete-confirm-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.excerpt-delete-confirm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.5rem;
+  padding: 0 0.4375rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    color 0.2s,
+    border-color 0.2s,
+    background-color 0.2s;
+}
+
+.excerpt-delete-confirm-btn-default {
+  border: 1px solid #d9d9d9;
+  background: #fff;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+html.dark .excerpt-delete-confirm-btn-default {
+  border-color: color-mix(in srgb, var(--color-fd-border) 90%, transparent);
+  background: var(--color-fd-card);
+  color: var(--color-fd-foreground);
+}
+
+.excerpt-delete-confirm-btn-default:hover {
+  border-color: #4096ff;
+  color: #4096ff;
+}
+
+.excerpt-delete-confirm-btn-danger {
+  border: 1px solid #ff4d4f;
+  background: #ff4d4f;
+  color: #fff;
+}
+
+.excerpt-delete-confirm-btn-danger:hover {
+  border-color: #ff7875;
+  background: #ff7875;
+}
+
+/* 分享摘录预览高亮（临时，未入库） */
+.doc-highlight-mark[data-shared-preview='true'] {
+  outline: 1.5px dashed color-mix(in srgb, var(--doc-highlight-line, #facc15) 70%, transparent);
+  outline-offset: 1px;
+}
+
+/* 分享摘录落地提示 */
+.shared-quote-prompt-panel {
+  padding: 0.75rem 0.875rem;
+  border-radius: 0.5rem;
+  border: 1px solid color-mix(in srgb, var(--color-fd-border) 85%, transparent);
+  background: var(--color-fd-card);
+  box-shadow:
+    0 6px 16px 0 rgba(0, 0, 0, 0.08),
+    0 3px 6px -4px rgba(0, 0, 0, 0.12),
+    0 9px 28px 8px rgba(0, 0, 0, 0.05);
+}
+
+html.dark .shared-quote-prompt-panel {
+  box-shadow:
+    0 6px 16px 0 rgba(0, 0, 0, 0.28),
+    0 3px 6px -4px rgba(0, 0, 0, 0.32);
+}
+
+.shared-quote-prompt-icon {
+  color: var(--color-fd-primary, #1677ff);
+  background: color-mix(in srgb, var(--color-fd-primary, #1677ff) 12%, transparent);
+}
+
+.shared-quote-prompt-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.75rem;
+  padding: 0 0.625rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    color 0.2s,
+    border-color 0.2s,
+    background-color 0.2s;
+}
+
+.shared-quote-prompt-btn-default {
+  border: 1px solid #d9d9d9;
+  background: #fff;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+html.dark .shared-quote-prompt-btn-default {
+  border-color: color-mix(in srgb, var(--color-fd-border) 90%, transparent);
+  background: var(--color-fd-card);
+  color: var(--color-fd-foreground);
+}
+
+.shared-quote-prompt-btn-default:hover {
+  border-color: #4096ff;
+  color: #4096ff;
+}
+
+.shared-quote-prompt-btn-primary {
+  border: 1px solid var(--color-fd-primary, #1677ff);
+  background: var(--color-fd-primary, #1677ff);
+  color: var(--color-fd-primary-foreground, #fff);
+}
+
+.shared-quote-prompt-btn-primary:hover {
+  filter: brightness(1.05);
+}
+
+/* 摘录集抽屉：从右侧滑入/滑出（keyframes 保证每次打开都播放，避免 transition 首帧闪现） */
+@keyframes excerpt-drawer-slide-in {
+  from {
+    transform: translate3d(100%, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes excerpt-drawer-slide-out {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(100%, 0, 0);
+  }
+}
+
+@keyframes excerpt-drawer-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes excerpt-drawer-backdrop-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.excerpt-drawer-backdrop-in {
+  animation: excerpt-drawer-backdrop-in 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.excerpt-drawer-backdrop-out {
+  animation: excerpt-drawer-backdrop-out 280ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.excerpt-drawer-panel-in {
+  animation: excerpt-drawer-slide-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.excerpt-drawer-panel-out {
+  animation: excerpt-drawer-slide-out 320ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .excerpt-drawer-backdrop-in,
+  .excerpt-drawer-backdrop-out,
+  .excerpt-drawer-panel-in,
+  .excerpt-drawer-panel-out {
+    animation-duration: 0.01ms;
+  }
+}

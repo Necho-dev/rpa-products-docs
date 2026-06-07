@@ -14,6 +14,8 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/core/cn';
 import { AskAIIcon } from '@/components/ai/ask-ai-icon';
 import { BackToTopRocketIcon } from '@/components/docs/back-to-top-rocket-icon';
+import { ExcerptCollectionIcon } from '@/components/docs/excerpt-collection-icon';
+import { useExcerptCollectionOptional } from '@/components/docs/selection/excerpt-collection-context';
 import { AISearchTrigger, useAISearchContext } from '@/components/ai/search';
 
 /** 任意时段均可轮播的通用文案 */
@@ -338,6 +340,45 @@ function AskAIAnchor({ enabled }: { enabled: boolean }) {
   );
 }
 
+function ExcerptCollectionAnchor({
+  enabled,
+  hidden,
+}: {
+  enabled: boolean;
+  hidden: boolean;
+}) {
+  const excerpt = useExcerptCollectionOptional();
+
+  if (!enabled || !excerpt) return null;
+
+  const count = excerpt.highlights.length;
+
+  return (
+    <FloatingAnchorButton
+      aria-label="摘录集"
+      title="摘录集"
+      onClick={() => excerpt.setOpen(true)}
+      className={cn(
+        'relative text-fd-primary transition-opacity duration-300',
+        hidden && 'pointer-events-none scale-95 opacity-0',
+      )}
+    >
+      <ExcerptCollectionIcon className="size-6" />
+      {count > 0 ? (
+        <span
+          className={cn(
+            'absolute -top-0.5 -inset-e-0.5 flex min-w-4 items-center justify-center rounded-full',
+            'bg-fd-primary px-1 text-[10px] font-semibold leading-4 text-fd-primary-foreground',
+          )}
+          aria-hidden
+        >
+          {count > 99 ? '99+' : count}
+        </span>
+      ) : null}
+    </FloatingAnchorButton>
+  );
+}
+
 function BackToTopAnchor({ enabled }: { enabled: boolean }) {
   const [visible, setVisible] = useState(false);
 
@@ -379,8 +420,10 @@ export function DocsFloatingAnchors() {
   const pathname = usePathname();
   const isClient = useIsClient();
   const { open: aiPanelOpen } = useAISearchContext();
+  const excerpt = useExcerptCollectionOptional();
 
   const show = isClient && shouldShowFloatingAnchors(pathname);
+  const hideForOverlay = aiPanelOpen || Boolean(excerpt?.open);
 
   if (!show) return null;
 
@@ -392,13 +435,14 @@ export function DocsFloatingAnchors() {
         'bottom-[max(5rem,env(safe-area-inset-bottom,0px))]',
         'inset-e-[max(2.75rem,calc(2.75rem+var(--removed-body-scroll-bar-size,0px)),env(safe-area-inset-end,0px))]',
         'transition-[opacity,transform] duration-300 ease-out motion-reduce:transition-none',
-        aiPanelOpen && 'pointer-events-none translate-y-2 scale-95 opacity-0',
+        hideForOverlay && 'pointer-events-none translate-y-2 scale-95 opacity-0',
       )}
       aria-label="页面快捷操作"
-      aria-hidden={aiPanelOpen}
+      aria-hidden={hideForOverlay}
     >
-      <AskAIAnchor enabled={show && !aiPanelOpen} />
-      <BackToTopAnchor enabled={show && !aiPanelOpen} />
+      <AskAIAnchor enabled={show && !hideForOverlay} />
+      <ExcerptCollectionAnchor enabled={show} hidden={hideForOverlay} />
+      <BackToTopAnchor enabled={show && !hideForOverlay} />
     </div>
   );
 }
