@@ -155,6 +155,21 @@ export function readAccessUserFromCookieHeader(cookieHeader: string | null): str
   }
 }
 
+export function readCubeOriginFromCookieHeader(cookieHeader: string | null): string | null {
+  if (!cookieHeader) return null;
+  const match = cookieHeader.match(
+    new RegExp(`(?:^|;\\s*)${DOCS_CUBE_ORIGIN_COOKIE}=([^;]*)`),
+  );
+  const raw = match?.[1];
+  if (!raw) return null;
+  try {
+    const decoded = decodeURIComponent(raw);
+    return decoded || null;
+  } catch {
+    return raw || null;
+  }
+}
+
 export function appendSessionCookie(
   headers: Headers,
   request: Request,

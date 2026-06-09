@@ -13,6 +13,7 @@ import { JsonSchema } from '@/components/docs/mdx/json-schema';
 import { Mermaid } from '@/components/docs/mdx/mermaid';
 import { ModuleCard } from '@/components/docs/mdx/module-card';
 import { SearchOpenCard } from '@/components/docs/mdx/search-open-card';
+import { FieldTreeTable } from '@/components/docs/mdx/field-tree-table';
 import { TableWithExport } from '@/components/docs/mdx/table-export';
 
 /** Recursively extract plain text from React node tree (handles shiki span nesting) */
@@ -85,6 +86,7 @@ export function getMDXComponents(components?: MDXComponents) {
     AIChatOpenCard,
     ModuleCard,
     ConnectorMeta,
+    FieldTreeTable,
     table: TableWithExport,
     img: ({ className, ...props }: React.ComponentProps<'img'>) => {
       const isFirst = mdxInlineImageIndex++ === 0;

@@ -11,11 +11,14 @@ import { DocSelectionProvider } from '@/components/docs/selection/selection-prov
 import { ExcerptCollectionProvider } from '@/components/docs/selection/excerpt-collection-context';
 import { ExcerptCollectionDrawer } from '@/components/docs/selection/excerpt-collection-drawer';
 import { ExcerptAiToolsBridge } from '@/components/docs/selection/excerpt-ai-tools-bridge';
+import { DocFeedbackProvider } from '@/components/docs/feedback/doc-feedback-context';
+import { isDocFeedbackEnabled } from '@/lib/docs/feedback/config';
 
 export default async function Layout({ children }: LayoutProps<'/docs'>) {
   const modelDisplayName = process.env.LLM_MODEL?.trim() || undefined;
   const access = await getDocAccessContextFromRequest();
   const tree = filterPageTreeForAccess(source.getPageTree(), access);
+  const feedbackEnabled = isDocFeedbackEnabled();
 
   return (
     <DocsLayout
@@ -34,14 +37,16 @@ export default async function Layout({ children }: LayoutProps<'/docs'>) {
       }}
     >
       <AISearch modelDisplayName={modelDisplayName}>
-        <ExcerptCollectionProvider>
-          <ExcerptAiToolsBridge />
-          <AISearchPanel />
-          <ExcerptCollectionDrawer />
-          <DocsFloatingAnchors />
-          <DocSelectionProvider />
-          {children}
-        </ExcerptCollectionProvider>
+        <DocFeedbackProvider enabled={feedbackEnabled}>
+          <ExcerptCollectionProvider>
+            <ExcerptAiToolsBridge />
+            <AISearchPanel />
+            <ExcerptCollectionDrawer />
+            <DocsFloatingAnchors />
+            <DocSelectionProvider />
+            {children}
+          </ExcerptCollectionProvider>
+        </DocFeedbackProvider>
       </AISearch>
     </DocsLayout>
   );

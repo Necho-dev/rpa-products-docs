@@ -7,6 +7,7 @@ import {
   CopyIcon,
   HighlighterIcon,
   Loader2Icon,
+  MessageSquareWarningIcon,
   Share2Icon,
   XIcon,
 } from 'lucide-react';
@@ -20,6 +21,7 @@ export type SelectionToolbarProps = {
   hasExistingHighlight: boolean;
   onHighlight: () => void;
   onShare: () => void;
+  onFeedback?: () => void;
   onAskAi: () => void;
   onCopy: () => void;
   onClose: () => void;
@@ -33,6 +35,7 @@ export function SelectionToolbar({
   hasExistingHighlight,
   onHighlight,
   onShare,
+  onFeedback,
   onAskAi,
   onCopy,
   onClose,
@@ -71,6 +74,13 @@ export function SelectionToolbar({
         label="分享"
         onClick={onShare}
       />
+      {onFeedback ? (
+        <ToolbarButton
+          icon={<MessageSquareWarningIcon className="size-3.5" />}
+          label="反馈"
+          onClick={onFeedback}
+        />
+      ) : null}
       <ToolbarButton
         icon={<BotIcon className="size-3.5" />}
         label="问 AI"

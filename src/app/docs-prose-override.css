@@ -1132,3 +1132,46 @@ html.dark .shared-quote-prompt-btn-default {
     animation-duration: 0.01ms;
   }
 }
+
+/* field-tree：表格视觉完全走 .prose + .docs-table-scroll 全局规则，此处仅保留树形交互 */
+[data-field-tree] .field-tree-cell-inner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.375rem;
+  min-width: 0;
+}
+
+[data-field-tree] .field-tree-toggle {
+  margin-top: 0.125rem;
+  display: inline-flex;
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.25rem;
+  color: var(--color-fd-muted-foreground);
+  transition: color 0.15s, background-color 0.15s;
+}
+
+[data-field-tree] .field-tree-toggle:hover {
+  color: var(--color-fd-foreground);
+  background: color-mix(in srgb, var(--color-fd-accent) 60%, transparent);
+}
+
+[data-field-tree] .field-tree-toggle:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-fd-ring) 65%, transparent);
+  outline-offset: 1px;
+}
+
+[data-field-tree] .field-tree-toggle-spacer {
+  display: inline-block;
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+}
+
+[data-field-tree] .field-tree-field-text {
+  min-width: 0;
+}
+

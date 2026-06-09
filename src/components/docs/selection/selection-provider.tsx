@@ -2,6 +2,7 @@
 
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useDocFeedback } from '@/components/docs/feedback/doc-feedback-context';
 import { SharePosterDialog } from '@/components/docs/share-poster-dialog';
 import { SharedQuotePrompt } from '@/components/docs/selection/shared-quote-prompt';
 import { useExcerptCollectionOptional } from '@/components/docs/selection/excerpt-collection-context';
@@ -41,6 +42,7 @@ import {
   type SharedQuotePayload,
 } from '@/lib/docs/selection/locate-shared-quote';
 import { verifySharedQuoteFromUrl } from '@/lib/docs/selection/verify-shared-quote';
+import { getDocPageTitle } from '@/lib/docs/feedback/page-title';
 import { safeWriteClipboard } from '@/lib/ui/code-block-utils';
 import { docsRoute } from '@/lib/core/shared';
 
@@ -65,11 +67,6 @@ function clampToolbarPosition(rect: DOMRect): { top: number; left: number } {
   const left = Math.min(Math.max(rect.left + rect.width / 2, padding), window.innerWidth - padding);
   const top = Math.max(rect.top, padding + 48);
   return { top, left };
-}
-
-function getPageTitle(): string | undefined {
-  const h1 = document.querySelector<HTMLElement>('#nd-page h1');
-  return h1?.textContent?.trim() || undefined;
 }
 
 function normalizeSpaces(text: string): string {
@@ -118,6 +115,7 @@ function DocSelectionProviderInner({ pagePath }: { pagePath: string }) {
   const reportLocateError = excerptCollection?.reportLocateError;
   const openExcerptPanel = excerptCollection?.setOpen;
   const { openWithSelection } = useAISearchContext();
+  const { enabled: feedbackEnabled, openFeedback } = useDocFeedback();
 
   const [selection, setSelection] = useState<SelectionSnapshot | null>(null);
   const selectionRef = useRef<SelectionSnapshot | null>(null);
@@ -526,7 +524,7 @@ function DocSelectionProviderInner({ pagePath }: { pagePath: string }) {
 
     const highlight = createHighlight({
       pagePath,
-      pageTitle: getPageTitle(),
+      pageTitle: getDocPageTitle(),
       exact: sharedQuote.exact,
       prefix: sharedQuote.prefix,
       suffix: sharedQuote.suffix,
@@ -557,7 +555,7 @@ function DocSelectionProviderInner({ pagePath }: { pagePath: string }) {
 
     const highlight = createHighlight({
       pagePath,
-      pageTitle: getPageTitle(),
+      pageTitle: getDocPageTitle(),
       exact: selection.exact,
       prefix: selection.prefix,
       suffix: selection.suffix,
@@ -579,7 +577,7 @@ function DocSelectionProviderInner({ pagePath }: { pagePath: string }) {
 
     try {
       const slugs = slugsFromPathname(pagePath);
-      const pageTitle = getPageTitle() ?? '文档摘录';
+      const pageTitle = getDocPageTitle() ?? '文档摘录';
       const result = await fetchQuotePosterUrl({
         slugs,
         text: selection.text,
@@ -601,12 +599,25 @@ function DocSelectionProviderInner({ pagePath }: { pagePath: string }) {
     }
   }, [selection, pagePath, hideToolbar]);
 
+  const handleFeedback = useCallback(() => {
+    if (!selection || !feedbackEnabled) return;
+    const docUrl = window.location.href.split('#')[0];
+    openFeedback({
+      errorContent: selection.text,
+      docUrl,
+      source: 'selection',
+      pagePath,
+    });
+    hideToolbar();
+    clearNativeSelection();
+  }, [selection, feedbackEnabled, openFeedback, pagePath, hideToolbar]);
+
   const handleAskAi = useCallback(() => {
     if (!selection) return;
     openWithSelection({
       text: selection.text,
       pageUrl: window.location.href,
-      pageTitle: getPageTitle(),
+      pageTitle: getDocPageTitle(),
     });
     hideToolbar();
     clearNativeSelection();
@@ -633,6 +644,7 @@ function DocSelectionProviderInner({ pagePath }: { pagePath: string }) {
         hasExistingHighlight={Boolean(existingHighlightId)}
         onHighlight={() => void handleHighlight()}
         onShare={() => void handleShare()}
+        onFeedback={feedbackEnabled ? handleFeedback : undefined}
         onAskAi={handleAskAi}
         onCopy={handleCopy}
         onClose={hideToolbar}

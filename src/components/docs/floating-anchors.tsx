@@ -14,9 +14,12 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/core/cn';
 import { AskAIIcon } from '@/components/ai/ask-ai-icon';
 import { BackToTopRocketIcon } from '@/components/docs/back-to-top-rocket-icon';
+import { DocFeedbackIcon } from '@/components/docs/feedback/doc-feedback-icon';
+import { useDocFeedbackOptional } from '@/components/docs/feedback/doc-feedback-context';
 import { ExcerptCollectionIcon } from '@/components/docs/excerpt-collection-icon';
 import { useExcerptCollectionOptional } from '@/components/docs/selection/excerpt-collection-context';
 import { AISearchTrigger, useAISearchContext } from '@/components/ai/search';
+import { getDocPageTitle } from '@/lib/docs/feedback/page-title';
 
 /** 任意时段均可轮播的通用文案 */
 const STATIC_TOOLTIP_MESSAGES = [
@@ -138,7 +141,7 @@ function FloatingAnchorButton({
         'dark:border-fd-border dark:bg-fd-muted dark:shadow-[0_4px_20px_rgba(0,0,0,0.5)] dark:ring-1 dark:ring-fd-primary/30',
         'transition-[transform,box-shadow,opacity] duration-300 ease-out',
         'hover:scale-105 hover:shadow-xl hover:shadow-fd-primary/15 hover:ring-2 hover:ring-fd-primary/25',
-        'dark:hover:ring-fd-primary/45 dark:hover:shadow-[0_4px_24px_rgba(59,130,246,0.18)]',
+        'dark:hover:ring-fd-primary/45 dark:hover:shadow-[0_4px_24px_color-mix(in_srgb,var(--color-fd-primary)_18%,transparent)]',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring focus-visible:ring-offset-2 focus-visible:ring-offset-fd-background',
         'active:scale-95 motion-reduce:transition-none motion-reduce:hover:scale-100',
         className,
@@ -340,6 +343,46 @@ function AskAIAnchor({ enabled }: { enabled: boolean }) {
   );
 }
 
+function DocFeedbackAnchor({
+  enabled,
+  hidden,
+}: {
+  enabled: boolean;
+  hidden: boolean;
+}) {
+  const feedback = useDocFeedbackOptional();
+  const pathname = usePathname();
+
+  if (!enabled || !feedback?.enabled) return null;
+
+  const isDocPage =
+    pathname.startsWith('/docs/') && pathname !== '/docs/access';
+
+  if (!isDocPage) return null;
+
+  return (
+    <FloatingAnchorButton
+      aria-label="文档反馈"
+      title="文档反馈"
+      onClick={() => {
+        const docUrl = window.location.href.split('#')[0];
+        feedback.openFeedback({
+          errorContent: getDocPageTitle() ?? '当前文档',
+          docUrl,
+          source: 'document',
+          pagePath: pathname,
+        });
+      }}
+      className={cn(
+        'text-fd-primary transition-[opacity,color] duration-300',
+        hidden && 'pointer-events-none scale-95 opacity-0',
+      )}
+    >
+      <DocFeedbackIcon className="size-6" />
+    </FloatingAnchorButton>
+  );
+}
+
 function ExcerptCollectionAnchor({
   enabled,
   hidden,
@@ -367,8 +410,11 @@ function ExcerptCollectionAnchor({
       {count > 0 ? (
         <span
           className={cn(
-            'absolute -top-0.5 -inset-e-0.5 flex min-w-4 items-center justify-center rounded-full',
-            'bg-fd-primary px-1 text-[10px] font-semibold leading-4 text-fd-primary-foreground',
+            'absolute -top-0.5 -inset-e-0.5 z-10 flex min-w-4 items-center justify-center rounded-full',
+            'bg-fd-primary px-1 text-[10px] font-semibold leading-4 tabular-nums',
+            /* primary-foreground 在 Purple/Dusk 等预设下偏深，叠在 primary 底上对比不足 */
+            'text-white dark:text-fd-background',
+            'ring-1 ring-fd-background/40 dark:ring-fd-foreground/15',
           )}
           aria-hidden
         >
@@ -421,9 +467,10 @@ export function DocsFloatingAnchors() {
   const isClient = useIsClient();
   const { open: aiPanelOpen } = useAISearchContext();
   const excerpt = useExcerptCollectionOptional();
+  const feedback = useDocFeedbackOptional();
 
   const show = isClient && shouldShowFloatingAnchors(pathname);
-  const hideForOverlay = aiPanelOpen || Boolean(excerpt?.open);
+  const hideForOverlay = aiPanelOpen || Boolean(excerpt?.open) || Boolean(feedback?.open);
 
   if (!show) return null;
 
@@ -442,6 +489,7 @@ export function DocsFloatingAnchors() {
     >
       <AskAIAnchor enabled={show && !hideForOverlay} />
       <ExcerptCollectionAnchor enabled={show} hidden={hideForOverlay} />
+      <DocFeedbackAnchor enabled={show} hidden={hideForOverlay} />
       <BackToTopAnchor enabled={show && !hideForOverlay} />
     </div>
   );
