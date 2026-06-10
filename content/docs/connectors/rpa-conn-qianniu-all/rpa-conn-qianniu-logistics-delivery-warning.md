@@ -3,8 +3,8 @@ title: 物流-包裹中心-异常包裹监控
 description: 导出包裹中心异常包裹（支付超时未发货等）监控数据，支持按时间范围、交易单号、商品 ID 筛选
 entry: rpa.conn.qianniu.logistics.delivery.warning
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                              |

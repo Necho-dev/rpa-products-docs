@@ -3,8 +3,8 @@ title: 店铺-服务市场-可使用工具列表
 description: 采集千牛服务市场中当前店铺已订购且可使用的工具/服务列表，包含到期时间、剩余天数等信息
 entry: rpa.conn.qianniu.shop.tools.usable.list
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                         |

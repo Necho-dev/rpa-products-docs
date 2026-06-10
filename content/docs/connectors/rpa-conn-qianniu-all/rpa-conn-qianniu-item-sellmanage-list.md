@@ -3,8 +3,8 @@ title: 商品-商品管理-我的商品
 description: 采集千牛商品管理列表（出售中/仓库中/已售完等状态），支持按标题、商品ID搜索及自定义排序，自动翻页最多100页
 entry: rpa.conn.qianniu.item.sellmanage.list
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                          |
