@@ -2,6 +2,9 @@
 title: 万相台-短视频-违规列表
 description: 采集阿里妈妈万相台内容违规列表中的短视频违规记录，支持推广场景、物料ID、违规类型、违规影响及时间范围筛选
 entry: rpa.conn.alimm.wxt.short.video.violation
+badge:
+  label: 待上线
+  color: "#EA580C"
 ---
 
 | 属性             | 值                                                                                                |

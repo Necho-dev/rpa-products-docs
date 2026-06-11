@@ -2,6 +2,9 @@
 title: 店铺-推广平台-财务流水日账单
 description: 按日期范围、资金类型、流水类型、交易金额范围导出推广平台财务流水日账单明细数据
 entry: rpa.conn.pinduoduo.shop.daily.invoice
+badge:
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                         |
