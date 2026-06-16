@@ -3,8 +3,8 @@ title: 商品-商品360-标题分析/标题推荐
 description: 按商品 ID 与统计周期采集生意参谋商品360标题页的标题分析分词（含标签色）与标题推荐方案
 entry: rpa.conn.sycm.item.title.analysis.recommend
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                           |

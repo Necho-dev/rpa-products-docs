@@ -3,8 +3,8 @@ title: 店铺-服务数据-消费者体验指标
 description: 采集拼多多商家后台消费者服务体验分、各维度体验分及店铺服务体验问题数据
 entry: rpa.conn.pinduoduo.shop.consumer.experience.metrics
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                  |

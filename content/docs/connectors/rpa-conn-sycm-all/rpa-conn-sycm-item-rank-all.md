@@ -3,8 +3,8 @@ title: 商品-商品排行-全部数据下载
 description: 按日期类型（日/周/月）和日期参数下载生意参谋商品排行全部数据，支持天、自然周、自然月维度
 entry: rpa.conn.sycm.item.rank.all
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                         |

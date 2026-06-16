@@ -3,8 +3,8 @@ title: 商品-宏观监控(日)-数据下载
 description: 采集生意参谋宏观监控页面按日维度的商品经营数据，含支付、加购、访客、转化率等核心指标
 entry: rpa.conn.sycm.item.macro.monitor
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                           |

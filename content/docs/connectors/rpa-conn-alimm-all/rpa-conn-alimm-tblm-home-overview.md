@@ -4,8 +4,8 @@ description: 采集淘宝联盟商家中心 Dashboard 数据概览指标，支�
 entry: rpa.conn.alimm.tblm.home.overview
 access: private
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                       |

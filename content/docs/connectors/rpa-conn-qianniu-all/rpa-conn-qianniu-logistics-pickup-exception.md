@@ -3,8 +3,8 @@ title: 物流-包裹中心-揽收异常
 description: 导出包裹中心揽收异常数据，支持按支付时间范围、运单号/交易单号、商品 ID 筛选
 entry: rpa.conn.qianniu.logistics.pickup.exception
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                              |

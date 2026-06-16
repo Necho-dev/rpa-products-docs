@@ -3,8 +3,8 @@ title: 物流-包裹中心-阶段更新异常
 description: 导出包裹中心阶段更新异常数据（揽收/运输/派送更新异常），支持按发货时间范围、运单号/交易单号筛选
 entry: rpa.conn.qianniu.logistics.stage.update.exception
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                              |

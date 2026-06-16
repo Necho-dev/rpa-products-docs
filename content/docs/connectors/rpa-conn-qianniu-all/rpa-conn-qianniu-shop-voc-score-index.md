@@ -37,45 +37,41 @@ badge:
 
 ### 数据字段
 
-| 字段     | 中文释义   | 数据类型  | 可为空 | 取数路径 | 示例 |
+:::field-tree
+@define 子指标核心字段
+| `code` | 子指标代码 | `string` | 否 | 数据整合 | neg_itm_feedback_rate |
+| `name` | 子指标名称 | `string` | 否 | 数据整合 | 商品负反馈率 |
+| `score` | 子指标得分 | `string` | 否 | 数据整合 | 5.0 |
+| `showValue` | 展示值(含单位) | `string` | 否 | 数据整合 | 0.2105% |
+| `value` | 原始值 | `string` | 否 | 数据整合 | 0.002105 |
+| `rank` | 超过同行百分比 | `string` | 否 | 数据整合 | 95% |
+| `weight` | 指标权重 | `string` | 否 | 数据整合 | 70% |
+| `indexLevelCode` | 等级代码 | `string` | 否 | 数据整合 | excellent |
+| `isAssessed` | 是否参与考核 | `boolean` | 否 | 数据整合 | true |
+
+@define 指标通用字段
+| `code` | 指标代码 | `string` | 否 | 数据整合 | nps |
+| `name` | 指标名称 | `string` | 否 | 数据整合 | 真实体验分 |
+| `score` | 指标得分 | `string` | 否 | 数据整合 | 4.66 |
+| `grade` | 等级描述 | `string` | 否 | `1` 高 / `2` 中 / `3` 低 | 中 |
+| `gradeCode` | 等级代码 | `string` | 否 | 数据整合 | 2 |
+| `rank` | 超过同行百分比 | `string` | 否 | 数据整合 | 0.29 |
+| `reverseRank` | 被超过同行百分比 | `string` | 否 | 数据整合 | 0.71 |
+| `compare` | 较昨日变化说明 | `string` | 否 | 数据整合 | 较昨日- |
+| `weight` | 指标权重 | `string` | 否 | 数据整合 | 0.25 |
+| `subIndexInfoList` @子指标核心字段 | 子指标列表 | `List` | 是 | 数据整合 | 见数据样例 |
+
+| 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | -------- | ---------- | --------- | ------ | -------- | ---- |
-| `nps`   | 真实体验分   | `Object`  | 否     | 数据整合 | 见数据样例 |
-| `newGoods`   | 宝贝质量   | `Object`  | 否     | 数据整合 | 见数据样例 |
-| `newLogistics`   | 物流速度   | `Object`  | 否     | 数据整合 | 见数据样例 |
-| `newServices`   | 服务保障   | `Object`  | 否     | 数据整合 | 见数据样例 |
-| `additionalPoints`   | 附加分   | `Object`  | 否     | 数据整合 | 见数据样例 |
-| `transactionAbility`   | 成交能力   | `Object`  | 否     | 数据整合 | 见数据样例 |
-| `bizDate` | 业务日期 | `string`  | 否     | 附加 | |
-| `accountId` | 授权 ID | `string` | 否  | 附加 | |
-
-#### 指标通用字段
-| 字段     | 中文释义   | 数据类型  | 可为空 | 取数路径 | 示例 |
-| -------- | ---------- | --------- | ------ | -------- | ---- |
-| `code`   | 指标代码   | `string`  | 否     | 数据整合 | nps |
-| `name`   | 指标名称   | `string`  | 否     | 数据整合 | 真实体验分 |
-| `score`  | 指标得分   | `string`  | 否     | 数据整合 | 4.66 |
-| `grade`  | 等级描述   | `string`  | 否     | `1` 高 / `2` 中 / `3` 低 | 中 |
-| `gradeCode`  | 等级代码   | `string`  | 否     | 数据整合 | 2 |
-| `rank`  | 超过同行百分比   | `string`  | 否     | 数据整合 | 0.29 |
-| `reverseRank`  | 被超过同行百分比   | `string`  | 否     | 数据整合 | 0.71 |
-| `compare`  | 较昨日变化说明   | `string`  | 否     | 数据整合 | 较昨日- |
-| `weight`  | 指标权重   | `string`  | 否     | 数据整合 | 0.25 |
-| `subIndexInfoList`  | 子指标列表   | `List`  | 是     | 数据整合 | 中 |
-
-#### 子指标核心字段
-
-| 字段     | 中文释义   | 数据类型  | 可为空 | 取数路径 | 示例 |
-| -------- | ---------- | --------- | ------ | -------- | ---- |
-| `code`   | 子指标代码   | `string`  | 否     | 数据整合 | neg_itm_feedback_rate |
-| `name`   | 子指标名称   | `string`  | 否     | 数据整合 | 商品负反馈率 |
-| `score`  | 子指标得分   | `string`  | 否     | 数据整合 | 5.0 |
-| `showValue`  | 展示值(含单位)   | `string`  | 否     | 数据整合 | 0.2105% |
-| `value`  | 展示值(含单位)   | `string`  | 否     | 数据整合 | 0.2105% |
-| `rank`  | 超过同行百分比   | `string`  | 否     | 数据整合 | 95% |
-| `weight`  | 指标权重   | `string`  | 否     | 数据整合 | 70% |
-| `indexLevelCode`  | 等级代码   | `string`  | 否     | 数据整合 | excellent |
-| `isAssessed`  | 是否参与考核   | `boolean`  | 否     | 数据整合 | true |
-
+| `nps` @指标通用字段 | 真实体验分 | `Object` | 否 | 数据整合 | 见数据样例 |
+| `newGoods` @指标通用字段 | 宝贝质量 | `Object` | 否 | 数据整合 | 见数据样例 |
+| `newLogistics` @指标通用字段 | 物流速度 | `Object` | 否 | 数据整合 | 见数据样例 |
+| `newServices` @指标通用字段 | 服务保障 | `Object` | 否 | 数据整合 | 见数据样例 |
+| `additionalPoints` @指标通用字段 | 附加分 | `Object` | 否 | 数据整合 | 见数据样例 |
+| `transactionAbility` @指标通用字段 | 成交能力 | `Object` | 否 | 数据整合 | 见数据样例 |
+| `bizDate` | 业务日期 | `string` | 否 | 附加 | |
+| `accountId` | 授权 ID | `string` | 否 | 附加 | |
+:::
 
 ### 数据样例
 

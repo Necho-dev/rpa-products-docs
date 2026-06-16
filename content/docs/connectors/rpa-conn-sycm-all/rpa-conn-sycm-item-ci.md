@@ -3,8 +3,8 @@ title: 市场-竞争-竞品对比
 description: 按本店与竞品商品 ID 采集生意参谋竞品对比页的销售分析、来源渠道与客群分析数据
 entry: rpa.conn.sycm.item.ci
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                 |
@@ -56,6 +56,82 @@ badge:
 
 每条任务输出 **1 条聚合记录**（`data[0]`），各模块以数组内嵌，非行级平铺。
 
+:::field-tree
+@define 统计时间对象
+| `dateType` | 实际统计周期类型 | `string` | 否 | 对应模块接口 URL 中的 `dateType` | `week` |
+| `dateRangeStart` | 实际统计区间起始日 | `string` | 否 | 对应模块接口 URL 中的 `dateRange` 起始 | `2026-04-13` |
+| `dateRangeEnd` | 实际统计区间结束日 | `string` | 否 | 对应模块接口 URL 中的 `dateRange` 结束 | `2026-04-19` |
+
+@define 关键指标项
+| `itemId` | 商品 ID | `number` | 否 | `itemId` | `975048717355` |
+| `itemTitle` | 商品标题 | `string` | 是 | `itemTitle` | `null` |
+| `itemRole` | 商品角色 | `string` | 否 | 由接口 role 映射 | `selfItem` |
+| `uv` | 访客数 | `number` / `string` | 是 | `uv` | `286971` |
+| `payBuyerCnt` | 支付买家数 | `number` / `string` | 是 | `payByrCnt` | `12764` |
+| `payRate` | 支付转化率 | `number` / `string` | 是 | `payRate` | `0.04447836192507257` |
+| `cartBuyerCnt` | 加购人数 | `number` / `string` | 是 | `cartByrCnt` | `11284` |
+| `collectBuyerCnt` | 收藏人数 | `number` / `string` | 是 | `cltByrCnt` | `891` |
+| `payAmt` | 支付金额 | `number` / `string` | 是 | `payAmt` | `null` |
+| `payItemQty` | 支付件数 | `number` / `string` | 是 | `payItemQty` | `null` |
+
+@define SKU分析项
+| `itemId` | 商品 ID | `string` | 否 | 来自入参 | `975048717355` |
+| `itemRole` | 商品角色 | `string` | 否 | 由表格列映射 | `selfItem` |
+| `skuId` | SKU ID | `string` | 否 | `skuId` | `6093008626514` |
+| `skuName` | SKU 名称 | `string` | 否 | `skuName` | `颜色分类:【朱迪款】儿童防蛀抗糖牙膏-葡萄味 40g` |
+| `payBuyerCntRatioMkt` | 支付买家数占比 | `number` | 是 | `payByrCntRatioMkt` | `0.5346` |
+| `page` | 分页页码 | `number` | 否 | 分页序号 | `1` |
+
+@define 属性分析项
+| `itemId` | 商品 ID | `string` | 否 | 来自入参 | `975048717355` |
+| `itemRole` | 商品角色 | `string` | 否 | 由表格列映射 | `selfItem` |
+| `attrName` | 属性维度名称 | `string` | 否 | 接口请求 `attrName` 参数 | `颜色分类` |
+| `attrValue` | 属性值 | `string` | 否 | `attrValue` | `【朱迪款】儿童防蛀抗糖牙膏-葡萄味 40g` |
+| `payBuyerCntRatioMkt` | 支付买家数占比 | `number` | 是 | `payByrCntRatioMkt` | `0.5374` |
+| `page` | 分页页码 | `number` | 否 | 分页序号 | `1` |
+
+@define 入店搜索词项
+| `itemId` | 商品 ID | `string` | 否 | 来自入参 | `975048717355` |
+| `itemRole` | 商品角色 | `string` | 否 | 由接口 role 映射 | `selfItem` |
+| `metricTab` | 指标 Tab | `string` | 否 | 由页面 Tab 映射 | `uv` |
+| `keyword` | 搜索关键词 | `string` | 否 | `keyword` | `儿童牙膏` |
+| `uv` | 访客数 | `number` / `string` | 是 | `uv` | `1369` |
+| `payBuyerCnt` | 支付买家数 | `number` / `string` | 是 | `payByrCnt` | `341` |
+| `payRate` | 支付转化率 | `number` / `string` | 是 | `payRate` | `0.2491` |
+
+@define 入店来源项
+| `itemId` | 商品 ID | `string` | 否 | 来自入参 | `975048717355` |
+| `itemRole` | 商品角色 | `string` | 否 | 由接口 role 映射 | `selfItem` |
+| `metricTab` | 指标 Tab | `string` | 否 | 由页面 Tab 映射 | `uv` |
+| `sourceName` | 来源名称 | `string` | 否 | `pageName` / `sourceName` | `主动回访` |
+| `parentSourceName` | 上级来源名称 | `string` | 是 | 树形父节点名称 | `主动回访` |
+| `uv` | 访客数 | `number` / `string` | 是 | `{role}Uv` | `11176` |
+| `payBuyerCnt` | 支付买家数 | `number` / `string` | 是 | `{role}PayByrCnt` | `1704` |
+| `payRate` | 支付转化率 | `number` / `string` | 是 | `{role}PayRate` | `0.15246957766642805` |
+
+@define 经营优势项
+| `tabType` | 模块类型 | `string` | 否 | 固定枚举 | `sourceChannel` |
+| `sourceName` | 来源名称 | `string` | 否 | `pageName` / `sourceName` | `搜索` |
+| `parentSourceName` | 上级来源名称 | `string` | 是 | 树形父节点名称 | `付费推广` |
+| `selfUv` | 本店访客数 | `number` / `string` | 是 | `selfItemUv` | `4876` |
+| `selfPayBuyerCnt` | 本店支付买家数 | `number` / `string` | 是 | `selfItemPayByrCnt` | `967` |
+| `selfPayRate` | 本店支付转化率 | `number` / `string` | 是 | `selfItemPayRate` | `0.198318293683347` |
+| `rival1Uv` | 竞品 1 访客数 | `number` / `string` | 是 | `rivalItem1Uv` | `1万 ~ 2.5万` |
+| `rival1PayBuyerCnt` | 竞品 1 支付买家数 | `number` / `string` | 是 | `rivalItem1PayByrCnt` | `1000 ~ 2500` |
+| `rival1PayRate` | 竞品 1 支付转化率 | `number` / `string` | 是 | `rivalItem1PayRate` | `15% ~ 20%` |
+| `rival2Uv` | 竞品 2 访客数 | `number` / `string` | 是 | `rivalItem2Uv` | — |
+| `rival2PayBuyerCnt` | 竞品 2 支付买家数 | `number` / `string` | 是 | `rivalItem2PayByrCnt` | — |
+| `rival2PayRate` | 竞品 2 支付转化率 | `number` / `string` | 是 | `rivalItem2PayRate` | — |
+
+@define 客群画像项
+| `itemId` | 商品 ID | `string` | 否 | 来自入参 | `975048717355` |
+| `itemRole` | 商品角色 | `string` | 否 | 由接口 role 映射 | `selfItem` |
+| `crowdsType` | 人群类型代码 | `string` | 否 | 接口 `crowdsType` | `appSearchUv` |
+| `crowdsLabel` | 人群类型名称 | `string` | 否 | 页面 Tab 文案 | `搜索人群` |
+| `profileType` | 画像维度 | `string` | 否 | 接口 `profileType` | `gender` |
+| `attrValue` | 画像属性值 | `string` | 否 | `attrValue` | `女` |
+| `ratio` | 占比 | `number` | 是 | `{crowdsType}.ratio` | `0.8717` |
+
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
 | `selfItemId` | 本店商品 ID | `string` | 否 | 来自入参 | `975048717355` |
@@ -64,133 +140,29 @@ badge:
 | `dateType` | 销售/来源统计周期类型 | `string` | 否 | 由入参 `date_type` 映射 | `week` |
 | `dateRangeStart` | 销售/来源统计区间起始日 | `string` | 否 | 由入参与周期类型计算 | `2026-04-13` |
 | `dateRangeEnd` | 销售/来源统计区间结束日 | `string` | 否 | 由入参与周期类型计算 | `2026-04-19` |
-| `keyMetrics` | 关键指标对比 | `List[Dict]` | 是 | 见下方「关键指标对比」 | 见数据样例 `keyMetrics` |
-| `skuAnalysis` | SKU 分析 | `List[Dict]` | 是 | 见下方「SKU 分析」 | 见数据样例 `skuAnalysis` |
-| `attributeAnalysis` | 属性分析 | `List[Dict]` | 是 | 见下方「属性分析」 | 见数据样例 `attributeAnalysis` |
-| `saleStatTime` | 销售分析实际统计时间 | `Dict` | 是 | 见下方「统计时间对象」 | 见数据样例 `saleStatTime` |
-| `searchWords` | 入店搜索词 | `List[Dict]` | 是 | 见下方「入店搜索词」 | 见数据样例 `searchWords` |
-| `flowSource` | 入店来源 | `List[Dict]` | 是 | 见下方「入店来源」 | 见数据样例 `flowSource` |
-| `bizAdvantage` | 经营优势 | `List[Dict]` | 是 | 见下方「经营优势」 | 见数据样例 `bizAdvantage` |
-| `flowStatTime` | 来源渠道实际统计时间 | `Dict` | 是 | 见下方「统计时间对象」 | 见数据样例 `flowStatTime` |
-| `customerProfile` | 客群画像 | `List[Dict]` | 是 | 见下方「客群画像」 | 见数据样例 `customerProfile` |
-| `customerStatTime` | 客群分析实际统计时间 | `Dict` | 是 | 见下方「统计时间对象」 | 见数据样例 `customerStatTime` |
+| `keyMetrics` @关键指标项 | 关键指标对比 | `List[Dict]` | 是 | 销售分析；本店/竞品各一行 | 见数据样例 |
+| `skuAnalysis` @SKU分析项 | SKU 分析 | `List[Dict]` | 是 | SKU 分析 | 见数据样例 |
+| `attributeAnalysis` @属性分析项 | 属性分析 | `List[Dict]` | 是 | 属性分析 | 见数据样例 |
+| `saleStatTime` @统计时间对象 | 销售分析实际统计时间 | `Dict` | 是 | 销售分析模块 | 见数据样例 |
+| `searchWords` @入店搜索词项 | 入店搜索词 | `List[Dict]` | 是 | 来源渠道 | 见数据样例 |
+| `flowSource` @入店来源项 | 入店来源 | `List[Dict]` | 是 | 来源渠道 | 见数据样例 |
+| `bizAdvantage` @经营优势项 | 经营优势 | `List[Dict]` | 是 | 来源渠道 | 见数据样例 |
+| `flowStatTime` @统计时间对象 | 来源渠道实际统计时间 | `Dict` | 是 | 来源渠道模块 | 见数据样例 |
+| `customerProfile` @客群画像项 | 客群画像 | `List[Dict]` | 是 | 客群分析 | 见数据样例 |
+| `customerStatTime` @统计时间对象 | 客群分析实际统计时间 | `Dict` | 是 | 客群分析模块 | 见数据样例 |
 | `bizDate` | 业务日期 | `string` | 否 | 附加 |  |
 | `accountId` | 授权 ID | `string` | 否 | 附加 |  |
+:::
 
-#### 统计时间对象（saleStatTime / flowStatTime / customerStatTime）
-
-| 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
-| ---- | -------- | -------- | ------ | -------- | ---- |
-| `*.dateType` | 实际统计周期类型 | `string` | 否 | 对应模块接口请求 URL 中的 `dateType` | `week` |
-| `*.dateRangeStart` | 实际统计区间起始日 | `string` | 否 | 对应模块接口请求 URL 中的 `dateRange` 起始 | `2026-04-13` |
-| `*.dateRangeEnd` | 实际统计区间结束日 | `string` | 否 | 对应模块接口请求 URL 中的 `dateRange` 结束 | `2026-04-19` |
-
-#### 关键指标对比（keyMetrics[]）
-
-每个参与对比的商品（本店 / 竞品 1 / 竞品 2）各输出一行。
-
-| 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
-| ---- | -------- | -------- | ------ | -------- | ---- |
-| `keyMetrics[].itemId` | 商品 ID | `number` | 否 | `itemId` | `975048717355` |
-| `keyMetrics[].itemTitle` | 商品标题 | `string` | 是 | `itemTitle` | `null` |
-| `keyMetrics[].itemRole` | 商品角色 | `string` | 否 | 由接口 role 映射 | `selfItem` |
-| `keyMetrics[].uv` | 访客数 | `number` / `string` | 是 | `uv` | `286971` |
-| `keyMetrics[].payBuyerCnt` | 支付买家数 | `number` / `string` | 是 | `payByrCnt` | `12764` |
-| `keyMetrics[].payRate` | 支付转化率 | `number` / `string` | 是 | `payRate` | `0.04447836192507257` |
-| `keyMetrics[].cartBuyerCnt` | 加购人数 | `number` / `string` | 是 | `cartByrCnt` | `11284` |
-| `keyMetrics[].collectBuyerCnt` | 收藏人数 | `number` / `string` | 是 | `cltByrCnt` | `891` |
-| `keyMetrics[].payAmt` | 支付金额 | `number` / `string` | 是 | `payAmt` | `null` |
-| `keyMetrics[].payItemQty` | 支付件数 | `number` / `string` | 是 | `payItemQty` | `null` |
-
-> 竞品侧部分指标为区间脱敏值（如 `1万 ~ 2.5万`），本店侧为精确数值。
-
-#### SKU 分析（skuAnalysis[]）
-
-| 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
-| ---- | -------- | -------- | ------ | -------- | ---- |
-| `skuAnalysis[].itemId` | 商品 ID | `string` | 否 | 来自入参 | `975048717355` |
-| `skuAnalysis[].itemRole` | 商品角色 | `string` | 否 | 由表格列映射 | `selfItem` |
-| `skuAnalysis[].skuId` | SKU ID | `string` | 否 | `skuId` | `6093008626514` |
-| `skuAnalysis[].skuName` | SKU 名称 | `string` | 否 | `skuName` | `颜色分类:【朱迪款】儿童防蛀抗糖牙膏-葡萄味 40g` |
-| `skuAnalysis[].payBuyerCntRatioMkt` | 支付买家数占比 | `number` | 是 | `payByrCntRatioMkt` | `0.5346` |
-| `skuAnalysis[].page` | 分页页码 | `number` | 否 | 分页序号 | `1` |
-
-#### 属性分析（attributeAnalysis[]）
-
-| 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
-| ---- | -------- | -------- | ------ | -------- | ---- |
-| `attributeAnalysis[].itemId` | 商品 ID | `string` | 否 | 来自入参 | `975048717355` |
-| `attributeAnalysis[].itemRole` | 商品角色 | `string` | 否 | 由表格列映射 | `selfItem` |
-| `attributeAnalysis[].attrName` | 属性维度名称 | `string` | 否 | 接口请求 `attrName` 参数 | `颜色分类` |
-| `attributeAnalysis[].attrValue` | 属性值 | `string` | 否 | `attrValue` | `【朱迪款】儿童防蛀抗糖牙膏-葡萄味 40g` |
-| `attributeAnalysis[].payBuyerCntRatioMkt` | 支付买家数占比 | `number` | 是 | `payByrCntRatioMkt` | `0.5374` |
-| `attributeAnalysis[].page` | 分页页码 | `number` | 否 | 分页序号 | `1` |
-
-#### 入店搜索词（searchWords[]）
-
-按指标 Tab（访客数 / 支付买家数 / 支付转化率）分别采集；`date_type=today` 时仅采集访客数 Tab。
-
-| 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
-| ---- | -------- | -------- | ------ | -------- | ---- |
-| `searchWords[].itemId` | 商品 ID | `string` | 否 | 来自入参 | `975048717355` |
-| `searchWords[].itemRole` | 商品角色 | `string` | 否 | 由接口 role 映射 | `selfItem` |
-| `searchWords[].metricTab` | 指标 Tab | `string` | 否 | 由页面 Tab 映射 | `uv` |
-| `searchWords[].keyword` | 搜索关键词 | `string` | 否 | `keyword` | `儿童牙膏` |
-| `searchWords[].uv` | 访客数 | `number` / `string` | 是 | `uv` | `1369` |
-| `searchWords[].payBuyerCnt` | 支付买家数 | `number` / `string` | 是 | `payByrCnt` | `341` |
-| `searchWords[].payRate` | 支付转化率 | `number` / `string` | 是 | `payRate` | `0.2491` |
-
-#### 入店来源（flowSource[]）
-
-树形结构按节点展开，子节点带 `parentSourceName`；按指标 Tab 分别采集。
-
-| 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
-| ---- | -------- | -------- | ------ | -------- | ---- |
-| `flowSource[].itemId` | 商品 ID | `string` | 否 | 来自入参 | `975048717355` |
-| `flowSource[].itemRole` | 商品角色 | `string` | 否 | 由接口 role 映射 | `selfItem` |
-| `flowSource[].metricTab` | 指标 Tab | `string` | 否 | 由页面 Tab 映射 | `uv` |
-| `flowSource[].sourceName` | 来源名称 | `string` | 否 | `pageName` / `sourceName` | `主动回访` |
-| `flowSource[].parentSourceName` | 上级来源名称 | `string` | 是 | 树形父节点名称 | `主动回访` |
-| `flowSource[].uv` | 访客数 | `number` / `string` | 是 | `{role}Uv` | `11176` |
-| `flowSource[].payBuyerCnt` | 支付买家数 | `number` / `string` | 是 | `{role}PayByrCnt` | `1704` |
-| `flowSource[].payRate` | 支付转化率 | `number` / `string` | 是 | `{role}PayRate` | `0.15246957766642805` |
-
-#### 经营优势（bizAdvantage[]）
-
-横向对比本店与竞品，非按 `itemRole` 展开；`tabType` 区分来源渠道与专项优势。
-
-| 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
-| ---- | -------- | -------- | ------ | -------- | ---- |
-| `bizAdvantage[].tabType` | 模块类型 | `string` | 否 | 固定枚举 | `sourceChannel` |
-| `bizAdvantage[].sourceName` | 来源名称 | `string` | 否 | `pageName` / `sourceName` | `搜索` |
-| `bizAdvantage[].parentSourceName` | 上级来源名称 | `string` | 是 | 树形父节点名称 | `付费推广` |
-| `bizAdvantage[].selfUv` | 本店访客数 | `number` / `string` | 是 | `selfItemUv` | `4876` |
-| `bizAdvantage[].selfPayBuyerCnt` | 本店支付买家数 | `number` / `string` | 是 | `selfItemPayByrCnt` | `967` |
-| `bizAdvantage[].selfPayRate` | 本店支付转化率 | `number` / `string` | 是 | `selfItemPayRate` | `0.198318293683347` |
-| `bizAdvantage[].rival1Uv` | 竞品 1 访客数 | `number` / `string` | 是 | `rivalItem1Uv` | `1万 ~ 2.5万` |
-| `bizAdvantage[].rival1PayBuyerCnt` | 竞品 1 支付买家数 | `number` / `string` | 是 | `rivalItem1PayByrCnt` | `1000 ~ 2500` |
-| `bizAdvantage[].rival1PayRate` | 竞品 1 支付转化率 | `number` / `string` | 是 | `rivalItem1PayRate` | `15% ~ 20%` |
-| `bizAdvantage[].rival2Uv` | 竞品 2 访客数 | `number` / `string` | 是 | `rivalItem2Uv` | — |
-| `bizAdvantage[].rival2PayBuyerCnt` | 竞品 2 支付买家数 | `number` / `string` | 是 | `rivalItem2PayByrCnt` | — |
-| `bizAdvantage[].rival2PayRate` | 竞品 2 支付转化率 | `number` / `string` | 是 | `rivalItem2PayRate` | — |
-
-> `tabType` 允许值：`sourceChannel`（来源渠道）、`specialAdvantage`（专项优势）。`rival2*` 字段仅在入参传入 `rival_item_id_2` 时输出。
-
-#### 客群画像（customerProfile[]）
-
-覆盖搜索人群 / 访问人群 / 支付人群三个 Tab，每个 Tab 下含性别、年龄等 7 种画像维度。
-
-| 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
-| ---- | -------- | -------- | ------ | -------- | ---- |
-| `customerProfile[].itemId` | 商品 ID | `string` | 否 | 来自入参 | `975048717355` |
-| `customerProfile[].itemRole` | 商品角色 | `string` | 否 | 由接口 role 映射 | `selfItem` |
-| `customerProfile[].crowdsType` | 人群类型代码 | `string` | 否 | 接口 `crowdsType` | `appSearchUv` |
-| `customerProfile[].crowdsLabel` | 人群类型名称 | `string` | 否 | 页面 Tab 文案 | `搜索人群` |
-| `customerProfile[].profileType` | 画像维度 | `string` | 否 | 接口 `profileType` | `gender` |
-| `customerProfile[].attrValue` | 画像属性值 | `string` | 否 | `attrValue` | `女` |
-| `customerProfile[].ratio` | 占比 | `number` | 是 | `{crowdsType}.ratio` | `0.8717` |
-
-> `profileType` 允许值：`gender`（性别）、`age`（年龄）、`crowd`（人群标签）、`brand_prefer`（品牌偏好）、`cate_prefer`（类目偏好）、`city`（城市）、`province`（省份）。
+> **关键指标对比**：每个参与对比的商品（本店 / 竞品 1 / 竞品 2）各输出一行。竞品侧部分指标为区间脱敏值（如 `1万 ~ 2.5万`），本店侧为精确数值。
+>
+> **入店搜索词**：按指标 Tab（访客数 / 支付买家数 / 支付转化率）分别采集；`date_type=today` 时仅采集访客数 Tab。
+>
+> **入店来源**：树形结构按节点展开，子节点带 `parentSourceName`；按指标 Tab 分别采集。
+>
+> **经营优势**：横向对比本店与竞品，非按 `itemRole` 展开；`tabType` 允许值 `sourceChannel`（来源渠道）、`specialAdvantage`（专项优势）。`rival2*` 字段仅在入参传入 `rival_item_id_2` 时输出。
+>
+> **客群画像**：覆盖搜索人群 / 访问人群 / 支付人群三个 Tab。`profileType` 允许值：`gender`（性别）、`age`（年龄）、`crowd`（人群标签）、`brand_prefer`（品牌偏好）、`cate_prefer`（类目偏好）、`city`（城市）、`province`（省份）。
 
 ### 数据样例
 
