@@ -3,8 +3,8 @@ title: 品牌新享-超级复购加速-数据导出
 description: 采集阿里妈妈品牌新享数据中心「超级复购加速」模块的复购会员数据指标
 entry: rpa.conn.alimm.ppxx.data.center.memacc.repurchase.index
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                    |

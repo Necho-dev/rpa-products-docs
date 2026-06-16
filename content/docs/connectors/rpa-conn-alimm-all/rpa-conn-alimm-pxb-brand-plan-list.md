@@ -3,8 +3,8 @@ title: 品销宝-品牌专区-计划列表
 description: 采集合妈妈品销宝品牌专区推广计划列表及展现、点击、消耗等报表指标
 entry: rpa.conn.alimm.pxb.brand.plan.list
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                          |

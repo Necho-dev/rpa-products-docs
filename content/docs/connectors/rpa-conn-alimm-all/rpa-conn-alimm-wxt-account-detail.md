@@ -3,8 +3,8 @@ title: 万相台-账户-账户明细
 description: 导出阿里妈妈万相台账户明细（现金收支）数据，支持按收支类型、交易类型及日期范围筛选
 entry: rpa.conn.alimm.wxt.account.detail
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                 |
