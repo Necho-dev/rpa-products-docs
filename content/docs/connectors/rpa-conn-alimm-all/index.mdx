@@ -1,13 +1,13 @@
 ---
 title: 阿里妈妈
-description: 覆盖阿里妈妈各场景的 rpa-conn-alimm-all 包说明与安装
+description: 覆盖阿里妈妈品销宝、万相台、品牌新享等场景的 rpa-conn-alimm-all 包说明与安装
 entry: rpa-conn-alimm-all
 ---
 
 <ConnectorMeta
   platform="阿里妈妈"
-  platformUrl="https://one.alimama.com"
-  components={[{ pkg: 'rpa-comp-login-qianniu', type: 'login' }]}
+  platformUrl="https://ppxk.tmall.com"
+  components={[{ pkg: 'rpa-comp-login-alimm', type: 'login' }]}
   requireLogin
   sdkConstraint="rpa-hero-sdk >=3.3.0"
 />
@@ -20,13 +20,13 @@ pip install -i https://nexus.yucekj.cn/repository/pypi-hero/simple/ rpa-conn-ali
 
 ## 内含连接器
 
-### 淘宝联盟/Tblm
+### 品销宝/Pxb
 
 <Cards className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
   <ModuleCard
-    title="商家中心数据概览"
-    href="./rpa-conn-alimm-tblm-home-overview"
-    code="rpa.conn.alimm.tblm.home.overview"
+    title="品牌专区计划列表"
+    href="./rpa-conn-alimm-pxb-brand-plan-list"
+    code="rpa.conn.alimm.pxb.brand.plan.list"
   />
 </Cards>
 
@@ -34,13 +34,8 @@ pip install -i https://nexus.yucekj.cn/repository/pypi-hero/simple/ rpa-conn-ali
 
 <Cards className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
   <ModuleCard
-    title="商品违规列表采集"
-    href="./rpa-conn-alimm-wxt-item-violation"
-    code="rpa.conn.alimm.wxt.item.violation"
-  />
-  <ModuleCard
-    title="短视频违规列表采集"
-    href="./rpa-conn-alimm-wxt-short-video-violation"
-    code="rpa.conn.alimm.wxt.short.video.violation"
+    title="账户明细"
+    href="./rpa-conn-alimm-wxt-account-detail"
+    code="rpa.conn.alimm.wxt.account.detail"
   />
 </Cards>

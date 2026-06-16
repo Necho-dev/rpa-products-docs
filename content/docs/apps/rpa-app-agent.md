@@ -16,7 +16,7 @@ description: 基于 RPA Hero SDK 的 RPA 自动化应用（CLI）
 
 源码与更多命令说明见上游仓库 `apps/rpa-app-agent/README.md`。
 
-### 1. 在执行机上部署（推荐：`scripts/deploy`）
+### 在执行机上部署（推荐：`scripts/deploy`）
 
 上游仓库的 `scripts/deploy/` 提供一键脚本：自动安装 Miniconda（若缺失）、创建 conda 环境、从私有源 `pip install` 应用包。部署前将 **`APP_PACKAGE`** 设为 **`rpa-app-agent`**，**`CONDA_ENV`** 建议与包名一致以便识别。
 
@@ -49,7 +49,7 @@ cd scripts\deploy
 
 脚本支持的其它变量/参数（`PRIVATE_PYPI`、`PYTHON_VERSION` / `-PythonVer`、`INSTALL_POETRY` / `-InstallPoetry` 等）见上游仓库根目录 `README.md` 中「执行机部署」与 `scripts/deploy/DEPLOY.md`。
 
-### 2. 部署完成后
+### 部署完成后
 
 ```bash
 conda activate rpa-app-agent   # 与上面 CONDA_ENV 一致
