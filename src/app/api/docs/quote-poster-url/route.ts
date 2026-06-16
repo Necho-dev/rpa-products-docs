@@ -6,6 +6,7 @@ import {
   buildSignedQuotePosterUrl,
   buildSignedShareQuotePageUrl,
   normalizeQuoteText,
+  quoteSignSecret,
 } from '@/lib/docs/selection/quote-sign';
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
@@ -43,6 +44,11 @@ export async function POST(req: Request) {
   const access = await getDocAccessContextFromRequest();
   if (!isDocPageAccessible(page, access)) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+  }
+
+  if (!quoteSignSecret()) {
+    const message = '当前环境未配置 DOCS_QUOTE_SIGN_SECRET, 无法生成分享图';
+    return NextResponse.json({ error: message }, { status: 503 });
   }
 
   const hdrs = await headers();
