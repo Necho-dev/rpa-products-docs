@@ -1,240 +1,44 @@
-# Cube SSO 与文档站集成说明
+# 魔方 × 文档站集成说明
 
-魔方（Cube）与 RPA 公共知识库（文档站）的对接契约。本文描述魔方侧 **三个对外接口**、文档站 **门禁顺序**、以及双方 **时序与签名**。
+**本文是魔方（Cube BFF）侧的对接契约**，描述魔方需要实现哪些接口、各接口的职责边界、与文档站的交互方式和签名算法。
 
-- 本地 Mock：`scripts/mock-cube-docs-auth.py`（路径与生产对齐，无 `/api` 前缀亦可挂载）
-- 门禁验收：`scripts/verify-prod-gates.sh`
-- 实现入口：[`src/proxy.ts`](../src/proxy.ts)、[`src/lib/auth/cube-embed.ts`](../src/lib/auth/cube-embed.ts)
+相关文件：
 
----
-
-## 1. 职责划分
-
-| 系统 | 职责 |
+| 用途 | 路径 |
 |------|------|
-| **魔方** | 用户登录态；`docsAuth` SSO / 嵌入编排；`docsContent` 专用嵌入（可选）；`docsResources` 图片代理与回源 |
-| **文档站** | Cookie 会话（通道 B）；嵌入 HMAC 验签（通道 A）；私有文档 ACL；`/resources/images` 可选二次验签 |
-
-魔方 **BFF 服务端** 访问文档站时携带 HMAC；浏览器访问嵌入页内的图片时访问魔方 `docsResources`（带魔方 Cookie），由魔方再带 HMAC 回源文档站。
-
----
-
-## 2. 魔方三个接口
-
-生产路径以魔方实际路由为准（常见为 `/api/docsAuth` 等）；下表用 **逻辑名** 描述行为。Mock 见 `scripts/mock-cube-docs-auth.py`。
-
-### 2.1 总览
-
-| 接口 | 通道 | 调用方 | 文档站是否写 Cookie | 典型响应 |
-|------|------|--------|---------------------|----------|
-| **docsAuth** | B：SSO 全页 | 用户浏览器 | **是**（经 callback） | 302 → 文档站 `/auth/callback` |
-| **docsAuth** | A：嵌入（方案 A） | 魔方 BFF | **否** | 200 HTML / Markdown |
-| **docsContent** | A：嵌入（方案 B） | 魔方 BFF 或浏览器同源代理 | **否** | 200 HTML / Markdown |
-| **docsResources** | A：嵌入图片 | 用户浏览器（iframe 内 img） | **否** | 200 图片二进制 |
-
-**方案 A / B（嵌入拉正文）**：文档站侧处理完全相同（`GET` 文档站 `/docs/...` + 嵌入签名 + `X-Render-Mode`）；魔方仅选择暴露 `docsAuth?render=` 或独立 `docsContent`。
+| 本地联调 Mock | `scripts/mock-cube-docs-auth.py` |
+| 门禁验收脚本 | `scripts/verify-prod-gates.sh` |
+| 文档站门禁实现 | `src/proxy.ts`、`src/lib/auth/cube-embed.ts` |
 
 ---
 
-### 2.2 `GET docsAuth`
+## 1. 两种使用场景
 
-**用途**：统一入口；用 Query **`render`** 区分 SSO 与嵌入。
+文档站有两种使用方式，对应不同的集成流程：
 
-| Query | 行为 | 魔方前置条件 |
-|-------|------|----------------|
-| `redirect` | 文档站内路径，必填，须以 `/` 开头 | — |
-| `render` 未传 / `redirect` | **通道 B**：`secureWrapData` → 302 文档站 `/auth/callback` | 用户已登录魔方（LoginContext） |
-| `render=html` \| `markdown` | **通道 A**：BFF `GET` 文档站对应页，返回正文 | 同上；**禁止**在 SSO 的 `targetUrl` 中带 `render` |
+| 场景 | 描述 | 魔方需要实现 |
+|------|------|------------|
+| **全页浏览**（通道 B） | 用户在新标签打开完整文档站页面，有完整导航和 MCP 功能 | `docsAuth`（SSO 模式） + `logout` |
+| **嵌入展示**（通道 A） | 在魔方页面内通过 `<iframe>` 嵌入文档内容，仅展示正文 | `docsAuth`（嵌入模式）或 `docsContent` + `docsResources`（按需） |
 
-**通道 B — 302 目标（文档站）**
-
-```
-GET {docs}/auth/callback?ed={base64}&sh={hex}&sg={hex}&tm={ms}
-```
-
-**通道 A — 文档站请求（BFF → 文档站）**
-
-```
-GET {docs}{redirect}?render=...   # 仅调试；生产推荐 Header 传参
-GET {docs}{redirect}
-  X-Render-Mode: html | markdown
-  X-Cube-Secret-Hash / X-Cube-Timestamp / X-Cube-Signature
-  X-Cube-Origin: {cube 根 URL}    # 必填，用于 HTML 内图片代理基址
-  X-Cube-User: {可选}
-```
-
-文档站 [`verifyCubeEmbedRequest`](../src/lib/auth/cube-embed.ts) 验签 **`PATH` = `/docs/...` 的 pathname**（不含 Query），通过后 rewrite 到 `/llms.htm/docs/...` 或 `/llms.mdx/docs/...`。
-
-**失败**：文档站 **401 JSON**，勿 302 到 `/auth/login`（嵌入场景无 Cookie）。
+两种场景可以共存，魔方视需求选择实现哪些。
 
 ---
 
-### 2.3 `GET docsContent`（方案 B，可选）
+## 2. 场景一：全页浏览（SSO 登录）
 
-**用途**：仅负责 **通道 A** 拉取文档正文；SSO 全页仍只走 `docsAuth`。
+### 2.1 流程
 
-| Query | 必须 | 说明 |
-|-------|------|------|
-| `path` | 是 | 文档站内路径，如 `/docs/connectors/foo` |
-| `render` | 是 | `html` \| `markdown` |
-| `auth` | 否 | Mock 支持 `header`（默认）\| `query`；生产 BFF 推荐 **header** |
-
-BFF 实现与 `docsAuth?render=` 相同：对文档站发起带嵌入签名的 `GET {docs}{path}`。
-
-前端 iframe 可指向魔方同源 URL，例如 Mock：
+用户未登录文档站时，文档站会把用户重定向到魔方 `docsAuth`，魔方完成身份确认后，再把用户送回文档站完成登录。
 
 ```
-GET {cube}/docsContent?path=/docs/...&render=html&auth=header
+用户浏览器 → 文档站 /docs/foo（无 Cookie）
+→ 302 /auth/login?redirect=/docs/foo
+→ 魔方 docsAuth?redirect=/docs/foo（无 render 参数）
+→ 魔方验证登录态 → 302 文档站 /auth/callback?ed=...&sh=...&sg=...&tm=...
+→ 文档站验签 → Set-Cookie(DOCSESSION) → 302 /docs/foo
+→ 用户看到完整文档页
 ```
-
-由魔方 BFF 代为请求文档站，避免浏览器地址栏暴露 `sh/tm/sg`。
-
----
-
-### 2.4 `GET docsResources`（嵌入图片，魔方实现）
-
-**用途**：嵌入 HTML 中图片 `src` 指向 `{cubeOrigin}/docsResources?path=...`，**不**暴露文档站 `/resources/images/...` 裸链。
-
-| Query | 必须 | 说明 |
-|-------|------|------|
-| `path` | 是 | 相对 `content/docs/` 的路径，如 `public/images/qianniu/foo.png`（**不含** `/resources/images` 前缀） |
-
-**魔方侧（生产要求）**
-
-1. 校验 **魔方登录会话**（主防线：复制 URL 到新标签无 Cookie → 401 / 302 登录）。
-2. `path` 规范化，禁止 `..`，扩展名白名单与文档站一致（`png|jpg|jpeg|gif|webp|svg`）。
-3. **回源文档站**：
-
-```
-GET {docs}/resources/images/{path}
-  X-Cube-Secret-Hash: {sh}
-  X-Cube-Timestamp: {tm}
-  X-Cube-Signature: {sg}
-  X-Cube-Origin: {cube 根 URL}   # 可选，与嵌入拉正文一致
-```
-
-回源签名 **`PATH` 必须为回源 URL 的 pathname**（例如 `/resources/images/public/images/qianniu/foo.png`），算法与嵌入相同（见 §6.2）。
-
-4. 响应：`Content-Type` 正确，`Cache-Control: private, no-store`（避免 CDN 缓存私有截图）。
-
-Mock：`GET http://127.0.0.1:8765/docsResources?path=...`（Mock 不校验会话，仅联调回源）。
-
-**文档站侧**：`DOCS_RESOURCES_REQUIRE_EMBED_SIGN` 为真时（生产且 SSO 开启时**默认 true**），无合法 HMAC 的裸链 `GET /resources/images/**` → **401**。可选 `DOCS_RESOURCES_PUBLIC_PREFIXES` 豁免部分前缀（生产慎用）。
-
----
-
-### 2.5 `GET logout`（链式登出，非三接口之一但需对齐）
-
-清魔方会话后 **必须** 302 浏览器访问 `{docs}/auth/logout?redirect={encodeURIComponent(cubeOrigin)}`，禁止仅用 BFF httpx 清文档站 Cookie。详见 §5.4。
-
----
-
-## 3. 双通道对照
-
-| 通道 | 用户场景 | 魔方入口 | 文档站入口 | 浏览器 `DOCSESSION` |
-|------|----------|----------|------------|---------------------|
-| **B** SSO 全页 | 新标签打开 `/docs`、MCP 浏览器登录 | `docsAuth?redirect=/docs/...`（无 `render`） | `/auth/callback` → `/docs/...` | **签发** |
-| **A** BFF 嵌入 | 魔方页 iframe / `srcdoc` | `docsAuth?...&render=html` 或 `docsContent?...` | `GET /docs/...` + 嵌入 HMAC | **不签发** |
-| **A** 图片 | iframe 内 `<img>` | `docsResources?path=...` | `/resources/images/...`（仅 BFF 回源） | 用魔方 Cookie |
-
-嵌入通道不写文档站 Session；链式登出只影响曾走通道 B 或 MCP 的浏览器。
-
----
-
-## 4. 文档站门禁（`proxy.ts`）
-
-所有**非静态扩展名**请求经 [`src/proxy.ts`](../src/proxy.ts)，**顺序固定**，先匹配先返回。
-
-```mermaid
-flowchart TD
-  START([请求进入 proxy])
-  E1{applyEmbedGate<br/>render 或 X-Render-Mode?}
-  E2{pathname 为 /docs 或 /docs/** ?}
-  E3{verifyCubeEmbedRequest}
-  E4[rewrite llms.htm / llms.mdx]
-  B1{blockEmbedInternalRoutes<br/>直访 /llms.htm ?}
-  B2[404]
-  U1{applyUserAgentGate}
-  U3[403 JSON]
-  S1{applyCubeSsoGate<br/>SSO 已启用?}
-  S2{isPublicPath 或已认证?}
-  S3[302 /auth/login]
-  S4[next / rewrite]
-  DONE([继续路由])
-
-  START --> E1
-  E1 -->|无| B1
-  E1 -->|有| E2
-  E2 -->|否| B1
-  E2 -->|是| E3
-  E3 -->|失败| E401[401 JSON 嵌入]
-  E3 -->|成功| E4 --> DONE
-  B1 -->|是| B2
-  B1 -->|否| U1
-  U1 -->|blocked| U3
-  U1 --> S1
-  S1 -->|未启用| DONE
-  S1 -->|公开路径| DONE
-  S1 -->|/mcp 无 Bearer| E401MCP[401 MCP]
-  S1 -->|未认证| S3
-  S1 -->|已认证| S4 --> DONE
-```
-
-> **说明**：`*.png` 等静态扩展名**不进入** proxy matcher，图片 SSO/验签由 [`resources/images` route](../src/app/resources/images/[...path]/route.ts) 处理。嵌入 BFF（httpx）在 `applyEmbedGate` 成功时**早于** UA 门禁返回。
-
-### 4.1 公开路径（跳过 SSO Cookie）
-
-| 路径 | 条件 |
-|------|------|
-| `/auth/**`、`/health`、`/_next/**`、`/.well-known/**`、`/oauth/**` | 始终 |
-| `/resources/images/**` | 仅当 **未** 要求资源嵌入验签 |
-| 以 `.ico/.png/.jpg/...` 结尾的 URL | matcher 已排除，不经 proxy |
-
-### 4.2 User-Agent 门禁
-
-| 项 | 说明 |
-|----|------|
-| 开关 | `DOCS_USER_AGENT_GATE_ENABLED`；未设置时 **开发关闭**、**生产且 SSO 开启默认开启** |
-| 拦截 | `/`、`/docs/**`、`/mcp/deeplink`、`/resources/images/**`（经 route 时 UA 在 handler 内校验） |
-| 豁免 | `/auth/**`、`POST /mcp`、`/llms*`、`/skills/**`、`/api/**` 等 |
-| 嵌入 | `applyEmbedGate` 通过后 BFF（httpx）不经过 UA 门禁 |
-| 空 UA | 视为 blocked → `403 JSON` |
-
-UA 可伪造，不能替代 HMAC / SSO。
-
-### 4.3 SSO Cookie 门禁
-
-`isGateAuthenticated` 为真当且仅当：
-
-1. 有效 `DOCSESSION` 且未超过 `DOCS_SESSION_REAUTH_AFTER`（默认 7 天），或  
-2. 有效 MCP Bearer（`Authorization: Bearer`，aud 对齐 `NEXT_PUBLIC_SITE_URL`）
-
-| 路径 | 未认证 |
-|------|--------|
-| `/docs/**` 等 | 302 `/auth/login?redirect=...` |
-| `POST /mcp` | 401 JSON + `WWW-Authenticate: Bearer`（不 302） |
-
-会话 TTL / 静默续期：[`/.env.example`](../.env.example)（`DOCS_SESSION_TTL`、`DOCS_SESSION_REAUTH_AFTER`）。
-
-### 4.4 嵌入通道在文档站内的路由
-
-| `render` | proxy rewrite 目标 | 对外暴露 |
-|----------|-------------------|----------|
-| `html` | `/llms.htm/docs/...` | 直访 **404** |
-| `markdown` | `/llms.mdx/docs/....md` | 可走 Cookie/Bearer；嵌入须二次 HMAC |
-
-| 安全项 | 说明 |
-|--------|------|
-| 内部头 | proxy 验签后写入 `x-embed-verified-sh` 等；**先剥离**客户端伪造再写入 |
-| 图片 URL | `{cubeOrigin}/docsResources?path=...`；`cubeOrigin` 来自 `X-Cube-Origin` / Query / Referer（验签后） |
-| 无 `cubeOrigin` | 嵌入 HTML **不输出**图片（避免回退文档站裸链） |
-| 私有文档 | 验签通过 → `canAccessPrivate: true`；可选 `X-Cube-User` |
-
----
-
-## 5. 时序图
-
-### 5.1 通道 B：`docsAuth` SSO 全页
 
 ```mermaid
 sequenceDiagram
@@ -242,22 +46,122 @@ sequenceDiagram
   actor User as 用户浏览器
   participant Docs as 文档站
   participant Cube as 魔方 docsAuth
-  participant CB as 文档站 /auth/callback
 
   User->>Docs: GET /docs/foo（无 DOCSESSION）
   Docs->>User: 302 /auth/login?redirect=/docs/foo
   User->>Cube: GET docsAuth?redirect=/docs/foo
-  Note over Cube: LoginContext 已登录
+  Note over Cube: 确认用户已登录魔方
   Cube->>Cube: secureWrapData → ed, sh, sg, tm
   Cube->>User: 302 {docs}/auth/callback?ed&sh&sg&tm
-  User->>CB: GET /auth/callback
-  Note over CB: 验 callback 签名；禁止 targetUrl 含 render=
-  CB->>User: 302 /docs/foo + Set-Cookie(DOCSESSION, ACCESSORIGIN, …)
-  User->>Docs: GET /docs/foo（Cookie）
-  Docs->>User: 200 全页（图片可走 _next/image）
+  User->>Docs: GET /auth/callback
+  Note over Docs: 验 callback 签名；写 DOCSESSION
+  Docs->>User: 302 /docs/foo + Set-Cookie
+  User->>Docs: GET /docs/foo（带 Cookie）
+  Docs->>User: 200 完整文档页
 ```
 
-### 5.2 通道 A：嵌入正文（`docsAuth?render=` 或 `docsContent`）
+### 2.2 魔方 `docsAuth` 接口（SSO 模式）
+
+**入参**：
+
+| 参数 | 必须 | 说明 |
+|------|------|------|
+| `redirect` | 是 | 文档站内路径，以 `/` 开头，如 `/docs/connectors/foo` |
+
+**不传 `render` 参数**（或 `render` 为空）时走此 SSO 分支。
+
+**魔方侧处理**：
+
+1. 验证用户已登录魔方（`LoginContext`）
+2. 构造 `targetUrl = redirect`（**禁止在 targetUrl 中携带 `render` 参数**，否则文档站 callback 会拒绝）
+3. 调用 `secureWrapData` 对 payload 加密，生成 `ed / sh / sg / tm`
+4. 302 重定向到文档站 `/auth/callback?ed=...&sh=...&sg=...&tm=...`
+
+**payload 字段**（AES-ECB-PKCS7 加密后的 JSON）：
+
+| 字段 | 必须 | 说明 |
+|------|------|------|
+| `userName` | 是 | 写入 DOCSESSION，用于审计 |
+| `targetUrl` | 是 | 登录成功后跳转，**不含** `render` |
+| `cubeOrigin` | 否 | 魔方根 URL，需匹配 `DOCS_CUBE_ORIGIN_PATTERN` |
+
+### 2.3 魔方 `logout` 接口（链式登出）
+
+用户在魔方退出时，必须同时清除文档站的 Session Cookie，否则用户再次访问文档站时仍处于登录态。
+
+**正确做法：302 浏览器到文档站登出**
+
+```
+用户点击退出 → 魔方清除自身会话
+→ 302 {docs}/auth/logout?redirect={encodeURIComponent(cubeOrigin)}
+→ 文档站清除 DOCSESSION 等 Cookie → 302 回魔方
+```
+
+> ⚠️ **禁止**用 BFF `httpx.get` 模拟请求文档站 `/auth/logout`，这样清不掉用户浏览器的 Cookie，必须让浏览器自己请求。
+
+---
+
+## 3. 场景二：嵌入展示
+
+### 3.1 两种嵌入格式
+
+| `render` | 内容格式 | 适合场景 |
+|----------|---------|---------|
+| `html` | 完整 React 页面（含交互组件） | iframe 展示，渲染效果与文档站一致 |
+| `markdown` | 纯 Markdown 文本 | 喂给 AI 模型、程序处理 |
+
+### 3.2 `render=html`（iframe 嵌入）的关键约束
+
+> **`render=html` 返回的是完整 React SSR 页面，内含 `_next/static/...` 资源引用，这些路径指向文档站域。**
+>
+> 因此：
+> - ❌ **不能** BFF 拉取 HTML 后用 `srcdoc` 填入 iframe
+> - ❌ **不能** BFF 拉取 HTML 后透传给浏览器，再用 `iframe src=/docsContent` 加载
+> - ✅ **必须** `iframe src` 直连文档站的签名 URL，让浏览器自己从文档站加载所有资源
+
+**魔方正确的 `render=html` 接入方式**：
+
+```
+1. 魔方 BFF 生成文档站 Query 签名 URL（见 §4 签名算法）
+2. BFF 将签名 URL 返回给前端
+3. 前端：<iframe src="{signedUrl}">
+```
+
+```
+signedUrl = https://docs.example.com/docs/foo
+  ?render=html
+  &sh={SHA256(App Secret)}
+  &tm={毫秒时间戳}
+  &sg={SHA256("GET\n/docs/foo\n{tm}\n{App Secret}")}
+  &user={当前用户名}          ← 可选
+  &cubeOrigin={魔方根 URL}    ← 必填，用于文档鉴权
+```
+
+`render=markdown` 无此限制，BFF 代理（Header 或 Query 签名）均可。
+
+### 3.3 魔方嵌入接口：`docsAuth`（嵌入模式）
+
+在已有 `docsAuth` 接口上，通过 `render` 参数区分 SSO 和嵌入。
+
+**入参**：
+
+| 参数 | 必须 | 说明 |
+|------|------|------|
+| `redirect` | 是 | 文档站内路径，如 `/docs/connectors/foo` |
+| `render` | 是 | `html` 或 `markdown` |
+
+**魔方侧处理（render=html）**：
+
+1. 验证用户已登录魔方
+2. **生成文档站 Query 签名 URL**（不拉取 HTML）
+3. 将签名 URL 返回给前端
+4. 前端用 `<iframe src="{signedUrl}">` 加载
+
+**魔方侧处理（render=markdown）**：
+
+1. 验证用户已登录魔方
+2. BFF 服务端请求文档站，携带嵌入签名（见 §4.2）
+3. 将返回的 Markdown 文本透传给前端
 
 ```mermaid
 sequenceDiagram
@@ -265,226 +169,236 @@ sequenceDiagram
   actor User as 用户浏览器
   participant CubeUI as 魔方前端
   participant CubeBFF as 魔方 BFF
-  participant Docs as 文档站 proxy
+  participant Docs as 文档站
 
-  User->>CubeUI: 打开魔方业务页（已登录魔方）
-  alt 方案 A
-    CubeUI->>CubeBFF: GET docsAuth?redirect=/docs/foo&render=html
-  else 方案 B
-    CubeUI->>CubeBFF: GET docsContent?path=/docs/foo&render=html
-  end
-  CubeBFF->>Docs: GET /docs/foo + X-Render-Mode + X-Cube-* + X-Cube-Origin
-  alt 验签失败
-    Docs->>CubeBFF: 401 JSON
-    CubeBFF->>CubeUI: 错误（勿 redirect 文档站 login）
-  else 成功
-    Docs->>Docs: rewrite → llms.htm 生成 HTML
-    Note over Docs: img src = {cube}/docsResources?path=…
-    Docs->>CubeBFF: 200 text/html
-    CubeBFF->>CubeUI: HTML 片段 / srcdoc
-    CubeUI->>User: iframe 展示
-  end
+  User->>CubeUI: 打开含文档嵌入的魔方页面
+  CubeUI->>CubeBFF: GET docsAuth?redirect=/docs/foo&render=html
+
+  CubeBFF->>CubeBFF: 生成 Query 签名 URL（不请求文档站）
+  CubeBFF->>CubeUI: 返回 signedUrl
+
+  CubeUI->>User: <iframe src="{signedUrl}">
+  User->>Docs: GET /docs/foo?render=html&sh=...&sg=...（浏览器直连）
+  Note over Docs: 验签通过 → rewrite /embed/docs/foo
+  Docs->>User: 200 完整 React 页面（iframe 内展示）
+  Note over User: 浏览器自动加载 _next/static 资源（从文档站域）
 ```
 
-### 5.3 通道 A：嵌入图片 `docsResources`
+### 3.4 魔方嵌入接口：`docsContent`（可选，方案 B）
 
-```mermaid
-sequenceDiagram
-  autonumber
-  actor User as 用户浏览器
-  participant Cube as 魔方 docsResources
-  participant Docs as 文档站 /resources/images
+如果魔方希望将嵌入与 SSO 解耦，可以提供独立的 `docsContent` 接口，职责单一：只负责嵌入文档。
 
-  User->>Cube: GET docsResources?path=public/images/…/a.png
-  alt 未登录魔方
-    Cube->>User: 401 或 302 魔方登录
-  else 已登录魔方
-    Cube->>Cube: 校验 path；组 HMAC PATH=/resources/images/…
-    Cube->>Docs: GET /resources/images/… + X-Cube-* 签名
-    alt 文档站资源验签失败
-      Docs->>Cube: 401
-    else 成功
-      Docs->>Cube: 200 image/*
-      Cube->>User: 200 image/*（private, no-store）
-    end
-  end
-```
+**入参**：
 
-### 5.4 链式登出
+| 参数 | 必须 | 说明 |
+|------|------|------|
+| `path` | 是 | 文档站内路径，如 `/docs/connectors/foo` |
+| `render` | 是 | `html` 或 `markdown` |
 
-```mermaid
-sequenceDiagram
-  autonumber
-  actor User as 用户浏览器
-  participant Cube as 魔方 logout
-  participant Docs as 文档站 /auth/logout
+行为与 `docsAuth?render=` 完全相同：
 
-  User->>Cube: GET logout
-  Cube->>Cube: 清除魔方会话
-  Cube->>User: 302 {docs}/auth/logout?redirect={cubeOrigin}
-  User->>Docs: GET /auth/logout（带文档站 Cookie）
-  Docs->>User: 清除 DOCSESSION 等 + 302 回魔方
-  Note over User,Docs: 再访 /docs → 重新走 docsAuth SSO
-```
+- `render=html`：生成并返回 Query 签名 URL，前端 `iframe src` 直连
+- `render=markdown`：BFF 拉取后透传文本
+
+### 3.5 `docsResources` 图片代理（仅 render=markdown 需要）
+
+> **`render=html` 不需要 `docsResources`**：React 页面内的图片走文档站标准路径，浏览器直接从文档站加载。
+>
+> `docsResources` 仅在 `render=markdown` 时有意义——当 Markdown 内容中的图片需要受登录保护时，由魔方代理回源。
+
+**接口行为**：
+
+| 参数 | 必须 | 说明 |
+|------|------|------|
+| `path` | 是 | 相对路径，如 `public/images/qianniu/foo.png`（不含 `/resources/images` 前缀） |
+
+**魔方侧处理**：
+
+1. 验证用户已登录魔方（主防线，防止裸链暴露）
+2. 规范化 `path`：禁止 `..`，扩展名白名单（`png|jpg|jpeg|gif|webp|svg`）
+3. BFF 回源文档站（见 §4.2，`PATH = /resources/images/{path}`）
+4. 返回图片，设置 `Cache-Control: private, no-store`
 
 ---
 
-## 6. 签名算法（两种，不可混用）
+## 4. 签名算法
 
-### 6.1 SSO Callback（`docsAuth` → `/auth/callback`）
+### 4.1 SSO Callback 签名（通道 B）
+
+用于 `docsAuth` SSO → 文档站 `/auth/callback`。
 
 ```
+sh = SHA256(App Secret)  ← hex，标识密钥，不传明文
 ed = AES-ECB-PKCS7(payload JSON, App Secret) → Base64
-sh = SHA256(App Secret) hex
-sg = SHA256(ed + tm + App Secret) hex
-tm = 毫秒时间戳（± DOCS_SIGNATURE_WINDOW_MS，默认 3 分钟）
+tm = 当前毫秒时间戳
+sg = SHA256(ed + tm + App Secret)  ← hex
 ```
 
-| `ed` 字段 | 必须 | 说明 |
-|-----------|------|------|
-| `userName` | 是 | 写入 `DOCSESSION` |
-| `targetUrl` | 是 | 站内路径 `/...`，**禁止**含 `render` |
-| `cubeOrigin` | 否 | 须匹配 `DOCS_CUBE_ORIGIN_PATTERN` → `ACCESSORIGIN` Cookie |
+文档站 callback 地址：`{docs}/auth/callback?ed={ed}&sh={sh}&sg={sg}&tm={tm}`
 
-实现：[`src/app/auth/callback/route.ts`](../src/app/auth/callback/route.ts)。
+**时效**：±3 分钟（`DOCS_SIGNATURE_WINDOW_MS`，默认 180000ms）。
 
-### 6.2 嵌入 BFF / 资源回源（`docsAuth` / `docsContent` / `docsResources` 回源）
+### 4.2 嵌入 HMAC 签名（通道 A）
 
-Header **优先**；缺省可读 Query（`sh`、`tm`、`sg`、`render`、`user`、`cubeOrigin`）。
+用于所有嵌入请求：拉取文档正文、回源图片。
+
+```
+sh = SHA256(App Secret)  ← hex
+tm = 当前毫秒时间戳（ms）
+sg = SHA256(METHOD + "\n" + PATH + "\n" + tm + "\n" + App Secret)  ← hex
+```
+
+**`PATH` 规则**（签名用 pathname，不含 Query）：
+
+| 请求类型 | PATH 示例 |
+|---------|----------|
+| 拉文档正文 | `/docs/connectors/foo` |
+| 回源图片 | `/resources/images/public/images/qianniu/foo.png` |
+
+**传参方式**（Header 优先，Query 备用）：
 
 | 语义 | Header（推荐） | Query |
 |------|----------------|-------|
 | Secret Hash | `X-Cube-Secret-Hash` | `sh` |
 | 时间戳 | `X-Cube-Timestamp` | `tm` |
 | 签名 | `X-Cube-Signature` | `sg` |
-| 模式 | `X-Render-Mode` | `render` |
+| 渲染模式 | `X-Render-Mode` | `render` |
 | 用户（可选） | `X-Cube-User` | `user` |
-| 来源站根 URL | `X-Cube-Origin` | `cubeOrigin` |
+| 魔方根 URL | `X-Cube-Origin` | `cubeOrigin` |
 
-```
-sg = SHA256(METHOD + "\n" + PATH + "\n" + TIMESTAMP + "\n" + APP_SECRET) → hex
-```
+> `X-Cube-Origin`（`cubeOrigin`）**必填**：文档站用此字段校验来源合法性。值为魔方站点根 URL，如 `https://cube.example.com`，需匹配文档站 `DOCS_CUBE_ORIGIN_PATTERN`。
 
-| 请求类型 | `PATH`（pathname，不含 Query） |
-|----------|-------------------------------|
-| 拉嵌入正文 | `/docs/connectors/foo`（与浏览器地址栏一致） |
-| 回源图片 | `/resources/images/public/images/.../file.png` |
+**时效**：±3 分钟（与 Callback 签名共用 window）。
 
-实现：[`src/lib/auth/cube-embed.ts`](../src/lib/auth/cube-embed.ts)、[`src/lib/auth/sign-resource.ts`](../src/lib/auth/sign-resource.ts)。
+### 4.3 密钥管理
+
+- `sh = SHA256(App Secret)` 是 App Secret 的哈希，用于文档站识别密钥，不传明文
+- 文档站配置 `DOCS_SECRETS_FILE`，格式：`{ "sh_hex": "plain_secret" }`
+- 魔方与文档站约定同一份密钥文件，保持 `sh` 一致
 
 ---
 
-## 7. 文档站与魔方交互一览
+## 5. 文档站门禁说明（魔方无需关心，仅供参考）
+
+所有进入文档站的请求按以下顺序过检：
 
 ```mermaid
-flowchart LR
-  subgraph cube [魔方]
-    DA[docsAuth]
-    DC[docsContent]
-    DR[docsResources]
-    LO[logout]
-  end
-  subgraph docs [文档站]
-    CB["/auth/callback"]
-    LG["/auth/login"]
-    LOU["/auth/logout"]
-    DOC["/docs/**"]
-    IMG["/resources/images/**"]
-    HTM["/llms.htm 内部"]
-  end
-  DA -->|SSO 302| CB
-  DA -->|嵌入 GET+HMAC| DOC
-  DC -->|嵌入 GET+HMAC| DOC
-  DOC --> HTM
-  DR -->|回源 GET+HMAC| IMG
-  LO --> LOU
-  LG -->|redirect| DA
+flowchart TD
+  START([请求进入])
+  E1{携带嵌入凭证？<br/>render / X-Render-Mode}
+  E2{路径为 /docs/**？}
+  E3{HMAC 验签}
+  OK[rewrite 到内部路由]
+  BLOCK[404 阻断直访]
+  UA{User-Agent 门禁}
+  SSO{SSO Cookie 门禁}
+  DONE([正常路由])
+
+  START --> E1
+  E1 -->|是| E2
+  E1 -->|否| BLOCK2{路径为内部路由？}
+  BLOCK2 -->|是| BLOCK
+  BLOCK2 -->|否| UA
+  E2 -->|否| UA
+  E2 -->|是| E3
+  E3 -->|失败| ERR401[401 JSON]
+  E3 -->|成功| OK --> DONE
+  UA -->|非法 UA| ERR403[403]
+  UA -->|通过| SSO
+  SSO -->|未认证| ERR302[302 /auth/login]
+  SSO -->|已认证| DONE
 ```
 
-| 魔方调用 | 文档站路径 | 认证方式 |
-|----------|------------|----------|
-| SSO | `/auth/callback` | callback 签名（§6.1） |
-| 嵌入正文 | `GET /docs/...` | 嵌入 HMAC（§6.2） |
-| 图片回源 | `GET /resources/images/...` | 嵌入 HMAC，PATH=资源 pathname |
-| 登出 | `/auth/logout` | 浏览器 Cookie 清除 |
+嵌入请求（验签通过）在第一关就完成，不再经过 UA 门禁和 SSO Cookie 门禁。
 
 ---
 
-## 8. 部署与配置
+## 6. 部署配置
 
-### 8.1 文档站环境变量
+### 6.1 文档站环境变量
 
-| 变量 | 生产建议 |
-|------|----------|
-| `DOCS_CUBE_SSO_ENABLED` | `true` |
-| `DOCS_SESSION_SECRET` | 强随机，必填 |
-| `DOCS_SECRETS_FILE` | 与魔方共用 `sh = SHA256(secret)` |
-| `NEXT_PUBLIC_SITE_URL` | 文档站 canonical URL（MCP aud、魔方回源基址） |
-| `DOCS_CUBE_ORIGIN_PATTERN` | 约束 `X-Cube-Origin` / callback `cubeOrigin` |
-| `DOCS_RESOURCES_REQUIRE_EMBED_SIGN` | 未设置时：**生产+SSO 默认 true**；开发默认 false |
-| `DOCS_RESOURCES_PUBLIC_PREFIXES` | 慎用；连接器截图勿放入白名单 |
-| `DOCS_PRIVATE_ACCESS_TOKEN` | SSO 模式下勿配 |
+| 变量 | 说明 | 生产建议 |
+|------|------|---------|
+| `DOCS_CUBE_SSO_ENABLED` | 启用 SSO + 嵌入鉴权 | `true` |
+| `DOCS_SESSION_SECRET` | Session 加密密钥 | 强随机，必填 |
+| `DOCS_SECRETS_FILE` | 嵌入密钥文件路径 | 与魔方共享同一份 |
+| `NEXT_PUBLIC_SITE_URL` | 文档站 canonical URL | 必填，用于 MCP aud 和回源基址 |
+| `DOCS_CUBE_ORIGIN_PATTERN` | 约束 cubeOrigin 合法值（正则） | 如 `^https://cube\.example\.com$` |
+| `DOCS_RESOURCES_REQUIRE_EMBED_SIGN` | 图片资源是否强制验签 | 默认：生产且 SSO 开启时为 `true` |
+| `DOCS_PRIVATE_ACCESS_TOKEN` | Bearer Token 访问私有文档 | SSO 模式下勿配 |
 
-Nginx：多枚 `Set-Cookie` 勿用 `$upstream_http_set_cookie` 单值覆盖；见 [`nginx/docs.conf.example`](nginx/docs.conf.example)。推荐以 Next `proxy.ts` 为门禁主路径。
-
-### 8.2 魔方实现检查清单
-
-- [ ] `docsAuth`：区分 `render` 分支；SSO 仅 302 callback，嵌入仅 BFF 拉文档站  
-- [ ] `docsContent`（若采用方案 B）：仅嵌入，参数 `path` + `render`  
-- [ ] `docsResources`：会话校验 + `path` 校验 + 回源 HMAC（PATH 为完整资源 pathname）  
-- [ ] 嵌入请求文档站时 **必带** `X-Cube-Origin`（与 `MOCK_CUBE_BASE_HOST` 一致）  
-- [ ] 生产 BFF **仅用 Header** 传嵌入凭证，避免 Query 进日志  
-- [ ] `logout`：302 浏览器到文档站 `/auth/logout`  
-- [ ] `sh` 与文档站 `DOCS_SECRETS_FILE` 一致  
-
-### 8.3 本地联调
+### 6.2 本地联调
 
 ```bash
-# 终端 1：文档站
+# 终端 1：启动文档站（SSO 模式）
 DOCS_CUBE_SSO_ENABLED=true npm run dev
 
-# 终端 2：Mock 魔方
+# 终端 2：启动 Mock 魔方（默认端口 8765）
 python3 scripts/mock-cube-docs-auth.py
 
-# 验收
+# 运行验收检查
 ./scripts/verify-prod-gates.sh
 ```
 
-| 场景 | URL（Mock 默认端口 8765） |
-|------|---------------------------|
-| SSO 全页 | `http://127.0.0.1:8765/docsAuth?redirect=/docs` |
-| 嵌入 HTML（方案 A） | `.../docsAuth?redirect=/docs/...&render=html` |
-| 嵌入 HTML（方案 B） | `.../docsContent?path=/docs/...&render=html` |
-| 图片代理 | `.../docsResources?path=public/images/.../file.png` |
-| iframe 测试页 | `.../iframe-test` |
-| 登出 | `.../logout` |
+| 场景 | 联调地址 |
+|------|---------|
+| SSO 全页登录 | `http://127.0.0.1:8765/docsAuth?redirect=/docs` |
+| iframe 嵌入测试页 | `http://127.0.0.1:8765/iframe-test` |
+| 嵌入 HTML（方案 A） | `http://127.0.0.1:8765/docsAuth?redirect=/docs/connectors/foo&render=html` |
+| 嵌入 Markdown（方案 A） | `http://127.0.0.1:8765/docsAuth?redirect=/docs/connectors/foo&render=markdown` |
+| 嵌入 HTML（方案 B） | `http://127.0.0.1:8765/docsContent?path=/docs/connectors/foo&render=html` |
+| 图片代理 | `http://127.0.0.1:8765/docsResources?path=public/images/qianniu/foo.png` |
+| 链式登出 | `http://127.0.0.1:8765/logout` |
 
 ---
 
-## 9. 代码索引
+## 7. 魔方接入检查清单
+
+实现完成后逐项确认：
+
+**SSO 全页（通道 B）**
+- [ ] `docsAuth`（无 `render`）：验证魔方登录态 → `secureWrapData` → 302 callback
+- [ ] callback `targetUrl` **禁止**携带 `render` 参数
+- [ ] `cubeOrigin` 与文档站 `DOCS_CUBE_ORIGIN_PATTERN` 匹配
+- [ ] `logout`：302 浏览器到 `{docs}/auth/logout?redirect={cubeOrigin}`（不用 BFF httpx 请求）
+
+**嵌入展示（通道 A）**
+- [ ] `render=html`：**只生成 Query 签名 URL，不拉取 HTML**，返回给前端用 `iframe src` 加载
+- [ ] `render=markdown`：BFF 服务端拉取，Header 方式传嵌入凭证
+- [ ] 所有嵌入请求**必须携带** `X-Cube-Origin`（Header）或 `cubeOrigin`（Query）
+- [ ] 嵌入失败时（401 JSON）：不 302 到文档站登录页，直接向前端报错
+
+**密钥与安全**
+- [ ] `sh = SHA256(App Secret)` 与文档站 `DOCS_SECRETS_FILE` 一致
+- [ ] 生产环境嵌入凭证走 Header，不走 Query（避免进日志）
+- [ ] 签名 `PATH` 为 pathname（不含 `?` 后的 Query 部分）
+
+---
+
+## 8. 常见错误排查
+
+| 现象 | 可能原因 | 解决 |
+|------|---------|------|
+| 嵌入返回 401 | `sh` 不一致、时钟偏差 >3 分钟、签名 PATH 错误 | 检查密钥文件；对齐 NTP；确认 PATH 是纯 pathname |
+| iframe 内 JS 报错、页面空白 | `render=html` 用了 BFF 代理 / srcdoc | 改用 `iframe src` 直连文档站签名 URL |
+| 嵌入图片不显示 | 未传 `X-Cube-Origin` 或 pattern 不匹配 | 补全 Header；检查 `DOCS_CUBE_ORIGIN_PATTERN` |
+| 图片资源 401 | 回源签名 PATH 未用完整资源路径 | 签名 PATH = `/resources/images/...` |
+| SSO 登录后跳错页 | `targetUrl` 含 `render=` | 清除 targetUrl 中的 render 参数 |
+| 退出后文档站仍有 Session | `logout` 用 BFF 请求而非浏览器 302 | 改为 302 浏览器到 `/auth/logout` |
+
+---
+
+## 9. 代码索引（文档站侧）
 
 | 主题 | 路径 |
 |------|------|
 | 门禁总线 | `src/proxy.ts` |
-| 嵌入验签 / `X-Cube-Origin` | `src/lib/auth/cube-embed.ts` |
-| 资源 HMAC | `src/lib/auth/sign-resource.ts` |
-| 嵌入图片重写 | `src/lib/docs/embed/markdown.ts` |
+| 嵌入验签 | `src/lib/auth/cube-embed.ts` |
+| 图片资源 HMAC | `src/lib/auth/sign-resource.ts` |
 | SSO callback | `src/app/auth/callback/route.ts` |
 | 链式登出 | `src/app/auth/logout/route.ts` |
-| 图片 route | `src/app/resources/images/[...path]/route.ts` |
-| 嵌入 HTML / MD | `src/app/llms.htm/...`、`src/app/llms.mdx/...` |
+| 嵌入 HTML 路由 | `src/app/embed/docs/[[...slug]]/page.tsx` |
+| 嵌入 Markdown 路由 | `src/app/llms.mdx/docs/[[...slug]]/route.ts` |
+| 图片资源路由 | `src/app/resources/images/[...path]/route.ts` |
 | 私有文档 ACL | `src/lib/docs/access/doc-access.ts` |
 | Mock 三接口 | `scripts/mock-cube-docs-auth.py` |
-
----
-
-## 10. 常见错误
-
-| 现象 | 原因 | 处理 |
-|------|------|------|
-| 嵌入 401 | `sh`/时钟/签名 PATH 与请求 path 不一致 | 对齐 §6.2；检查 BFF 是否签 `/docs/...` |
-| 嵌入无图 | 未传 `X-Cube-Origin` 或 pattern 不匹配 | BFF 补 Header；配置 `DOCS_CUBE_ORIGIN_PATTERN` |
-| 图片裸链仍可访问 | 开发环境或未开 `DOCS_RESOURCES_REQUIRE_EMBED_SIGN` | 生产默认已开；本地可显式 `true` |
-| 图片 401 | 回源未签资源 pathname 或未开验签 | `PATH=/resources/images/...`；魔方回源带 Header |
-| SSO 后 iframe 误走嵌入 | `targetUrl` 带 `render` | 魔方 SSO payload 禁止；文档站 callback 已拒绝 |
-| 嵌入失败 302 login | 误走 SSO 门禁 | 必须带 `X-Render-Mode` 或 `render=` 且验签通过 |

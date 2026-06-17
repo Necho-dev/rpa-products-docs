@@ -23,8 +23,8 @@ import {
   shouldApplyUserAgentGate,
 } from '@/lib/auth/user-agent-gate';
 
-/** 嵌入 HTML 路由前缀（对应 src/app/llms.htm/docs/[[...slug]]） */
-const embedHtmlRoute = '/llms.htm/docs';
+/** 嵌入 HTML 路由前缀（对应 src/app/embed/docs/[[...slug]]） */
+const embedHtmlRoute = '/embed/docs';
 
 const { rewrite: rewriteDocs } = rewritePath(
   `${docsRoute}{/*path}`,
@@ -154,7 +154,7 @@ function applyEmbedGate(request: NextRequest): NextResponse | null {
 /**
  * 拦截对嵌入内部路由的直接外部访问, 防止伪造 `x-embed-verified-sh` 头绕过鉴权
  *
- * `/llms.htm/docs/**` 只应由 proxy rewrite 访问 (X-Render-Mode: html 通道),
+ * `/embed/docs/**` 只应由 proxy rewrite 访问 (X-Render-Mode: html 通道),
  * 外部客户端直接访问此路径应得到 404 (避免暴露内部路由存在)
  *
  * 注意: `/llms.mdx/docs/**` 是对外公开的 Markdown 导出路由 (浏览器 / MCP 可直接访问),
@@ -164,6 +164,10 @@ function applyEmbedGate(request: NextRequest): NextResponse | null {
 function blockEmbedInternalRoutes(request: NextRequest): NextResponse | null {
   const { pathname } = request.nextUrl;
   if (pathname.startsWith(`${embedHtmlRoute}/`) || pathname === embedHtmlRoute) {
+    return new NextResponse(null, { status: 404 });
+  }
+  // 同时阻断旧路由的直接外部访问
+  if (pathname.startsWith('/llms.htm/docs/') || pathname === '/llms.htm/docs') {
     return new NextResponse(null, { status: 404 });
   }
   return null;

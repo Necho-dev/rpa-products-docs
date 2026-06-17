@@ -112,7 +112,7 @@ docker compose up -d
 docker compose config
 ```
 
-服务默认绑定宿主机 `3001` 端口；在项目根 `.env` 中设置 `PORT` 可改**宿主机映射端口**（容器内固定监听 `3001`）。
+服务默认绑定宿主机 `3000` 端口，可在 `.env` 中通过 `PORT` 变量修改映射端口。
 
 > **注意**：`docker compose restart` 不会重新加载 `env_file`；改 env 后请用 `docker compose up -d`。  
 > `NEXT_PUBLIC_*` 在 `next build` 时内联进客户端 bundle，须 `docker compose up -d --build`；服务端通过 `getSiteName()` 等读取的同名变量在 `up -d` 重建后即可更新。

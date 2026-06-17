@@ -12,15 +12,19 @@
   /docsAuth?redirect=/docs                → 302 callback → 全页 HTML
 
 通道 A 方案 A（扩展 docsAuth + render）：
-  /docsAuth?redirect=/docs/xxx&render=html     → 服务端拉取文档 → 200 HTML
+  /docsAuth?redirect=/docs/xxx&render=html     → 服务端拉取文档 → 200 完整 React HTML（/embed/docs）
   /docsAuth?redirect=/docs/xxx&render=markdown → 服务端拉取文档 → 200 Markdown
 
 通道 A 方案 B（独立 docsContent 接口）：
-  /docsContent?path=/docs/xxx&render=html      → 服务端拉取文档 → 200 HTML
+  /docsContent?path=/docs/xxx&render=html      → 服务端拉取文档 → 200 完整 React HTML（/embed/docs）
   /docsContent?path=/docs/xxx&render=markdown  → 服务端拉取文档 → 200 Markdown
 
-两方案在文档站侧完全一致（均通过 X-Render-Mode + BFF 签名访问），
-魔方侧只需选一种暴露给前端即可。
+⚠️  render=html 重要约束：
+  - render=html 返回完整 React SSR 页面，含 _next/static 资源路径（相对于文档站域）
+  - BFF 代理模式（Header 鉴权 + srcdoc 或 BFF 透传）不可行：
+      浏览器从魔方域 / BFF 域加载 _next/static → 404 → React 崩溃
+  - 正确接入方式：BFF 生成文档站 Query 签名 URL，前端用 <iframe src="https://docs.../docs/foo?render=html&sh=...&sg=...">
+  - render=markdown 无此限制，BFF 代理和 Query 直连均可
 ────────────────────────────────────────────────────────────────────────
 
 依赖:
@@ -49,10 +53,10 @@
 联调 — 嵌入 Markdown（方案 A）:
   http://127.0.0.1:8765/docsAuth?redirect=/docs/connectors/rpa-conn-qianniu-all&render=markdown
 
-联调 — 嵌入 HTML（方案 A）:
+联调 — 嵌入 HTML（方案 A，完整 React 渲染）:
   http://127.0.0.1:8765/docsAuth?redirect=/docs/connectors/rpa-conn-qianniu-all&render=html
 
-联调 — 嵌入 HTML（方案 B）:
+联调 — 嵌入 HTML（方案 B，完整 React 渲染）:
   http://127.0.0.1:8765/docsContent?path=/docs/connectors/rpa-conn-qianniu-all&render=html
 
 联调 — 退出:
@@ -144,13 +148,23 @@ def build_signed_docs_embed_url(docs_path: str, render: str) -> str:
 def build_iframe_src(path: str, render: str, auth: str) -> str:
     """
     嵌入 iframe src（html | markdown 均支持）：
-    - auth=query：浏览器跨域直连文档站（Query 凭证）
-    - auth=header：同源加载 Mock /docsContent（BFF 服务端带头请求文档站）
+
+    render=html：走 /embed/docs/... React 页面，HTML 内含 _next/static 引用。
+      **BFF 代理（Header / srcdoc / 透传）对 render=html 根本不可行**：
+        - srcdoc 模式：_next/static 相对路径解析到魔方域 → 404
+        - BFF 透传（iframe src=/docsContent）：_next/static 解析到 BFF 域 → 404
+      必须用 iframe src 直连文档站 Query 签名 URL，浏览器直接向文档站加载资源。
+
+    render=markdown：纯文本，BFF 代理或 Query 直连均可。
     """
     if render not in ("html", "markdown"):
         return ""
+    if render == "html":
+        # html 只能 iframe src 直连文档站（Query 签名），BFF 代理模式不可行
+        return build_signed_docs_embed_url(path, render)
     if auth == "query":
         return build_signed_docs_embed_url(path, render)
+    # markdown + auth=header：iframe 加载同源 /docsContent
     proxy_query = urlencode({"path": path, "render": render, "auth": auth}, quote_via=quote)
     return f"/docsContent?{proxy_query}"
 
@@ -341,17 +355,19 @@ def index() -> str:
 
   <section>
     <h2>通道 A 方案 A：docsAuth + render <span class="badge">新增分支</span></h2>
+    <p><code>render=html</code> 走 <code>/embed/docs/...</code> 极简 React 布局，与文档站渲染完全一致（FieldTreeTable/Mermaid/Tabs 均可交互）。</p>
     <ul>
       <li><a href="/docsAuth?redirect={sample_doc}&render=markdown">render=markdown</a></li>
-      <li><a href="/docsAuth?redirect={sample_doc}&render=html">render=html</a></li>
+      <li><a href="/docsAuth?redirect={sample_doc}&render=html">render=html（完整 React 渲染）</a></li>
     </ul>
   </section>
 
   <section>
     <h2>通道 A 方案 B：独立 docsContent <span class="badge">新接口</span></h2>
+    <p>同上，<code>render=html</code> 走完整 React 渲染；魔方建议使用 <code>iframe src</code> 直连（非 srcdoc），以确保 <code>_next/static</code> 正确加载。</p>
     <ul>
       <li><a href="/docsContent?path={sample_doc}&render=markdown">render=markdown</a></li>
-      <li><a href="/docsContent?path={sample_doc}&render=html">render=html</a></li>
+      <li><a href="/docsContent?path={sample_doc}&render=html">render=html（完整 React 渲染）</a></li>
     </ul>
   </section>
 
@@ -492,6 +508,7 @@ def iframe_test(
       <button type="submit">加载</button>
       <a href="/" style="color:#94a3b8;text-decoration:none;font-size:.8rem;white-space:nowrap">← 返回首页</a>
     </div>
+    {'<div style="padding:.4rem 1.25rem;background:#fef9c3;border-bottom:1px solid #fde047;font-size:.8rem;color:#854d0e"><strong>⚠️ render=html 不支持 BFF Header 代理模式</strong>：render=html 返回完整 React 页面（含 _next/static 资源引用），BFF 代理（Header 拉取再 srcdoc 或透传）会导致浏览器从 BFF 域加载 _next/static → 404。<strong>必须使用 iframe src 直连文档站 Query 签名 URL</strong>，魔方 BFF 只需生成签名 URL 并传给前端即可。此 Mock 已自动对 html 使用 Query 直连。</div>' if render == 'html' else ''}
     <div class="meta">
       <span>通道 A（BFF 嵌入）</span>
       <span>·</span>
@@ -499,7 +516,7 @@ def iframe_test(
       <span>·</span>
       <span>格式：<code>{render}</code></span>
       <span>·</span>
-      <span>鉴权：<code>{auth}</code></span>
+      <span>鉴权：<code>{'query（html 强制）' if render == 'html' else auth}</code></span>
       <span>·</span>
       <span class="{'badge-ok' if status == 200 else 'badge-err'}">HTTP {status}</span>
       {iframe_src_meta}
