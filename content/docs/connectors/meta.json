@@ -6,6 +6,7 @@
     "./rpa-conn-sycm-all",
     "./rpa-conn-pinduoduo-all",
     "./rpa-conn-doudian-all",
-    "./rpa-conn-alimm-all"
+    "./rpa-conn-alimm-all",
+    "./rpa-conn-dewu-all"
   ]
 }
