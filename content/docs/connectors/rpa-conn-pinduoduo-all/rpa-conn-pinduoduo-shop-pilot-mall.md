@@ -3,8 +3,8 @@ title: 店铺-服务数据-综合体验星级
 description: 采集拼多多商家后台店铺综合体验星级及维度指标表现明细
 entry: rpa.conn.pinduoduo.shop.pilot.mall
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                          |
