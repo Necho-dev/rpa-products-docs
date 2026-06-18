@@ -3,8 +3,8 @@ title: 店铺-服务数据-商品领航员
 description: 采集拼多多商家后台商品领航员列表数据，包含综合分、考核指标排名及商品表现等维度
 entry: rpa.conn.pinduoduo.shop.pilot.goods
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                          |
