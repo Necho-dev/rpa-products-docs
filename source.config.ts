@@ -11,6 +11,7 @@ import {
 import { remarkSteps } from 'fumadocs-core/mdx-plugins/remark-steps';
 import { remarkMdxJsonSchema } from './src/lib/docs/source/remark-mdx-json-schema';
 import { remarkMdxFieldTree } from './src/lib/docs/source/remark-mdx-field-tree';
+import { remarkMdxDocBlocks } from './src/lib/docs/source/remark-mdx-doc-blocks';
 import remarkDirective from 'remark-directive';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -24,6 +25,14 @@ const docBadgeSchema = z.object({
   color: z.string().optional(),
 });
 
+const moduleIconSchema = z.union([
+  z.string().min(1),
+  z.object({
+    comp: z.string().min(1),
+    color: z.string().optional(),
+  }),
+]);
+
 /** 页面：不写 `access` 时继承目录 meta；可写 `public` 强制公开 */
 const docsPageSchema = pageSchema.extend({
   access: z.enum(['public', 'private']).optional(),
@@ -36,6 +45,14 @@ const docsPageSchema = pageSchema.extend({
   tags: z.array(z.string()).optional(),
   /** 侧栏文档名右侧背景色徽章（与 `entry` 可同时存在） */
   badge: docBadgeSchema.optional(),
+  /** ModuleGrid 卡片主标题；未写则用 title */
+  moduleTitle: z.string().optional(),
+  /** ModuleGrid 卡片图标：`Bot` 或 `{ comp, color? }`；无 color 时为 muted 默认样式 */
+  moduleIcon: moduleIconSchema.optional(),
+  /** ModuleGrid 卡片平台入口 URL */
+  moduleUrl: z.string().url().optional(),
+  /** ModuleGrid 分组 bucket key */
+  moduleGroup: z.string().optional(),
 });
 
 /** 目录 meta：`access: private` 时其下所有页面默认私有（除非某页写 `access: public`） */
@@ -89,6 +106,7 @@ export default defineConfig({
       remarkSteps,
       remarkMdxJsonSchema,
       remarkMdxFieldTree,
+      remarkMdxDocBlocks,
       remarkMdxFiles,
       remarkMdxMermaid,
       remarkMath,

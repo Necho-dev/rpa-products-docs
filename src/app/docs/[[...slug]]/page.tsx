@@ -3,20 +3,20 @@ import { getDocAccessContextFromRequest } from '@/lib/docs/access/doc-access-rea
 import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
 import { DocShareButton } from '@/components/docs/doc-share-dialog';
 import { getPageImage, getPageMarkdownUrl, getPageSharePoster, source } from '@/lib/docs/source/source';
+import { resolveModuleGridStackToc } from '@/lib/docs/source/module-grid-runtime';
 import {
   DocsBody,
   DocsDescription,
   DocsPage,
   DocsTitle,
   PageLastUpdate,
-  ViewOptionsPopover,
 } from 'fumadocs-ui/layouts/docs/page';
-import { MarkdownCopyButton } from '@/components/docs/markdown-copy-button';
+import { MarkdownActionsButton } from '@/components/docs/markdown-copy-button';
 import { notFound, redirect } from 'next/navigation';
 import { getMDXComponents } from '@/components/docs/mdx';
 import type { Metadata } from 'next';
 import { createRelativeLink } from 'fumadocs-ui/mdx';
-import { getGitBlobEditUrlForDocPath, getSiteDescription, siteName } from '@/lib/core/shared';
+import { getSiteDescription, siteName } from '@/lib/core/shared';
 import { AddMcpButton } from '@/components/docs/add-mcp-button';
 import { headers } from 'next/headers';
 import { inferSiteOrigin } from '@/lib/core/site-origin';
@@ -50,14 +50,16 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
   );
   const mcpUrl = `${origin}/mcp`;
 
-  const gitSourceUrl = getGitBlobEditUrlForDocPath(page.path);
   const lastModified = page.data.lastModified;
+  const stackToc = await resolveModuleGridStackToc(page.slugs, access);
+  const toc =
+    stackToc.length > 0 ? [...(page.data.toc ?? []), ...stackToc] : page.data.toc;
 
   return (
-    <DocsPage toc={page.data.toc} full={page.data.full} className={docsPageArticleClassName}>
+    <DocsPage toc={toc} full={page.data.full} className={docsPageArticleClassName}>
       <div className="flex flex-col gap-1.5">
         <DocsTitle className="mb-2">{page.data.title}</DocsTitle>
-        <DocsDescription className="mb-0">{page.data.description}</DocsDescription>
+        <DocsDescription className="mb-0 text-base">{page.data.description}</DocsDescription>
         {Array.isArray(page.data.tags) && page.data.tags.length > 0 ? (
           <div className="flex flex-wrap gap-1.5 pt-1">
             {page.data.tags.map((tag) => (
@@ -73,11 +75,7 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
         ) : null}
       </div>
       <div className="flex flex-row flex-wrap gap-2 items-center border-b pb-6" data-no-select>
-        <MarkdownCopyButton markdownUrl={markdownUrl} />
-        <ViewOptionsPopover
-          markdownUrl={markdownUrl}
-          githubUrl={gitSourceUrl}
-        />
+        <MarkdownActionsButton markdownUrl={markdownUrl} />
         <AddMcpButton mcpUrl={mcpUrl} />
         <DocShareButton
           title={page.data.title}

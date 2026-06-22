@@ -1,28 +1,32 @@
 'use client';
 
+import Link from 'fumadocs-core/link';
+import { useCopyButton } from 'fumadocs-ui/utils/use-copy-button';
 import type { ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
-import { Card } from 'fumadocs-ui/components/card';
+import { Check, Copy, Globe, PackagePlus } from 'lucide-react';
 import { cn } from '@/lib/core/cn';
-import { DoorOpen, PackagePlus, SquareMousePointer } from 'lucide-react';
+import { safeWriteClipboard } from '@/lib/ui/code-block-utils';
+
+export type ModuleCardBadge = {
+  label: string;
+  color?: string;
+};
 
 export type ModuleCardProps = {
-  /**
-   * 与主标题同一行展示的小图标（可选）
-   * - 不传入时：仅展示标题
-   */
+  /** 与主标题同一行展示的小图标（可选，用于 connectors/index 等手写页） */
   icon?: ReactNode;
-  /** 卡片主标题（建议为平台名/模块名） */
+  /** 卡片主标题 */
   title: string;
-  /**
-   * 副标题/补充说明（可选）
-   */
-  description?: ReactNode;
-  /** 文档内跳转：`/` 开头为站内绝对路径；`./` 或无前导符为相对「当前文档所在目录」（不依赖地址栏是否带尾斜杠） */
+  /** 子文档 description，最多展示 2 行 */
+  description?: string;
+  /** 文档内跳转 */
   href: string;
-  /** 模块标识（常用：PyPI 包名，如 rpa-conn-xxx-all；也可用于其它场景的唯一标识） */
+  /** 子文档 entry */
   code: string;
-  /** 平台/后台入口（可选） */
+  /** 状态徽标（如 已上线 / 待上线） */
+  badge?: ModuleCardBadge;
+  /** 平台/后台入口（可选，用于 connectors/index 等手写页） */
   url?: string;
   className?: string;
 };
@@ -31,10 +35,6 @@ function isExternalUrl(u: string) {
   return /^https?:\/\//i.test(u);
 }
 
-/**
- * 将 `./子页` 等相对 href 按「当前文档所在目录」解析，而不是按浏览器地址栏（无尾斜杠时整段会当作文件名被替换）。
- * 见：https://url.spec.whatwg.org/#url-constructor 对 base 为 .../a（无/）的解析。
- */
 function resolveDocRelativeHref(href: string, pathname: string) {
   if (!href) return href;
   if (isExternalUrl(href)) return href;
@@ -47,121 +47,177 @@ function resolveDocRelativeHref(href: string, pathname: string) {
   }
 }
 
-export function ModuleCard({ icon, title, description, href, code, url, className }: ModuleCardProps) {
-  const pathname = usePathname() ?? '/';
-  const resolvedHref = href ? resolveDocRelativeHref(href, pathname) : href;
-
+function ModuleCardBadgePill({ label, color }: ModuleCardBadge) {
   return (
-    <Card
-      title={
-        <span className="not-prose flex w-full min-w-0 items-center gap-2.5">
-          {icon ? (
-            <span
-              className={cn(
-                'not-prose inline-flex w-fit shrink-0 items-center justify-center',
-                'rounded-lg border border-fd-border/70 bg-fd-muted p-1 text-fd-muted-foreground',
-                'shadow-md shadow-black/5 dark:shadow-black/20',
-                'transition-colors',
-                'hover:bg-fd-accent/80',
-                '[&_svg]:size-4',
-              )}
-            >
-              {icon}
-            </span>
-          ) : null}
-          <span className="min-w-0 flex-1 text-[11px] font-bold leading-5 sm:text-base sm:leading-6">
-            {title}
-          </span>
-        </span>
-      }
-      href={resolvedHref}
-      className={cn('relative p-4 pr-12', className)}
+    <span
+      className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold leading-none text-fd-card"
+      style={{ backgroundColor: color ?? '#6366f1' }}
     >
-      {href ? (
-        <button
-          type="button"
-          className="absolute right-2 top-2 z-10 inline-flex size-8 items-center justify-center rounded-md border border-fd-border/60 bg-fd-background/60 text-fd-muted-foreground shadow-sm hover:bg-fd-accent/80"
-          aria-label="在新标签页打开文档"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const resolved = isExternalUrl(href)
-              ? href
-              : `${window.location.origin}${resolveDocRelativeHref(href, window.location.pathname)}`;
-            window.open(resolved, '_blank', 'noopener,noreferrer');
-          }}
-        >
-          <SquareMousePointer className="size-4" />
-        </button>
-      ) : null}
-
-      <div className="not-prose space-y-3 text-sm text-fd-muted-foreground">
-        {description ? (
-          <div className="text-[12px] leading-5 text-fd-muted-foreground sm:text-sm sm:leading-6">
-            &quot;{description}&quot;
-          </div>
-        ) : (
-          <div className="h-2" aria-hidden />
-        )}
-
-        <div className="flex items-center gap-2">
-          <span
-            className="inline-flex size-6 items-center justify-center rounded-md border border-fd-border/60 bg-fd-muted/30 text-fd-foreground"
-            title="Code"
-            aria-label="Code"
-          >
-            <PackagePlus className="size-3.5" />
-          </span>
-          <code className="min-w-0 flex-1 truncate rounded-md border border-fd-border/60 bg-fd-muted/40 px-2 py-1 font-mono text-[12px] font-bold text-fd-foreground">
-            {code}
-          </code>
-        </div>
-
-        {url ? (
-          <div className="flex items-center gap-2">
-            <span
-              className="inline-flex size-6 items-center justify-center rounded-md border border-fd-border/60 bg-fd-muted/30 text-fd-foreground"
-              title="入口"
-              aria-label="入口"
-            >
-              <DoorOpen className="size-3.5" />
-            </span>
-            <div className="min-w-0 flex-1">
-              {isExternalUrl(url) ? (
-                <button
-                  type="button"
-                  className={cn(
-                    'group w-full text-left',
-                    'rounded-md bg-fd-muted/30',
-                    'hover:cursor-pointer',
-                  )}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    window.open(url, '_blank', 'noopener,noreferrer');
-                  }}
-                >
-                  <span className="inline-flex w-full min-w-0 items-center gap-1">
-                    <span className="min-w-0 flex-1 truncate font-mono font-bold underline text-[13px] text-sky-700 dark:text-sky-200">
-                      {url}
-                    </span>
-                  </span>
-                </button>
-              ) : (
-                <span
-                  className={cn(
-                    'block w-full min-w-0 truncate rounded-md border border-fd-border/60 bg-fd-muted/30 px-2 py-1 font-mono text-[12px] text-fd-foreground',
-                  )}
-                >
-                  {url}
-                </span>
-              )}
-            </div>
-          </div>
-        ) : null}
-
-      </div>
-    </Card>
+      {label}
+    </span>
   );
 }
 
+function EntryCopyButton({ value }: { value: string }) {
+  const [copied, onCopy] = useCopyButton(() => void safeWriteClipboard(value));
+
+  return (
+    <button
+      type="button"
+      aria-label={copied ? '已复制' : '复制 Entry'}
+      title={copied ? '已复制' : '复制 Entry'}
+      data-checked={copied || undefined}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onCopy(e);
+      }}
+      className={cn(
+        'inline-flex size-7 shrink-0 items-center justify-center rounded-md',
+        'text-fd-muted-foreground transition-colors',
+        'hover:bg-fd-accent hover:text-fd-accent-foreground',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring',
+      )}
+    >
+      {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+    </button>
+  );
+}
+
+function ModuleCardHeader({
+  icon,
+  title,
+  description,
+  badge,
+  href,
+  resolvedHref,
+}: {
+  icon?: ReactNode;
+  title: string;
+  description?: string;
+  badge?: ModuleCardBadge;
+  href: string;
+  resolvedHref: string;
+}) {
+  const content = (
+    <div className="flex items-start gap-2">
+      {icon ? (
+        <span
+          className={cn(
+            'inline-flex size-8 shrink-0 items-center justify-center rounded-lg border border-fd-border/70 bg-fd-muted p-1 text-fd-muted-foreground',
+            '[&_svg]:size-4',
+          )}
+        >
+          {icon}
+        </span>
+      ) : null}
+      <div className="min-w-0 flex-1">
+        <div className="flex items-start justify-between gap-2">
+          <h3
+            className="min-w-0 flex-1 truncate text-sm font-bold text-fd-foreground"
+            title={title}
+          >
+            {title}
+          </h3>
+          {badge ? <ModuleCardBadgePill {...badge} /> : null}
+        </div>
+        {description ? (
+          <p className="mt-1.5 text-xs leading-relaxed text-fd-muted-foreground line-clamp-2">
+            {description}
+          </p>
+        ) : null}
+      </div>
+    </div>
+  );
+
+  if (!href) {
+    return content;
+  }
+
+  return (
+    <Link
+      href={resolvedHref}
+      className="block min-w-0 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-fd-ring"
+    >
+      {content}
+    </Link>
+  );
+}
+
+export function ModuleCard({
+  icon,
+  title,
+  description,
+  href,
+  code,
+  badge,
+  url,
+  className,
+}: ModuleCardProps) {
+  const pathname = usePathname() ?? '/';
+  const resolvedHref = href ? resolveDocRelativeHref(href, pathname) : href;
+
+  const cardClassName = cn(
+    'not-prose col-span-1 flex h-full flex-col rounded-xl border border-fd-border/60 bg-fd-card p-4',
+    'text-fd-card-foreground shadow-sm transition-colors @max-lg:col-span-1',
+    href && 'hover:border-fd-border hover:bg-fd-accent/40',
+    className,
+  );
+
+  return (
+    <div className={cardClassName}>
+      <ModuleCardHeader
+        icon={icon}
+        title={title}
+        description={description}
+        badge={badge}
+        href={href}
+        resolvedHref={resolvedHref}
+      />
+
+      <div className="mt-auto space-y-2 pt-3">
+        <div className="flex min-w-0 items-center gap-1.5 rounded-lg border border-fd-border/60 bg-fd-muted/30 px-2 py-1">
+          <span
+            className="inline-flex size-6 shrink-0 items-center justify-center rounded-md border border-fd-border/60 bg-fd-muted/40 text-fd-muted-foreground"
+            title="Entry"
+            aria-hidden
+          >
+            <PackagePlus className="size-3.5" />
+          </span>
+          <code
+            className="min-w-0 flex-1 truncate font-mono text-xs font-medium text-fd-foreground"
+            title={code}
+          >
+            {code}
+          </code>
+          <EntryCopyButton value={code} />
+        </div>
+
+        {url ? (
+          <div className="flex min-w-0 items-center gap-1.5 rounded-lg border border-fd-border/60 bg-fd-muted/30 px-2 py-1">
+            <span
+              className="inline-flex size-6 shrink-0 items-center justify-center rounded-md border border-fd-border/60 bg-fd-muted/40 text-fd-muted-foreground"
+              title="平台入口"
+              aria-hidden
+            >
+              <Globe className="size-3.5" />
+            </span>
+            <a
+              href={url}
+              target="_blank"
+              rel="noreferrer"
+              title={url}
+              className={cn(
+                'min-w-0 flex-1 truncate font-mono text-[11px] font-medium',
+                'text-sky-700 underline decoration-fd-border/60 underline-offset-2',
+                'hover:decoration-sky-700 dark:text-sky-300 dark:hover:decoration-sky-300',
+              )}
+            >
+              {url}
+            </a>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}

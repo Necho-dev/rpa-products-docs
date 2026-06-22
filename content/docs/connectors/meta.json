@@ -1,5 +1,5 @@
 {
-  "title": "连接器",
+  "title": "RPA 连接器",
   "icon": "Bot",
   "pages": [
     "./rpa-conn-qianniu-all",

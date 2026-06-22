@@ -1,30 +1,37 @@
 'use client';
 
-import { Check, Copy } from 'lucide-react';
+import { Check, ChevronDown, Copy, ExternalLinkIcon, TextIcon } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/core/cn';
 import { buttonVariants } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from 'fumadocs-ui/components/ui/popover';
 import { safeWriteClipboard } from '@/lib/ui/code-block-utils';
 
 const cache = new Map<string, Promise<string>>();
 
+const splitButtonClass = buttonVariants({
+  color: 'secondary',
+  size: 'sm',
+  className: 'gap-2 [&_svg]:size-3.5 [&_svg]:text-fd-muted-foreground',
+});
+
 /**
- * fumadocs-ui MarkdownCopyButton 的安全替代实现。
- * 原版使用 navigator.clipboard.write()（ClipboardItem API），
- * 在非 HTTPS / 不支持的浏览器下会抛出
- * "Cannot read properties of undefined (reading 'write')"。
- * 本版本降级为 safeWriteClipboard（writeText + execCommand 兜底）。
+ * Markdown 工具 Split 按钮：左侧一键复制，右侧下拉 View as Markdown。
+ * 复制逻辑使用 safeWriteClipboard，兼容非 HTTPS 环境。
  */
-export function MarkdownCopyButton({
+export function MarkdownActionsButton({
   markdownUrl,
   className,
-  children,
-  ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement> & { markdownUrl: string }) {
+  copyLabel = 'Copy Markdown',
+}: {
+  markdownUrl: string;
+  className?: string;
+  copyLabel?: string;
+}) {
   const [isLoading, setLoading] = useState(false);
   const [checked, setChecked] = useState(false);
 
-  const handleClick = async () => {
+  const handleCopy = async () => {
     if (isLoading) return;
     try {
       setLoading(true);
@@ -45,22 +52,42 @@ export function MarkdownCopyButton({
   };
 
   return (
-    <button
-      type="button"
-      disabled={isLoading}
-      onClick={handleClick}
-      {...props}
-      className={cn(
-        buttonVariants({
-          color: 'secondary',
-          size: 'sm',
-          className: 'gap-2 [&_svg]:size-3.5 [&_svg]:text-fd-muted-foreground',
-        }),
-        className,
-      )}
-    >
-      {checked ? <Check /> : <Copy />}
-      {children ?? 'Copy Markdown'}
-    </button>
+    <div className={cn('inline-flex items-stretch rounded-md', className)}>
+      <button
+        type="button"
+        disabled={isLoading}
+        onClick={handleCopy}
+        className={cn(splitButtonClass, 'rounded-r-none border-r-0')}
+      >
+        {checked ? <Check /> : <Copy />}
+        {copyLabel}
+      </button>
+      <Popover>
+        <PopoverTrigger
+          className={cn(
+            splitButtonClass,
+            'rounded-l-none border-l border-fd-border/60 px-2 data-[state=open]:bg-fd-accent data-[state=open]:text-fd-accent-foreground',
+          )}
+          aria-label="Markdown 更多操作"
+        >
+          <ChevronDown className="size-3.5 text-fd-muted-foreground" />
+        </PopoverTrigger>
+        <PopoverContent className="flex flex-col p-1 min-w-[200px]">
+          <a
+            href={markdownUrl}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="text-sm p-2 rounded-lg inline-flex items-center gap-2 hover:text-fd-accent-foreground hover:bg-fd-accent [&_svg]:size-4"
+          >
+            <TextIcon />
+            View as Markdown
+            <ExternalLinkIcon className="text-fd-muted-foreground size-3.5 ms-auto" />
+          </a>
+        </PopoverContent>
+      </Popover>
+    </div>
   );
 }
+
+/** @deprecated 使用 MarkdownActionsButton */
+export const MarkdownCopyButton = MarkdownActionsButton;

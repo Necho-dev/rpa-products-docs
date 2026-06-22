@@ -4,28 +4,23 @@ import { cn } from '@/lib/core/cn';
 import { BugPlay, ExternalLink, GitPullRequestArrow, Puzzle, UserLock, UserRoundKey, UserStar } from 'lucide-react';
 
 /**
- * 依赖组件引用：
- * - 字符串：仍按 `rpa-comp-<type>-<name...>` 从包名推断文档路径（兼容旧 MDX）
- * - 对象：显式指定 `type` 或 `href`（最稳健；包名与文档布局解耦、避免歧义名）
+ * 依赖项引用：
+ * - 字符串：按 `rpa-comp-<type>-<name...>` 从包名推断文档路径
+ * - 对象：显式指定 `type` 或 `href`
  */
-export type ConnectorComponentRef =
+export type DependencyRef =
   | string
   | {
       pkg: string;
-      /** 站点内绝对路径，须以 / 开头，例如 `/docs/components/login/rpa-comp-login-foo` */
       href?: string;
-      /**
-       * 文档目录里的一级分类（`content/docs/components/<type>/...` 中的 `<type>`）；
-       * 与 `pkg` 组合为 `/docs/components/<type>/<pkg>`。若同时给 `href` 则忽略本字段
-       */
       type?: string;
     };
 
-function getComponentPkg(item: ConnectorComponentRef): string {
+function getComponentPkg(item: DependencyRef): string {
   return typeof item === 'string' ? item : item.pkg;
 }
 
-function componentDocHref(item: ConnectorComponentRef): string | undefined {
+function componentDocHref(item: DependencyRef): string | undefined {
   const pkg = getComponentPkg(item);
   if (!pkg) return undefined;
   if (!pkg.startsWith('rpa-comp-')) return undefined;
@@ -42,7 +37,6 @@ function componentDocHref(item: ConnectorComponentRef): string | undefined {
     }
   }
 
-  // 约定回退：PyPI 包名形态为 rpa-comp-<type>-<name...>
   const m = /^rpa-comp-([^-]+)-(.+)$/.exec(pkg);
   if (m) return `/docs/components/${m[1]}/${encodeURIComponent(pkg)}` as const;
 
@@ -76,7 +70,7 @@ function RowLabel({
 const metaRowClassName =
   'grid grid-cols-1 gap-y-1.5 sm:grid-cols-[minmax(0,160px)_minmax(0,1fr)] sm:items-start sm:gap-x-2';
 
-export function ConnectorMeta({
+export function MetaPanel({
   platform,
   platformUrl,
   requireLogin = true,
@@ -87,9 +81,7 @@ export function ConnectorMeta({
   platform: string;
   platformUrl?: string;
   requireLogin?: boolean;
-  /** PyPI 组件包名；可为字符串或带显式 `type`/`href` 的对象 */
-  components: ConnectorComponentRef[];
-  /** 依赖版本约束（例：rpa-hero-sdk >=3.0.0） */
+  components: DependencyRef[];
   sdkConstraint?: string;
   className?: string;
 }) {
