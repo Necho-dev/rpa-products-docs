@@ -8,7 +8,8 @@ import { cn } from '@/lib/core/cn';
 import { getLanguageIdFromPreProps, getLanguageLabel } from '@/lib/ui/code-block-language';
 import { AIChatOpenCard } from '@/components/ai/search';
 import { CodeBlockWithDownload } from '@/components/docs/mdx/code-block-with-download';
-import { ConnectorMeta } from '@/components/docs/mdx/connector-meta';
+import { MetaPanel } from '@/components/docs/mdx/meta-panel';
+import { ModuleGrid } from '@/components/docs/mdx/module-grid';
 import { JsonSchema } from '@/components/docs/mdx/json-schema';
 import { Mermaid } from '@/components/docs/mdx/mermaid';
 import { ModuleCard } from '@/components/docs/mdx/module-card';
@@ -85,7 +86,8 @@ export function getMDXComponents(components?: MDXComponents) {
     SearchOpenCard,
     AIChatOpenCard,
     ModuleCard,
-    ConnectorMeta,
+    MetaPanel,
+    ModuleGrid,
     FieldTreeTable,
     table: TableWithExport,
     img: ({ className, ...props }: React.ComponentProps<'img'>) => {

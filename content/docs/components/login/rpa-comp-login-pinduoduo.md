@@ -13,7 +13,7 @@ entry: rpa-comp-login-pinduoduo
 ### 安装 PyPI 包
 
 ```bash
-pip install -i https://nexus.yucekj.cn/repository/pypi-hero/simple/ rpa-comp-login-pinduoduo
+pip install rpa-comp-login-pinduoduo
 ```
 
 ### 连接器如何使用

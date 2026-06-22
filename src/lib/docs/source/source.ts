@@ -4,6 +4,7 @@ import { lucideIconsPlugin } from 'fumadocs-core/source/lucide-icons';
 import { docsContentRoute, docsImageRoute, docsRoute } from '@/lib/core/shared';
 import { docsEntryInSidebarPlugin } from '@/lib/docs/source/docs-entry-in-sidebar-plugin';
 import { rewriteMarkdownImagesForEmbed } from '@/lib/docs/embed/markdown';
+import { stripTocOnlyHeadings } from '@/lib/docs/source/module-grid-fs-scan';
 
 // See https://fumadocs.dev/docs/headless/source-api for more info
 export const source = loader({
@@ -44,10 +45,11 @@ export function getPageMarkdownUrl(page: (typeof source)['$inferPage']) {
 
 export async function getLLMText(page: (typeof source)['$inferPage']) {
   const processed = await page.data.getText('processed');
+  const body = stripTocOnlyHeadings(processed);
 
   return `# ${page.data.title} (${page.url})
 
-${processed}`;
+${body}`;
 }
 
 /**
@@ -61,6 +63,9 @@ export async function getEmbedMarkdown(
     page.data.getText('processed'),
     page.data.getText('raw'),
   ]);
-  const body = rewriteMarkdownImagesForEmbed(processed, raw, page.path, { cubeOrigin });
+  const rewritten = rewriteMarkdownImagesForEmbed(processed, raw, page.path, {
+    cubeOrigin,
+  });
+  const body = stripTocOnlyHeadings(rewritten);
   return `# ${page.data.title} (${page.url})\n\n${body}`;
 }

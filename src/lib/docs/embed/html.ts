@@ -68,8 +68,11 @@ function postProcessMarkdownForHtml(processed: string): string {
     },
   );
 
-  // 移除其他不支持 SSR 的 JSX 组件（ConnectorMeta, ModuleCard 等）
-  result = result.replace(/<(?:ConnectorMeta|ModuleCard|SearchOpenCard|AIChatOpenCard)[^/]*\/>/g, '');
+  // 移除其他不支持 SSR 的 JSX 组件（MetaPanel, ModuleGrid, ModuleCard 等）
+  result = result.replace(
+    /<(?:MetaPanel|ModuleGrid|ConnectorMeta|ModuleCard|SearchOpenCard|AIChatOpenCard)[^/]*\/>/g,
+    '',
+  );
   result = result.replace(/<Cards[^>]*>([\s\S]*?)<\/Cards>/g, '$1');
   result = result.replace(/<Callout[^>]*>([\s\S]*?)<\/Callout>/g, '$1');
 

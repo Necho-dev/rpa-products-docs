@@ -1,0 +1,270 @@
+import { visit } from 'unist-util-visit';
+import path from 'node:path';
+import type { Root, RootContent } from 'mdast';
+import type { Plugin } from 'unified';
+import type { VFile } from 'vfile';
+import { parse as parseYaml } from 'yaml';
+import { z } from 'zod';
+import { serializeFieldTreeDirectiveContent } from '@/lib/docs/field-tree/parse';
+import {
+  jsxExpressionAttribute,
+  jsxStringAttribute,
+} from '@/lib/docs/source/mdx-jsx-ast';
+import { formatModuleGridDirectiveWithModules } from '@/lib/docs/source/module-grid-fs-scan';
+import { parseModuleGridDirectiveYaml } from '@/lib/docs/source/module-group-config';
+import {
+  buildTocOnlyGroupHeading,
+  findPrecedingHeading,
+  shouldInjectModuleGridTocHeadings,
+} from '@/lib/docs/source/module-grid-toc';
+import {
+  collectModuleGridGroupsFromScan,
+  pageSlugFromDocFile,
+  readPackageEntryFromFileContent,
+  resolveEffectivePackageEntry,
+  scanModuleGridModulesSync,
+} from '@/lib/docs/source/module-grid-fs-scan';
+
+interface ContainerDirectiveNode {
+  type: 'containerDirective';
+  name: string;
+  children: RootContent[];
+  position?: {
+    start: { offset?: number };
+    end: { offset?: number };
+  };
+}
+
+const dependencyRefSchema = z.union([
+  z.string().min(1),
+  z.object({
+    pkg: z.string().min(1),
+    href: z.string().optional(),
+    type: z.string().optional(),
+  }),
+]);
+
+const metaPanelSchema = z.object({
+  platform: z.string().min(1),
+  platformUrl: z.string().optional(),
+  requireLogin: z.boolean().optional(),
+  sdkConstraint: z.string().optional(),
+  components: z.array(dependencyRefSchema).min(1),
+});
+
+function extractDirectiveInnerText(directive: ContainerDirectiveNode, file: VFile): string {
+  const start = directive.position?.start.offset;
+  const end = directive.position?.end.offset;
+  if (
+    typeof start === 'number' &&
+    typeof end === 'number' &&
+    typeof file.value === 'string'
+  ) {
+    const full = file.value.slice(start, end);
+    const firstNl = full.indexOf('\n');
+    const lastNl = full.lastIndexOf('\n:::');
+    const sliced =
+      firstNl >= 0
+        ? full.slice(firstNl + 1, lastNl >= 0 ? lastNl : full.length)
+        : full;
+    if (sliced.trim()) return sliced;
+  }
+
+  return serializeFieldTreeDirectiveContent(directive.children).trim();
+}
+
+function getOriginalDirectiveText(directive: ContainerDirectiveNode, file: VFile): string {
+  const start = directive.position?.start.offset;
+  const end = directive.position?.end.offset;
+  if (
+    typeof start === 'number' &&
+    typeof end === 'number' &&
+    typeof file.value === 'string'
+  ) {
+    return file.value.slice(start, end);
+  }
+  return `:::${directive.name}\n:::\n`;
+}
+
+function parseDirectiveYaml(innerText: string, directiveName: string, filePath: string): unknown {
+  const trimmed = innerText.trim();
+  if (!trimmed) return {};
+
+  try {
+    const parsed = parseYaml(trimmed);
+    if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      throw new Error('expected YAML mapping');
+    }
+    return parsed;
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    throw new Error(`${filePath}: failed to parse :::${directiveName} YAML — ${msg}`);
+  }
+}
+
+function parseGroupsYaml(data: unknown, filePath: string) {
+  return parseModuleGridDirectiveYaml(data, filePath).groups;
+}
+
+function buildMetaPanelJsx(meta: z.infer<typeof metaPanelSchema>) {
+  const attributes: unknown[] = [jsxStringAttribute('platform', meta.platform)];
+
+  if (meta.platformUrl) {
+    attributes.push(jsxStringAttribute('platformUrl', meta.platformUrl));
+  }
+
+  if (meta.requireLogin === false) {
+    attributes.push(jsxExpressionAttribute('requireLogin', false));
+  }
+
+  if (meta.sdkConstraint) {
+    attributes.push(jsxStringAttribute('sdkConstraint', meta.sdkConstraint));
+  }
+
+  attributes.push(jsxExpressionAttribute('components', meta.components));
+
+  return {
+    type: 'mdxJsxFlowElement',
+    name: 'MetaPanel',
+    attributes,
+    children: [],
+  };
+}
+
+function readPackageEntryFromFile(file: VFile, fileContent: string): string {
+  const frontmatter = file.data?.frontmatter as { entry?: string } | undefined;
+  const fromFrontmatter = frontmatter?.entry?.trim();
+  if (fromFrontmatter) return fromFrontmatter;
+
+  return readPackageEntryFromFileContent(fileContent)?.trim() ?? '';
+}
+
+function resolveDocFilePath(file: VFile, filePath: string): string {
+  if (path.isAbsolute(filePath)) return filePath;
+
+  const cwd =
+    typeof file.cwd === 'string'
+      ? file.cwd
+      : typeof file.data?.cwd === 'string'
+        ? file.data.cwd
+        : process.cwd();
+
+  return path.resolve(cwd, filePath);
+}
+
+const remarkMdxDocBlocks: Plugin<[], Root> = () => {
+  return (tree, file: VFile) => {
+    const filePath = file.path || 'unknown';
+    const resolvedFilePath = resolveDocFilePath(file, filePath);
+    const fileContent = typeof file.value === 'string' ? file.value : '';
+    const packageEntry = readPackageEntryFromFile(file, fileContent);
+
+    visit(tree, 'containerDirective', (node, idx, parent) => {
+      const directive = node as ContainerDirectiveNode;
+      if (typeof idx !== 'number' || !parent) return;
+
+      if (directive.name === 'meta-panel') {
+        const innerText = extractDirectiveInnerText(directive, file);
+        const raw = parseDirectiveYaml(innerText, 'meta-panel', filePath);
+        const parsed = metaPanelSchema.safeParse(raw);
+        if (!parsed.success) {
+          const msg = parsed.error.issues.map((i) => i.message).join('; ');
+          throw new Error(`${filePath}: invalid :::meta-panel — ${msg}`);
+        }
+
+        const originalText = getOriginalDirectiveText(directive, file);
+        (parent.children as unknown[])[idx] = {
+          ...buildMetaPanelJsx(parsed.data),
+          data: { _stringify: { text: originalText } },
+        };
+        return;
+      }
+
+      if (directive.name === 'module-grid') {
+        const innerText = extractDirectiveInnerText(directive, file);
+        const raw = parseDirectiveYaml(innerText, 'module-grid', filePath);
+        const { layout, groups } = parseModuleGridDirectiveYaml(raw, filePath);
+        const pageSlug = pageSlugFromDocFile(resolvedFilePath);
+
+        if (pageSlug.length === 0) {
+          throw new Error(`${filePath}: cannot derive pageSlug for :::module-grid`);
+        }
+
+        const originalText = getOriginalDirectiveText(directive, file);
+        const precedingHeading = findPrecedingHeading(
+          parent.children as RootContent[],
+          idx,
+        );
+
+        const attributes: unknown[] = [
+          jsxExpressionAttribute('pageSlug', pageSlug),
+          jsxExpressionAttribute('groups', groups),
+          jsxExpressionAttribute('layout', layout),
+        ];
+
+        let injectedHeadingCount = 0;
+        let modulesMarkdownList = '';
+
+        if (filePath !== 'unknown') {
+          const effectivePackageEntry = resolveEffectivePackageEntry(
+            packageEntry,
+            pageSlug,
+          );
+          const modules = scanModuleGridModulesSync(
+            resolvedFilePath,
+            effectivePackageEntry,
+          );
+          const nonEmptyGroups = collectModuleGridGroupsFromScan(
+            modules,
+            groups,
+            effectivePackageEntry,
+          ).filter((g) => g.modules.length > 0);
+          modulesMarkdownList = formatModuleGridDirectiveWithModules(
+            groups,
+            nonEmptyGroups,
+            layout,
+          );
+
+          if (layout !== 'stack' && shouldInjectModuleGridTocHeadings(nonEmptyGroups)) {
+            if (!precedingHeading) {
+              console.warn(
+                `[remarkMdxDocBlocks] ${filePath}: :::module-grid has multiple groups but no preceding heading for TOC anchors`,
+              );
+            } else {
+              attributes.push(
+                jsxStringAttribute('sectionAnchorId', precedingHeading.id) as never,
+              );
+
+              const tocHeadings = nonEmptyGroups.map((group) =>
+                buildTocOnlyGroupHeading(
+                  precedingHeading.id,
+                  group,
+                  precedingHeading.depth,
+                ),
+              );
+
+              (parent.children as unknown[]).splice(idx, 0, ...tocHeadings);
+              injectedHeadingCount = tocHeadings.length;
+            }
+          }
+        }
+
+        const jsxNode = {
+          type: 'mdxJsxFlowElement',
+          name: 'ModuleGrid',
+          attributes,
+          children: [],
+          data: {
+            _stringify: {
+              text: modulesMarkdownList || originalText,
+            },
+          },
+        };
+
+        (parent.children as unknown[])[idx + injectedHeadingCount] = jsxNode;
+      }
+    });
+  };
+};
+
+export { remarkMdxDocBlocks };
