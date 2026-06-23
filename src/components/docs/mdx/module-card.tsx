@@ -4,9 +4,10 @@ import Link from 'fumadocs-core/link';
 import { useCopyButton } from 'fumadocs-ui/utils/use-copy-button';
 import type { ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
-import { Check, Copy, Globe, PackagePlus } from 'lucide-react';
+import { Check, Copy, Globe, ImageOff, Loader2, PackagePlus } from 'lucide-react';
 import { cn } from '@/lib/core/cn';
 import { safeWriteClipboard } from '@/lib/ui/code-block-utils';
+import { useModuleCoverImage } from '@/components/docs/mdx/use-module-cover-image';
 
 export type ModuleCardBadge = {
   label: string;
@@ -28,6 +29,8 @@ export type ModuleCardProps = {
   badge?: ModuleCardBadge;
   /** 平台/后台入口（可选，用于 connectors/index 等手写页） */
   url?: string;
+  /** ModuleGrid 封面 OG（cover.png） */
+  coverUrl?: string;
   className?: string;
 };
 
@@ -81,6 +84,96 @@ function EntryCopyButton({ value }: { value: string }) {
     >
       {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
     </button>
+  );
+}
+
+function ModuleCardCoverSkeleton({ phase }: { phase: 'idle' | 'loading' | 'error' }) {
+  return (
+    <div
+      className={cn(
+        'absolute inset-0 overflow-hidden bg-fd-muted/25',
+        phase === 'loading' && 'animate-pulse',
+      )}
+      aria-hidden
+    >
+      <div className="absolute inset-0 bg-linear-to-br from-fd-muted/30 via-fd-background/90 to-fd-muted/15 dark:from-fd-muted/15 dark:via-fd-background/95 dark:to-fd-muted/10" />
+      <div
+        className="absolute inset-0 opacity-30 dark:opacity-[0.18]"
+        style={{
+          backgroundImage:
+            'radial-gradient(circle at 1px 1px, color-mix(in oklab, var(--color-fd-border) 55%, transparent) 1px, transparent 0)',
+          backgroundSize: '18px 18px',
+        }}
+      />
+      {phase === 'loading' ? (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+          <Loader2 className="size-5 animate-spin text-fd-muted-foreground/60" />
+          <span className="text-[11px] text-fd-muted-foreground/70">正在加载封面…</span>
+        </div>
+      ) : null}
+      {phase === 'error' ? (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5">
+          <ImageOff className="size-4 text-fd-muted-foreground/55" />
+          <span className="text-[10px] text-fd-muted-foreground/65">封面加载失败</span>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function ModuleCardCover({
+  coverUrl,
+  href,
+  resolvedHref,
+  title,
+}: {
+  coverUrl: string;
+  href: string;
+  resolvedHref: string;
+  title: string;
+}) {
+  const { containerRef, src, status, onLoad, onError } = useModuleCoverImage(coverUrl);
+
+  const frameClassName =
+    'relative mb-3 aspect-video w-full overflow-hidden rounded-lg border border-fd-border/50 bg-fd-muted/15';
+
+  const content = (
+    <div ref={containerRef} className={frameClassName}>
+      {status !== 'loaded' ? (
+        <ModuleCardCoverSkeleton
+          phase={status === 'error' ? 'error' : status === 'loading' ? 'loading' : 'idle'}
+        />
+      ) : null}
+      {src && status !== 'error' ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={src}
+          alt=""
+          decoding="async"
+          fetchPriority="low"
+          onLoad={onLoad}
+          onError={onError}
+          className={cn(
+            'absolute inset-0 size-full object-cover transition-opacity duration-300',
+            status === 'loaded' ? 'opacity-100' : 'opacity-0',
+          )}
+        />
+      ) : null}
+    </div>
+  );
+
+  if (!href) {
+    return content;
+  }
+
+  return (
+    <Link
+      href={resolvedHref}
+      className="block outline-none focus-visible:ring-2 focus-visible:ring-fd-ring rounded-lg"
+      aria-label={title}
+    >
+      {content}
+    </Link>
   );
 }
 
@@ -152,6 +245,7 @@ export function ModuleCard({
   code,
   badge,
   url,
+  coverUrl,
   className,
 }: ModuleCardProps) {
   const pathname = usePathname() ?? '/';
@@ -166,6 +260,14 @@ export function ModuleCard({
 
   return (
     <div className={cardClassName}>
+      {coverUrl ? (
+        <ModuleCardCover
+          coverUrl={coverUrl}
+          href={href}
+          resolvedHref={resolvedHref}
+          title={title}
+        />
+      ) : null}
       <ModuleCardHeader
         icon={icon}
         title={title}

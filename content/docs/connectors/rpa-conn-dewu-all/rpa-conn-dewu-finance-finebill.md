@@ -3,8 +3,8 @@ title: 财务-缴款单-费用明细导出
 description: 导出得物商家后台缴款单费用明细数据，支持按缴款类型、缴款方式、缴款状态、费用生成时间、业务编码筛选
 entry: rpa.conn.dewu.finance.finebill
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                             |

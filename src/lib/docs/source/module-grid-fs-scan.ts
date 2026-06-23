@@ -206,12 +206,16 @@ export function formatModuleGridDirectiveWithModules(
   groupsYaml: Record<string, ModuleGroupConfig>,
   nonEmptyGroups: ModuleGroupData[],
   layout: ModuleGridLayout = 'tabs',
+  cover = false,
 ): string {
   if (nonEmptyGroups.length === 0) return '';
 
   const payload: Record<string, unknown> = {};
   if (layout === 'stack') {
     payload.layout = 'stack';
+  }
+  if (cover) {
+    payload.cover = true;
   }
 
   for (const group of nonEmptyGroups) {

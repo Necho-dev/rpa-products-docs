@@ -3,8 +3,8 @@ title: 引力-任务-明细导出
 description: 导出得物引力平台任务明细数据，支持按任务创建时间、推广形式、任务模式、任务状态筛选
 entry: rpa.conn.dewu.gravity.task.export
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                   |

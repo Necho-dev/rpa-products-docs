@@ -3,8 +3,8 @@ title: 营销-得物推-财务流水导出
 description: 导出得物推财务流水数据，支持按资金类型、流水类型、日期范围筛选
 entry: rpa.conn.dewu.marketing.adv.finance
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                 |

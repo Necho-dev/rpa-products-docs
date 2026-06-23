@@ -27,6 +27,8 @@ pip install rpa-conn-doudian-all
 ## 内含连接器
 
 :::module-grid
+layout: tabs
+cover: true
 im:
   label: 即时通讯/IM
   icon:

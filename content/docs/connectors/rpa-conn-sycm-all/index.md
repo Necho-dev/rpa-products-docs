@@ -27,6 +27,8 @@ pip install rpa-conn-sycm-all
 ## 内含连接器
 
 :::module-grid
+layout: tabs
+cover: true
 flow:
   label: 流量/Flow
   icon:

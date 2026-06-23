@@ -146,7 +146,9 @@ Dockerfile 采用三阶段构建：
 
 1. **deps**：`npm ci`（BuildKit 挂载 `~/.npm` 缓存）
 2. **builder**：`ENV FUMADOCS_LAST_MODIFIED=fs` + `postinstall` + `next build`，输出 `output: standalone`（不依赖 `git`）
-3. **runner**：复制 standalone 与静态资源；**不跑 `apt`**，用 `useradd`/`groupadd` 创建 `nextjs` 用户
+3. **runner**：复制 standalone、`.next/static` 与 **`.next/cache`**（build 期 OG 等 Full Route Cache）；**不跑 `apt`**，用 `useradd`/`groupadd` 创建 `nextjs` 用户
+
+> **OG 预生成**：`next build` 会静态生成 `/og/docs/.../{cover,image,poster}.png`；runner 须携带 `.next/cache`，且 build 阶段建议设置 `NEXT_PUBLIC_SITE_URL`（poster QR 域名）。
 
 ---
 

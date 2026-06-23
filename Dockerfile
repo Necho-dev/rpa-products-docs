@@ -46,6 +46,8 @@ RUN groupadd -r -g 1001 nodejs && useradd -r -u 1001 -g nodejs -s /usr/sbin/nolo
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# build 期 OG 预生成 Full Route Cache；勿在 builder 对 .next/cache 使用 RUN mount
+COPY --from=builder --chown=nextjs:nodejs /app/.next/cache ./.next/cache
 
 USER nextjs
 EXPOSE 3001

@@ -11,16 +11,19 @@ export async function ModuleGrid({
   pageSlug,
   groups = {},
   layout = 'tabs',
+  cover = false,
   sectionAnchorId,
 }: {
   pageSlug: string[];
   groups?: Record<string, ModuleGroupConfig | string>;
   layout?: ModuleGridLayout;
+  /** 是否在卡片顶栏展示 cover.png（与 layout 同级，在 :::module-grid YAML 中声明） */
+  cover?: boolean;
   /** 与 :::module-grid 上方 ## heading 的 anchor id 一致，用于 TOC / hash 联动 */
   sectionAnchorId?: string;
 }) {
   const access = await getDocAccessContextFromRequest();
-  const grouped = await collectModuleGridGroups(pageSlug, groups, access);
+  const grouped = await collectModuleGridGroups(pageSlug, groups, access, cover);
   const groupAnchors = sectionAnchorId
     ? buildModuleGridGroupAnchors(sectionAnchorId, grouped)
     : undefined;

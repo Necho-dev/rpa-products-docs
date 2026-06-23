@@ -27,6 +27,8 @@ pip install rpa-conn-dewu-all
 ## 内含连接器
 
 :::module-grid
+layout: tabs
+cover: true
 finance:
   label: 财务/Finance
   icon:

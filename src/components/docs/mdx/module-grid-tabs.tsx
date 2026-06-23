@@ -45,6 +45,7 @@ function ModuleCardsGrid({
           href={mod.href}
           code={mod.code}
           url={mod.url}
+          coverUrl={mod.coverUrl}
           icon={mod.icon ? <ModuleCardIcon icon={mod.icon} /> : undefined}
         />
       ))}

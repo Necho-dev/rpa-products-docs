@@ -28,6 +28,8 @@ pip install rpa-conn-qianniu-all
 ## 内含连接器
 
 :::module-grid
+layout: tabs
+cover: true
 item:
   label: 商品/Item
   icon:

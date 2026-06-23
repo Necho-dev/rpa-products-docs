@@ -10,7 +10,7 @@ moduleIcon:
 
 :::meta-panel
 platform: 阿里妈妈
-platformUrl: https://ppxk.tmall.com
+platformUrl: https://www.alimama.com
 requireLogin: true
 sdkConstraint: rpa-hero-sdk >=3.3.0
 components:
@@ -27,6 +27,8 @@ pip install rpa-conn-alimm-all
 ## 内含连接器
 
 :::module-grid
+layout: tabs
+cover: true
 pxb:
   label: 品销宝/Pxb
   icon:

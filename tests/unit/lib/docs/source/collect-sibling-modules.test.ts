@@ -1,12 +1,14 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  collectSiblingModuleGroups,
+  capitalizeGroupKey,
+  inferGroupKeyFromFilename,
   OTHER_GROUP_KEY,
   OTHER_GROUP_LABEL,
-  capitalizeGroupKey,
-  collectSiblingModuleGroups,
-  inferGroupKeyFromFilename,
   packageEntryToFilenamePrefix,
+  resolveGroupBucket,
+  resolveModuleGroupYamlContext,
 } from '@/lib/docs/source/collect-sibling-modules';
 
 describe('packageEntryToFilenamePrefix', () => {
@@ -28,6 +30,60 @@ describe('inferGroupKeyFromFilename', () => {
       inferGroupKeyFromFilename('rpa-conn-alimm-ppxx-foo', 'rpa-conn-alimm-all'),
       'ppxx',
     );
+  });
+});
+
+describe('resolveGroupBucket', () => {
+  const groupsYaml = {
+    item: { label: '商品/Item', icon: { comp: 'ShoppingBag', color: '#ea580c' } },
+  };
+
+  it('uses YAML config when key is known', () => {
+    assert.deepEqual(resolveGroupBucket('item', groupsYaml, false), {
+      key: 'item',
+      label: '商品/Item',
+      icon: { comp: 'ShoppingBag', color: '#ea580c' },
+    });
+  });
+
+  it('falls back to Other for unknown inferred keys', () => {
+    assert.deepEqual(resolveGroupBucket('marketing', groupsYaml, false), {
+      key: OTHER_GROUP_KEY,
+      label: OTHER_GROUP_LABEL,
+    });
+  });
+
+  it('uses capitalized key for explicit unknown groups', () => {
+    assert.deepEqual(resolveGroupBucket('ppxx', groupsYaml, true), {
+      key: 'ppxx',
+      label: capitalizeGroupKey('ppxx'),
+    });
+  });
+});
+
+describe('resolveModuleGroupYamlContext', () => {
+  it('returns label and icon from parent module-grid YAML', () => {
+    const ctx = resolveModuleGroupYamlContext({
+      slug: 'rpa-conn-qianniu-item-foo',
+      packageEntry: 'rpa-conn-qianniu-all',
+      groupsYaml: {
+        item: { label: '商品/Item', icon: { comp: 'ShoppingBag', color: '#ea580c' } },
+      },
+    });
+    assert.deepEqual(ctx, {
+      groupKey: 'item',
+      label: '商品/Item',
+      icon: { comp: 'ShoppingBag', color: '#ea580c' },
+    });
+  });
+
+  it('falls back to Package icon when group has no icon', () => {
+    const ctx = resolveModuleGroupYamlContext({
+      slug: 'rpa-conn-qianniu-shop-foo',
+      packageEntry: 'rpa-conn-qianniu-all',
+      groupsYaml: { shop: { label: '店铺/Shop' } },
+    });
+    assert.deepEqual(ctx.icon, { comp: 'Package' });
   });
 });
 
@@ -209,5 +265,25 @@ describe('collectSiblingModuleGroups', () => {
       'connectors',
     );
     assert.deepEqual(result[0]!.modules[0]!.icon, { comp: 'Bot' });
+  });
+
+  it('passes coverUrl to card data', () => {
+    const result = collectSiblingModuleGroups(
+      [
+        {
+          slug: 'rpa-conn-qianniu-item-a',
+          title: 'I',
+          entry: 'rpa.conn.qianniu.item.a',
+          coverUrl: '/og/docs/connectors/rpa-conn-qianniu-all/rpa-conn-qianniu-item-a/cover.png',
+          groupExplicit: false,
+        },
+      ],
+      groupsYaml,
+      'rpa-conn-qianniu-all',
+    );
+    assert.equal(
+      result[0]!.modules[0]!.coverUrl,
+      '/og/docs/connectors/rpa-conn-qianniu-all/rpa-conn-qianniu-item-a/cover.png',
+    );
   });
 });

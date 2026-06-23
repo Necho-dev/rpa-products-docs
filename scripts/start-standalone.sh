@@ -14,6 +14,9 @@ fi
 
 mkdir -p .next/standalone/.next
 rsync -a --delete .next/static/ .next/standalone/.next/static/
+if [[ -d .next/cache ]]; then
+  rsync -a .next/cache/ .next/standalone/.next/cache/
+fi
 if [[ -d public ]]; then
   rsync -a public/ .next/standalone/public/
 fi
