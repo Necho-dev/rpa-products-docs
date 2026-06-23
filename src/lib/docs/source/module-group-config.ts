@@ -85,17 +85,19 @@ export function normalizeModuleGroupsInput(
 
 export type ModuleGridLayout = 'tabs' | 'stack';
 
+export type ParsedModuleGridDirective = {
+  layout: ModuleGridLayout;
+  cover: boolean;
+  groups: Record<string, ModuleGroupConfig>;
+};
+
 const MODULE_GRID_LAYOUTS = new Set<ModuleGridLayout>(['tabs', 'stack']);
 
 /** 解析 :::module-grid YAML，剥离 layout / cover 保留字 */
 export function parseModuleGridDirectiveYaml(
   raw: unknown,
   filePath: string,
-): {
-  layout: ModuleGridLayout;
-  cover: boolean;
-  groups: Record<string, ModuleGroupConfig>;
-} {
+): ParsedModuleGridDirective {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
     return { layout: 'tabs', cover: false, groups: {} };
   }
@@ -137,7 +139,7 @@ const MODULE_GRID_BLOCK_RE = /:::module-grid\r?\n([\s\S]*?)\r?\n:::/;
 export function parseModuleGridBlockFromRaw(
   raw: string,
   filePath: string,
-): { layout: ModuleGridLayout; groups: Record<string, ModuleGroupConfig> } | null {
+): ParsedModuleGridDirective | null {
   const match = MODULE_GRID_BLOCK_RE.exec(raw);
   if (!match?.[1]) return null;
 
