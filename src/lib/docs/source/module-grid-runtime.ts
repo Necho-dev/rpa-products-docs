@@ -5,6 +5,7 @@ import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
 import type { DocAccessContext } from '@/lib/docs/access/doc-access';
 import {
   collectSiblingModuleGroups,
+  slugBasename,
   type ModuleGroupData,
   type SiblingModuleInput,
 } from '@/lib/docs/source/collect-sibling-modules';
@@ -15,6 +16,7 @@ import {
 import { normalizeModuleIcon } from '@/lib/docs/source/module-icon-config';
 import { shouldInjectModuleGridTocHeadings } from '@/lib/docs/source/module-grid-toc';
 import { parseMetaPanelPlatformUrl } from '@/lib/docs/source/module-grid-fs-scan';
+import { resolveModuleCoverUrl } from '@/lib/docs/source/resolve-module-cover-url';
 import { source } from '@/lib/docs/source/source';
 
 type PageExtras = {
@@ -28,10 +30,6 @@ type PageExtras = {
   badge?: { label: string; color?: string };
 };
 
-function slugBasename(slugs: string[]): string {
-  return slugs[slugs.length - 1] ?? '';
-}
-
 function isIndexPage(slugs: string[]): boolean {
   const base = slugBasename(slugs);
   return base === 'index' || slugs.length === 0;
@@ -40,6 +38,7 @@ function isIndexPage(slugs: string[]): boolean {
 async function collectModuleGridSiblingInputs(
   pageSlug: string[],
   access: DocAccessContext,
+  gridCover: boolean,
 ): Promise<{ siblingInputs: SiblingModuleInput[]; packageEntry: string }> {
   const indexPage = source.getPage(pageSlug);
   const packageEntry =
@@ -87,6 +86,10 @@ async function collectModuleGridSiblingInputs(
       moduleIcon: normalizeModuleIcon(data.moduleIcon),
       moduleUrl,
       badge: data.badge,
+      coverUrl: resolveModuleCoverUrl(page.slugs, {
+        gridCover,
+        moduleCover: (page.data as PageExtras & { moduleCover?: boolean }).moduleCover,
+      }),
       groupExplicit: Boolean(data.moduleGroup?.trim()),
     });
   }
@@ -100,10 +103,12 @@ export async function collectModuleGridGroups(
   pageSlug: string[],
   groups: Record<string, ModuleGroupConfig | string>,
   access: DocAccessContext,
+  gridCover = false,
 ): Promise<ModuleGroupData[]> {
   const { siblingInputs, packageEntry } = await collectModuleGridSiblingInputs(
     pageSlug,
     access,
+    gridCover,
   );
   return collectSiblingModuleGroups(siblingInputs, groups, packageEntry);
 }
@@ -129,7 +134,7 @@ export async function resolveModuleGridStackToc(
   const parsed = parseModuleGridBlockFromRaw(raw, page.path);
   if (!parsed || parsed.layout !== 'stack') return [];
 
-  const grouped = await collectModuleGridGroups(pageSlug, parsed.groups, access);
+  const grouped = await collectModuleGridGroups(pageSlug, parsed.groups, access, parsed.cover);
   const nonEmpty = grouped.filter((g) => g.modules.length > 0);
   if (!shouldInjectModuleGridTocHeadings(nonEmpty)) return [];
 

@@ -24,3 +24,12 @@ export type OgSharePosterProps = OgShareBaseProps & {
   heroImageDataUrl?: string;
   heroImageHeight?: number;
 };
+
+import type { ModuleIconConfig } from '@/lib/docs/source/module-icon-config';
+
+/** ModuleGrid 卡片封面 cover.png（640×360） */
+export type OgCoverProps = {
+  heroImageDataUrl?: string;
+  tags?: string[];
+  groupIcon?: ModuleIconConfig;
+};

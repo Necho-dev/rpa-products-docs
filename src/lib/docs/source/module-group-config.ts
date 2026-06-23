@@ -87,17 +87,22 @@ export type ModuleGridLayout = 'tabs' | 'stack';
 
 const MODULE_GRID_LAYOUTS = new Set<ModuleGridLayout>(['tabs', 'stack']);
 
-/** 解析 :::module-grid YAML，剥离 layout 保留字 */
+/** 解析 :::module-grid YAML，剥离 layout / cover 保留字 */
 export function parseModuleGridDirectiveYaml(
   raw: unknown,
   filePath: string,
-): { layout: ModuleGridLayout; groups: Record<string, ModuleGroupConfig> } {
+): {
+  layout: ModuleGridLayout;
+  cover: boolean;
+  groups: Record<string, ModuleGroupConfig>;
+} {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
-    return { layout: 'tabs', groups: {} };
+    return { layout: 'tabs', cover: false, groups: {} };
   }
 
   const obj = { ...(raw as Record<string, unknown>) };
   let layout: ModuleGridLayout = 'tabs';
+  let cover = false;
 
   if ('layout' in obj) {
     const value = obj.layout;
@@ -110,8 +115,18 @@ export function parseModuleGridDirectiveYaml(
     delete obj.layout;
   }
 
+  if ('cover' in obj) {
+    const value = obj.cover;
+    if (typeof value !== 'boolean') {
+      throw new Error(`${filePath}: :::module-grid cover must be true or false`);
+    }
+    cover = value;
+    delete obj.cover;
+  }
+
   return {
     layout,
+    cover,
     groups: parseModuleGroupsYaml(obj, filePath),
   };
 }

@@ -22,9 +22,32 @@ describe('parseModuleGridDirectiveYaml', () => {
       'test.md',
     );
     assert.equal(result.layout, 'stack');
+    assert.equal(result.cover, false);
     assert.deepEqual(Object.keys(result.groups), ['taobao', 'pinduoduo']);
     assert.equal(result.groups.taobao?.label, '淘宝 / 天猫');
     assert.equal('layout' in result.groups, false);
+  });
+
+  it('extracts cover and defaults to false', () => {
+    const off = parseModuleGridDirectiveYaml(
+      { cover: false, item: { label: '商品/Item' } },
+      'test.md',
+    );
+    assert.equal(off.cover, false);
+
+    const on = parseModuleGridDirectiveYaml(
+      { cover: true, item: { label: '商品/Item' } },
+      'test.md',
+    );
+    assert.equal(on.cover, true);
+    assert.equal('cover' in on.groups, false);
+  });
+
+  it('throws on invalid cover', () => {
+    assert.throws(
+      () => parseModuleGridDirectiveYaml({ cover: 'yes' }, 'test.md'),
+      /cover must be true or false/,
+    );
   });
 
   it('throws on invalid layout', () => {

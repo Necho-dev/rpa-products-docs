@@ -27,6 +27,8 @@ pip install rpa-conn-pinduoduo-all
 ## 内含连接器
 
 :::module-grid
+layout: tabs
+cover: true
 shop:
   label: 店铺/Shop
   icon:

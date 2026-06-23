@@ -183,7 +183,7 @@ const remarkMdxDocBlocks: Plugin<[], Root> = () => {
       if (directive.name === 'module-grid') {
         const innerText = extractDirectiveInnerText(directive, file);
         const raw = parseDirectiveYaml(innerText, 'module-grid', filePath);
-        const { layout, groups } = parseModuleGridDirectiveYaml(raw, filePath);
+        const { layout, cover, groups } = parseModuleGridDirectiveYaml(raw, filePath);
         const pageSlug = pageSlugFromDocFile(resolvedFilePath);
 
         if (pageSlug.length === 0) {
@@ -200,6 +200,7 @@ const remarkMdxDocBlocks: Plugin<[], Root> = () => {
           jsxExpressionAttribute('pageSlug', pageSlug),
           jsxExpressionAttribute('groups', groups),
           jsxExpressionAttribute('layout', layout),
+          jsxExpressionAttribute('cover', cover),
         ];
 
         let injectedHeadingCount = 0;
@@ -223,6 +224,7 @@ const remarkMdxDocBlocks: Plugin<[], Root> = () => {
             groups,
             nonEmptyGroups,
             layout,
+            cover,
           );
 
           if (layout !== 'stack' && shouldInjectModuleGridTocHeadings(nonEmptyGroups)) {

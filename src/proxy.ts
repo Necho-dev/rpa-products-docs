@@ -22,6 +22,7 @@ import {
   isUserAgentGateEnabled,
   shouldApplyUserAgentGate,
 } from '@/lib/auth/user-agent-gate';
+import { applyOgDocGate, isOgDocsPath, isPublicOgDocsPath } from '@/lib/docs/og/proxy-gate';
 
 /** 嵌入 HTML 路由前缀（对应 src/app/embed/docs/[[...slug]]） */
 const embedHtmlRoute = '/embed/docs';
@@ -50,6 +51,8 @@ function isPublicPath(pathname: string): boolean {
   if (pathname.startsWith('/resources/images/')) {
     return !resourcesRequireEmbedSign();
   }
+  /** /og/docs 文档 OG 走 applyOgDocGate 页级鉴权；公开文档 OG 仍视为 SSO 公开路径 */
+  if (isOgDocsPath(pathname)) return isPublicOgDocsPath(pathname);
   if (/\.(?:ico|png|jpg|jpeg|gif|webp|svg|woff2?)$/i.test(pathname)) return true;
   return false;
 }
@@ -206,6 +209,9 @@ export function proxy(request: NextRequest) {
   const uaGate = applyUserAgentGate(request);
   if (uaGate) return uaGate;
 
+  const ogGate = applyOgDocGate(request);
+  if (ogGate) return ogGate;
+
   const gate = applyCubeSsoGate(request);
   if (gate) return gate;
 
@@ -226,6 +232,7 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
+    '/og/docs/:path*',
     '/((?!_next/static|_next/image|favicon.ico|icon.svg|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?)$).*)',
   ],
 };

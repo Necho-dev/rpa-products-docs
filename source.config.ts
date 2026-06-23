@@ -53,6 +53,8 @@ const docsPageSchema = pageSchema.extend({
   moduleUrl: z.string().url().optional(),
   /** ModuleGrid 分组 bucket key */
   moduleGroup: z.string().optional(),
+  /** 覆盖 grid `cover`：单卡强制开/关 cover.png */
+  moduleCover: z.boolean().optional(),
 });
 
 /** 目录 meta：`access: private` 时其下所有页面默认私有（除非某页写 `access: public`） */

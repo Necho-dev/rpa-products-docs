@@ -2,7 +2,10 @@ import {
   type ModuleGroupConfig,
   normalizeModuleGroupEntry,
 } from './module-group-config';
-import type { ModuleIconConfig } from './module-icon-config';
+import {
+  normalizeModuleIcon,
+  type ModuleIconConfig,
+} from './module-icon-config';
 
 export const OTHER_GROUP_KEY = '__other__';
 export const OTHER_GROUP_LABEL = '其他/Other';
@@ -22,6 +25,7 @@ export type SiblingModuleInput = {
   moduleIcon?: ModuleIconConfig;
   moduleUrl?: string;
   badge?: DocBadge;
+  coverUrl?: string;
   groupExplicit: boolean;
 };
 
@@ -33,6 +37,7 @@ export type ModuleCardData = {
   code: string;
   icon?: ModuleIconConfig;
   url?: string;
+  coverUrl?: string;
 };
 
 export type ModuleGroupData = {
@@ -63,6 +68,54 @@ export function inferGroupKeyFromFilename(
 export function capitalizeGroupKey(key: string): string {
   if (!key) return key;
   return key.charAt(0).toUpperCase() + key.slice(1);
+}
+
+export function slugBasename(slugs: string[]): string {
+  return slugs[slugs.length - 1] ?? '';
+}
+
+/** 将 raw group key 解析为 Tab bucket（YAML 配置 / 显式分组 / Other） */
+export function resolveGroupBucket(
+  rawKey: string,
+  groupsYaml: Record<string, ModuleGroupConfig | string>,
+  groupExplicit: boolean,
+): { key: string; label: string; icon?: ModuleIconConfig } {
+  const yamlCfg = normalizeModuleGroupEntry(groupsYaml[rawKey]);
+
+  if (yamlCfg) {
+    return { key: rawKey, label: yamlCfg.label, icon: yamlCfg.icon };
+  }
+
+  if (groupExplicit) {
+    return { key: rawKey, label: capitalizeGroupKey(rawKey) };
+  }
+
+  return { key: OTHER_GROUP_KEY, label: OTHER_GROUP_LABEL };
+}
+
+/**
+ * 从父 index 的 module-grid YAML 解析子文档所属分组（cover OG fallback / tag 过滤共用）。
+ */
+export function resolveModuleGroupYamlContext(input: {
+  slug: string;
+  moduleGroup?: string;
+  packageEntry: string;
+  groupsYaml: Record<string, ModuleGroupConfig | string>;
+}): { groupKey?: string; label?: string; icon?: ModuleIconConfig } {
+  const groupKey =
+    input.moduleGroup?.trim() ||
+    inferGroupKeyFromFilename(input.slug, input.packageEntry);
+
+  if (!groupKey) return {};
+
+  const yamlCfg = normalizeModuleGroupEntry(input.groupsYaml[groupKey]);
+  const icon = normalizeModuleIcon(yamlCfg?.icon);
+
+  return {
+    groupKey,
+    label: yamlCfg?.label,
+    icon: icon ?? { comp: 'Package' },
+  };
 }
 
 /**
@@ -102,23 +155,8 @@ export function collectSiblingModuleGroups(
       inferGroupKeyFromFilename(mod.slug, packageEntry) ||
       OTHER_GROUP_KEY;
 
-    let bucketKey: string;
-    let bucketLabel: string;
-    let bucketIcon: ModuleIconConfig | undefined;
-
-    const yamlCfg = normalizeModuleGroupEntry(groupsYaml[rawKey]);
-
-    if (yamlCfg) {
-      bucketKey = rawKey;
-      bucketLabel = yamlCfg.label;
-      bucketIcon = yamlCfg.icon;
-    } else if (mod.groupExplicit && mod.moduleGroup?.trim()) {
-      bucketKey = rawKey;
-      bucketLabel = capitalizeGroupKey(rawKey);
-    } else {
-      bucketKey = OTHER_GROUP_KEY;
-      bucketLabel = OTHER_GROUP_LABEL;
-    }
+    const { key: bucketKey, label: bucketLabel, icon: bucketIcon } =
+      resolveGroupBucket(rawKey, groupsYaml, mod.groupExplicit);
 
     const bucket = ensureBucket(bucketKey, bucketLabel, bucketIcon);
     bucket.modules.push({
@@ -129,6 +167,7 @@ export function collectSiblingModuleGroups(
       code: mod.entry.trim(),
       ...(mod.moduleIcon ? { icon: mod.moduleIcon } : {}),
       ...(mod.moduleUrl?.trim() ? { url: mod.moduleUrl.trim() } : {}),
+      ...(mod.coverUrl ? { coverUrl: mod.coverUrl } : {}),
     });
   }
 

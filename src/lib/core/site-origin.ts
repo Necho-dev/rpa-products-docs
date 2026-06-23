@@ -1,5 +1,5 @@
 import { mcpResourceUrl } from '@/lib/auth/auth-config';
-import { getPublicSiteUrlIfSet } from '@/lib/core/shared';
+import { getPublicSiteUrl, getPublicSiteUrlIfSet } from '@/lib/core/shared';
 
 const LOCAL_DEV_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
 
@@ -75,6 +75,16 @@ export function inferSiteOrigin(request: Request): string {
   if (isDevelopment()) return fromRequest;
   if (fromEnv) return fromEnv;
   return fromRequest;
+}
+
+/**
+ * OG 渲染用站点根：build 期优先 env，避免读 request headers 导致 route 标为 dynamic。
+ */
+export function resolveOgSiteOrigin(req?: Request): string {
+  const fromEnv = getPublicSiteUrlIfSet();
+  if (fromEnv) return fromEnv;
+  if (req) return inferSiteOrigin(req);
+  return getPublicSiteUrl();
 }
 
 /** MCP Bearer `aud` 候选：开发环境允许 localhost 与 NEXT_PUBLIC_SITE_URL 互通。 */
