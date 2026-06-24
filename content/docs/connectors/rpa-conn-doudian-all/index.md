@@ -29,6 +29,11 @@ pip install rpa-conn-doudian-all
 :::module-grid
 layout: tabs
 cover: true
+shop:
+  label: 店铺/Shop
+  icon:
+    comp: Store
+    color: '#0284c7'
 im:
   label: 即时通讯/IM
   icon:
