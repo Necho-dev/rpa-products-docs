@@ -1,6 +1,6 @@
 ---
 title: 达摩盘-竞争态势-竞争商品分析
-description: 采集达摩盘竞争态势分析页中本品与竞品的「基础分析 + 流量分析（广告域/全域归因）」指标，支持快捷周期与自定义四段日期
+description: 采集达摩盘竞争态势分析页中本品与竞品的「基础分析 + 流量分析（广告域/全域归因）」指标；支持快捷周期与自定义四段日期；本品或竞品未搜到时返回空数据
 entry: rpa.conn.alimm.dmp.compete.situation.item
 badge:
   label: 待上线
@@ -14,7 +14,7 @@ badge:
 | **归属 PyPI 包** | `rpa-conn-alimm-all`                                                                    |
 | **操作类型**     | 浏览器自动化操作 + 网络请求监听                                                         |
 | **目标网页**     | `https://dmp.taobao.com/index_new.html#!/compete/compete-situation`                     |
-| **适用场景**     | 采集达摩盘竞争态势分析页中本品与竞品的「基础分析 + 流量分析（广告域/全域归因）」指标，支持快捷周期与自定义四段日期 |
+| **适用场景**     | 采集达摩盘竞争态势分析页中本品与竞品的「基础分析 + 流量分析（广告域/全域归因）」指标；支持快捷周期与自定义四段日期；本品或竞品未搜到时返回空数据 |
 | **预估耗时**     | `90s`                                                                                   |
 
 ### 目标页面
@@ -23,36 +23,26 @@ badge:
 >
 > **网址**：[https://dmp.taobao.com/index_new.html#!/compete/compete-situation](https://dmp.taobao.com/index_new.html#!/compete/compete-situation)
 
-![阿里妈妈达摩盘—竞争商品分析](../../public/images/alimm/dmp_compete_situation_item_20260624.png)
+![阿里妈妈达摩盘—竞争商品分析](../../public/images/alimm/dmp_compete_situation_item_20260626.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `self_item_id` | 本店商品 ID | `String` | 是 | — | `self_item_id` 与 `rival_item_id_1/2/3` 不允许重复 |
-| `rival_item_id_1` | 竞争商品 ID（第一个） | `String` | 是 | — | — |
-| `rival_item_id_2` | 竞争商品 ID（第二个） | `String` | 否 | — | — |
-| `rival_item_id_3` | 竞争商品 ID（第三个） | `String` | 否 | — | — |
-| `date_type` | 分析周期类型 | `String` | 否 | `recent7` | 可选值：`yesterday`（昨日）、`recent7`（近7天）、`recent30`（近30天）、`custom`（自定义）；别名：`昨日`、`近7天`、`近30天`、`自定义`；兼容旧入参 `today`（等同 `yesterday`） |
-| `begin_date` | 分析开始日期 | `String` | 条件必填 | — | `date_type=custom` 时必填；支持格式：YYYYMMDD、YYYY-MM-DD；别名 `beginDate` |
-| `end_date` | 分析结束日期 | `String` | 条件必填 | — | `date_type=custom` 时必填；支持格式：YYYYMMDD、YYYY-MM-DD；别名 `endDate` |
-| `peer_begin_date` | 对比周期开始日期 | `String` | 条件必填 | — | `date_type=custom` 时必填；支持格式：YYYYMMDD、YYYY-MM-DD；别名 `peerBeginDate` |
-| `peer_end_date` | 对比周期结束日期 | `String` | 条件必填 | — | `date_type=custom` 时必填；支持格式：YYYYMMDD、YYYY-MM-DD；别名 `peerEndDate` |
-
-**周期说明：**
-
-- **快捷周期**（`yesterday` / `recent7` / `recent30`）：结束日固定为「昨日」；对比周期为分析周期前一段等长区间（环比，与分析周期不重叠）。
-- **自定义周期**（`custom`）：四段日期均由入参指定；分析周期与对比周期允许重叠；每段日期须在「最近 90 天、最晚至昨日」窗口内。
-- **全域归因**：切换失败或未捕获到对应接口响应时，任务返回 `success=False`（不再静默成功）。
+| `self_item_id` | 本店商品 ID | `String` | 是 | — | 不可与 `rival_item_ids` 中任一 ID 重复 |
+| `rival_item_ids` | 竞争商品 ID | `String \| List[String]` | 是 | — | 英文逗号分隔字符串或 JSON 数组；中文逗号自动转换；最多 3 个；示例 `"123,456"` 或 `["123","456"]` |
+| `date_type` | 分析周期类型 | `String` | 否 | `recent7` | 可选值：`yesterday`（昨日）、`recent7`（近7天）、`recent30`（近30天）、`custom`（自定义）。快捷周期下结束日固定为昨日，对比周期为分析周期前一段等长区间（环比，与分析周期不重叠） |
+| `custom_start_date` | 分析开始日期 | `String` | 条件必填 | — | `date_type=custom` 时必填；支持格式：YYYYMMDD、YYYY-MM-DD；须在「最近 90 天、最晚至昨日」窗口内 |
+| `custom_end_date` | 分析结束日期 | `String` | 条件必填 | — | `date_type=custom` 时必填；支持格式：YYYYMMDD、YYYY-MM-DD；须在「最近 90 天、最晚至昨日」窗口内；不可早于 `custom_start_date` |
+| `custom_peer_start_date` | 对比周期开始日期 | `String` | 条件必填 | — | `date_type=custom` 时必填；支持格式：YYYYMMDD、YYYY-MM-DD；须在「最近 90 天、最晚至昨日」窗口内 |
+| `custom_peer_end_date` | 对比周期结束日期 | `String` | 条件必填 | — | `date_type=custom` 时必填；支持格式：YYYYMMDD、YYYY-MM-DD；须在「最近 90 天、最晚至昨日」窗口内；不可早于 `custom_peer_start_date`；分析周期与对比周期允许重叠 |
 
 ### 入参样例
 
 ```json
 {
   "self_item_id": "897425691792",
-  "rival_item_id_1": "1057000824998",
-  "rival_item_id_2": "1044235732163",
-  "rival_item_id_3": "1019326026903",
+  "rival_item_ids": "1057000824998,1044235732163,1019326026903",
   "date_type": "recent7"
 }
 ```
@@ -60,7 +50,7 @@ badge:
 ```json
 {
   "self_item_id": "897425691792",
-  "rival_item_id_1": "1057000824998",
+  "rival_item_ids": ["1057000824998"],
   "date_type": "yesterday"
 }
 ```
@@ -68,12 +58,24 @@ badge:
 ```json
 {
   "self_item_id": "897425691792",
-  "rival_item_id_1": "1057000824998",
+  "rival_item_ids": "1057000824998",
   "date_type": "custom",
-  "begin_date": "20260610",
-  "end_date": "20260620",
-  "peer_begin_date": "20260605",
-  "peer_end_date": "20260615"
+  "custom_start_date": "2026-06-10",
+  "custom_end_date": "2026-06-20",
+  "custom_peer_start_date": "2026-06-05",
+  "custom_peer_end_date": "2026-06-15"
+}
+```
+
+```json
+{
+  "self_item_id": "897425691792",
+  "rival_item_ids": "1057000824998",
+  "date_type": "custom",
+  "custom_start_date": "20260610",
+  "custom_end_date": "20260620",
+  "custom_peer_start_date": "20260605",
+  "custom_peer_end_date": "20260615"
 }
 ```
 
@@ -83,59 +85,48 @@ badge:
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "阿里妈妈达摩盘-竞争商品分析 - 查询入参",
-  "description": "采集达摩盘竞争态势分析页中本品与竞品的「基础分析 + 流量分析（广告域/全域归因）」指标，支持快捷周期与自定义四段日期",
+  "description": "采集达摩盘竞争态势分析页中本品与竞品的「基础分析 + 流量分析（广告域/全域归因）」指标；支持快捷周期与自定义四段日期；本品或竞品未搜到时返回空数据",
   "type": "object",
   "properties": {
     "self_item_id": {
       "type": "string",
-      "description": "本店商品 ID"
+      "description": "本店商品 ID；不可与 rival_item_ids 中任一 ID 重复"
     },
-    "rival_item_id_1": {
-      "type": "string",
-      "description": "竞争商品 ID（第一个）"
-    },
-    "rival_item_id_2": {
-      "type": "string",
-      "description": "竞争商品 ID（第二个）"
-    },
-    "rival_item_id_3": {
-      "type": "string",
-      "description": "竞争商品 ID（第三个）"
+    "rival_item_ids": {
+      "description": "竞争商品 ID；英文逗号分隔字符串或字符串数组；中文逗号自动转换；最多 3 个",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" }, "maxItems": 3 }
+      ]
     },
     "date_type": {
       "type": "string",
-      "description": "分析周期类型。可选值：yesterday（昨日）、recent7（近7天）、recent30（近30天）、custom（自定义）；别名：昨日、近7天、近30天、自定义；today 兼容为 yesterday",
-      "enum": [
-        "yesterday",
-        "recent7",
-        "recent30",
-        "custom",
-        "昨日",
-        "近7天",
-        "近30天",
-        "自定义",
-        "today"
-      ],
+      "description": "分析周期类型。可选值：yesterday（昨日）、recent7（近7天）、recent30（近30天）、custom（自定义）",
+      "enum": ["yesterday", "recent7", "recent30", "custom"],
       "default": "recent7"
     },
-    "begin_date": {
+    "custom_start_date": {
       "type": "string",
-      "description": "分析开始日期；date_type=custom 时必填；支持 YYYYMMDD 或 YYYY-MM-DD"
+      "description": "分析开始日期；date_type=custom 时必填；支持 YYYYMMDD 或 YYYY-MM-DD；须在最近 90 天内且最晚为昨日",
+      "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
-    "end_date": {
+    "custom_end_date": {
       "type": "string",
-      "description": "分析结束日期；date_type=custom 时必填；支持 YYYYMMDD 或 YYYY-MM-DD；须在最近 90 天内且最晚为昨日"
+      "description": "分析结束日期；date_type=custom 时必填；支持 YYYYMMDD 或 YYYY-MM-DD；须在最近 90 天内且最晚为昨日；不可早于 custom_start_date",
+      "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
-    "peer_begin_date": {
+    "custom_peer_start_date": {
       "type": "string",
-      "description": "对比周期开始日期；date_type=custom 时必填；支持 YYYYMMDD 或 YYYY-MM-DD"
+      "description": "对比周期开始日期；date_type=custom 时必填；支持 YYYYMMDD 或 YYYY-MM-DD；须在最近 90 天内且最晚为昨日",
+      "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
-    "peer_end_date": {
+    "custom_peer_end_date": {
       "type": "string",
-      "description": "对比周期结束日期；date_type=custom 时必填；支持 YYYYMMDD 或 YYYY-MM-DD；须在最近 90 天内且最晚为昨日"
+      "description": "对比周期结束日期；date_type=custom 时必填；支持 YYYYMMDD 或 YYYY-MM-DD；须在最近 90 天内且最晚为昨日；不可早于 custom_peer_start_date",
+      "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
-  "required": ["self_item_id", "rival_item_id_1"],
+  "required": ["self_item_id", "rival_item_ids"],
   "allOf": [
     {
       "if": {
@@ -146,10 +137,10 @@ badge:
       },
       "then": {
         "required": [
-          "begin_date",
-          "end_date",
-          "peer_begin_date",
-          "peer_end_date"
+          "custom_start_date",
+          "custom_end_date",
+          "custom_peer_start_date",
+          "custom_peer_end_date"
         ]
       }
     }
@@ -179,7 +170,7 @@ badge:
 | `channelName` | 渠道名称 | `String` | 是 | flow/indicator list[].channelName | `关键词推广` |
 | `channelId` | 渠道 ID | `String` | 是 | flow/indicator list[].channelId | `371` |
 | `channelType` | 渠道类型 | `String` | 是 | flow/indicator list[].channelType | `ad` |
-| `subChannels` @渠道树节点 | 子渠道列表 | `List[Dict]` | 是 | flow/indicator list[].subChannels | 见数据样例 |
+| `subChannels` | 子渠道列表 | `List[Dict]` | 是 | flow/indicator list[].subChannels（子节点字段同本层，可多级嵌套） | 见数据样例 |
 | `{metricKey}` @单指标竞争对比 | 渠道指标 | `Dict` | 是 | flow/indicator list[].{metricKey} | 见数据样例 |
 
 @define 原始映射数据
@@ -187,6 +178,17 @@ badge:
 | `shopData` @接口指标字典 | 店铺分析原始指标 | `Dict` | 否 | base/shop/indicator data | 见数据样例 |
 | `flowAdData` @渠道树节点 | 广告域归因渠道树 | `List[Dict]` | 否 | flow/indicator（广告域）list | 见数据样例 |
 | `flowFullData` @渠道树节点 | 全域归因渠道树 | `List[Dict]` | 否 | flow/indicator（全域）list | 见数据样例 |
+
+@define 基础分析指标块
+| `ipv` | 浏览量 | `Number / String` | 是 | 经 base/shop 指标 competitorList.basePeriod / growthRate | — |
+| `cartRate` | 加购率 | `Number / String` | 是 | 经 base/shop 指标 competitorList.basePeriod / growthRate | — |
+| `conversionRate` | 成交转化率 | `Number / String` | 是 | 经 base/shop 指标 competitorList.basePeriod / growthRate | — |
+| `orderCount` | 成交笔数 | `Number / String` | 是 | 经 base/shop 指标 competitorList.basePeriod / growthRate | — |
+| `avgOrderValue` | 笔单价 | `Number / String` | 是 | 经 base/shop 指标 competitorList.basePeriod / growthRate | — |
+| `paidClickCount` | 付费点击量 | `Number / String` | 是 | 经 base 指标 competitorList.basePeriod / growthRate | — |
+| `clickCost` | 点击成本 | `Number / String` | 是 | 经 base 指标 competitorList.basePeriod / growthRate | — |
+| `roi1d` | 当天引导 ROI | `Number / String` | 是 | 经 base 指标 competitorList.basePeriod / growthRate | — |
+| `guidedOrderCount1d` | 当天引导成交笔数 | `Number / String` | 是 | 经 base 指标 competitorList.basePeriod / growthRate | — |
 
 @define 基础分析条目
 | `itemRole` | 商品角色 | `String` | 否 | 经入参映射 | `selfItem` |
@@ -200,6 +202,8 @@ badge:
 | `clickCost` | 点击成本 | `Number / String` | 是 | 经 base 指标汇总 | — |
 | `roi1d` | 当天引导 ROI | `Number / String` | 是 | 经 base 指标汇总 | — |
 | `guidedOrderCount1d` | 当天引导成交笔数 | `Number / String` | 是 | 经 base 指标汇总 | — |
+| `basePeriod` @基础分析指标块 | 对比周期指标 | `Dict` | 否 | 经 base/shop 指标 competitorList.basePeriod 汇总 | 见数据样例 |
+| `growthRate` @基础分析指标块 | 环比增长率指标 | `Dict` | 否 | 经 base/shop 指标 competitorList.growthRate 汇总 | 见数据样例 |
 
 @define 效果广告汇总
 | `wholeNetworkClickCount` | 全站推广点击量 | `Number / String` | 是 | 经广告域渠道汇总 | — |
@@ -253,8 +257,7 @@ badge:
 | `itemRole` | 商品角色 | `String` | 否 | 经入参映射 | `selfItem` |
 | `itemId` | 商品 ID | `String` | 否 | 经入参映射 | `897425691792` |
 | `sourceType` | 归因类型 | `String` | 否 | ad=广告域，full=全域归因 | `ad` |
-| `sourceName` | 渠道名称 | `String` | 否 | 渠道树节点 channelName | `关键词推广` |
-| `parentSourceName` | 父渠道名称 | `String` | 是 | 上级渠道 channelName | — |
+| `parentChannelName` | 父渠道名称 | `String` | 是 | 上级渠道 channelName | — |
 | `channelName` | 渠道名称 | `String` | 是 | 渠道树节点 channelName | `关键词推广` |
 | `channelId` | 渠道 ID | `String` | 是 | 渠道树节点 channelId | `371` |
 | `channelType` | 渠道类型 | `String` | 是 | 渠道树节点 channelType | `ad` |
@@ -275,35 +278,31 @@ badge:
 | `growthRate` @流量渠道明细指标块 | 环比增长率指标 | `Dict` | 否 | growthRate competitorList 汇总 | 见数据样例 |
 
 @define 缺失字段记录
-| `scope` | 缺失范围 | `String` | 否 | 汇总字段缺失统计 | `basicAnalysis` |
-| `itemRole` | 商品角色 | `String` | 否 | 经入参映射 | `selfItem` |
-| `itemId` | 商品 ID | `String` | 否 | 经入参映射 | `897425691792` |
-| `field` | 缺失字段名 | `String` | 否 | 汇总输出字段 key | `ipv` |
-| `reason` | 缺失原因 | `String` | 否 | 接口未返回或页面未展示 | `接口返回值为 null` |
+| `field` | 缺失字段名 | `String` | 否 | flowAnalysis 汇总输出字段 key | `wholeNetworkClickCount` |
+| `scope` | 缺失范围 | `String` | 否 | `flowAnalysis.adEffect` 或 `flowAnalysis.nonAd` | `flowAnalysis.adEffect` |
+| `reason` | 缺失原因 | `String` | 否 | 页面未展示对应渠道 | 见数据样例 |
 
 @define 数据质量摘要
-| `adChannelNodeCount` | 广告域渠道节点数 | `Number` | 否 | 广告域渠道树统计 | — |
-| `fullChannelNodeCount` | 全域归因渠道节点数 | `Number` | 否 | 全域渠道树统计 | — |
 | `flowSourceDetailCount` | 渠道明细行数 | `Number` | 否 | flowSourceDetails 统计 | — |
-| `itemRoleCount` | 参与对比商品数 | `Number` | 否 | 本品+竞品计数 | `4` |
-| `currentValueCount` | 当前周期非空值数 | `Number` | 否 | 渠道树 competitorList.base 统计 | — |
-| `basePeriodValueCount` | 对比周期非空值数 | `Number` | 否 | 渠道树 competitorList.basePeriod 统计 | — |
-| `growthRateValueCount` | 增长率非空值数 | `Number` | 否 | 渠道树 competitorList.growthRate 统计 | — |
-| `summaryFieldCount` | 汇总字段总数 | `Number` | 否 | basicAnalysis + flowAnalysis 汇总字段 | — |
-| `missingSummaryFieldCount` | 汇总字段缺失数 | `Number` | 否 | missingFields 对应汇总统计 | — |
-| `note` | 说明 | `String` | 是 | 固定说明文案 | 见数据样例 |
+| `fullChannelNodeCount` | 全域归因渠道节点数 | `Number` | 否 | 全域渠道树统计 | — |
+| `adChannelNodeCount` | 广告域渠道节点数 | `Number` | 否 | 广告域渠道树统计 | — |
+| `currentValueCount` | 当前周期非空值数 | `Number` | 否 | flowSourceDetails 当前周期指标统计 | — |
+| `basePeriodValueCount` | 对比周期非空值数 | `Number` | 否 | flowSourceDetails.basePeriod 统计 | — |
+| `growthRateValueCount` | 增长率非空值数 | `Number` | 否 | flowSourceDetails.growthRate 统计 | — |
+| `summaryFieldCount` | 基础分析非空值数 | `Number` | 否 | basicAnalysis 汇总字段非空统计 | — |
+| `note` | 说明 | `String` | 否 | 固定说明文案 | 见数据样例 |
 
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
 | `selfItemId` | 本店商品 ID | `String` | 否 | 任务入参 self_item_id | `897425691792` |
-| `rivalItemId1` | 竞争商品 ID（第一个） | `String` | 否 | 任务入参 rival_item_id_1 | `1057000824998` |
-| `rivalItemId2` | 竞争商品 ID（第二个） | `String` | 是 | 任务入参 rival_item_id_2 | `1044235732163` |
-| `rivalItemId3` | 竞争商品 ID（第三个） | `String` | 是 | 任务入参 rival_item_id_3 | `1019326026903` |
+| `rivalItemId1` | 竞争商品 ID（第一个） | `String` | 否 | `rival_item_ids[0]` | `1057000824998` |
+| `rivalItemId2` | 竞争商品 ID（第二个） | `String` | 是 | `rival_item_ids[1]`（不足时为 null） | `1044235732163` |
+| `rivalItemId3` | 竞争商品 ID（第三个） | `String` | 是 | `rival_item_ids[2]`（不足时为 null） | `1019326026903` |
 | `dateType` | 分析周期类型 | `String` | 否 | 任务入参 date_type | `recent7` |
-| `beginDate` | 分析开始日期 | `String` | 否 | 快捷周期自动计算；custom 取 begin_date | `2026-06-18` |
-| `endDate` | 分析结束日期 | `String` | 否 | 快捷周期自动计算；custom 取 end_date | `2026-06-24` |
-| `peerBeginDate` | 对比周期开始日期 | `String` | 否 | 快捷周期环比推算；custom 取 peer_begin_date | `2026-06-11` |
-| `peerEndDate` | 对比周期结束日期 | `String` | 否 | 快捷周期环比推算；custom 取 peer_end_date | `2026-06-17` |
+| `beginDate` | 分析开始日期 | `String` | 否 | 快捷周期自动计算；custom 取 `custom_start_date` | `2026-06-18` |
+| `endDate` | 分析结束日期 | `String` | 否 | 快捷周期自动计算；custom 取 `custom_end_date` | `2026-06-24` |
+| `peerBeginDate` | 对比周期开始日期 | `String` | 否 | 快捷周期环比推算；custom 取 `custom_peer_start_date` | `2026-06-11` |
+| `peerEndDate` | 对比周期结束日期 | `String` | 否 | 快捷周期环比推算；custom 取 `custom_peer_end_date` | `2026-06-17` |
 | `basicAnalysis` @基础分析条目 | 基础分析汇总 | `List[Dict]` | 否 | base/shop indicator 汇总 | 见数据样例 |
 | `flowAnalysis` @流量分析条目 | 流量分析汇总 | `List[Dict]` | 否 | flow/indicator 汇总 | 见数据样例 |
 | `flowSourceDetails` @流量渠道明细 | 全渠道递归明细 | `List[Dict]` | 否 | 广告域+全域渠道树展开 | 见数据样例 |
@@ -345,7 +344,9 @@ badge:
         "paidClickCount": 17620,
         "clickCost": 0.76751759,
         "roi1d": 6.81390156,
-        "guidedOrderCount1d": 325
+        "guidedOrderCount1d": 325,
+        "basePeriod": "/* 省略：与当前周期字段同名的对比周期值 */",
+        "growthRate": "/* 省略：与当前周期字段同名的环比增长率 */"
       }
     ],
     "flowAnalysis": [
@@ -353,6 +354,11 @@ badge:
         "itemRole": "selfItem",
         "itemId": "897425691792",
         "adEffect": {
+          "wholeNetworkClickCount": null,
+          "wholeNetworkCartRate1d": null,
+          "wholeNetworkClickRate1d": null,
+          "wholeNetworkConversionRate1d": null,
+          "wholeNetworkRoi1d": null,
           "keywordClickCount": 1504,
           "keywordCartRate1d": 0.11702128,
           "keywordClickRate1d": 0.04769606,
@@ -382,11 +388,11 @@ badge:
         "itemRole": "selfItem",
         "itemId": "897425691792",
         "sourceType": "ad",
-        "sourceName": "关键词推广",
-        "channelName": "关键词推广",
-        "channelId": "371",
-        "channelType": "ad",
         "level": 1,
+        "channelId": "371",
+        "channelName": "关键词推广",
+        "channelType": "ad",
+        "parentChannelName": null,
         "clickCount": 1504,
         "basePeriod": {
           "clickCount": 4137
@@ -405,16 +411,20 @@ badge:
     },
     "missingFields": [
       {
-        "scope": "basicAnalysis",
-        "itemRole": "selfItem",
-        "itemId": "897425691792",
-        "field": "ipv",
-        "reason": "接口返回值为 null"
+        "field": "wholeNetworkClickCount",
+        "scope": "flowAnalysis.adEffect",
+        "reason": "广告域归因页面未展示渠道「wholeNetwork」，无对应数据"
       }
     ],
     "dataQuality": {
-      "itemRoleCount": 4,
-      "note": "flowAnalysis 仅保留页面需求汇总字段，完整渠道数据见 flowSourceDetails"
+      "flowSourceDetailCount": "/* 省略 */",
+      "fullChannelNodeCount": "/* 省略 */",
+      "adChannelNodeCount": "/* 省略 */",
+      "currentValueCount": "/* 省略 */",
+      "basePeriodValueCount": "/* 省略 */",
+      "growthRateValueCount": "/* 省略 */",
+      "summaryFieldCount": "/* 省略 */",
+      "note": "字段计数基于 flowSourceDetails 与 basicAnalysis 的非空值统计"
     }
   }
 ]

@@ -1,6 +1,6 @@
 ---
 title: 阿里妈妈
-description: 覆盖阿里妈妈品销宝、万相台、品牌新享等场景的 rpa-conn-alimm-all 包说明与安装
+description: 覆盖阿里妈妈品销宝、万相台、品牌新享、淘宝联盟、达摩盘等场景的 rpa-conn-alimm-all 包说明与安装
 entry: rpa-conn-alimm-all
 moduleGroup: taobao
 moduleIcon:
