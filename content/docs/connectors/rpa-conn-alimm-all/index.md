@@ -49,9 +49,4 @@ tblm:
   icon:
     comp: Link2
     color: '#0d9488'
-dmp:
-  label: 达摩盘/DMP
-  icon:
-    comp: Target
-    color: '#7c3aed'
 :::
