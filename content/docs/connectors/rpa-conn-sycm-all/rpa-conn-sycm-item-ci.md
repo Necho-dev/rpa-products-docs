@@ -124,13 +124,15 @@ badge:
 | `rival2PayRate` | 竞品 2 支付转化率 | `number` / `string` | 是 | `rivalItem2PayRate` | — |
 
 @define 客群画像项
-| `itemId` | 商品 ID | `string` | 否 | 来自入参 | `975048717355` |
-| `itemRole` | 商品角色 | `string` | 否 | 由接口 role 映射 | `selfItem` |
+| `itemId` | 商品 ID | `string` | 是 | 来自入参 | `975048717355` |
+| `itemRole` | 商品角色 | `string` | 是 | 由接口 role 映射 | `selfItem` |
 | `crowdsType` | 人群类型代码 | `string` | 否 | 接口 `crowdsType` | `appSearchUv` |
 | `crowdsLabel` | 人群类型名称 | `string` | 否 | 页面 Tab 文案 | `搜索人群` |
-| `profileType` | 画像维度 | `string` | 否 | 接口 `profileType` | `gender` |
-| `attrValue` | 画像属性值 | `string` | 否 | `attrValue` | `女` |
+| `profileType` | 画像维度 | `string` | 是 | 接口 `profileType` | `gender` |
+| `attrValue` | 画像属性值 | `string` | 是 | `attrValue` | `女` |
 | `ratio` | 占比 | `number` | 是 | `{crowdsType}.ratio` | `0.8717` |
+| `dataStatus` | 数据状态 | `string` | 是 | 仅 Tab 全员无数据占位行输出 | `UNSUPPORTED` |
+| `noDataReason` | 无数据原因 | `string` | 是 | 仅 Tab 全员无数据占位行输出 | `人群较少暂不支持分析` |
 
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
@@ -162,7 +164,17 @@ badge:
 >
 > **经营优势**：横向对比本店与竞品，非按 `itemRole` 展开；`tabType` 允许值 `sourceChannel`（来源渠道）、`specialAdvantage`（专项优势）。`rival2*` 字段仅在入参传入 `rival_item_id_2` 时输出。
 >
-> **客群画像**：覆盖搜索人群 / 访问人群 / 支付人群三个 Tab。`profileType` 允许值：`gender`（性别）、`age`（年龄）、`crowd`（人群标签）、`brand_prefer`（品牌偏好）、`cate_prefer`（类目偏好）、`city`（城市）、`province`（省份）。
+> **客群画像**：覆盖搜索人群 / 访问人群 / 支付人群三个 Tab，依次切换采集；某 Tab 页面提示「当前人群较少，暂不支持分析」时视为该 Tab 全员无数据。`profileType` 允许值：`gender`（性别）、`age`（年龄）、`crowd`（人群标签）、`brand_prefer`（品牌偏好）、`cate_prefer`（类目偏好）、`city`（城市）、`province`（省份）。
+>
+> **客群画像无数据场景**：
+>
+> | 场景 | 输出 |
+> | ---- | ---- |
+> | 某 Tab 全员无数据（如支付人群） | 该 Tab 写入 **1 条占位行**，`dataStatus=UNSUPPORTED`，`noDataReason=人群较少暂不支持分析`，其余画像字段为 `null` |
+> | 某 Tab 有竞品数据 | 输出正常画像行，**不含** `dataStatus` / `noDataReason` 字段 |
+> | 本店无数据、竞品有数据 | 仅输出竞品正常画像行，**不写占位行**（Tab 级仍有数据） |
+>
+> 下游可按 `dataStatus === "UNSUPPORTED"` 识别平台暂不支持分析；正常画像行不含 `dataStatus` / `noDataReason` 字段。
 
 ### 数据样例
 
@@ -288,6 +300,17 @@ badge:
             "itemRole": "selfItem",
             "profileType": "gender",
             "ratio": 0.8717
+        },
+        {
+            "crowdsType": "payByrCnt",
+            "crowdsLabel": "支付人群",
+            "profileType": null,
+            "attrValue": null,
+            "ratio": null,
+            "itemRole": null,
+            "itemId": null,
+            "dataStatus": "UNSUPPORTED",
+            "noDataReason": "人群较少暂不支持分析"
         }
     ],
     "customerStatTime": {
