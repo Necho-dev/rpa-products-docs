@@ -316,37 +316,94 @@ badge:
 
 ### 数据样例
 
-> 数据来源：账号 120 / `date_type=recent7` / 2026-06-26 E2E 验收
+> 数据来源：账号 120 / `date_type=recent7` / 阶段 C 验收（2026-06-29）
+
+> 以下为代表性摘录：`basicAnalysis` 展示 2/4 条、`flowSourceDetails` 展示 2/132 条、`rawFlowSourceTree` 展示 1 个根节点（不含子渠道）、`missingFields` 展示 3/10 条；`dataQuality` 为完整统计。完整 JSON 见仓库 `scratch/compete_situation_phase_c/C-120_full_record.json`（约 815 KB）。
 
 ```json
 [
   {
-    "bizDate": "20260626",
+    "bizDate": "20260629",
     "accountId": "120",
     "selfItemId": "897425691792",
     "rivalItemId1": "1057000824998",
     "rivalItemId2": "1044235732163",
     "rivalItemId3": "1019326026903",
     "dateType": "recent7",
-    "beginDate": "2026-06-18",
-    "endDate": "2026-06-24",
-    "peerBeginDate": "2026-06-11",
-    "peerEndDate": "2026-06-17",
+    "beginDate": "2026-06-22",
+    "endDate": "2026-06-28",
+    "peerBeginDate": "2026-06-15",
+    "peerEndDate": "2026-06-21",
     "basicAnalysis": [
       {
         "itemRole": "selfItem",
         "itemId": "897425691792",
         "ipv": null,
-        "cartRate": 0.01938431,
-        "conversionRate": 0.00441307,
-        "orderCount": 372,
-        "avgOrderValue": 267.82586022,
-        "paidClickCount": 17620,
-        "clickCost": 0.76751759,
-        "roi1d": 6.81390156,
-        "guidedOrderCount1d": 325,
-        "basePeriod": "/* 省略：与当前周期字段同名的对比周期值 */",
-        "growthRate": "/* 省略：与当前周期字段同名的环比增长率 */"
+        "cartRate": 0.18170287,
+        "conversionRate": 0.03535754,
+        "orderCount": 223,
+        "avgOrderValue": 35.4573991,
+        "paidClickCount": null,
+        "clickCost": null,
+        "roi1d": null,
+        "guidedOrderCount1d": null,
+        "basePeriod": {
+          "ipv": null,
+          "cartRate": 0.26874906,
+          "conversionRate": 0.07446102,
+          "orderCount": 3478,
+          "avgOrderValue": 34.47849339,
+          "paidClickCount": null,
+          "clickCost": null,
+          "roi1d": null,
+          "guidedOrderCount1d": null
+        },
+        "growthRate": {
+          "ipv": null,
+          "cartRate": -0.32,
+          "conversionRate": -0.53,
+          "orderCount": -0.94,
+          "avgOrderValue": 0.03,
+          "paidClickCount": null,
+          "clickCost": null,
+          "roi1d": null,
+          "guidedOrderCount1d": null
+        }
+      },
+      {
+        "itemRole": "rivalItem1",
+        "itemId": "1057000824998",
+        "ipv": null,
+        "cartRate": null,
+        "conversionRate": null,
+        "orderCount": "<10",
+        "avgOrderValue": null,
+        "paidClickCount": null,
+        "clickCost": null,
+        "roi1d": null,
+        "guidedOrderCount1d": null,
+        "basePeriod": {
+          "ipv": null,
+          "cartRate": null,
+          "conversionRate": null,
+          "orderCount": "<10",
+          "avgOrderValue": null,
+          "paidClickCount": null,
+          "clickCost": null,
+          "roi1d": null,
+          "guidedOrderCount1d": null
+        },
+        "growthRate": {
+          "ipv": null,
+          "cartRate": null,
+          "conversionRate": null,
+          "orderCount": null,
+          "avgOrderValue": null,
+          "paidClickCount": null,
+          "clickCost": null,
+          "roi1d": null,
+          "guidedOrderCount1d": null
+        }
       }
     ],
     "flowAnalysis": [
@@ -359,27 +416,27 @@ badge:
           "wholeNetworkClickRate1d": null,
           "wholeNetworkConversionRate1d": null,
           "wholeNetworkRoi1d": null,
-          "keywordClickCount": 1504,
-          "keywordCartRate1d": 0.11702128,
-          "keywordClickRate1d": 0.04769606,
-          "keywordConversionRate1d": 0.02260638,
-          "keywordRoi1d": 11.36538179,
-          "audienceClickCount": 16116,
-          "audienceCartRate1d": 0.09617771,
-          "audienceClickRate1d": 0.06536287,
-          "audienceConversionRate1d": 0.01805659,
-          "audienceRoi1d": 6.48982229
+          "keywordClickCount": null,
+          "keywordCartRate1d": null,
+          "keywordClickRate1d": null,
+          "keywordConversionRate1d": null,
+          "keywordRoi1d": null,
+          "audienceClickCount": null,
+          "audienceCartRate1d": null,
+          "audienceClickRate1d": null,
+          "audienceConversionRate1d": null,
+          "audienceRoi1d": null
         },
         "nonAd": {
-          "recommendClickCount": 2819,
-          "recommendCartRate1d": 0.06278822,
-          "recommendConversionRate1d": 0.00886839,
-          "searchClickCount": 1374,
-          "searchCartRate1d": 0.07714702,
-          "searchConversionRate1d": 0.01746725,
-          "liveClickCount": 1165,
-          "liveCartRate1d": 0.05751073,
-          "liveConversionRate1d": 0.02660944
+          "recommendClickCount": 13,
+          "recommendCartRate1d": 0.07692308,
+          "recommendConversionRate1d": 0.15384615,
+          "searchClickCount": 14,
+          "searchCartRate1d": null,
+          "searchConversionRate1d": null,
+          "liveClickCount": 107,
+          "liveCartRate1d": 0.21495327,
+          "liveConversionRate1d": 0.09345794
         }
       }
     ],
@@ -387,43 +444,236 @@ badge:
       {
         "itemRole": "selfItem",
         "itemId": "897425691792",
-        "sourceType": "ad",
+        "sourceType": "full",
         "level": 1,
-        "channelId": "371",
-        "channelName": "关键词推广",
-        "channelType": "ad",
+        "channelId": "private",
+        "channelName": "淘宝私域",
+        "channelType": "organic",
         "parentChannelName": null,
-        "clickCount": 1504,
+        "clickCount": 1663,
+        "cartRate": 0.00180397,
+        "cartRate1d": 0.00180397,
+        "conversionRate1d": 0.00060132,
+        "conversionRate": 0.00060132,
+        "orderCount1d": 1,
+        "orderCount": 1,
+        "clickRate": null,
+        "roi1d": null,
+        "clickCost": null,
+        "cost": null,
+        "avgOrderValue": null,
         "basePeriod": {
-          "clickCount": 4137
+          "clickCount": 9658,
+          "cartRate": 0.00124249,
+          "cartRate1d": 0.00124249,
+          "conversionRate1d": null,
+          "conversionRate": null,
+          "orderCount1d": 0,
+          "orderCount": 0,
+          "clickRate": null,
+          "roi1d": null,
+          "clickCost": null,
+          "cost": null,
+          "avgOrderValue": null
         },
         "growthRate": {
-          "clickCount": -0.64
+          "clickCount": -0.83,
+          "cartRate": 0.45,
+          "cartRate1d": 0.45,
+          "conversionRate1d": null,
+          "conversionRate": null,
+          "orderCount1d": null,
+          "orderCount": null,
+          "clickRate": null,
+          "roi1d": null,
+          "clickCost": null,
+          "cost": null,
+          "avgOrderValue": null
+        }
+      },
+      {
+        "itemRole": "rivalItem1",
+        "itemId": "1057000824998",
+        "sourceType": "full",
+        "level": 1,
+        "channelId": "private",
+        "channelName": "淘宝私域",
+        "channelType": "organic",
+        "parentChannelName": null,
+        "clickCount": null,
+        "cartRate": null,
+        "cartRate1d": null,
+        "conversionRate1d": null,
+        "conversionRate": null,
+        "orderCount1d": null,
+        "orderCount": null,
+        "clickRate": null,
+        "roi1d": null,
+        "clickCost": null,
+        "cost": null,
+        "avgOrderValue": null,
+        "basePeriod": {
+          "clickCount": "<10",
+          "cartRate": null,
+          "cartRate1d": null,
+          "conversionRate1d": null,
+          "conversionRate": null,
+          "orderCount1d": null,
+          "orderCount": null,
+          "clickRate": null,
+          "roi1d": null,
+          "clickCost": null,
+          "cost": null,
+          "avgOrderValue": null
+        },
+        "growthRate": {
+          "clickCount": null,
+          "cartRate": null,
+          "cartRate1d": null,
+          "conversionRate1d": null,
+          "conversionRate": null,
+          "orderCount1d": null,
+          "orderCount": null,
+          "clickRate": null,
+          "roi1d": null,
+          "clickCost": null,
+          "cost": null,
+          "avgOrderValue": null
         }
       }
     ],
-    "rawFlowSourceTree": "/* 省略：映射后全域归因渠道树 */",
+    "rawFlowSourceTree": [
+      {
+        "channelId": "private",
+        "channelName": "淘宝私域",
+        "channelType": "organic",
+        "click": {
+          "competitorList": [
+            {
+              "base": 1663,
+              "basePeriod": 9658,
+              "growthRate": -0.83,
+              "competitorId": "897425691792"
+            },
+            {
+              "base": null,
+              "basePeriod": "<10",
+              "growthRate": null,
+              "competitorId": "1057000824998"
+            },
+            {
+              "base": "10~30",
+              "basePeriod": "10~30",
+              "growthRate": -0.31,
+              "competitorId": "1044235732163"
+            },
+            {
+              "base": null,
+              "basePeriod": "<10",
+              "growthRate": null,
+              "competitorId": "1019326026903"
+            }
+          ]
+        },
+        "subChannels": []
+      }
+    ],
     "rawData": {
-      "baseData": "/* 省略：base/indicator 映射后 data */",
-      "shopData": "/* 省略：base/shop/indicator 映射后 data */",
-      "flowAdData": "/* 省略：广告域 flow/indicator list */",
-      "flowFullData": "/* 省略：全域 flow/indicator list */"
+      "baseData": {
+        "cartRate": null
+      },
+      "shopData": {
+        "cartRate": {
+          "competitorList": [
+            {
+              "base": 0.18170287,
+              "basePeriod": 0.26874906,
+              "growthRate": -0.32,
+              "competitorId": "897425691792"
+            },
+            {
+              "base": "3%~5%",
+              "basePeriod": "5%~7%",
+              "growthRate": -0.45,
+              "competitorId": "1044235732163"
+            },
+            {
+              "base": null,
+              "basePeriod": null,
+              "growthRate": null,
+              "competitorId": "1057000824998"
+            },
+            {
+              "base": null,
+              "basePeriod": "7%~9%",
+              "growthRate": null,
+              "competitorId": "1019326026903"
+            }
+          ]
+        }
+      },
+      "flowAdData": [],
+      "flowFullData": [
+        {
+          "channelId": "private",
+          "channelName": "淘宝私域",
+          "channelType": "organic",
+          "click": {
+            "competitorList": [
+              {
+                "base": 1663,
+                "basePeriod": 9658,
+                "growthRate": -0.83,
+                "competitorId": "897425691792"
+              },
+              {
+                "base": null,
+                "basePeriod": "<10",
+                "growthRate": null,
+                "competitorId": "1057000824998"
+              },
+              {
+                "base": "10~30",
+                "basePeriod": "10~30",
+                "growthRate": -0.31,
+                "competitorId": "1044235732163"
+              },
+              {
+                "base": null,
+                "basePeriod": "<10",
+                "growthRate": null,
+                "competitorId": "1019326026903"
+              }
+            ]
+          }
+        }
+      ]
     },
     "missingFields": [
       {
         "field": "wholeNetworkClickCount",
         "scope": "flowAnalysis.adEffect",
         "reason": "广告域归因页面未展示渠道「wholeNetwork」，无对应数据"
+      },
+      {
+        "field": "wholeNetworkCartRate1d",
+        "scope": "flowAnalysis.adEffect",
+        "reason": "广告域归因页面未展示渠道「wholeNetwork」，无对应数据"
+      },
+      {
+        "field": "wholeNetworkClickRate1d",
+        "scope": "flowAnalysis.adEffect",
+        "reason": "广告域归因页面未展示渠道「wholeNetwork」，无对应数据"
       }
     ],
     "dataQuality": {
-      "flowSourceDetailCount": "/* 省略 */",
-      "fullChannelNodeCount": "/* 省略 */",
-      "adChannelNodeCount": "/* 省略 */",
-      "currentValueCount": "/* 省略 */",
-      "basePeriodValueCount": "/* 省略 */",
-      "growthRateValueCount": "/* 省略 */",
-      "summaryFieldCount": "/* 省略 */",
+      "flowSourceDetailCount": 132,
+      "fullChannelNodeCount": 33,
+      "adChannelNodeCount": 0,
+      "currentValueCount": 112,
+      "basePeriodValueCount": 160,
+      "growthRateValueCount": 90,
+      "summaryFieldCount": 10,
       "note": "字段计数基于 flowSourceDetails 与 basicAnalysis 的非空值统计"
     }
   }
