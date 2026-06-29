@@ -318,7 +318,7 @@ badge:
 
 > 数据来源：账号 120 / `date_type=recent7` / 阶段 C 验收（2026-06-29）
 
-> 以下为代表性摘录：`basicAnalysis` 展示 2/4 条、`flowSourceDetails` 展示 2/132 条、`rawFlowSourceTree` 展示 1 个根节点（不含子渠道）、`missingFields` 展示 3/10 条；`dataQuality` 为完整统计。完整 JSON 见仓库 `scratch/compete_situation_phase_c/C-120_full_record.json`（约 815 KB）。
+> 以下为代表性摘录：`basicAnalysis` 展示 2/4 条、`flowSourceDetails` 展示 2/132 条、`rawFlowSourceTree` 展示 1 个根节点（不含子渠道）、`missingFields` 展示 3/10 条；`dataQuality` 为完整统计。
 
 ```json
 [
