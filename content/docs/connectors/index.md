@@ -14,4 +14,6 @@ dewu:
   label: 得物
 doudian:
   label: 抖店
+juliang:
+  label: 巨量千川
 :::
