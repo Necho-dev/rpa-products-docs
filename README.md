@@ -184,7 +184,7 @@ MCP 在 `/mcp` 路由层记录 **JSON-RPC 级**审计（与 Proxy 层 access 互
 **Docker 落盘示例（Compose 已默认挂载 `./logs`）：**
 
 ```bash
-# 首次部署确保目录可写（容器内 nextjs 用户 uid=1001）
+# 镜像 entrypoint 启动时会 chown /app/logs → nextjs(1001)；若仍 EACCES（如 NFS root_squash），宿主机手动：
 mkdir -p logs && chown 1001:1001 logs
 
 # 按天查看 / 检索

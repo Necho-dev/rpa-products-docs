@@ -43,6 +43,17 @@ export function observabilityLogFilePathForDate(
 /** @deprecated 使用 observabilityLogFilePathForDate */
 export const accessLogFilePathForDate = observabilityLogFilePathForDate;
 
+const appendFailureLogged = new Set<string>();
+
+function logAppendFailureOnce(prefix: string, filePath: string, message: string): void {
+  const key = `${prefix}:${filePath}:${message}`;
+  if (appendFailureLogged.has(key)) return;
+  appendFailureLogged.add(key);
+  console.error(
+    `[${prefix}-log] file append failed (${filePath}): ${message} (subsequent failures suppressed; Docker: rebuild image or host \`chown 1001:1001 logs\`)`,
+  );
+}
+
 /** 异步追加 JSONL，不阻塞请求路径 */
 export function appendJsonlLogFile(prefix: string, entry: object): void {
   const filePath = jsonlLogFilePathForDate(prefix);
@@ -55,7 +66,7 @@ export function appendJsonlLogFile(prefix: string, entry: object): void {
       await appendFile(filePath, line, 'utf8');
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      console.error(`[${prefix}-log] file append failed (${filePath}): ${message}`);
+      logAppendFailureOnce(prefix, filePath, message);
     }
   })();
 }
