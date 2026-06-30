@@ -15,7 +15,7 @@ badge:
 | **操作类型**      | 浏览器自动化操作 + 网络请求监听                                                          |
 | **目标网页**      | `https://dmp.taobao.com/index_new.html#!/compete/compete-situation`        |
 | **适用场景**      | 采集达摩盘竞争态势分析页中本品与竞品的基础分析（含竞争控比）、流量分析（付免/无界投资结构占比、广告域/全域归因渠道明细）及客群画像；支持快捷周期与自定义四段日期；本品或竞品未搜到时返回空数据 |
-| **预估耗时**      | `120s`                                                                      |
+| **预估耗时**      | `300s`                                                                      |
 
 
 ### 目标页面
@@ -40,8 +40,8 @@ badge:
 | `custom_peer_end_date`   | 对比周期结束日期 | `String`                | 条件必填 | —         | `date_type=custom` 时必填；支持格式：YYYYMMDD、YYYY-MM-DD；须在「最近 90 天、最晚至昨日」窗口内；不可早于 `custom_peer_start_date`；分析周期与对比周期允许重叠 |
 | `customer_time_window`   | 分析对象客群时间周期 | `String`            | 否    | `recent7` | 可选值：`recent7`（最近7天）、`recent15`（最近15天）、`recent30`（最近30天）、`recent90`（最近90天） |
 | `compare_customer_time_window` | 对比对象客群时间周期 | `String`      | 否    | 同 `customer_time_window` | 可选值同上 |
-| `customer_behavior_types` | 分析对象客群行为 | `String \| List[String]` | 否 | 五行为全选 | 英文 code：`browse`（浏览）、`favorite`（收藏）、`add_cart`（加购）、`purchase`（购买）、`search`（搜索）；英文逗号或 JSON 数组 |
-| `compare_customer_behavior_types` | 对比对象客群行为 | `String \| List[String]` | 否 | 五行为全选 | 可选值同上 |
+| `customer_behavior_types` | 分析对象客群行为 | `String \| List[String]` | 否 | 全选 | 英文 code：`browse`（浏览）、`favorite`（收藏）、`add_cart`（加购）、`purchase`（购买）、`search`（搜索）；英文逗号或 JSON 数组 |
+| `compare_customer_behavior_types` | 对比对象客群行为 | `String \| List[String]` | 否 | 全选 | 可选值同上 |
 
 
 ### 入参样例
@@ -217,9 +217,16 @@ badge:
 
 ### 数据字段
 
-输出为 `data[0]` 单条聚合对象：**任务元数据 + `rawData` 八块映射数据**（含客群画像）。连接器不做二次汇总，下游按 `competitorList` 或 `itemId` 自行取数。
+输出为 `data[0]` 单条聚合对象：**任务元数据 + `competeItems` + 八块映射数据（顶层平铺）**（含客群画像）。
 
 :::field-tree
+@define 竞争商品展示项
+| `role` | 商品角色 | `String` | 否 | 页面顺序 + 入参角色 | `selfItem` / `rivalItem1`~`rivalItem3` |
+| `itemId` | 商品 ID | `String` | 否 | 详情链接 URL | `897425691792` |
+| `name` | 商品名称 | `String` | 否 | 链接 title 或文案 | `巴拉巴拉童装儿童短袖t恤...` |
+| `url` | 商品详情页 URL | `String` | 否 | 页面链接 href | `https://detail.tmall.com/item.htm?id=897425691792` |
+| `imageUrl` | 商品主图 URL | `String` | 是 | 页面 img src（竞品可能为 null） | 见数据样例 |
+
 @define 竞品指标项
 | `base` | 分析周期值 | `Number / String` | 是 | competitorList[].base | `372` |
 | `basePeriod` | 对比周期值 | `Number / String` | 是 | competitorList[].basePeriod | `325` |
@@ -271,7 +278,23 @@ badge:
 | `tagName` | 标签名称 | `String` | 是 | chartDataFull[].tagName | `用户性别` |
 | `optionNum` | 覆盖人数 | `String` | 是 | chartDataFull[].optionNum | `2023` |
 
-@define 原始映射数据
+
+| 字段                | 中文释义         | 数据类型     | 可为空 | 取数路径                                     | 示例              |
+| ----------------- | ------------ | -------- | --- | ---------------------------------------- | --------------- |
+| `selfItemId`      | 本店商品 ID      | `String` | 否   | 任务入参 self_item_id                        | `897425691792`  |
+| `rivalItemId1`    | 竞争商品 ID（第一个） | `String` | 否   | rival_item_ids[0]                        | `1057000824998` |
+| `rivalItemId2`    | 竞争商品 ID（第二个） | `String` | 是   | rival_item_ids[1]（不足时为 null）             | `1044235732163` |
+| `rivalItemId3`    | 竞争商品 ID（第三个） | `String` | 是   | rival_item_ids[2]（不足时为 null）             | `1019326026903` |
+| `dateType`        | 分析周期类型       | `String` | 否   | 任务入参 date_type                           | `custom`        |
+| `beginDate`       | 分析开始日期       | `String` | 否   | 页面「分析周期」选择器实际展示的起始日（YYYY-MM-DD） | `2026-06-21`    |
+| `endDate`         | 分析结束日期       | `String` | 否   | 页面「分析周期」选择器实际展示的结束日（结束日为昨日时页面可能显示「昨日」，已归一化为 YYYY-MM-DD） | `2026-06-28`    |
+| `peerBeginDate`   | 对比周期开始日期     | `String` | 否   | 页面「对比周期」选择器实际展示的起始日（YYYY-MM-DD） | `2026-06-16`    |
+| `peerEndDate`     | 对比周期结束日期     | `String` | 否   | 页面「对比周期」选择器实际展示的结束日（YYYY-MM-DD） | `2026-06-20`    |
+| `customerTimeWindow` | 分析对象客群时间周期 | `String` | 否 | 任务入参 customer_time_window | `recent7` |
+| `compareCustomerTimeWindow` | 对比对象客群时间周期 | `String` | 否 | 任务入参 compare_customer_time_window | `recent15` |
+| `customerBehaviorTypes` | 分析对象客群行为 | `List[String]` | 否 | 任务入参 customer_behavior_types（英文 code 列表） | `["search"]` |
+| `compareCustomerBehaviorTypes` | 对比对象客群行为 | `List[String]` | 否 | 任务入参 compare_customer_behavior_types（英文 code 列表） | `["search"]` |
+| `competeItems` @竞争商品展示项 | 分析对象商品展示信息 | `List[Dict]` | 否 | 选品完成后页面「我的商品」展示区 | 见数据样例 |
 | `baseData` @接口指标字典 | 基础分析·推广侧指标 | `Dict` | 否 | base/indicator data | 见数据样例 |
 | `shopData` @接口指标字典 | 基础分析·店铺侧指标 | `Dict` | 否 | base/shop/indicator data | 见数据样例 |
 | `controlRatioData` @接口指标字典 | 基础分析·竞争控比（仅 click/cartCnt/alipayCnt 有值，其余字段为 null） | `Dict` | 否 | base/control/ratio data | 见数据样例 |
@@ -280,30 +303,16 @@ badge:
 | `flowAdData` @渠道明细树节点 | 流量分析·广告域归因渠道明细 | `List[Dict]` | 否 | flow/indicator（attributionScale=2）data.list | 见数据样例 |
 | `flowFullData` @渠道明细树节点 | 流量分析·全域归因渠道明细 | `List[Dict]` | 否 | flow/indicator（attributionScale=1）data.list | 见数据样例 |
 | `customerProfile` @客群画像行 | 客群分析画像行列表 | `List[Dict]` | 否 | tag/chart chartDataFull + 采集上下文 | 见数据样例 |
-
-
-| 字段                | 中文释义         | 数据类型     | 可为空 | 取数路径                                     | 示例              |
-| ----------------- | ------------ | -------- | --- | ---------------------------------------- | --------------- |
-| `selfItemId`      | 本店商品 ID      | `String` | 否   | 任务入参 self_item_id                        | `897425691792`  |
-| `rivalItemId1`    | 竞争商品 ID（第一个） | `String` | 否   | rival_item_ids[0]                        | `1057000824998` |
-| `rivalItemId2`    | 竞争商品 ID（第二个） | `String` | 是   | rival_item_ids[1]（不足时为 null）             | `1044235732163` |
-| `rivalItemId3`    | 竞争商品 ID（第三个） | `String` | 是   | rival_item_ids[2]（不足时为 null）             | `1019326026903` |
-| `dateType`        | 分析周期类型       | `String` | 否   | 任务入参 date_type                           | `recent7`       |
-| `beginDate`       | 分析开始日期       | `String` | 否   | 快捷周期自动计算；custom 取 custom_start_date      | `2026-06-22`    |
-| `endDate`         | 分析结束日期       | `String` | 否   | 快捷周期自动计算；custom 取 custom_end_date        | `2026-06-28`    |
-| `peerBeginDate`   | 对比周期开始日期     | `String` | 否   | 快捷周期环比推算；custom 取 custom_peer_start_date | `2026-06-15`    |
-| `peerEndDate`     | 对比周期结束日期     | `String` | 否   | 快捷周期环比推算；custom 取 custom_peer_end_date   | `2026-06-21`    |
-| `customerTimeWindow` | 分析对象客群时间周期 | `String` | 否 | 任务入参 customer_time_window | `recent7` |
-| `compareCustomerTimeWindow` | 对比对象客群时间周期 | `String` | 否 | 任务入参 compare_customer_time_window | `recent7` |
-| `customerBehaviorTypes` | 分析对象客群行为 | `List[String]` | 否 | 任务入参 customer_behavior_types（英文 code 列表） | `["browse","favorite","add_cart","purchase","search"]` |
-| `compareCustomerBehaviorTypes` | 对比对象客群行为 | `List[String]` | 否 | 任务入参 compare_customer_behavior_types（英文 code 列表） | `["browse","favorite","add_cart","purchase","search"]` |
-| `rawData` @原始映射数据 | 映射后原始接口数据    | `Dict`   | 否   | 八块 field_map 映射结果                       | 见数据样例           |
 | `bizDate`         | 业务日期         | `String` | 否   | 附加                                       |                 |
 | `accountId`       | 授权 ID        | `String` | 否   | 附加                                       |                 |
 :::
 
 
 ### 取数说明
+
+`beginDate` / `endDate` / `peerBeginDate` / `peerEndDate` 为日期面板操作完成后页面选择器实际展示值，非入参推算值。
+
+`competeItems[]` 按页面「我的商品」展示区顺序排列：首项为本品（`role=selfItem`），后续为竞品（`rivalItem1`~`rivalItem3`）；含商品名称、详情页 URL 及主图 URL。
 
 所有「本品 / 竞品 × 指标 × 三口径（当前 / 对比 / 环比）」均来自 `competitorList`：在对应 `{metricKey}.competitorList` 中按 `competitorId` 匹配 `selfItemId` 或 `rivalItemIdN`，读取 `base` / `basePeriod` / `growthRate`。
 
@@ -314,8 +323,9 @@ badge:
 客群画像按 `customerProfile[]` 行读取：`targetRole` 区分分析对象/对比对象；6 个 `profileType` 固定为 `gender`（用户性别）、`age`（用户年龄）、`purchasing_power`（消费能力等级）、`city_level`（城市等级）、`monthly_purchase_freq`（月均消费频次）、`fmcg_strategy_crowd`（大快消策略人群）。
 
 
-| 页面区块        | 页面指标           | rawData 路径                   | 接口 metricKey / 字段                          | 说明                                     |
+| 页面区块        | 页面指标           | 数据路径                   | 接口 metricKey / 字段                          | 说明                                     |
 | ----------- | -------------- | ---------------------------- | ------------------------------------- | -------------------------------------- |
+| 设置分析对象 | 本品/竞品名称、链接、主图 | `competeItems[]` | `role` / `itemId` / `name` / `url` / `imageUrl` | 选品完成后从页面展示区抓取 |
 | 基础分析 · 竞争控比 | 点击量控比 | `controlRatioData.click` | `click` | 0~1 份额，非绝对点击量；仅此项及 cartCnt、alipayCnt 有值 |
 | 基础分析 · 竞争控比 | 加购量控比 | `controlRatioData.cartCnt` | `cartCnt` | 同上 |
 | 基础分析 · 竞争控比 | 成交笔数控比 | `controlRatioData.alipayCnt` | `alipayCnt` | 同上 |
@@ -355,9 +365,6 @@ badge:
 
 ### 数据样例
 
-> 数据来源：账号 120 / `date_type=recent7` / Bit MCP 抓包（2026-06-30）
-
-> 以下为代表性摘录。
 
 ```json
 [
@@ -368,127 +375,111 @@ badge:
     "rivalItemId1": "1057000824998",
     "rivalItemId2": "1044235732163",
     "rivalItemId3": "1019326026903",
-    "dateType": "recent7",
-    "beginDate": "2026-06-22",
+    "dateType": "custom",
+    "beginDate": "2026-06-21",
     "endDate": "2026-06-28",
     "peerBeginDate": "2026-06-16",
-    "peerEndDate": "2026-06-21",
+    "peerEndDate": "2026-06-20",
     "customerTimeWindow": "recent7",
-    "compareCustomerTimeWindow": "recent7",
-    "customerBehaviorTypes": ["browse", "favorite", "add_cart", "purchase", "search"],
-    "compareCustomerBehaviorTypes": ["browse", "favorite", "add_cart", "purchase", "search"],
-    "rawData": {
-      "controlRatioData": {
+    "compareCustomerTimeWindow": "recent15",
+    "customerBehaviorTypes": ["search"],
+    "compareCustomerBehaviorTypes": ["search"],
+    "competeItems": [
+      {
+        "role": "selfItem",
+        "itemId": "897425691792",
+        "name": "巴拉巴拉童装儿童短袖t恤男童打底衫女童夏款上衣速干纯棉宽松型",
+        "url": "https://detail.tmall.com/item.htm?id=897425691792",
+        "imageUrl": "https://img.alicdn.com/imgextra/i2/4132408402/O1CN01lzGoIS2BwAs0ewyeK_!!4611686018427382866-0-item_pic.jpg"
+      },
+      {
+        "role": "rivalItem1",
+        "itemId": "1057000824998",
+        "name": "女童精致短袖t恤2026夏天新款洋气短款上衣小女孩独特漂亮夏季薄",
+        "url": "https://detail.tmall.com/item.htm?id=1057000824998",
+        "imageUrl": "https://img.alicdn.com/imgextra/i4/2213282449358/O1CN01QWNIMC2J01WUHzVp8_!!4611686018427381710-0-item_pic.jpg"
+      }
+    ],
+    "controlRatioData": {
+      "click": {
+        "competitorList": [
+          {
+            "base": 0.9845457383702778,
+            "basePeriod": 0.9968047669422915,
+            "growthRate": -0.012259028572013664,
+            "competitorId": "897425691792"
+          }
+        ]
+      }
+    },
+    "flowPaidFreeData": [
+      {
+        "itemId": "897425691792",
+        "list": [
+          { "channelName": "付费", "clickRate": 0.0 },
+          { "channelName": "免费搜索", "clickRate": 0.0031021493463328164 },
+          { "channelName": "免费推荐", "clickRate": 0.0028805672501661865 },
+          { "channelName": "免费其他", "clickRate": 0.994017283403501 }
+        ]
+      }
+    ],
+    "flowInvestorData": [
+      {
+        "itemId": "897425691792",
+        "list": []
+      }
+    ],
+    "shopData": {
+      "click": {
+        "competitorList": [
+          {
+            "base": 6307,
+            "basePeriod": 46709,
+            "growthRate": -0.86,
+            "competitorId": "897425691792"
+          }
+        ]
+      }
+    },
+    "flowFullData": [
+      {
+        "channelId": "private",
+        "channelName": "淘宝私域",
+        "channelType": "organic",
         "click": {
           "competitorList": [
             {
-              "base": 0.9845457383702778,
-              "basePeriod": 0.9968047669422915,
-              "growthRate": -0.012259028572013664,
+              "base": 1663,
+              "basePeriod": 9658,
+              "growthRate": -0.83,
               "competitorId": "897425691792"
             }
           ]
         },
-        "cartCnt": {
-          "competitorList": [
-            {
-              "base": 0.9973890339425587,
-              "basePeriod": 0.9992726097147013,
-              "growthRate": -0.0018835757721425983,
-              "competitorId": "897425691792"
-            }
-          ]
-        },
-        "alipayCnt": {
-          "competitorList": [
-            {
-              "base": 0.9867256637168141,
-              "basePeriod": 0.9988432620011567,
-              "growthRate": -0.012117598284342557,
-              "competitorId": "897425691792"
-            }
-          ]
-        }
-      },
-      "flowPaidFreeData": [
-        {
-          "itemId": "897425691792",
-          "list": [
-            { "channelName": "付费", "clickRate": 0.0 },
-            { "channelName": "免费搜索", "clickRate": 0.0031021493463328164 },
-            { "channelName": "免费推荐", "clickRate": 0.0028805672501661865 },
-            { "channelName": "免费其他", "clickRate": 0.994017283403501 }
-          ]
-        }
-      ],
-      "flowInvestorData": [
-        {
-          "itemId": "897425691792",
-          "list": []
-        }
-      ],
-      "shopData": {
-        "click": {
-          "competitorList": [
-            {
-              "base": 6307,
-              "basePeriod": 46709,
-              "growthRate": -0.86,
-              "competitorId": "897425691792"
-            }
-          ]
-        }
-      },
-      "flowFullData": [
-        {
-          "channelId": "private",
-          "channelName": "淘宝私域",
-          "channelType": "organic",
-          "click": {
-            "competitorList": [
-              {
-                "base": 1663,
-                "basePeriod": 9658,
-                "growthRate": -0.83,
-                "competitorId": "897425691792"
-              }
-            ]
-          },
-          "cartRate1d": {
-            "competitorList": [
-              {
-                "base": 0.00180397,
-                "basePeriod": 0.00125813,
-                "growthRate": 0.43,
-                "competitorId": "897425691792"
-              }
-            ]
-          },
-          "subChannels": []
-        }
-      ],
-      "customerProfile": [
-        {
-          "targetRole": "selfItem",
-          "itemId": "897425691792",
-          "itemIds": null,
-          "behaviorTypes": ["browse", "favorite", "add_cart", "purchase", "search"],
-          "behaviorValues": "1,2,3,4,5",
-          "timeWindow": "recent7",
-          "timeWindowDays": 7,
-          "profileType": "gender",
-          "profileTagId": 114554,
-          "profileLabel": "用户性别",
-          "tagId": "114554",
-          "rate": "0.903125",
-          "ratio": "0.903125",
-          "optionValue": "0",
-          "optionName": "女性用户",
-          "tagName": "用户性别",
-          "optionNum": "2023"
-        }
-      ]
-    }
+        "subChannels": []
+      }
+    ],
+    "customerProfile": [
+      {
+        "targetRole": "selfItem",
+        "itemId": "897425691792",
+        "itemIds": null,
+        "behaviorTypes": ["search"],
+        "behaviorValues": "5",
+        "timeWindow": "recent7",
+        "timeWindowDays": 7,
+        "profileType": "gender",
+        "profileTagId": 114554,
+        "profileLabel": "用户性别",
+        "tagId": "114554",
+        "rate": "0.903125",
+        "ratio": "0.903125",
+        "optionValue": "0",
+        "optionName": "女性用户",
+        "tagName": "用户性别",
+        "optionNum": "2023"
+      }
+    ]
   }
 ]
 ```
