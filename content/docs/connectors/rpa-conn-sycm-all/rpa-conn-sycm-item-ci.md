@@ -62,17 +62,20 @@ badge:
 | `dateRangeStart` | 实际统计区间起始日 | `string` | 否 | 对应模块接口 URL 中的 `dateRange` 起始 | `2026-04-13` |
 | `dateRangeEnd` | 实际统计区间结束日 | `string` | 否 | 对应模块接口 URL 中的 `dateRange` 结束 | `2026-04-19` |
 
+@define 对比商品项
+| `role` | 商品角色 | `string` | 否 | 固定枚举 | `selfItem` |
+| `itemId` | 商品 ID | `string` | 否 | 来自入参或搜索接口 | `975048717355` |
+| `title` | 商品标题 | `string` | 是 | 搜索接口或页面 DOM | `疯狂动物城x兔头妈妈儿童牙膏儿童抗糖防蛀牙膏防蛀牙防龋齿含氟` |
+| `picUrl` | 商品头图 URL | `string` | 是 | 搜索接口或页面 DOM | `https://img.alicdn.com/bao/uploaded/i2/3691886865/O1CN01K8VP9d20aE8hMbWc0_!!3691886865.jpg` |
+
 @define 关键指标项
 | `itemId` | 商品 ID | `number` | 否 | `itemId` | `975048717355` |
-| `itemTitle` | 商品标题 | `string` | 是 | `itemTitle` | `null` |
 | `itemRole` | 商品角色 | `string` | 否 | 由接口 role 映射 | `selfItem` |
 | `uv` | 访客数 | `number` / `string` | 是 | `uv` | `286971` |
 | `payBuyerCnt` | 支付买家数 | `number` / `string` | 是 | `payByrCnt` | `12764` |
 | `payRate` | 支付转化率 | `number` / `string` | 是 | `payRate` | `0.04447836192507257` |
 | `cartBuyerCnt` | 加购人数 | `number` / `string` | 是 | `cartByrCnt` | `11284` |
 | `collectBuyerCnt` | 收藏人数 | `number` / `string` | 是 | `cltByrCnt` | `891` |
-| `payAmt` | 支付金额 | `number` / `string` | 是 | `payAmt` | `null` |
-| `payItemQty` | 支付件数 | `number` / `string` | 是 | `payItemQty` | `null` |
 
 @define SKU分析项
 | `itemId` | 商品 ID | `string` | 否 | 来自入参 | `975048717355` |
@@ -142,6 +145,7 @@ badge:
 | `dateType` | 销售/来源统计周期类型 | `string` | 否 | 由入参 `date_type` 映射 | `week` |
 | `dateRangeStart` | 销售/来源统计区间起始日 | `string` | 否 | 由入参与周期类型计算 | `2026-04-13` |
 | `dateRangeEnd` | 销售/来源统计区间结束日 | `string` | 否 | 由入参与周期类型计算 | `2026-04-19` |
+| `compareItems` @对比商品项 | 对比商品信息 | `List[Dict]` | 是 | 预检搜索与页面回填；按本店 → 竞品 1 → 竞品 2 顺序 | 见数据样例 |
 | `keyMetrics` @关键指标项 | 关键指标对比 | `List[Dict]` | 是 | 销售分析；本店/竞品各一行 | 见数据样例 |
 | `skuAnalysis` @SKU分析项 | SKU 分析 | `List[Dict]` | 是 | SKU 分析 | 见数据样例 |
 | `attributeAnalysis` @属性分析项 | 属性分析 | `List[Dict]` | 是 | 属性分析 | 见数据样例 |
@@ -156,6 +160,8 @@ badge:
 | `accountId` | 授权 ID | `string` | 否 | 附加 |  |
 :::
 
+> **对比商品信息**：预检阶段通过商品搜索接口回填标题与头图；进入目标页后若 DOM 已渲染，会再次读取页面商品位补全。按 `selfItem` → `rivalItem1` → `rivalItem2` 顺序输出；未传入竞品 2 时不含 `rivalItem2` 条目。
+>
 > **关键指标对比**：每个参与对比的商品（本店 / 竞品 1 / 竞品 2）各输出一行。竞品侧部分指标为区间脱敏值（如 `1万 ~ 2.5万`），本店侧为精确数值。
 >
 > **入店搜索词**：按指标 Tab（访客数 / 支付买家数 / 支付转化率）分别采集；`date_type=today` 时仅采集访客数 Tab。
@@ -188,22 +194,38 @@ badge:
     "dateType": "week",
     "dateRangeStart": "2026-04-13",
     "dateRangeEnd": "2026-04-19",
-    "keyMetrics": [
+    "compareItems": [
         {
-            "itemId": 975048717355,
-            "itemRole": "selfItem",
-            "uv": 286971,
-            "payBuyerCnt": 12764,
-            "payRate": 0.04447836192507257,
-            "cartBuyerCnt": 11284,
-            "collectBuyerCnt": 891
+            "role": "selfItem",
+            "itemId": "975048717355",
+            "title": "疯狂动物城x兔头妈妈儿童牙膏儿童抗糖防蛀牙膏防蛀牙防龋齿含氟",
+            "picUrl": "https://img.alicdn.com/bao/uploaded/i2/3691886865/O1CN01K8VP9d20aE8hMbWc0_!!3691886865.jpg"
         },
         {
+            "role": "rivalItem1",
+            "itemId": "638281143270",
+            "title": "贝德美儿童洗发水儿专用0-15宝宝控油去屑蓬松青少年中大童洗头膏",
+            "picUrl": "https://img.alicdn.com/bao/uploaded/i2/2201196082363/O1CN01oGHWSU1TKJ3HZROuH_!!4611686018427385019-0-item_pic.jpg"
+        }
+    ],
+    "keyMetrics": [
+        {
+            "cartBuyerCnt": 11284,
+            "collectBuyerCnt": 891,
+            "itemId": 975048717355,
+            "itemRole": "selfItem",
+            "payBuyerCnt": 12764,
+            "payRate": "0.04447836192507257",
+            "uv": 286971
+        },
+        {
+            "cartBuyerCnt": "2.5万 ~ 5万",
+            "collectBuyerCnt": "5000 ~ 7500",
             "itemId": 638281143270,
             "itemRole": "rivalItem1",
-            "uv": "75万 ~ 100万",
             "payBuyerCnt": "1万 ~ 2.5万",
-            "payRate": "1% ~ 2.5%"
+            "payRate": "1% ~ 2.5%",
+            "uv": "75万 ~ 100万"
         }
     ],
     "skuAnalysis": [
@@ -269,7 +291,7 @@ badge:
             "rival1PayRate": "15% ~ 20%",
             "rival1Uv": "1万 ~ 2.5万",
             "selfPayBuyerCnt": 967,
-            "selfPayRate": 0.198318293683347,
+            "selfPayRate": "0.198318293683347",
             "selfUv": 4876,
             "sourceName": "搜索",
             "tabType": "sourceChannel"
