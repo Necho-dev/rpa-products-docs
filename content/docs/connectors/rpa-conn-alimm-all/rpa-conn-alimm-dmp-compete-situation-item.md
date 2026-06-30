@@ -24,7 +24,7 @@ badge:
 >
 > **网址**：[https://dmp.taobao.com/index_new.html#!/compete/compete-situation](https://dmp.taobao.com/index_new.html#!/compete/compete-situation)
 
-![阿里妈妈达摩盘—竞争商品分析](../../public/images/alimm/dmp_compete_situation_item_20260624.png)
+![阿里妈妈达摩盘—竞争商品分析](../../public/images/alimm/dmp_compete_situation_item_20260626.png)
 
 ### 业务入参
 
@@ -300,7 +300,7 @@ badge:
 | `rawData` @原始映射数据 | 映射后原始接口数据    | `Dict`   | 否   | 八块 field_map 映射结果                       | 见数据样例           |
 | `bizDate`         | 业务日期         | `String` | 否   | 附加                                       |                 |
 | `accountId`       | 授权 ID        | `String` | 否   | 附加                                       |                 |
-| :::               |              |          |     |                                          |                 |
+:::
 
 
 ### 取数说明
