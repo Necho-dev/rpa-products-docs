@@ -48,6 +48,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # build 期 OG 预生成 Full Route Cache；勿在 builder 对 .next/cache 使用 RUN mount
 COPY --from=builder --chown=nextjs:nodejs /app/.next/cache ./.next/cache
+# quote.png 动态渲染需在运行时读 src/fonts；standalone trace 未必包含该目录
+COPY --from=builder --chown=nextjs:nodejs /app/src/fonts ./src/fonts
 
 USER nextjs
 EXPOSE 3000

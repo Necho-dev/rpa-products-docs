@@ -20,6 +20,10 @@ fi
 if [[ -d public ]]; then
   rsync -a public/ .next/standalone/public/
 fi
+if [[ -d src/fonts ]]; then
+  mkdir -p .next/standalone/src
+  rsync -a src/fonts/ .next/standalone/src/fonts/
+fi
 
 export HOSTNAME="0.0.0.0"
 export PORT="$PORT"
