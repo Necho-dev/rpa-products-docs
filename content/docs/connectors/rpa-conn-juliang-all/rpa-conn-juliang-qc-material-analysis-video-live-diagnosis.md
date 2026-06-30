@@ -3,8 +3,8 @@ title: 千川-素材分析-视频推直播单条诊断
 description: 采集巨量千川素材分析页指定素材的「数据内容人群诊断」面板数据，含内容分析互动时序、素材元信息、脚本分析、人群维度分布及投放明细分日数据
 entry: rpa.conn.juliang.qc.material.analysis.video.live.diagnosis
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                                                                    |

@@ -87,7 +87,11 @@ cp .env.example .env
 | 变量 | 说明 | 是否必填 |
 |------|------|----------|
 | `NEXT_PUBLIC_SITE_URL` | 站点公开 URL，用于 RSS / OG / MCP 绝对链接生成 | 建议生产环境设置 |
-| `PORT` | 容器/进程监听端口，默认 `3000` | 否 |
+| `PORT` | **宿主机**映射端口（容器内固定 `3000`） | 否 |
+| `COMPOSE_IMAGE` | Docker 镜像 tag；同机多实例须不同，避免 build 互相覆盖 | 同机多实例时建议 |
+| `COMPOSE_CONTAINER_NAME` | 容器名；同机多实例须不同 | 同机多实例时建议 |
+| `COMPOSE_PROJECT_NAME` | Compose 项目名；写在 `.env` 自动生效，隔离 network | 同机多实例时建议 |
+| `DOCS_SECRETS_HOST_PATH` | 宿主机 secrets 路径，只读挂载进容器 | SSO 实例必填 |
 
 > **注意**：`NEXT_PUBLIC_*` 变量在 `next build` 时被内联进静态资源，修改后必须重新构建（`--build`），无法通过热改 `.env` 生效。
 
@@ -112,7 +116,58 @@ docker compose up -d
 docker compose config
 ```
 
-服务默认绑定宿主机 `3000` 端口，可在 `.env` 中通过 `PORT` 变量修改映射端口。
+服务默认绑定宿主机 `3000` 端口，可在 `.env` 中通过 `PORT` 修改映射端口（容器内始终监听 `3000`）。
+
+#### 同机双实例（内网 + 知识库 SSO）
+
+同一仓库、同一 `main` 分支，在两个部署目录（或同一目录两份 `.env`）各起一套容器，仅靠环境变量区分：
+
+| 实例 | 典型端口 | `DOCS_CUBE_SSO_ENABLED` | 说明 |
+|------|---------|-------------------------|------|
+| RPA 内网文档 | `3033` | `false` | 内网直连，无 SSO 门禁 |
+| 预策知识库 | `3031` | `true` | 公网域名反代，需 SSO + secrets |
+
+**内网实例 `.env` 示例：**
+
+```bash
+COMPOSE_PROJECT_NAME=rpa-docs-intranet
+COMPOSE_IMAGE=rpa-products-docs:intranet
+COMPOSE_CONTAINER_NAME=rpa-products-docs-intranet
+PORT=3033
+NEXT_PUBLIC_SITE_URL=http://192.168.10.199:3033
+DOCS_CUBE_SSO_ENABLED=false
+```
+
+**知识库 SSO 实例 `.env` 示例：**
+
+```bash
+COMPOSE_PROJECT_NAME=rpa-docs-knowledge
+COMPOSE_IMAGE=rpa-products-docs:knowledge
+COMPOSE_CONTAINER_NAME=rpa-products-docs-knowledge
+PORT=3031
+NEXT_PUBLIC_SITE_URL=https://knowledge.yuce-tech.cn
+DOCS_CUBE_SSO_ENABLED=true
+DOCS_SESSION_SECRET=...
+DOCS_SECRETS_FILE=/opt/secrets/secrets.json
+DOCS_SECRETS_HOST_PATH=/opt/secrets/secrets.json
+```
+
+各目录执行 `docker compose up -d --build` 即可。`COMPOSE_IMAGE` / `COMPOSE_CONTAINER_NAME` / `PORT` 在同机部署时必须互不相同。
+
+> 线上从 `knowledge-sso` 分支切到 `main` 前，可保留原分支作回滚；切换验收稳定后再归档该分支。
+
+#### 宿主机 secrets 管理
+
+嵌入验签密钥由宿主机 CLI 维护（只读挂载进容器）：
+
+```bash
+./scripts/manage-secrets.sh list
+./scripts/manage-secrets.sh add              # 交互输入 App Secret
+./scripts/manage-secrets.sh remove <sh前缀>
+./scripts/manage-secrets.sh show <sh前缀> --reveal   # 需二次确认
+```
+
+路径默认读项目根 `.env` 的 `DOCS_SECRETS_HOST_PATH`，可用 `--file` 覆盖。变更后请重启对应 Docker 实例。
 
 > **注意**：`docker compose restart` 不会重新加载 `env_file`；改 env 后请用 `docker compose up -d`。  
 > `NEXT_PUBLIC_*` 在 `next build` 时内联进客户端 bundle，须 `docker compose up -d --build`；服务端通过 `getSiteName()` 等读取的同名变量在 `up -d` 重建后即可更新。
@@ -145,7 +200,7 @@ Dockerfile 采用三阶段构建：
 
 1. **deps**：`npm ci`（BuildKit 挂载 `~/.npm` 缓存）
 2. **builder**：`ENV FUMADOCS_LAST_MODIFIED=fs` + `postinstall` + `next build`，输出 `output: standalone`（不依赖 `git`）
-3. **runner**：复制 standalone、`.next/static` 与 **`.next/cache`**（build 期 OG 等 Full Route Cache）；**不跑 `apt`**，用 `useradd`/`groupadd` 创建 `nextjs` 用户
+3. **runner**：复制 standalone、`.next/static`、**`.next/cache`** 与 **`src/fonts`**（动态 `quote.png`）；**不跑 `apt`**，用 `useradd`/`groupadd` 创建 `nextjs` 用户
 
 > **OG 预生成**：`next build` 会静态生成 `/og/docs/.../{cover,image,poster}.png`；runner 须携带 `.next/cache`，且 build 阶段建议设置 `NEXT_PUBLIC_SITE_URL`（poster QR 域名）。
 

@@ -3,8 +3,8 @@ title: 物流-包裹中心-发货包裹异常列表
 description: 采集抖店包裹中心发货包裹异常列表，支持按发货时间、异常类型、包裹异常状态、是否已忽略异常预警筛选
 entry: rpa.conn.doudian.shop.shipping.package.list
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                         |

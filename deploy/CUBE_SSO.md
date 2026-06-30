@@ -315,13 +315,25 @@ flowchart TD
 
 ## 6. 部署配置
 
+### 6.0 推荐：单分支双实例
+
+生产环境推荐从 **`main` 分支**构建同一 Dockerfile，用**两个独立 Docker 实例** + 不同 `.env` 区分：
+
+- **内网文档**（如 `:3033`）：`DOCS_CUBE_SSO_ENABLED=false`
+- **知识库 SSO**（如 `:3031`，`knowledge.yuce-tech.cn` 反代）：`DOCS_CUBE_SSO_ENABLED=true`，挂载 `DOCS_SECRETS_HOST_PATH`
+
+同机部署时须设置不同的 `COMPOSE_IMAGE`、`COMPOSE_CONTAINER_NAME`、`PORT`（详见仓库 `README.md`）。宿主机用 `./scripts/manage-secrets.sh` 维护嵌入密钥 JSON。
+
+> 从 `knowledge-sso` 分支迁移时：先让 3031 实例改拉 `main` 并验收，稳定后再归档旧分支；迁移完成前可保留旧分支作回滚。
+
 ### 6.1 文档站环境变量
 
 | 变量 | 说明 | 生产建议 |
 |------|------|---------|
 | `DOCS_CUBE_SSO_ENABLED` | 启用 SSO + 嵌入鉴权 | `true` |
 | `DOCS_SESSION_SECRET` | Session 加密密钥 | 强随机，必填 |
-| `DOCS_SECRETS_FILE` | 嵌入密钥文件路径 | 与魔方共享同一份 |
+| `DOCS_SECRETS_FILE` | 容器内嵌入密钥文件路径 | 与魔方共享同一份；Docker 默认 `/opt/secrets/secrets.json` |
+| `DOCS_SECRETS_HOST_PATH` | 宿主机 secrets 路径（Compose 只读挂载） | SSO 实例必填；用 `scripts/manage-secrets.sh` 维护 |
 | `NEXT_PUBLIC_SITE_URL` | 文档站 canonical URL | 必填，用于 MCP aud 和回源基址 |
 | `DOCS_CUBE_ORIGIN_PATTERN` | 约束 cubeOrigin 合法值（正则） | 如 `^https://cube\.example\.com$` |
 | `DOCS_RESOURCES_REQUIRE_EMBED_SIGN` | 图片资源是否强制验签 | 默认：生产且 SSO 开启时为 `true` |

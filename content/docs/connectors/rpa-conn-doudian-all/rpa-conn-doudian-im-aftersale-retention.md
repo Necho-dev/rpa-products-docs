@@ -3,8 +3,8 @@ title: 飞鸽-售后挽单-数据采集
 description: 采集飞鸽客服系统售后挽单面板的消息数据，支持按日期查询与自动翻页
 entry: rpa.conn.doudian.im.aftersale.retention
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                      |
