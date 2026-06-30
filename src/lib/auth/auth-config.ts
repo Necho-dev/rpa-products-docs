@@ -35,7 +35,7 @@ export function sessionSecret(): string | undefined {
 }
 
 export function secretsFilePath(): string {
-  return trimEnv('DOCS_SECRETS_FILE') ?? '/opt/yuce/docs/secrets.json';
+  return trimEnv('DOCS_SECRETS_FILE_PATH') ?? '/opt/secrets/secrets.json';
 }
 
 export function sessionTtlSec(): number {

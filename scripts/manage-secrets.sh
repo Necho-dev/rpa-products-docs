@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 宿主机管理 DOCS_SECRETS_FILE（JSON: { "sh_hex": "plain_secret" }）
+# 宿主机管理 DOCS_SECRETS_FILE_PATH（JSON: { "sh_hex": "plain_secret" }）
 # sh = SHA256(App Secret)，与 src/lib/auth/cube.ts / deploy/CUBE_SSO.md 一致
 #
 # 用法:
@@ -8,7 +8,7 @@
 #   ./scripts/manage-secrets.sh remove <sh_prefix> [--file PATH]
 #   ./scripts/manage-secrets.sh show <sh_prefix> [--reveal] [--file PATH]
 #
-# 路径优先级: --file > 当前目录 .env 的 DOCS_SECRETS_HOST_PATH > /opt/secrets/secrets.json
+# 路径优先级: --file > 当前目录 .env 的 DOCS_SECRETS_FILE_PATH > /opt/secrets/secrets.json
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -55,7 +55,7 @@ resolve_secrets_path_from_args() {
 
   if [[ -f "$ROOT/.env" ]]; then
     local from_env
-    from_env="$(grep -E '^DOCS_SECRETS_HOST_PATH=' "$ROOT/.env" 2>/dev/null | tail -1 | cut -d= -f2- | tr -d '\r' | sed 's/^["'\'' ]*//;s/["'\'' ]*$//' || true)"
+    from_env="$(grep -E '^DOCS_SECRETS_FILE_PATH=' "$ROOT/.env" 2>/dev/null | tail -1 | cut -d= -f2- | tr -d '\r' | sed 's/^["'\'' ]*//;s/["'\'' ]*$//' || true)"
     if [[ -n "$from_env" ]]; then
       echo "$from_env"
       return

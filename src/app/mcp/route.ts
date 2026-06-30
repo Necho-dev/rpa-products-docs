@@ -2,6 +2,10 @@ import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/
 import { isCubeSsoEnabled } from '@/lib/auth/auth-config';
 import { inferSiteOrigin } from '@/lib/core/site-origin';
 import { getDocAccessContext } from '@/lib/docs/access/doc-access';
+import {
+  extractMcpRpcMeta,
+  logMcpAuditEntries,
+} from '@/lib/observability/mcp-audit-log';
 import { createDocsMcpServer } from '@/server/mcp/docs-mcp-server';
 
 export const runtime = 'nodejs';
@@ -16,9 +20,14 @@ export const dynamic = 'force-dynamic';
  * - GET: 405 — no long-lived SSE; client continues POST-only (see StreamableHTTPClientTransport).
  */
 async function mcpPost(request: Request): Promise<Response> {
+  const started = Date.now();
   const access = getDocAccessContext(request);
+  const body = await request.text();
+  const rpcMetas = extractMcpRpcMeta(body);
+
   if (isCubeSsoEnabled() && !access.canAccessPrivate) {
     const origin = inferSiteOrigin(request);
+    logMcpAuditEntries(rpcMetas, request, access, 401, started);
     return Response.json(
       {
         error: 'unauthorized',
@@ -41,7 +50,17 @@ async function mcpPost(request: Request): Promise<Response> {
 
   await mcp.connect(transport);
   try {
-    return await transport.handleRequest(request);
+    const replayRequest = new Request(request.url, {
+      method: request.method,
+      headers: request.headers,
+      body,
+    });
+    const response = await transport.handleRequest(replayRequest);
+    logMcpAuditEntries(rpcMetas, request, access, response.status, started);
+    return response;
+  } catch (err) {
+    logMcpAuditEntries(rpcMetas, request, access, 500, started);
+    throw err;
   } finally {
     await transport.close().catch(() => {});
     await mcp.close().catch(() => {});

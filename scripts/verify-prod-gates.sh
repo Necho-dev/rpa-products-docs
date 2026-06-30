@@ -11,7 +11,7 @@
 set -euo pipefail
 
 BASE="${1:-http://127.0.0.1:3000}"
-SECRETS_FILE="${DOCS_SECRETS_FILE:-.secrets/dev-secrets.json}"
+SECRETS_FILE="${DOCS_SECRETS_FILE_PATH:-.secrets/dev-secrets.json}"
 CUBE_ORIGIN="${MOCK_CUBE_BASE_HOST:-http://127.0.0.1:8765}"
 
 BROWSER_UA='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'

@@ -23,6 +23,7 @@ yarn-error.log*
 # others
 .env
 .env*.local
+logs/
 .secrets/*
 !.secrets/*.example
 secrets.json

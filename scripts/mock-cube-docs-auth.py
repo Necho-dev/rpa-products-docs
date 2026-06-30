@@ -45,7 +45,7 @@
 
 文档站需开启:
   DOCS_CUBE_SSO_ENABLED=true
-  DOCS_SECRETS_FILE=.secrets/dev-secrets.json
+  DOCS_SECRETS_FILE_PATH=.secrets/dev-secrets.json
 
 联调 — SSO 全页:
   http://127.0.0.1:8765/docsAuth?redirect=/docs

@@ -12,7 +12,10 @@ services:
       - "${PORT:-3000}:3000"
     volumes:
       # 宿主机只读挂载；密钥由 scripts/manage-secrets.sh 在宿主机维护
-      - ${DOCS_SECRETS_HOST_PATH:-/opt/secrets/secrets.json}:/opt/secrets/secrets.json:ro
+      # secrets 只读挂载：宿主机 ${DOCS_SECRETS_FILE_PATH} → 容器 /opt/secrets/secrets.json
+      - ${DOCS_SECRETS_FILE_PATH:-/opt/secrets/secrets.json}:/opt/secrets/secrets.json:ro
+      # 可观测 JSONL 落盘：宿主机 ${DOCS_OBSERVABILITY_LOG_PATH:-./logs} → 容器 /app/logs
+      - ${DOCS_OBSERVABILITY_LOG_PATH:-./logs}:/app/logs
     env_file:
       - path: .env
         required: false
@@ -22,6 +25,8 @@ services:
       NODE_ENV: production
       PORT: 3000
       HOSTNAME: "0.0.0.0"
+      DOCS_SECRETS_FILE_PATH: /opt/secrets/secrets.json
+      DOCS_OBSERVABILITY_LOG_PATH: /app/logs
     healthcheck:
       test:
         [

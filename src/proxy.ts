@@ -23,6 +23,8 @@ import {
   shouldApplyUserAgentGate,
 } from '@/lib/auth/user-agent-gate';
 import { applyOgDocGate, isOgDocsPath, isPublicOgDocsPath } from '@/lib/docs/og/proxy-gate';
+import { finishAccessLog } from '@/lib/observability/access-log';
+import { finishSsoLog, ssoOutcomeFromStatus } from '@/lib/observability/sso-audit-log';
 
 /** 嵌入 HTML 路由前缀（对应 src/app/embed/docs/[[...slug]]） */
 const embedHtmlRoute = '/embed/docs';
@@ -198,36 +200,71 @@ function applyUserAgentGate(request: NextRequest): NextResponse | null {
 }
 
 export function proxy(request: NextRequest) {
+  const started = Date.now();
+
   // 嵌入通道优先 (通道 A): 有 X-Render-Mode 时跳过 SSO Cookie 门禁
   const embedGate = applyEmbedGate(request);
-  if (embedGate) return embedGate;
+  if (embedGate) {
+    return finishAccessLog(
+      request,
+      embedGate,
+      embedGate.status === 401 ? 'embed_denied' : 'embed_ok',
+      started,
+    );
+  }
 
   // 阻断对嵌入内部路由的直接外部访问 (防止伪造 x-embed-verified-sh 绕过)
   const blockEmbed = blockEmbedInternalRoutes(request);
-  if (blockEmbed) return blockEmbed;
+  if (blockEmbed) {
+    return finishAccessLog(request, blockEmbed, 'embed_block', started);
+  }
 
   const uaGate = applyUserAgentGate(request);
-  if (uaGate) return uaGate;
+  if (uaGate) {
+    return finishAccessLog(request, uaGate, 'ua_denied', started);
+  }
 
   const ogGate = applyOgDocGate(request);
-  if (ogGate) return ogGate;
+  if (ogGate) {
+    return finishAccessLog(request, ogGate, 'og_denied', started);
+  }
 
   const gate = applyCubeSsoGate(request);
-  if (gate) return gate;
+  if (gate) {
+    const ssoOutcome = ssoOutcomeFromStatus(gate.status);
+    if (ssoOutcome === 'pass') {
+      // 鉴权已通过：文档/API 等按 ACCESS 记；/mcp 由 route handler 记 [MCP]
+      if (request.nextUrl.pathname === '/mcp') {
+        return gate;
+      }
+      return finishAccessLog(request, gate, 'forward', started);
+    }
+    return finishSsoLog(request, gate, ssoOutcome, started);
+  }
 
   const result = rewriteSuffix(request.nextUrl.pathname);
   if (result) {
-    return NextResponse.rewrite(new URL(result, request.nextUrl));
+    return finishAccessLog(
+      request,
+      NextResponse.rewrite(new URL(result, request.nextUrl)),
+      'rewrite',
+      started,
+    );
   }
 
   if (isMarkdownPreferred(request)) {
     const rewritten = rewriteDocs(request.nextUrl.pathname);
     if (rewritten) {
-      return NextResponse.rewrite(new URL(rewritten, request.nextUrl));
+      return finishAccessLog(
+        request,
+        NextResponse.rewrite(new URL(rewritten, request.nextUrl)),
+        'rewrite',
+        started,
+      );
     }
   }
 
-  return NextResponse.next();
+  return finishAccessLog(request, NextResponse.next(), 'forward', started);
 }
 
 export const config = {

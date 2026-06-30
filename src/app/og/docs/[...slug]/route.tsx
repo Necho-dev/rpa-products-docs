@@ -14,10 +14,13 @@ import { OgQuoteCard } from '@/lib/docs/og/template-quote';
 import { normalizeQuoteText, verifyQuoteSignature, buildPageUrlWithTextFragment } from '@/lib/docs/selection/quote-sign';
 import { getPageCover, getPageImage, getPageSharePoster, source } from '@/lib/docs/source/source';
 import { resolveOgSiteOrigin } from '@/lib/core/site-origin';
+import { getPublicSiteUrlIfSet } from '@/lib/core/shared';
 import { notFound } from 'next/navigation';
+import { connection } from 'next/server';
 import { ImageResponse } from 'next/og';
 
 export const revalidate = false;
+export const dynamicParams = true;
 
 const MAX_QUOTE_IMAGE_HEIGHT = 2400;
 const OG_CACHE_CONTROL = 'public, max-age=31536000, immutable';
@@ -35,19 +38,31 @@ function ogImageResponse(
   });
 }
 
-export async function GET(req: Request, { params }: RouteContext<'/og/docs/[...slug]'>) {
+/** quote 动态渲染：优先 env，否则用请求 URL origin（避免读 headers 触发 static 冲突） */
+function resolveQuoteSiteOrigin(req: Request): string {
+  const fromEnv = getPublicSiteUrlIfSet();
+  if (fromEnv) return fromEnv;
+  return new URL(req.url).origin;
+}
+
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ slug: string[] }> },
+) {
   const { slug } = await params;
   const fileName = slug[slug.length - 1];
   const page = source.getPage(slug.slice(0, -1));
   if (!page) notFound();
 
-  const fonts = getOgFontData();
-
   if (fileName === 'quote.png') {
+    // 与 generateStaticParams 静态 OG 共存：显式标记本请求为动态
+    await connection();
+
+    const fonts = getOgFontData();
     const access = getDocAccessContext(req);
     if (!isDocPageAccessible(page, access)) notFound();
 
-    const origin = resolveOgSiteOrigin(req);
+    const origin = resolveQuoteSiteOrigin(req);
     const url = new URL(req.url);
     const rawText = url.searchParams.get('text') ?? '';
     const quoteText = normalizeQuoteText(rawText);
@@ -68,6 +83,8 @@ export async function GET(req: Request, { params }: RouteContext<'/og/docs/[...s
       fonts: ogImageFonts(fonts),
     });
   }
+
+  const fonts = getOgFontData();
 
   if (getEffectiveDocAccess(page) === 'private') {
     const access = getDocAccessContext(req);
