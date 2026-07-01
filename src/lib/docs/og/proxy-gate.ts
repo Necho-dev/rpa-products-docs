@@ -31,8 +31,8 @@ export function isPublicOgDocsPath(pathname: string): boolean {
 }
 
 /**
- * 页级私有文档 OG 门禁。公开页放行；私有页需 Cookie/Bearer/SSO。
- * quote.png 验签在 route handler，此处仅放行。
+ * 页级私有文档 OG 门禁(middleware)。公开页放行；私有页 cover/image/poster 需 Cookie/Bearer/SSO。
+ * quote.png：middleware 放行，鉴权与 HMAC 验签在 /og/quote 动态路由(rewrite 后执行)。
  */
 export function applyOgDocGate(request: NextRequest): NextResponse | null {
   const { pathname } = request.nextUrl;

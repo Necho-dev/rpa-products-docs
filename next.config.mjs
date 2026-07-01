@@ -38,6 +38,7 @@ const config = {
     qualities: [75, 95],
   },
   async rewrites() {
+    // quote 需 force-dynamic(读 headers 验签), 内部重定向到 /og/quote
     return [
       {
         source: '/og/docs/quote.png',

@@ -302,7 +302,7 @@ Dockerfile 采用三阶段构建：
 2. **builder**：`ENV FUMADOCS_LAST_MODIFIED=fs` + `postinstall` + `next build`，输出 `output: standalone`（不依赖 `git`）
 3. **runner**：复制 standalone、`.next/static`、**`.next/cache`** 与 **`src/fonts`**（动态 `quote.png`）；**不跑 `apt`**，用 `useradd`/`groupadd` 创建 `nextjs` 用户
 
-> **OG 预生成**：`next build` 会静态生成 `/og/docs/.../{cover,image,poster}.png`；runner 须携带 `.next/cache`，且 build 阶段建议设置 `NEXT_PUBLIC_SITE_URL`（poster QR 域名）。
+> **OG 图片**：`next build` 静态预生成 `/og/docs/.../{cover,image,poster}.png`（`generateStaticParams` + Full Route Cache）；runner 须携带 `.next/cache`，build 阶段建议设置 `NEXT_PUBLIC_SITE_URL`（poster QR 域名）。选词分享图 `/og/docs/.../quote.png` 为运行时动态渲染（内部 rewrite 至 `/og/quote`）；预签名由 `POST /api/docs/quote-pre-signed` 在服务端生成（需 `DOCS_QUOTE_SIGN_SECRET`）。
 
 ---
 

@@ -1,6 +1,6 @@
 'use client';
 
-export async function fetchQuotePosterUrl(input: {
+export async function fetchQuotePreSigned(input: {
   slugs: string[];
   text: string;
   pageUrl: string;
@@ -8,7 +8,7 @@ export async function fetchQuotePosterUrl(input: {
   prefix?: string;
   suffix?: string;
 }): Promise<{ posterUrl: string; pageUrl: string }> {
-  const res = await fetch('/api/docs/quote-poster-url', {
+  const res = await fetch('/api/docs/quote-pre-signed', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',

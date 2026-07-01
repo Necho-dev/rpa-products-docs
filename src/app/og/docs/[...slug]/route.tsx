@@ -1,3 +1,7 @@
+/**
+ * 静态 OG 路由: 面向 cover / image / poster 三种 OG 图片
+ * build 期由 generateStaticParams 预生成
+ */
 import type { ReactElement } from 'react';
 import { buildOgCoverProps } from '@/lib/docs/og/build-cover-props';
 import { buildOgShareBaseProps, buildOgSharePosterProps } from '@/lib/docs/og/build-props';

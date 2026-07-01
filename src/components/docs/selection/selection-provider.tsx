@@ -17,7 +17,7 @@ import {
   rangeFromHighlightSegments,
   unwrapHighlightMark,
 } from '@/lib/docs/selection/apply-highlights';
-import { fetchQuotePosterUrl } from '@/lib/docs/selection/fetch-quote-poster-url';
+import { fetchQuotePreSigned } from '@/lib/docs/selection/fetch-quote-pre-signed';
 import {
   clearNativeSelection,
   extractTextQuote,
@@ -578,7 +578,7 @@ function DocSelectionProviderInner({ pagePath }: { pagePath: string }) {
     try {
       const slugs = slugsFromPathname(pagePath);
       const pageTitle = getDocPageTitle() ?? '文档摘录';
-      const result = await fetchQuotePosterUrl({
+      const result = await fetchQuotePreSigned({
         slugs,
         text: selection.text,
         pageUrl: window.location.href.split('#')[0],
