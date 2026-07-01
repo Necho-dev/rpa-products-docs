@@ -146,10 +146,16 @@ describe('access-log', () => {
 
   it('appendAccessLogFile 写入 JSONL 行', async () => {
     const dir = await mkdtemp(path.join(tmpdir(), 'docs-access-log-'));
-    const filePath = accessLogFilePathForDate(new Date('2026-06-30T12:00:00.000Z'), dir)!;
     process.env.DOCS_OBSERVABILITY_LOG_PATH = dir;
     try {
-      appendAccessLogFile({ timestamp: 1719758521000, time: '2026-06-30T12:00:01.000Z', type: 'access', path: '/api/search' });
+      const now = new Date();
+      const filePath = accessLogFilePathForDate(now, dir)!;
+      appendAccessLogFile({
+        timestamp: now.getTime(),
+        time: now.toISOString(),
+        type: 'access',
+        path: '/api/search',
+      });
       await new Promise((r) => setTimeout(r, 50));
       const content = await readFile(filePath, 'utf8');
       assert.match(content, /"path":"\/api\/search"/);
