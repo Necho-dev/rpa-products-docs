@@ -3,10 +3,14 @@
  * 三类图片渲染为 PNG 文件写入 .next/cache/og/，运行时直接读磁盘返回。
  *
  * 用法（package.json 中自动调用）：
- *   npx tsx scripts/prerender-og.tsx
+ *   tsx scripts/prerender-og.mts
+ *
+ * 注意：本文件使用 createElement 而非 JSX，因为 .mts（ESM TypeScript）
+ * 不支持 JSX 语法转换，而 top-level await 需要 ESM 模式。
  */
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { createElement } from 'react';
 import { ImageResponse } from 'next/og';
 import { buildOgCoverProps } from '@/lib/docs/og/build-cover-props';
 import { buildOgShareBaseProps, buildOgSharePosterProps } from '@/lib/docs/og/build-props';
@@ -31,77 +35,70 @@ function outPath(slugs: string[], fileName: string): string {
     : path.join(OUT_DIR, fileName);
 }
 
-async function main() {
-  const pages = source.getPages();
-  const fonts = getOgFontData();
-  const origin = getPublicSiteUrl();
+const pages = source.getPages();
+const fonts = getOgFontData();
+const origin = getPublicSiteUrl();
 
-  console.log(`[og:prerender] origin=${origin}`);
-  console.log(`[og:prerender] out=${OUT_DIR}`);
-  console.log(`[og:prerender] pages=${pages.length}`);
+console.log(`[og:prerender] origin=${origin}`);
+console.log(`[og:prerender] out=${OUT_DIR}`);
+console.log(`[og:prerender] pages=${pages.length}`);
 
-  let ok = 0;
-  let fail = 0;
+let ok = 0;
+let fail = 0;
 
-  for (const page of pages) {
-    const slugs = page.slugs;
-    const label = slugs.length > 0 ? slugs.join('/') : '(root)';
+for (const page of pages) {
+  const slugs = page.slugs;
+  const label = slugs.length > 0 ? slugs.join('/') : '(root)';
 
-    try {
-      const dir = slugs.length > 0
-        ? path.join(OUT_DIR, ...slugs)
-        : OUT_DIR;
-      await mkdir(dir, { recursive: true });
+  try {
+    const dir = slugs.length > 0
+      ? path.join(OUT_DIR, ...slugs)
+      : OUT_DIR;
+    await mkdir(dir, { recursive: true });
 
-      // cover.png — 不依赖 origin
-      const coverProps = await buildOgCoverProps(page);
-      const coverBuf = await renderToBuffer(
-        new ImageResponse(<OgCoverCard {...coverProps} />, {
-          width: COVER_WIDTH,
-          height: COVER_HEIGHT,
-          fonts: ogImageFonts(fonts),
-        }),
-      );
-      await writeFile(outPath(slugs, 'cover.png'), coverBuf);
+    // cover.png — 不依赖 origin
+    const coverProps = await buildOgCoverProps(page);
+    const coverBuf = await renderToBuffer(
+      new ImageResponse(createElement(OgCoverCard, coverProps), {
+        width: COVER_WIDTH,
+        height: COVER_HEIGHT,
+        fonts: ogImageFonts(fonts),
+      }),
+    );
+    await writeFile(outPath(slugs, 'cover.png'), coverBuf);
 
-      // image.png — 依赖 origin（hostname）
-      const imageProps = buildOgShareBaseProps(page, origin);
-      const imageBuf = await renderToBuffer(
-        new ImageResponse(<OgShareCard {...imageProps} />, {
-          width: 1200,
-          height: 630,
-          fonts: ogImageFonts(fonts),
-        }),
-      );
-      await writeFile(outPath(slugs, 'image.png'), imageBuf);
+    // image.png — 依赖 origin（hostname）
+    const imageProps = buildOgShareBaseProps(page, origin);
+    const imageBuf = await renderToBuffer(
+      new ImageResponse(createElement(OgShareCard, imageProps), {
+        width: 1200,
+        height: 630,
+        fonts: ogImageFonts(fonts),
+      }),
+    );
+    await writeFile(outPath(slugs, 'image.png'), imageBuf);
 
-      // poster.png — 依赖 origin（QR 码 URL + hostname）
-      const posterProps = await buildOgSharePosterProps(page, origin);
-      const posterHeight = estimatePosterHeight(posterProps);
-      const posterBuf = await renderToBuffer(
-        new ImageResponse(<OgSharePoster {...posterProps} />, {
-          width: POSTER_WIDTH,
-          height: posterHeight,
-          fonts: ogImageFonts(fonts),
-        }),
-      );
-      await writeFile(outPath(slugs, 'poster.png'), posterBuf);
+    // poster.png — 依赖 origin（QR 码 URL + hostname）
+    const posterProps = await buildOgSharePosterProps(page, origin);
+    const posterHeight = estimatePosterHeight(posterProps);
+    const posterBuf = await renderToBuffer(
+      new ImageResponse(createElement(OgSharePoster, posterProps), {
+        width: POSTER_WIDTH,
+        height: posterHeight,
+        fonts: ogImageFonts(fonts),
+      }),
+    );
+    await writeFile(outPath(slugs, 'poster.png'), posterBuf);
 
-      ok++;
-      if (ok % 10 === 0) {
-        process.stdout.write(`[og:prerender] ${ok}/${pages.length} done\r`);
-      }
-    } catch (err) {
-      fail++;
-      console.error(`[og:prerender] FAIL ${label}:`, err);
+    ok++;
+    if (ok % 10 === 0) {
+      process.stdout.write(`[og:prerender] ${ok}/${pages.length} done\r`);
     }
+  } catch (err) {
+    fail++;
+    console.error(`[og:prerender] FAIL ${label}:`, err);
   }
-
-  console.log(`\n[og:prerender] done: ${ok} ok, ${fail} fail, total ${pages.length}`);
-  if (fail > 0) process.exit(1);
 }
 
-main().catch((err) => {
-  console.error('[og:prerender] fatal:', err);
-  process.exit(1);
-});
+console.log(`\n[og:prerender] done: ${ok} ok, ${fail} fail, total ${pages.length}`);
+if (fail > 0) process.exit(1);
