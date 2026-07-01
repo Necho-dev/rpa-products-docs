@@ -39,8 +39,8 @@ badge:
 | `custom_peer_end_date`   | 对比周期结束日期 | `String`                | 否    | —         | 须与另外三段自定义日期同时填写；支持格式：YYYYMMDD、YYYY-MM-DD；须在「最近 90 天、最晚至页面最晚可选日」窗口内；不可早于 `custom_peer_start_date`；分析周期与对比周期允许重叠 |
 | `customer_time_window`   | 分析对象客群时间周期 | `String`            | 否    | `recent7` | 可选值：`recent7`（最近7天）、`recent15`（最近15天）、`recent30`（最近30天）、`recent90`（最近90天） |
 | `compare_customer_time_window` | 对比对象客群时间周期 | `String`      | 否    | 同 `customer_time_window` | 可选值同上 |
-| `customer_behavior_types` | 分析对象客群行为 | `String \| List[String]` | 否 | 全选 | 英文 code：`browse`（浏览）、`favorite`（收藏）、`add_cart`（加购）、`purchase`（购买）、`search`（搜索）；英文逗号或 JSON 数组 |
-| `compare_customer_behavior_types` | 对比对象客群行为 | `String \| List[String]` | 否 | 全选 | 可选值同上 |
+| `customer_behavior_types` | 分析对象客群行为 | `String \| List[String]` | 否 | 五行为全选 | 英文 code：`browse`（浏览）、`favorite`（收藏）、`add_cart`（加购）、`purchase`（购买）、`search`（搜索）；英文逗号或 JSON 数组 |
+| `compare_customer_behavior_types` | 对比对象客群行为 | `String \| List[String]` | 否 | 五行为全选 | 可选值同上 |
 
 
 ### 入参样例
@@ -231,6 +231,7 @@ badge:
 | `behaviorValues` | 行为 API values | `String` | 否 | tag/chart 请求体 303280 | `1,2,3,4,5` |
 | `timeWindow` | 时间周期 code | `String` | 否 | 任务入参 time_window | `recent7` |
 | `timeWindowDays` | 时间周期天数 | `Number` | 否 | recent7→7 / recent15→15 等 | `7` |
+| `crowdCoverage` | 覆盖人数 | `String` | 否 | 面板「覆盖人数」展示值（分析对象/对比对象各读本面板） | — |
 | `profileType` | 画像维度 code | `String` | 否 | 固定 6 维 | `gender` |
 | `profileTagId` | 画像 tagId | `Number` | 否 | profile_type_map | `114554` |
 | `profileLabel` | 画像维度名称 | `String` | 否 | profile_label_map | `用户性别` |
@@ -253,15 +254,15 @@ badge:
 | `rivalItemId1`    | 竞争商品 ID（第一个） | `String` | 否   | rival_item_ids[0]                        | `1057000824998` |
 | `rivalItemId2`    | 竞争商品 ID（第二个） | `String` | 是   | rival_item_ids[1]（不足时为 null）             | `1044235732163` |
 | `rivalItemId3`    | 竞争商品 ID（第三个） | `String` | 是   | rival_item_ids[2]（不足时为 null）             | `1019326026903` |
-| `dateType`        | 分析周期类型       | `String` | 否   | 连接器推断（四段自定义日期均填为 `custom`，否则 `recent7`） | `recent7`       |
-| `beginDate`       | 分析开始日期       | `String` | 否   | 页面「分析周期」选择器实际展示的起始日（YYYY-MM-DD） | `2026-06-21`    |
-| `endDate`         | 分析结束日期       | `String` | 否   | 页面「分析周期」选择器实际展示的结束日（结束日为最晚可选日时页面可能显示「昨日」，已归一化为 YYYY-MM-DD） | `2026-06-28`    |
-| `peerBeginDate`   | 对比周期开始日期     | `String` | 否   | 页面「对比周期」选择器实际展示的起始日（YYYY-MM-DD） | `2026-06-16`    |
-| `peerEndDate`     | 对比周期结束日期     | `String` | 否   | 页面「对比周期」选择器实际展示的结束日（YYYY-MM-DD） | `2026-06-20`    |
+| `dateType`        | 分析周期类型       | `String` | 否   | 连接器推断（四段自定义日期均填为 `custom`，均未填时为 `recent7`） | `recent7`       |
+| `beginDate`       | 分析开始日期       | `String` | 否   | 页面「分析周期」选择器实际展示的起始日（YYYY-MM-DD） | `2026-06-24`    |
+| `endDate`         | 分析结束日期       | `String` | 否   | 页面「分析周期」选择器实际展示的结束日（结束日为最晚可选日时页面可能显示「昨日」，已归一化为 YYYY-MM-DD） | `2026-06-30`    |
+| `peerBeginDate`   | 对比周期开始日期     | `String` | 否   | 页面「对比周期」选择器实际展示的起始日（YYYY-MM-DD） | `2026-06-17`    |
+| `peerEndDate`     | 对比周期结束日期     | `String` | 否   | 页面「对比周期」选择器实际展示的结束日（YYYY-MM-DD） | `2026-06-23`    |
 | `customerTimeWindow` | 分析对象客群时间周期 | `String` | 否 | 任务入参 customer_time_window | `recent7` |
-| `compareCustomerTimeWindow` | 对比对象客群时间周期 | `String` | 否 | 任务入参 compare_customer_time_window | `recent15` |
-| `customerBehaviorTypes` | 分析对象客群行为 | `List[String]` | 否 | 任务入参 customer_behavior_types（英文 code 列表） | `["search"]` |
-| `compareCustomerBehaviorTypes` | 对比对象客群行为 | `List[String]` | 否 | 任务入参 compare_customer_behavior_types（英文 code 列表） | `["search"]` |
+| `compareCustomerTimeWindow` | 对比对象客群时间周期 | `String` | 否 | 任务入参 compare_customer_time_window | `recent7` |
+| `customerBehaviorTypes` | 分析对象客群行为 | `List[String]` | 否 | 任务入参 customer_behavior_types（英文 code 列表） | `["browse","favorite","add_cart","purchase","search"]` |
+| `compareCustomerBehaviorTypes` | 对比对象客群行为 | `List[String]` | 否 | 任务入参 compare_customer_behavior_types（英文 code 列表） | `["browse","favorite","add_cart","purchase","search"]` |
 | `competeItems` @竞争商品展示项 | 分析对象商品展示信息 | `List[Dict]` | 否 | 选品完成后页面「我的商品」展示区 | 见数据样例 |
 | `baseData` @接口指标字典 | 基础分析·推广侧指标 | `Dict` | 否 | base/indicator data | 见数据样例 |
 | `shopData` @接口指标字典 | 基础分析·店铺侧指标 | `Dict` | 否 | base/shop/indicator data | 见数据样例 |
@@ -278,7 +279,7 @@ badge:
 
 ### 取数说明
 
-`dateType` 为输出字段：四段自定义日期入参均填写时为 `custom`，均未填时为 `recent7`（近7天，结束日取页面日历最晚可选日，通常为昨日；数据未就绪时可能更早）。
+`dateType` 为输出字段：四段自定义日期入参均填写时为 `custom`，均未填时为 `recent7`（近7天，结束日取页面日历最晚可选日，通常为昨日；数据未就绪时可能更早）。页面展示已与默认近7天区间一致时，连接器跳过重复点选日期面板。
 
 `beginDate` / `endDate` / `peerBeginDate` / `peerEndDate` 为日期面板操作完成后页面选择器实际展示值，非入参推算值。
 
@@ -290,7 +291,7 @@ badge:
 
 流量结构类数据（付免/无界）按 `flowPaidFreeData[]` / `flowInvestorData[]` 中 `itemId` 定位商品，再读 `list[]` 下各 `channelName` 的 `clickRate`（小数，展示时 ×100 为百分比）。
 
-客群画像按 `customerProfile[]` 行读取：`targetRole` 区分分析对象/对比对象；6 个 `profileType` 固定为 `gender`（用户性别）、`age`（用户年龄）、`purchasing_power`（消费能力等级）、`city_level`（城市等级）、`monthly_purchase_freq`（月均消费频次）、`fmcg_strategy_crowd`（大快消策略人群）。
+客群画像按 `customerProfile[]` 行读取：`targetRole` 区分分析对象/对比对象；`crowdCoverage` 为各面板「覆盖人数」展示值（如 `1万~2万`），同一面板下 6 维画像行共享；6 个 `profileType` 固定为 `gender`（用户性别）、`age`（用户年龄）、`purchasing_power`（消费能力等级）、`city_level`（城市等级）、`monthly_purchase_freq`（月均消费频次）、`fmcg_strategy_crowd`（大快消策略人群）。
 
 
 | 页面区块        | 页面指标           | 数据路径                   | 接口 metricKey / 字段                          | 说明                                     |
@@ -318,6 +319,7 @@ badge:
 | 流量分析 · 核心指标对比 | 搜索/推荐/私域等      | `flowFullData[]`             | 按 channelName 定位一级节点后读 `{metricKey}`  | 全域归因渠道明细树；需递归 `subChannels` 取子渠道           |
 | 流量分析 · 核心指标对比 | 点击量/当天引导指标等（分渠道） | `flowAdData[]` / `flowFullData[]` | `click` / `alipayCnt1d` / `cartRate1d` / `alipayConversion1d` 等 | 与基础分析同 metricKey，按渠道节点读取 |
 | 客群分析 | 6 维画像选项分布 | `customerProfile[]` | `profileType` + `optionName` + `ratio` | 分析对象与对比对象各采集一行/选项；见 `@define 客群画像行` |
+| 客群分析 | 覆盖人数 | `customerProfile[]` | `crowdCoverage` | 各面板「覆盖人数」展示值；同一面板下 6 维画像行共享 |
 
 **`flowFullData` 一级渠道（全域归因，常见 7 项）：**
 
@@ -335,6 +337,9 @@ badge:
 
 ### 数据样例
 
+> 数据来源：账号 120 / 默认近7天（四段日期均未填）/ 连接器真实运行输出（2026-07-01）
+
+> 以下为代表性摘录（八块映射数据仅展示部分字段；`customerProfile.crowdCoverage` 待补充真实样例）。
 
 ```json
 [
