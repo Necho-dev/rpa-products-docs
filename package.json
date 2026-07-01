@@ -3,13 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "og:prerender": "npx tsx scripts/prerender-og.tsx",
+    "og:prerender": "tsx scripts/prerender-og.mts",
     "build": "next build && npm run og:prerender",
     "dev": "next dev",
     "start": "next start",
     "start:standalone": "bash scripts/start-standalone.sh",
     "types:check": "fumadocs-mdx && next typegen && tsc --noEmit",
-    "test:unit": "npx tsx --test tests/**/*.test.ts",
+    "test:unit": "tsx --test tests/**/*.test.ts",
     "postinstall": "fumadocs-mdx",
     "lint": "eslint"
   },
@@ -65,6 +65,7 @@
     "jsdom": "^29.1.1",
     "postcss": "^8.5.10",
     "tailwindcss": "^4.2.2",
+    "tsx": "^4.22.4",
     "typescript": "^6.0.3"
   }
 }
