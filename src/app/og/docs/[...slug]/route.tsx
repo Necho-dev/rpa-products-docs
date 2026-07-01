@@ -1,26 +1,19 @@
 import type { ReactElement } from 'react';
-import { getDocAccessContext } from '@/lib/docs/access/doc-access';
-import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
 import { buildOgCoverProps } from '@/lib/docs/og/build-cover-props';
-import { buildOgShareBaseProps, buildOgSharePosterProps, buildOgQuoteCardProps } from '@/lib/docs/og/build-props';
+import { buildOgShareBaseProps, buildOgSharePosterProps } from '@/lib/docs/og/build-props';
 import { getOgFontData, ogImageFonts } from '@/lib/docs/og/fonts';
-import { estimateQuoteHeight, QUOTE_WIDTH } from '@/lib/docs/og/quote-height';
 import { estimatePosterHeight, POSTER_WIDTH } from '@/lib/docs/og/poster-height';
 import { OgCoverCard, COVER_HEIGHT, COVER_WIDTH } from '@/lib/docs/og/template-cover';
 import { OgShareCard } from '@/lib/docs/og/template-card';
 import { OgSharePoster } from '@/lib/docs/og/template-poster';
-import { OgQuoteCard } from '@/lib/docs/og/template-quote';
-import { normalizeQuoteText, verifyQuoteSignature, buildPageUrlWithTextFragment } from '@/lib/docs/selection/quote-sign';
 import { getPageCover, getPageImage, getPageSharePoster, source } from '@/lib/docs/source/source';
 import { resolveOgSiteOrigin } from '@/lib/core/site-origin';
-import { getPublicSiteUrlIfSet } from '@/lib/core/shared';
 import { notFound } from 'next/navigation';
 import { ImageResponse } from 'next/og';
 
 export const revalidate = false;
 export const dynamicParams = true;
 
-const MAX_QUOTE_IMAGE_HEIGHT = 2400;
 const OG_CACHE_CONTROL = 'public, max-age=31536000, immutable';
 
 function ogImageResponse(
@@ -36,14 +29,8 @@ function ogImageResponse(
   });
 }
 
-function resolveQuoteSiteOrigin(req: Request): string {
-  const fromEnv = getPublicSiteUrlIfSet();
-  if (fromEnv) return fromEnv;
-  return new URL(req.url).origin;
-}
-
 export async function GET(
-  req: Request,
+  _req: Request,
   { params }: { params: Promise<{ slug: string[] }> },
 ) {
   const { slug } = await params;
@@ -51,36 +38,7 @@ export async function GET(
   const page = source.getPage(slug.slice(0, -1));
   if (!page) notFound();
 
-  if (fileName === 'quote.png') {
-    const fonts = getOgFontData();
-    const access = getDocAccessContext(req);
-    if (!isDocPageAccessible(page, access)) notFound();
-
-    const origin = resolveQuoteSiteOrigin(req);
-    const url = new URL(req.url);
-    const rawText = url.searchParams.get('text') ?? '';
-    const quoteText = normalizeQuoteText(rawText);
-    if (quoteText.length < 2) notFound();
-
-    const pathname = `/og/docs/${slug.join('/')}`;
-    const tm = Number.parseInt(url.searchParams.get('tm') ?? '', 10);
-    const sg = url.searchParams.get('sg') ?? '';
-    if (!verifyQuoteSignature(pathname, quoteText, tm, sg)) notFound();
-
-    const pageUrl = buildPageUrlWithTextFragment(`${origin}${page.url}`, quoteText);
-    const quoteProps = await buildOgQuoteCardProps(page, origin, quoteText, { pageUrl });
-    const height = Math.min(estimateQuoteHeight(quoteProps), MAX_QUOTE_IMAGE_HEIGHT);
-
-    return new ImageResponse(<OgQuoteCard {...quoteProps} />, {
-      width: QUOTE_WIDTH,
-      height,
-      fonts: ogImageFonts(fonts),
-    });
-  }
-
   const fonts = getOgFontData();
-
-
   const origin = resolveOgSiteOrigin();
 
   if (fileName === 'poster.png') {

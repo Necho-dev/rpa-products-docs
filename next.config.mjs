@@ -37,6 +37,18 @@ const config = {
   images: {
     qualities: [75, 95],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/og/docs/quote.png',
+        destination: '/og/quote',
+      },
+      {
+        source: '/og/docs/:path+/quote.png',
+        destination: '/og/quote/:path+',
+      },
+    ];
+  },
 };
 
 export default withMDX(config);
