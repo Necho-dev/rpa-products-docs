@@ -2,10 +2,8 @@
   "name": "RPA Hero Docs",
   "version": "0.1.0",
   "private": true,
-  "type": "module",
   "scripts": {
-    "og:prerender": "tsx scripts/prerender-og.tsx",
-    "build": "next build && npm run og:prerender",
+    "build": "next build",
     "dev": "next dev",
     "start": "next start",
     "start:standalone": "bash scripts/start-standalone.sh",
