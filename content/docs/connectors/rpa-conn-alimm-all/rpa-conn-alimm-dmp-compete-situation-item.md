@@ -1,6 +1,6 @@
 ---
 title: 达摩盘-竞争态势-竞争商品分析
-description: 采集达摩盘竞争态势分析页中本品与竞品的基础分析（含竞争控比）、流量分析（付免/无界投资结构占比、广告域/全域归因渠道明细）及客群画像；支持快捷周期与自定义四段日期；本品或竞品未搜到时返回空数据
+description: 采集达摩盘竞争态势分析页中本品与竞品的基础分析（含竞争控比）、流量分析（付免/无界投资结构占比、广告域/全域归因渠道明细）及客群画像；四段自定义日期均填时启用自定义周期，均未填时默认近7天；本品或竞品未搜到时返回空数据
 entry: rpa.conn.alimm.dmp.compete.situation.item
 badge:
   label: 待上线
@@ -14,7 +14,7 @@ badge:
 | **归属 PyPI 包** | `rpa-conn-alimm-all`                                                       |
 | **操作类型**      | 浏览器自动化操作 + 网络请求监听                                                          |
 | **目标网页**      | `https://dmp.taobao.com/index_new.html#!/compete/compete-situation`        |
-| **适用场景**      | 采集达摩盘竞争态势分析页中本品与竞品的基础分析（含竞争控比）、流量分析（付免/无界投资结构占比、广告域/全域归因渠道明细）及客群画像；支持快捷周期与自定义四段日期；本品或竞品未搜到时返回空数据 |
+| **适用场景**      | 采集达摩盘竞争态势分析页中本品与竞品的基础分析（含竞争控比）、流量分析（付免/无界投资结构占比、广告域/全域归因渠道明细）及客群画像；四段自定义日期均填时启用自定义周期，均未填时默认近7天；本品或竞品未搜到时返回空数据 |
 | **预估耗时**      | `300s`                                                                      |
 
 
@@ -33,11 +33,10 @@ badge:
 | ------------------------ | -------- | ----------------------- | ---- | --------- | ---------------------------------------------------------------------------------------------------------------- |
 | `self_item_id`           | 本店商品 ID  | `String`                | 是    | —         | 不可与 `rival_item_ids` 中任一 ID 重复                                                                                   |
 | `rival_item_ids`         | 竞争商品 ID  | `String \| List[String]` | 是    | —         | 英文逗号分隔字符串或 JSON 数组；中文逗号自动转换；最多 3 个；示例 `"123,456"` 或 `["123","456"]`                                              |
-| `date_type`              | 分析周期类型   | `String`                | 否    | `recent7` | 可选值：`recent7`（近7天）、`custom`（自定义）。快捷周期（`recent7`）结束日取页面日历探测的最晚可选日（通常为昨日，数据未就绪时可能更早），分析周期为其前 7 天，对比周期为分析周期前一段等长区间（环比，与分析周期不重叠）    |
-| `custom_start_date`      | 分析开始日期   | `String`                | 条件必填 | —         | `date_type=custom` 时必填；支持格式：YYYYMMDD、YYYY-MM-DD；须在「最近 90 天、最晚至页面最晚可选日」窗口内                                             |
-| `custom_end_date`        | 分析结束日期   | `String`                | 条件必填 | —         | `date_type=custom` 时必填；支持格式：YYYYMMDD、YYYY-MM-DD；须在「最近 90 天、最晚至页面最晚可选日」窗口内；不可早于 `custom_start_date`                    |
-| `custom_peer_start_date` | 对比周期开始日期 | `String`                | 条件必填 | —         | `date_type=custom` 时必填；支持格式：YYYYMMDD、YYYY-MM-DD；须在「最近 90 天、最晚至页面最晚可选日」窗口内                                             |
-| `custom_peer_end_date`   | 对比周期结束日期 | `String`                | 条件必填 | —         | `date_type=custom` 时必填；支持格式：YYYYMMDD、YYYY-MM-DD；须在「最近 90 天、最晚至页面最晚可选日」窗口内；不可早于 `custom_peer_start_date`；分析周期与对比周期允许重叠 |
+| `custom_start_date`      | 分析开始日期   | `String`                | 否    | —         | 与 `custom_end_date`、`custom_peer_start_date`、`custom_peer_end_date` **须同时填写**才启用自定义周期；四段均未填时默认近7天（结束日取页面日历最晚可选日，分析周期为其前 7 天，对比周期为前一段等长区间）；支持格式：YYYYMMDD、YYYY-MM-DD；须在「最近 90 天、最晚至页面最晚可选日」窗口内 |
+| `custom_end_date`        | 分析结束日期   | `String`                | 否    | —         | 须与另外三段自定义日期同时填写；支持格式：YYYYMMDD、YYYY-MM-DD；须在「最近 90 天、最晚至页面最晚可选日」窗口内；不可早于 `custom_start_date` |
+| `custom_peer_start_date` | 对比周期开始日期 | `String`                | 否    | —         | 须与另外三段自定义日期同时填写；支持格式：YYYYMMDD、YYYY-MM-DD；须在「最近 90 天、最晚至页面最晚可选日」窗口内 |
+| `custom_peer_end_date`   | 对比周期结束日期 | `String`                | 否    | —         | 须与另外三段自定义日期同时填写；支持格式：YYYYMMDD、YYYY-MM-DD；须在「最近 90 天、最晚至页面最晚可选日」窗口内；不可早于 `custom_peer_start_date`；分析周期与对比周期允许重叠 |
 | `customer_time_window`   | 分析对象客群时间周期 | `String`            | 否    | `recent7` | 可选值：`recent7`（最近7天）、`recent15`（最近15天）、`recent30`（最近30天）、`recent90`（最近90天） |
 | `compare_customer_time_window` | 对比对象客群时间周期 | `String`      | 否    | 同 `customer_time_window` | 可选值同上 |
 | `customer_behavior_types` | 分析对象客群行为 | `String \| List[String]` | 否 | 全选 | 英文 code：`browse`（浏览）、`favorite`（收藏）、`add_cart`（加购）、`purchase`（购买）、`search`（搜索）；英文逗号或 JSON 数组 |
@@ -49,8 +48,7 @@ badge:
 ```json
 {
   "self_item_id": "897425691792",
-  "rival_item_ids": "1057000824998,1044235732163,1019326026903",
-  "date_type": "recent7"
+  "rival_item_ids": "1057000824998,1044235732163,1019326026903"
 }
 ```
 
@@ -58,7 +56,6 @@ badge:
 {
   "self_item_id": "897425691792",
   "rival_item_ids": "1057000824998",
-  "date_type": "custom",
   "custom_start_date": "2026-06-10",
   "custom_end_date": "2026-06-20",
   "custom_peer_start_date": "2026-06-05",
@@ -70,7 +67,6 @@ badge:
 {
   "self_item_id": "897425691792",
   "rival_item_ids": "1057000824998",
-  "date_type": "custom",
   "custom_start_date": "20260610",
   "custom_end_date": "20260620",
   "custom_peer_start_date": "20260605",
@@ -82,7 +78,6 @@ badge:
 {
   "self_item_id": "897425691792",
   "rival_item_ids": "1057000824998",
-  "date_type": "recent7",
   "customer_time_window": "recent7",
   "customer_behavior_types": "browse",
   "compare_customer_behavior_types": "browse"
@@ -93,7 +88,6 @@ badge:
 {
   "self_item_id": "897425691792",
   "rival_item_ids": "1057000824998",
-  "date_type": "recent7",
   "customer_behavior_types": ["browse", "favorite", "add_cart", "purchase", "search"]
 }
 ```
@@ -104,7 +98,7 @@ badge:
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "阿里妈妈达摩盘-竞争商品分析 - 查询入参",
-  "description": "采集达摩盘竞争态势分析页中本品与竞品的基础分析（含竞争控比）、流量分析（付免/无界投资结构占比、广告域/全域归因渠道明细）及客群画像；支持快捷周期与自定义四段日期；本品或竞品未搜到时返回空数据",
+  "description": "采集达摩盘竞争态势分析页中本品与竞品的基础分析（含竞争控比）、流量分析（付免/无界投资结构占比、广告域/全域归因渠道明细）及客群画像；四段自定义日期均填时启用自定义周期，均未填时默认近7天；本品或竞品未搜到时返回空数据",
   "type": "object",
   "properties": {
     "self_item_id": {
@@ -118,30 +112,24 @@ badge:
         { "type": "array", "items": { "type": "string" }, "maxItems": 3 }
       ]
     },
-    "date_type": {
-      "type": "string",
-      "description": "分析周期类型。可选值：recent7（近7天）、custom（自定义）。快捷周期结束日取页面日历探测的最晚可选日",
-      "enum": ["recent7", "custom"],
-      "default": "recent7"
-    },
     "custom_start_date": {
       "type": "string",
-      "description": "分析开始日期；date_type=custom 时必填；支持 YYYYMMDD 或 YYYY-MM-DD；须在最近 90 天内且最晚为页面最晚可选日",
+      "description": "分析开始日期；须与另外三段自定义日期同时填写才启用自定义周期；四段均未填时默认近7天；支持 YYYYMMDD 或 YYYY-MM-DD；须在最近 90 天内且最晚为页面最晚可选日",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_end_date": {
       "type": "string",
-      "description": "分析结束日期；date_type=custom 时必填；支持 YYYYMMDD 或 YYYY-MM-DD；须在最近 90 天内且最晚为页面最晚可选日；不可早于 custom_start_date",
+      "description": "分析结束日期；须与另外三段自定义日期同时填写；支持 YYYYMMDD 或 YYYY-MM-DD；须在最近 90 天内且最晚为页面最晚可选日；不可早于 custom_start_date",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_peer_start_date": {
       "type": "string",
-      "description": "对比周期开始日期；date_type=custom 时必填；支持 YYYYMMDD 或 YYYY-MM-DD；须在最近 90 天内且最晚为页面最晚可选日",
+      "description": "对比周期开始日期；须与另外三段自定义日期同时填写；支持 YYYYMMDD 或 YYYY-MM-DD；须在最近 90 天内且最晚为页面最晚可选日",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_peer_end_date": {
       "type": "string",
-      "description": "对比周期结束日期；date_type=custom 时必填；支持 YYYYMMDD 或 YYYY-MM-DD；须在最近 90 天内且最晚为页面最晚可选日；不可早于 custom_peer_start_date",
+      "description": "对比周期结束日期；须与另外三段自定义日期同时填写；支持 YYYYMMDD 或 YYYY-MM-DD；须在最近 90 天内且最晚为页面最晚可选日；不可早于 custom_peer_start_date",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "customer_time_window": {
@@ -185,24 +173,12 @@ badge:
     }
   },
   "required": ["self_item_id", "rival_item_ids"],
-  "allOf": [
-    {
-      "if": {
-        "properties": {
-          "date_type": { "const": "custom" }
-        },
-        "required": ["date_type"]
-      },
-      "then": {
-        "required": [
-          "custom_start_date",
-          "custom_end_date",
-          "custom_peer_start_date",
-          "custom_peer_end_date"
-        ]
-      }
-    }
-  ],
+  "dependentRequired": {
+    "custom_start_date": ["custom_end_date", "custom_peer_start_date", "custom_peer_end_date"],
+    "custom_end_date": ["custom_start_date", "custom_peer_start_date", "custom_peer_end_date"],
+    "custom_peer_start_date": ["custom_start_date", "custom_end_date", "custom_peer_end_date"],
+    "custom_peer_end_date": ["custom_start_date", "custom_end_date", "custom_peer_start_date"]
+  },
   "additionalProperties": false
 }
 ```
@@ -277,7 +253,7 @@ badge:
 | `rivalItemId1`    | 竞争商品 ID（第一个） | `String` | 否   | rival_item_ids[0]                        | `1057000824998` |
 | `rivalItemId2`    | 竞争商品 ID（第二个） | `String` | 是   | rival_item_ids[1]（不足时为 null）             | `1044235732163` |
 | `rivalItemId3`    | 竞争商品 ID（第三个） | `String` | 是   | rival_item_ids[2]（不足时为 null）             | `1019326026903` |
-| `dateType`        | 分析周期类型       | `String` | 否   | 任务入参 date_type                           | `custom`        |
+| `dateType`        | 分析周期类型       | `String` | 否   | 连接器推断（四段自定义日期均填为 `custom`，否则 `recent7`） | `recent7`       |
 | `beginDate`       | 分析开始日期       | `String` | 否   | 页面「分析周期」选择器实际展示的起始日（YYYY-MM-DD） | `2026-06-21`    |
 | `endDate`         | 分析结束日期       | `String` | 否   | 页面「分析周期」选择器实际展示的结束日（结束日为最晚可选日时页面可能显示「昨日」，已归一化为 YYYY-MM-DD） | `2026-06-28`    |
 | `peerBeginDate`   | 对比周期开始日期     | `String` | 否   | 页面「对比周期」选择器实际展示的起始日（YYYY-MM-DD） | `2026-06-16`    |
@@ -301,6 +277,8 @@ badge:
 
 
 ### 取数说明
+
+`dateType` 为输出字段：四段自定义日期入参均填写时为 `custom`，均未填时为 `recent7`（近7天，结束日取页面日历最晚可选日，通常为昨日；数据未就绪时可能更早）。
 
 `beginDate` / `endDate` / `peerBeginDate` / `peerEndDate` 为日期面板操作完成后页面选择器实际展示值，非入参推算值。
 
@@ -334,7 +312,7 @@ badge:
 | 基础分析 · 推广表现 | 当天引导成交转化率     | `baseData.alipayConversion1d` | `alipayConversion1d`                 | 同上                                     |
 | 基础分析 · 推广表现 | 广告点击率         | `baseData.paidClickRate`     | `paidClickRate`                       | 同上                                     |
 | 基础分析 · 推广表现 | 广告当天引导 ROI     | `baseData.roi1dAd`           | `roi1dAd`                             | 同上                                     |
-| 流量分析 · 渠道结构 | 付费/免费搜索/免费推荐/免费其他占比 | `flowPaidFreeData[].list` | `clickRate` + `channelName` | 页面「渠道结构」区块下「付免流量结构」Tab；每商品 4 项 |
+| 流量分析 · 渠道结构 | 付费/免费搜索/免费推荐/免费其他占比 | `flowPaidFreeData[].list` | `clickRate` + `channelName` | 切换到「流量分析」Tab 后默认展示「付免流量结构」，无需切换子 Tab；每商品 4 项 |
 | 流量分析 · 无界投资结构 | 投资结构占比 | `flowInvestorData[].list` | `clickRate` + `channelName` | 无数据时 `list` 为空数组 |
 | 流量分析 · 核心指标对比 | 全站/关键词/人群推广各指标 | `flowAdData[]`               | 按 channelId/Name 定位节点后读 `{metricKey}` | 广告域归因渠道明细树；无推广时可能为空数组 |
 | 流量分析 · 核心指标对比 | 搜索/推荐/私域等      | `flowFullData[]`             | 按 channelName 定位一级节点后读 `{metricKey}`  | 全域归因渠道明细树；需递归 `subChannels` 取子渠道           |
@@ -361,21 +339,21 @@ badge:
 ```json
 [
   {
-    "bizDate": "20260630",
+    "bizDate": "20260701",
     "accountId": "120",
     "selfItemId": "897425691792",
     "rivalItemId1": "1057000824998",
     "rivalItemId2": "1044235732163",
     "rivalItemId3": "1019326026903",
-    "dateType": "custom",
-    "beginDate": "2026-06-21",
-    "endDate": "2026-06-28",
-    "peerBeginDate": "2026-06-16",
-    "peerEndDate": "2026-06-20",
+    "dateType": "recent7",
+    "beginDate": "2026-06-24",
+    "endDate": "2026-06-30",
+    "peerBeginDate": "2026-06-17",
+    "peerEndDate": "2026-06-23",
     "customerTimeWindow": "recent7",
-    "compareCustomerTimeWindow": "recent15",
-    "customerBehaviorTypes": ["search"],
-    "compareCustomerBehaviorTypes": ["search"],
+    "compareCustomerTimeWindow": "recent7",
+    "customerBehaviorTypes": ["browse", "favorite", "add_cart", "purchase", "search"],
+    "compareCustomerBehaviorTypes": ["browse", "favorite", "add_cart", "purchase", "search"],
     "competeItems": [
       {
         "role": "selfItem",
@@ -456,8 +434,8 @@ badge:
         "targetRole": "selfItem",
         "itemId": "897425691792",
         "itemIds": null,
-        "behaviorTypes": ["search"],
-        "behaviorValues": "5",
+        "behaviorTypes": ["browse", "favorite", "add_cart", "purchase", "search"],
+        "behaviorValues": "1,2,3,4,5",
         "timeWindow": "recent7",
         "timeWindowDays": 7,
         "profileType": "gender",
