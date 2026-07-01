@@ -33,11 +33,11 @@ badge:
 | ------------------------ | -------- | ----------------------- | ---- | --------- | ---------------------------------------------------------------------------------------------------------------- |
 | `self_item_id`           | 本店商品 ID  | `String`                | 是    | —         | 不可与 `rival_item_ids` 中任一 ID 重复                                                                                   |
 | `rival_item_ids`         | 竞争商品 ID  | `String \| List[String]` | 是    | —         | 英文逗号分隔字符串或 JSON 数组；中文逗号自动转换；最多 3 个；示例 `"123,456"` 或 `["123","456"]`                                              |
-| `date_type`              | 分析周期类型   | `String`                | 否    | `recent7` | 可选值：`yesterday`（昨日）、`recent7`（近7天）、`recent30`（近30天）、`custom`（自定义）。快捷周期下结束日固定为昨日，对比周期为分析周期前一段等长区间（环比，与分析周期不重叠）    |
-| `custom_start_date`      | 分析开始日期   | `String`                | 条件必填 | —         | `date_type=custom` 时必填；支持格式：YYYYMMDD、YYYY-MM-DD；须在「最近 90 天、最晚至昨日」窗口内                                             |
-| `custom_end_date`        | 分析结束日期   | `String`                | 条件必填 | —         | `date_type=custom` 时必填；支持格式：YYYYMMDD、YYYY-MM-DD；须在「最近 90 天、最晚至昨日」窗口内；不可早于 `custom_start_date`                    |
-| `custom_peer_start_date` | 对比周期开始日期 | `String`                | 条件必填 | —         | `date_type=custom` 时必填；支持格式：YYYYMMDD、YYYY-MM-DD；须在「最近 90 天、最晚至昨日」窗口内                                             |
-| `custom_peer_end_date`   | 对比周期结束日期 | `String`                | 条件必填 | —         | `date_type=custom` 时必填；支持格式：YYYYMMDD、YYYY-MM-DD；须在「最近 90 天、最晚至昨日」窗口内；不可早于 `custom_peer_start_date`；分析周期与对比周期允许重叠 |
+| `date_type`              | 分析周期类型   | `String`                | 否    | `recent7` | 可选值：`recent7`（近7天）、`custom`（自定义）。快捷周期（`recent7`）结束日取页面日历探测的最晚可选日（通常为昨日，数据未就绪时可能更早），分析周期为其前 7 天，对比周期为分析周期前一段等长区间（环比，与分析周期不重叠）    |
+| `custom_start_date`      | 分析开始日期   | `String`                | 条件必填 | —         | `date_type=custom` 时必填；支持格式：YYYYMMDD、YYYY-MM-DD；须在「最近 90 天、最晚至页面最晚可选日」窗口内                                             |
+| `custom_end_date`        | 分析结束日期   | `String`                | 条件必填 | —         | `date_type=custom` 时必填；支持格式：YYYYMMDD、YYYY-MM-DD；须在「最近 90 天、最晚至页面最晚可选日」窗口内；不可早于 `custom_start_date`                    |
+| `custom_peer_start_date` | 对比周期开始日期 | `String`                | 条件必填 | —         | `date_type=custom` 时必填；支持格式：YYYYMMDD、YYYY-MM-DD；须在「最近 90 天、最晚至页面最晚可选日」窗口内                                             |
+| `custom_peer_end_date`   | 对比周期结束日期 | `String`                | 条件必填 | —         | `date_type=custom` 时必填；支持格式：YYYYMMDD、YYYY-MM-DD；须在「最近 90 天、最晚至页面最晚可选日」窗口内；不可早于 `custom_peer_start_date`；分析周期与对比周期允许重叠 |
 | `customer_time_window`   | 分析对象客群时间周期 | `String`            | 否    | `recent7` | 可选值：`recent7`（最近7天）、`recent15`（最近15天）、`recent30`（最近30天）、`recent90`（最近90天） |
 | `compare_customer_time_window` | 对比对象客群时间周期 | `String`      | 否    | 同 `customer_time_window` | 可选值同上 |
 | `customer_behavior_types` | 分析对象客群行为 | `String \| List[String]` | 否 | 全选 | 英文 code：`browse`（浏览）、`favorite`（收藏）、`add_cart`（加购）、`purchase`（购买）、`search`（搜索）；英文逗号或 JSON 数组 |
@@ -51,14 +51,6 @@ badge:
   "self_item_id": "897425691792",
   "rival_item_ids": "1057000824998,1044235732163,1019326026903",
   "date_type": "recent7"
-}
-```
-
-```json
-{
-  "self_item_id": "897425691792",
-  "rival_item_ids": ["1057000824998"],
-  "date_type": "yesterday"
 }
 ```
 
@@ -128,28 +120,28 @@ badge:
     },
     "date_type": {
       "type": "string",
-      "description": "分析周期类型。可选值：yesterday（昨日）、recent7（近7天）、recent30（近30天）、custom（自定义）",
-      "enum": ["yesterday", "recent7", "recent30", "custom"],
+      "description": "分析周期类型。可选值：recent7（近7天）、custom（自定义）。快捷周期结束日取页面日历探测的最晚可选日",
+      "enum": ["recent7", "custom"],
       "default": "recent7"
     },
     "custom_start_date": {
       "type": "string",
-      "description": "分析开始日期；date_type=custom 时必填；支持 YYYYMMDD 或 YYYY-MM-DD；须在最近 90 天内且最晚为昨日",
+      "description": "分析开始日期；date_type=custom 时必填；支持 YYYYMMDD 或 YYYY-MM-DD；须在最近 90 天内且最晚为页面最晚可选日",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_end_date": {
       "type": "string",
-      "description": "分析结束日期；date_type=custom 时必填；支持 YYYYMMDD 或 YYYY-MM-DD；须在最近 90 天内且最晚为昨日；不可早于 custom_start_date",
+      "description": "分析结束日期；date_type=custom 时必填；支持 YYYYMMDD 或 YYYY-MM-DD；须在最近 90 天内且最晚为页面最晚可选日；不可早于 custom_start_date",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_peer_start_date": {
       "type": "string",
-      "description": "对比周期开始日期；date_type=custom 时必填；支持 YYYYMMDD 或 YYYY-MM-DD；须在最近 90 天内且最晚为昨日",
+      "description": "对比周期开始日期；date_type=custom 时必填；支持 YYYYMMDD 或 YYYY-MM-DD；须在最近 90 天内且最晚为页面最晚可选日",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_peer_end_date": {
       "type": "string",
-      "description": "对比周期结束日期；date_type=custom 时必填；支持 YYYYMMDD 或 YYYY-MM-DD；须在最近 90 天内且最晚为昨日；不可早于 custom_peer_start_date",
+      "description": "对比周期结束日期；date_type=custom 时必填；支持 YYYYMMDD 或 YYYY-MM-DD；须在最近 90 天内且最晚为页面最晚可选日；不可早于 custom_peer_start_date",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "customer_time_window": {
@@ -287,7 +279,7 @@ badge:
 | `rivalItemId3`    | 竞争商品 ID（第三个） | `String` | 是   | rival_item_ids[2]（不足时为 null）             | `1019326026903` |
 | `dateType`        | 分析周期类型       | `String` | 否   | 任务入参 date_type                           | `custom`        |
 | `beginDate`       | 分析开始日期       | `String` | 否   | 页面「分析周期」选择器实际展示的起始日（YYYY-MM-DD） | `2026-06-21`    |
-| `endDate`         | 分析结束日期       | `String` | 否   | 页面「分析周期」选择器实际展示的结束日（结束日为昨日时页面可能显示「昨日」，已归一化为 YYYY-MM-DD） | `2026-06-28`    |
+| `endDate`         | 分析结束日期       | `String` | 否   | 页面「分析周期」选择器实际展示的结束日（结束日为最晚可选日时页面可能显示「昨日」，已归一化为 YYYY-MM-DD） | `2026-06-28`    |
 | `peerBeginDate`   | 对比周期开始日期     | `String` | 否   | 页面「对比周期」选择器实际展示的起始日（YYYY-MM-DD） | `2026-06-16`    |
 | `peerEndDate`     | 对比周期结束日期     | `String` | 否   | 页面「对比周期」选择器实际展示的结束日（YYYY-MM-DD） | `2026-06-20`    |
 | `customerTimeWindow` | 分析对象客群时间周期 | `String` | 否 | 任务入参 customer_time_window | `recent7` |
