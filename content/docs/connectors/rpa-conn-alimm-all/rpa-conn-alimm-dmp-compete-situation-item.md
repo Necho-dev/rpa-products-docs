@@ -334,13 +334,6 @@ badge:
 | 流量宝 | brand_ad | — |
 
 
-
-### 数据样例
-
-> 数据来源：账号 120 / 默认近7天（四段日期均未填）/ 连接器真实运行输出（2026-07-01）
-
-> 以下为代表性摘录（八块映射数据仅展示部分字段；`customerProfile.crowdCoverage` 待补充真实样例）。
-
 ```json
 [
   {
@@ -435,25 +428,36 @@ badge:
       }
     ],
     "customerProfile": [
-      {
-        "targetRole": "selfItem",
-        "itemId": "897425691792",
-        "itemIds": null,
-        "behaviorTypes": ["browse", "favorite", "add_cart", "purchase", "search"],
-        "behaviorValues": "1,2,3,4,5",
-        "timeWindow": "recent7",
-        "timeWindowDays": 7,
-        "profileType": "gender",
-        "profileTagId": 114554,
-        "profileLabel": "用户性别",
-        "tagId": "114554",
-        "rate": "0.903125",
-        "ratio": "0.903125",
-        "optionValue": "0",
-        "optionName": "女性用户",
-        "tagName": "用户性别",
-        "optionNum": "2023"
-      }
+          {                                                                                                                                                                                
+      "targetRole": "selfItem",                                                                                                                                                      
+      "itemId": "897425691792",                                                                                                                                                      
+      "itemIds": null,                                                                                                                                                               
+      "behaviorTypes": [                                                                                                                                                             
+        "browse",                                                                                                                                                                    
+        "favorite",                                                                                                                                                                  
+        "add_cart",                                                                                                                                                                  
+        "purchase",                                                                                                                                                                  
+        "search"                                                                                                                                                                     
+      ],                                                                                                                                                                             
+      "behaviorValues": "1,2,3,4,5",                                                                                                                                                 
+      "timeWindow": "recent7",                                                                                                                                                       
+      "timeWindowDays": 7,                                                                                                                                                           
+      "crowdCoverage": "2,000~3,000",                                                                                                                                                
+      "profileType": "purchasing_power",                                                                                                                                             
+      "profileTagId": 163535,                                                                                                                                                        
+      "profileLabel": "消费能力等级",                                                                                                                                                
+      "tagId": "163535",                                                                                                                                                             
+      "rate": "0.31160714285714286",                                                                                                                                                 
+      "optionValue": "3",                                                                                                                                                            
+      "tagOptionGroupId": "41361",                                                                                                                                                   
+      "tagType": "MUTLTIPLEGROUP",                                                                                                                                                   
+      "optionId": "6741510",                                                                                                                                                         
+      "isHaveSubOption": "false",                                                                                                                                                    
+      "optionName": "购买力L3",                                                                                                                                                      
+      "tagName": "消费能力等级",                                                                                                                                                     
+      "optionNum": "698",                                                                                                                                                            
+      "ratio": "0.31160714285714286"                                                                                                                                                 
+    }
     ]
   }
 ]
