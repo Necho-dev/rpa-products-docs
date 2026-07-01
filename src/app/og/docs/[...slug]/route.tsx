@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import { getDocAccessContext } from '@/lib/docs/access/doc-access';
-import { getEffectiveDocAccess } from '@/lib/docs/access/docs-access-effective';
 import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
 import { buildOgCoverProps } from '@/lib/docs/og/build-cover-props';
 import { buildOgShareBaseProps, buildOgSharePosterProps, buildOgQuoteCardProps } from '@/lib/docs/og/build-props';
@@ -81,12 +80,8 @@ export async function GET(
 
   const fonts = getOgFontData();
 
-  if (getEffectiveDocAccess(page) === 'private') {
-    const access = getDocAccessContext(req);
-    if (!isDocPageAccessible(page, access)) notFound();
-  }
 
-  const origin = resolveOgSiteOrigin(req);
+  const origin = resolveOgSiteOrigin();
 
   if (fileName === 'poster.png') {
     const posterProps = await buildOgSharePosterProps(page, origin);
