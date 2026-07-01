@@ -1,4 +1,5 @@
-import type { ReactElement } from 'react';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import path from 'node:path';
 import { getDocAccessContext } from '@/lib/docs/access/doc-access';
 import { getEffectiveDocAccess } from '@/lib/docs/access/docs-access-effective';
 import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
@@ -12,33 +13,58 @@ import { OgShareCard } from '@/lib/docs/og/template-card';
 import { OgSharePoster } from '@/lib/docs/og/template-poster';
 import { OgQuoteCard } from '@/lib/docs/og/template-quote';
 import { normalizeQuoteText, verifyQuoteSignature, buildPageUrlWithTextFragment } from '@/lib/docs/selection/quote-sign';
-import { getPageCover, getPageImage, getPageSharePoster, source } from '@/lib/docs/source/source';
+import { source } from '@/lib/docs/source/source';
 import { resolveOgSiteOrigin } from '@/lib/core/site-origin';
 import { getPublicSiteUrlIfSet } from '@/lib/core/shared';
 import { notFound } from 'next/navigation';
-import { connection } from 'next/server';
 import { ImageResponse } from 'next/og';
 
-export const revalidate = false;
-export const dynamicParams = true;
+export const dynamic = 'force-dynamic';
 
 const MAX_QUOTE_IMAGE_HEIGHT = 2400;
 const OG_CACHE_CONTROL = 'public, max-age=31536000, immutable';
 
-function ogImageResponse(
-  element: ReactElement,
-  options: ConstructorParameters<typeof ImageResponse>[1],
-): ImageResponse {
-  return new ImageResponse(element, {
-    ...options,
-    headers: {
-      ...options?.headers,
-      'Cache-Control': OG_CACHE_CONTROL,
-    },
-  });
+/**
+ * 磁盘缓存根目录：构建期由 scripts/prerender-og.tsx 预填充，
+ * 运行时命中直接读文件；未命中（如开发环境）则渲染后写盘作为兜底。
+ */
+const OG_CACHE_DIR = path.join(process.cwd(), '.next/cache/og');
+
+/**
+ * 从磁盘缓存读取或按需渲染 OG 图片。
+ * key 格式：slug.join('/') + '/' + fileName，根页直接是 fileName。
+ */
+async function serveOgImage(
+  cacheKey: string,
+  render: () => ImageResponse,
+): Promise<Response> {
+  const filePath = path.join(OG_CACHE_DIR, cacheKey);
+  try {
+    const buf = await readFile(filePath);
+    return new Response(buf, {
+      headers: {
+        'Content-Type': 'image/png',
+        'Cache-Control': OG_CACHE_CONTROL,
+        'X-OG-Cache': 'HIT',
+      },
+    });
+  } catch {
+    // 磁盘未命中（开发环境 / 预生成失败兜底）：渲染并异步写盘
+    const imgResponse = render();
+    const buf = Buffer.from(await imgResponse.arrayBuffer());
+    mkdir(path.dirname(filePath), { recursive: true })
+      .then(() => writeFile(filePath, buf))
+      .catch(() => {});
+    return new Response(buf, {
+      headers: {
+        'Content-Type': 'image/png',
+        'Cache-Control': OG_CACHE_CONTROL,
+        'X-OG-Cache': 'MISS',
+      },
+    });
+  }
 }
 
-/** quote 动态渲染：优先 env，否则用请求 URL origin（避免读 headers 触发 static 冲突） */
 function resolveQuoteSiteOrigin(req: Request): string {
   const fromEnv = getPublicSiteUrlIfSet();
   if (fromEnv) return fromEnv;
@@ -55,9 +81,6 @@ export async function GET(
   if (!page) notFound();
 
   if (fileName === 'quote.png') {
-    // 与 generateStaticParams 静态 OG 共存：显式标记本请求为动态
-    await connection();
-
     const fonts = getOgFontData();
     const access = getDocAccessContext(req);
     if (!isDocPageAccessible(page, access)) notFound();
@@ -92,26 +115,29 @@ export async function GET(
   }
 
   const origin = resolveOgSiteOrigin(req);
+  const cacheKey = slug.join('/');
 
   if (fileName === 'poster.png') {
     const posterProps = await buildOgSharePosterProps(page, origin);
     const height = estimatePosterHeight(posterProps);
-
-    return ogImageResponse(<OgSharePoster {...posterProps} />, {
-      width: POSTER_WIDTH,
-      height,
-      fonts: ogImageFonts(fonts),
-    });
+    return serveOgImage(cacheKey, () =>
+      new ImageResponse(<OgSharePoster {...posterProps} />, {
+        width: POSTER_WIDTH,
+        height,
+        fonts: ogImageFonts(fonts),
+      }),
+    );
   }
 
   if (fileName === 'cover.png') {
     const coverProps = await buildOgCoverProps(page);
-
-    return ogImageResponse(<OgCoverCard {...coverProps} />, {
-      width: COVER_WIDTH,
-      height: COVER_HEIGHT,
-      fonts: ogImageFonts(fonts),
-    });
+    return serveOgImage(cacheKey, () =>
+      new ImageResponse(<OgCoverCard {...coverProps} />, {
+        width: COVER_WIDTH,
+        height: COVER_HEIGHT,
+        fonts: ogImageFonts(fonts),
+      }),
+    );
   }
 
   if (fileName !== 'image.png') {
@@ -119,18 +145,11 @@ export async function GET(
   }
 
   const cardProps = buildOgShareBaseProps(page, origin);
-
-  return ogImageResponse(<OgShareCard {...cardProps} />, {
-    width: 1200,
-    height: 630,
-    fonts: ogImageFonts(fonts),
-  });
-}
-
-export function generateStaticParams() {
-  return source.getPages().flatMap((page) => [
-    { slug: getPageImage(page).segments },
-    { slug: getPageSharePoster(page).segments },
-    { slug: getPageCover(page).segments },
-  ]);
+  return serveOgImage(cacheKey, () =>
+    new ImageResponse(<OgShareCard {...cardProps} />, {
+      width: 1200,
+      height: 630,
+      fonts: ogImageFonts(fonts),
+    }),
+  );
 }

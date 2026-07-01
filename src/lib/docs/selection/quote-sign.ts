@@ -44,7 +44,8 @@ export function verifyQuoteSignature(
 }
 
 export function buildQuotePosterPath(slugs: string[]): string {
-  return `/og/docs/${slugs.join('/')}/quote.png`;
+  const prefix = slugs.length > 0 ? `${slugs.join('/')}/` : '';
+  return `/og/docs/${prefix}quote.png`;
 }
 
 export function buildSignedQuotePosterUrl(

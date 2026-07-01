@@ -22,7 +22,7 @@ function parseOgSlug(pathname: string): string[] | null {
 /** 公开文档 OG 可跳过 Cube SSO 全局门禁（页级 private 仍由 applyOgDocGate 拦截） */
 export function isPublicOgDocsPath(pathname: string): boolean {
   const slug = parseOgSlug(pathname);
-  if (!slug || slug.length < 2) return false;
+  if (!slug || slug.length < 1) return false;
   const fileName = slug[slug.length - 1];
   if (!OG_VARIANTS.has(fileName) || fileName === 'quote.png') return false;
   const page = source.getPage(slug.slice(0, -1));
@@ -37,7 +37,7 @@ export function isPublicOgDocsPath(pathname: string): boolean {
 export function applyOgDocGate(request: NextRequest): NextResponse | null {
   const { pathname } = request.nextUrl;
   const slug = parseOgSlug(pathname);
-  if (!slug || slug.length < 2) return null;
+  if (!slug || slug.length < 1) return null;
 
   const fileName = slug[slug.length - 1];
   if (!OG_VARIANTS.has(fileName)) return null;

@@ -46,7 +46,7 @@ RUN groupadd -r -g 1001 nodejs && useradd -r -u 1001 -g nodejs -s /usr/sbin/nolo
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-# build 期 OG 预生成 Full Route Cache；勿在 builder 对 .next/cache 使用 RUN mount
+# build 期由 og:prerender 脚本预生成的 OG 图片（.next/cache/og/）随 .next/cache 一并带入运行时；勿在 builder 对 .next/cache 使用 RUN mount
 COPY --from=builder --chown=nextjs:nodejs /app/.next/cache ./.next/cache
 # quote.png 动态渲染需在运行时读 src/fonts；standalone trace 未必包含该目录
 COPY --from=builder --chown=nextjs:nodejs /app/src/fonts ./src/fonts

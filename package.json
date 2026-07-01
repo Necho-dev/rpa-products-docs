@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "next build",
+    "og:prerender": "npx tsx scripts/prerender-og.tsx",
+    "build": "next build && npm run og:prerender",
     "dev": "next dev",
     "start": "next start",
     "start:standalone": "bash scripts/start-standalone.sh",
