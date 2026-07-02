@@ -33,7 +33,7 @@ badge:
 | ------------------------ | -------- | ----------------------- | ---- | --------- | ---------------------------------------------------------------------------------------------------------------- |
 | `self_item_id`           | 本店商品 ID  | `String`                | 是    | —         | 不可与 `rival_item_ids` 中任一 ID 重复                                                                                   |
 | `rival_item_ids`         | 竞争商品 ID  | `String \| List[String]` | 是    | —         | 英文逗号分隔字符串或 JSON 数组；中文逗号自动转换；最多 3 个；示例 `"123,456"` 或 `["123","456"]`                                              |
-| `custom_start_date`      | 分析开始日期   | `String`                | 否    | —         | 与 `custom_end_date`、`custom_peer_start_date`、`custom_peer_end_date` **须同时填写**才启用自定义周期；四段均未填时沿用页面刷新后的默认 recent7 展示值；支持格式：YYYYMMDD、YYYY-MM-DD；静态校验：不能晚于昨日、四段整体跨度不超过 90 天、不能早于 N-2 起算的最近 90 天最早可能日期；最终是否可选由页面日历点选决定，灰色不可选时返回业务失败 |
+| `custom_start_date`      | 分析开始日期   | `String`                | 否    | —         | 与 `custom_end_date`、`custom_peer_start_date`、`custom_peer_end_date` **须同时填写**才启用自定义周期；四段均未填时沿用页面刷新后的默认最近七天的展示值；支持格式：YYYYMMDD、YYYY-MM-DD；静态校验：不能晚于昨日、四段整体跨度不超过 90 天、不能早于 N-2 起算的最近 90 天最早可能日期；最终是否可选由页面日历点选决定，灰色不可选时返回业务失败 |
 | `custom_end_date`        | 分析结束日期   | `String`                | 否    | —         | 须与另外三段自定义日期同时填写；支持格式：YYYYMMDD、YYYY-MM-DD；静态校验规则同上；不可早于 `custom_start_date` |
 | `custom_peer_start_date` | 对比周期开始日期 | `String`                | 否    | —         | 须与另外三段自定义日期同时填写；支持格式：YYYYMMDD、YYYY-MM-DD；静态校验规则同上 |
 | `custom_peer_end_date`   | 对比周期结束日期 | `String`                | 否    | —         | 须与另外三段自定义日期同时填写；支持格式：YYYYMMDD、YYYY-MM-DD；静态校验规则同上；不可早于 `custom_peer_start_date`；分析周期与对比周期允许重叠 |
