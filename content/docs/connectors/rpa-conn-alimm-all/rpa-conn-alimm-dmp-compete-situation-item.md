@@ -33,14 +33,14 @@ badge:
 | ------------------------ | -------- | ----------------------- | ---- | --------- | ---------------------------------------------------------------------------------------------------------------- |
 | `self_item_id`           | 本店商品 ID  | `String`                | 是    | —         | 不可与 `rival_item_ids` 中任一 ID 重复                                                                                   |
 | `rival_item_ids`         | 竞争商品 ID  | `String \| List[String]` | 是    | —         | 英文逗号分隔字符串或 JSON 数组；中文逗号自动转换；最多 3 个；示例 `"123,456"` 或 `["123","456"]`                                              |
-| `custom_start_date`      | 分析开始日期   | `String`                | 否    | —         | 与 `custom_end_date`、`custom_peer_start_date`、`custom_peer_end_date` **须同时填写**才启用自定义周期；四段均未填时默认近7天（结束日取页面日历最晚可选日，分析周期为其前 7 天，对比周期为前一段等长区间）；支持格式：YYYYMMDD、YYYY-MM-DD；须在「最近 90 天、最晚至页面最晚可选日」窗口内 |
-| `custom_end_date`        | 分析结束日期   | `String`                | 否    | —         | 须与另外三段自定义日期同时填写；支持格式：YYYYMMDD、YYYY-MM-DD；须在「最近 90 天、最晚至页面最晚可选日」窗口内；不可早于 `custom_start_date` |
-| `custom_peer_start_date` | 对比周期开始日期 | `String`                | 否    | —         | 须与另外三段自定义日期同时填写；支持格式：YYYYMMDD、YYYY-MM-DD；须在「最近 90 天、最晚至页面最晚可选日」窗口内 |
-| `custom_peer_end_date`   | 对比周期结束日期 | `String`                | 否    | —         | 须与另外三段自定义日期同时填写；支持格式：YYYYMMDD、YYYY-MM-DD；须在「最近 90 天、最晚至页面最晚可选日」窗口内；不可早于 `custom_peer_start_date`；分析周期与对比周期允许重叠 |
+| `custom_start_date`      | 分析开始日期   | `String`                | 否    | —         | 与 `custom_end_date`、`custom_peer_start_date`、`custom_peer_end_date` **须同时填写**才启用自定义周期；四段均未填时沿用页面刷新后的默认 recent7 展示值；支持格式：YYYYMMDD、YYYY-MM-DD；静态校验：不能晚于昨日、四段整体跨度不超过 90 天、不能早于 N-2 起算的最近 90 天最早可能日期；最终是否可选由页面日历点选决定，灰色不可选时返回业务失败 |
+| `custom_end_date`        | 分析结束日期   | `String`                | 否    | —         | 须与另外三段自定义日期同时填写；支持格式：YYYYMMDD、YYYY-MM-DD；静态校验规则同上；不可早于 `custom_start_date` |
+| `custom_peer_start_date` | 对比周期开始日期 | `String`                | 否    | —         | 须与另外三段自定义日期同时填写；支持格式：YYYYMMDD、YYYY-MM-DD；静态校验规则同上 |
+| `custom_peer_end_date`   | 对比周期结束日期 | `String`                | 否    | —         | 须与另外三段自定义日期同时填写；支持格式：YYYYMMDD、YYYY-MM-DD；静态校验规则同上；不可早于 `custom_peer_start_date`；分析周期与对比周期允许重叠 |
 | `customer_time_window`   | 分析对象客群时间周期 | `String`            | 否    | `recent7` | 可选值：`recent7`（最近7天）、`recent15`（最近15天）、`recent30`（最近30天）、`recent90`（最近90天） |
 | `compare_customer_time_window` | 对比对象客群时间周期 | `String`      | 否    | 同 `customer_time_window` | 可选值同上 |
-| `customer_behavior_types` | 分析对象客群行为 | `String \| List[String]` | 否 | 五行为全选 | 英文 code：`browse`（浏览）、`favorite`（收藏）、`add_cart`（加购）、`purchase`（购买）、`search`（搜索）；英文逗号或 JSON 数组 |
-| `compare_customer_behavior_types` | 对比对象客群行为 | `String \| List[String]` | 否 | 五行为全选 | 可选值同上 |
+| `customer_behavior_types` | 分析对象客群行为 | `String \| List[String]` | 否 | 全选 | 英文 code：`browse`（浏览）、`favorite`（收藏）、`add_cart`（加购）、`purchase`（购买）、`search`（搜索）；英文逗号或 JSON 数组 |
+| `compare_customer_behavior_types` | 对比对象客群行为 | `String \| List[String]` | 否 | 全选 | 可选值同上 |
 
 
 ### 入参样例
@@ -114,22 +114,22 @@ badge:
     },
     "custom_start_date": {
       "type": "string",
-      "description": "分析开始日期；须与另外三段自定义日期同时填写才启用自定义周期；四段均未填时默认近7天；支持 YYYYMMDD 或 YYYY-MM-DD；须在最近 90 天内且最晚为页面最晚可选日",
+      "description": "分析开始日期；须与另外三段自定义日期同时填写才启用自定义周期；四段均未填时沿用页面默认 recent7；支持 YYYYMMDD 或 YYYY-MM-DD；静态校验：不能晚于昨日、四段整体跨度不超过 90 天、不能早于 N-2 起算的最近 90 天最早可能日期；页面日历灰色不可选时返回业务失败",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_end_date": {
       "type": "string",
-      "description": "分析结束日期；须与另外三段自定义日期同时填写；支持 YYYYMMDD 或 YYYY-MM-DD；须在最近 90 天内且最晚为页面最晚可选日；不可早于 custom_start_date",
+      "description": "分析结束日期；须与另外三段自定义日期同时填写；支持 YYYYMMDD 或 YYYY-MM-DD；静态校验规则同上；不可早于 custom_start_date",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_peer_start_date": {
       "type": "string",
-      "description": "对比周期开始日期；须与另外三段自定义日期同时填写；支持 YYYYMMDD 或 YYYY-MM-DD；须在最近 90 天内且最晚为页面最晚可选日",
+      "description": "对比周期开始日期；须与另外三段自定义日期同时填写；支持 YYYYMMDD 或 YYYY-MM-DD；静态校验规则同上",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_peer_end_date": {
       "type": "string",
-      "description": "对比周期结束日期；须与另外三段自定义日期同时填写；支持 YYYYMMDD 或 YYYY-MM-DD；须在最近 90 天内且最晚为页面最晚可选日；不可早于 custom_peer_start_date",
+      "description": "对比周期结束日期；须与另外三段自定义日期同时填写；支持 YYYYMMDD 或 YYYY-MM-DD；静态校验规则同上；不可早于 custom_peer_start_date",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "customer_time_window": {
@@ -279,9 +279,13 @@ badge:
 
 ### 取数说明
 
-`dateType` 为输出字段：四段自定义日期入参均填写时为 `custom`，均未填时为 `recent7`（近7天，结束日取页面日历最晚可选日，通常为昨日；数据未就绪时可能更早）。页面展示已与默认近7天区间一致时，连接器跳过重复点选日期面板。
+`dateType` 为输出字段：四段自定义日期入参均填写时为 `custom`，均未填时为 `recent7`。
 
-`beginDate` / `endDate` / `peerBeginDate` / `peerEndDate` 为日期面板操作完成后页面选择器实际展示值，非入参推算值。
+**recent7（四段日期均未填）**：页面刷新后默认即为 recent7，连接器直接读取「分析周期 / 对比周期」选择器展示值，不打开日期面板重复点选。
+
+**custom（四段日期均填）**：连接器在页面日历中直接点选入参日期；入参阶段仅做静态边界校验（不能晚于昨日、四段整体跨度不超过 90 天、不能早于 N-2 起算的最近 90 天最早可能日期），不提前推算页面可选窗口。若目标日期在日历中为灰色不可选，返回业务失败（不可重试）。
+
+`beginDate` / `endDate` / `peerBeginDate` / `peerEndDate` 为页面选择器实际展示值（结束日可能显示「昨日」，已归一化为 YYYY-MM-DD），非入参推算值。
 
 `competeItems[]` 按页面「我的商品」展示区顺序排列：首项为本品（`role=selfItem`），后续为竞品（`rivalItem1`~`rivalItem3`）；含商品名称、详情页 URL 及主图 URL。
 
