@@ -1,6 +1,6 @@
 ---
-title: 巨量千川
-description: 覆盖巨量千川素材分析等场景的 rpa-conn-juliang-all 包说明与安装
+title: 巨量
+description: 覆盖巨量千川素材分析、巨量云图行业内容榜等场景的 rpa-conn-juliang-all 包说明与安装
 entry: rpa-conn-juliang-all
 moduleGroup: juliang
 moduleIcon:
@@ -34,4 +34,9 @@ qc:
   icon:
     comp: BarChart2
     color: '#6366f1'
+yuntu:
+  label: 云图/Yuntu
+  icon:
+    comp: Sparkles
+    color: '#0ea5e9'
 :::
