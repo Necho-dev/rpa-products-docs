@@ -33,14 +33,14 @@ badge:
 | ------------------------ | -------- | ----------------------- | ---- | --------- | ---------------------------------------------------------------------------------------------------------------- |
 | `self_item_id`           | 本店商品 ID  | `String`                | 是    | —         | 不可与 `rival_item_ids` 中任一 ID 重复                                                                                   |
 | `rival_item_ids`         | 竞争商品 ID  | `String \| List[String]` | 是    | —         | 英文逗号分隔字符串或 JSON 数组；中文逗号自动转换；最多 3 个；示例 `"123,456"` 或 `["123","456"]`                                              |
-| `custom_start_date`      | 分析开始日期   | `String`                | 否    | —         | 与 `custom_end_date`、`custom_peer_start_date`、`custom_peer_end_date` **须同时填写**才启用自定义周期；四段均未填时沿用页面刷新后的默认最近七天的展示值；支持格式：YYYYMMDD、YYYY-MM-DD；静态校验：不能晚于昨日、四段整体跨度不超过 90 天、不能早于 N-2 起算的最近 90 天最早可能日期；最终是否可选由页面日历点选决定，灰色不可选时返回业务失败 |
+| `custom_start_date`      | 分析开始日期   | `String`                | 否    | —         | 与 `custom_end_date`、`custom_peer_start_date`、`custom_peer_end_date` **须同时填写**才启用自定义周期；四段均未填时沿用页面刷新后的默认 recent7 展示值；支持格式：YYYYMMDD、YYYY-MM-DD；静态校验：不能晚于昨日、四段整体跨度不超过 90 天、不能早于 N-1 起算的最近 90 天最早可能日期；最终是否可选由页面日历点选决定，灰色不可选时返回业务失败 |
 | `custom_end_date`        | 分析结束日期   | `String`                | 否    | —         | 须与另外三段自定义日期同时填写；支持格式：YYYYMMDD、YYYY-MM-DD；静态校验规则同上；不可早于 `custom_start_date` |
 | `custom_peer_start_date` | 对比周期开始日期 | `String`                | 否    | —         | 须与另外三段自定义日期同时填写；支持格式：YYYYMMDD、YYYY-MM-DD；静态校验规则同上 |
 | `custom_peer_end_date`   | 对比周期结束日期 | `String`                | 否    | —         | 须与另外三段自定义日期同时填写；支持格式：YYYYMMDD、YYYY-MM-DD；静态校验规则同上；不可早于 `custom_peer_start_date`；分析周期与对比周期允许重叠 |
 | `customer_time_window`   | 分析对象客群时间周期 | `String`            | 否    | `recent7` | 可选值：`recent7`（最近7天）、`recent15`（最近15天）、`recent30`（最近30天）、`recent90`（最近90天） |
 | `compare_customer_time_window` | 对比对象客群时间周期 | `String`      | 否    | 同 `customer_time_window` | 可选值同上 |
-| `customer_behavior_types` | 分析对象客群行为 | `String \| List[String]` | 否 | 全选 | 英文 code：`browse`（浏览）、`favorite`（收藏）、`add_cart`（加购）、`purchase`（购买）、`search`（搜索）；英文逗号或 JSON 数组 |
-| `compare_customer_behavior_types` | 对比对象客群行为 | `String \| List[String]` | 否 | 全选 | 可选值同上 |
+| `customer_behavior_types` | 分析对象客群行为 | `String \| List[String]` | 否 | 五行为全选 | 英文 code：`browse`（浏览）、`favorite`（收藏）、`add_cart`（加购）、`purchase`（购买）、`search`（搜索）；英文逗号或 JSON 数组 |
+| `compare_customer_behavior_types` | 对比对象客群行为 | `String \| List[String]` | 否 | 五行为全选 | 可选值同上 |
 
 
 ### 入参样例
@@ -254,7 +254,6 @@ badge:
 | `rivalItemId1`    | 竞争商品 ID（第一个） | `String` | 否   | rival_item_ids[0]                        | `1057000824998` |
 | `rivalItemId2`    | 竞争商品 ID（第二个） | `String` | 是   | rival_item_ids[1]（不足时为 null）             | `1044235732163` |
 | `rivalItemId3`    | 竞争商品 ID（第三个） | `String` | 是   | rival_item_ids[2]（不足时为 null）             | `1019326026903` |
-| `dateType`        | 分析周期类型       | `String` | 否   | 连接器推断（四段自定义日期均填为 `custom`，均未填时为 `recent7`） | `recent7`       |
 | `beginDate`       | 分析开始日期       | `String` | 否   | 页面「分析周期」选择器实际展示的起始日（YYYY-MM-DD） | `2026-06-24`    |
 | `endDate`         | 分析结束日期       | `String` | 否   | 页面「分析周期」选择器实际展示的结束日（结束日为最晚可选日时页面可能显示「昨日」，已归一化为 YYYY-MM-DD） | `2026-06-30`    |
 | `peerBeginDate`   | 对比周期开始日期     | `String` | 否   | 页面「对比周期」选择器实际展示的起始日（YYYY-MM-DD） | `2026-06-17`    |
@@ -278,8 +277,6 @@ badge:
 
 
 ### 取数说明
-
-`dateType` 为输出字段：四段自定义日期入参均填写时为 `custom`，均未填时为 `recent7`。
 
 **recent7（四段日期均未填）**：页面刷新后默认即为 recent7，连接器直接读取「分析周期 / 对比周期」选择器展示值，不打开日期面板重复点选。
 
@@ -338,8 +335,6 @@ badge:
 | 流量宝 | brand_ad | — |
 
 
-### 数据样例
-
 ```json
 [
   {
@@ -349,7 +344,6 @@ badge:
     "rivalItemId1": "1057000824998",
     "rivalItemId2": "1044235732163",
     "rivalItemId3": "1019326026903",
-    "dateType": "recent7",
     "beginDate": "2026-06-24",
     "endDate": "2026-06-30",
     "peerBeginDate": "2026-06-17",
@@ -434,30 +428,36 @@ badge:
       }
     ],
     "customerProfile": [
-      {
-        "targetRole": "selfItem",
-        "itemId": "897425691792",
-        "itemIds": null,
-        "behaviorTypes": ["browse", "favorite", "add_cart", "purchase", "search"],
-        "behaviorValues": "1,2,3,4,5",
-        "timeWindow": "recent7",
-        "timeWindowDays": 7,
-        "crowdCoverage": "2,000~3,000",
-        "profileType": "purchasing_power",
-        "profileTagId": 163535,
-        "profileLabel": "消费能力等级",
-        "tagId": "163535",
-        "rate": "0.31160714285714286",
-        "optionValue": "3",
-        "tagOptionGroupId": "41361",
-        "tagType": "MUTLTIPLEGROUP",
-        "optionId": "6741510",
-        "isHaveSubOption": "false",
-        "optionName": "购买力L3",
-        "tagName": "消费能力等级",
-        "optionNum": "698",
-        "ratio": "0.31160714285714286"
-      }
+          {                                                                                                                                                                                
+      "targetRole": "selfItem",                                                                                                                                                      
+      "itemId": "897425691792",                                                                                                                                                      
+      "itemIds": null,                                                                                                                                                               
+      "behaviorTypes": [                                                                                                                                                             
+        "browse",                                                                                                                                                                    
+        "favorite",                                                                                                                                                                  
+        "add_cart",                                                                                                                                                                  
+        "purchase",                                                                                                                                                                  
+        "search"                                                                                                                                                                     
+      ],                                                                                                                                                                             
+      "behaviorValues": "1,2,3,4,5",                                                                                                                                                 
+      "timeWindow": "recent7",                                                                                                                                                       
+      "timeWindowDays": 7,                                                                                                                                                           
+      "crowdCoverage": "2,000~3,000",                                                                                                                                                
+      "profileType": "purchasing_power",                                                                                                                                             
+      "profileTagId": 163535,                                                                                                                                                        
+      "profileLabel": "消费能力等级",                                                                                                                                                
+      "tagId": "163535",                                                                                                                                                             
+      "rate": "0.31160714285714286",                                                                                                                                                 
+      "optionValue": "3",                                                                                                                                                            
+      "tagOptionGroupId": "41361",                                                                                                                                                   
+      "tagType": "MUTLTIPLEGROUP",                                                                                                                                                   
+      "optionId": "6741510",                                                                                                                                                         
+      "isHaveSubOption": "false",                                                                                                                                                    
+      "optionName": "购买力L3",                                                                                                                                                      
+      "tagName": "消费能力等级",                                                                                                                                                     
+      "optionNum": "698",                                                                                                                                                            
+      "ratio": "0.31160714285714286"                                                                                                                                                 
+    }
     ]
   }
 ]
