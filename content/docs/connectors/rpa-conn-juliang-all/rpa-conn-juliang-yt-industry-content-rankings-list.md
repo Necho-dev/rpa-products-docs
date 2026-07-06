@@ -1,7 +1,7 @@
 ---
 title: 云图-行业灵感-行业内容榜列表
 description: 采集巨量云图行业灵感页行业内容榜视频列表，支持按行业、时间、品牌范围、截取方式及年龄/性别/八大人群筛选，返回榜内素材详情及页面实际筛选项
-entry: rpa.conn.juliang.yuntu.industry.content.rankings.detail
+entry: rpa.conn.juliang.yt.industry.content.rankings.list
 badge:
   label: 待上线
   color: "#EA580C"
@@ -10,7 +10,7 @@ badge:
 | 属性             | 值                                                                                                                                       |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | **连接器类型**   | `RPA 连接器`                                                                                                                             |
-| **连接器代码**   | `rpa.conn.juliang.yuntu.industry.content.rankings.detail`                                                                                |
+| **连接器代码**   | `rpa.conn.juliang.yt.industry.content.rankings.list`                                                                                     |
 | **归属 PyPI 包** | `rpa-conn-juliang-all`                                                                                                                   |
 | **操作类型**     | 浏览器自动化操作 + 网络请求监听                                                                                                          |
 | **目标网页**     | `https://yuntu.oceanengine.com/yuntu_brand/ecom/content_new/creative/content_lab/inspiration/industryContent`                            |
@@ -23,7 +23,7 @@ badge:
 >
 > **网址**：[https://yuntu.oceanengine.com/yuntu_brand/ecom/content_new/creative/content_lab/inspiration/industryContent](https://yuntu.oceanengine.com/yuntu_brand/ecom/content_new/creative/content_lab/inspiration/industryContent)
 
-![巨量云图—行业内容榜](../../public/images/juliang/yuntu_industry_content_rankings_detail_20260703.png)
+![巨量云图—行业内容榜](../../public/images/juliang/yt_industry_content_rankings_list_20260703.png)
 
 ### 业务入参
 

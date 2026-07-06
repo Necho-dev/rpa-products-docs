@@ -34,8 +34,8 @@ qc:
   icon:
     comp: BarChart2
     color: '#6366f1'
-yuntu:
-  label: 云图/Yuntu
+yt:
+  label: 云图/YT
   icon:
     comp: Sparkles
     color: '#0ea5e9'
