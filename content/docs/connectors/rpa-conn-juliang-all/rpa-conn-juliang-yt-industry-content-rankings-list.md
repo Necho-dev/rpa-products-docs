@@ -3,8 +3,8 @@ title: 云图-行业灵感-行业内容榜列表
 description: 采集巨量云图行业灵感页行业内容榜视频列表，支持按行业、时间、品牌范围、截取方式及年龄/性别/八大人群筛选，返回榜内素材详情及页面实际筛选项
 entry: rpa.conn.juliang.yt.industry.content.rankings.list
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                                                                       |

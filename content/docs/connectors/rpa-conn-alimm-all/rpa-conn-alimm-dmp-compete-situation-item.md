@@ -3,8 +3,8 @@ title: 达摩盘-竞争态势-竞争商品分析
 description: 采集达摩盘竞争态势分析页中本品与竞品的基础分析（含竞争控比）、流量分析（付免/无界投资结构占比、广告域/全域归因渠道明细）及客群画像；四段自定义日期均填时启用自定义周期，均未填时默认近7天；本品或竞品未搜到时返回空数据
 entry: rpa.conn.alimm.dmp.compete.situation.item
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性            | 值                                                                          |

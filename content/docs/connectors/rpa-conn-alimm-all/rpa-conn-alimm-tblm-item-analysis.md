@@ -3,8 +3,8 @@ title: 淘宝联盟-商家中心-商品分析
 description: 采集淘宝联盟商家中心商品分析报表，按商品维度导出付款、结算、预售及进店转化等指标，支持快捷日期与自定义日期范围
 entry: rpa.conn.alimm.tblm.item.analysis
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                       |

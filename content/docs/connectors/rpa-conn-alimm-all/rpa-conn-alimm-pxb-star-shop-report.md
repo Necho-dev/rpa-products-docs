@@ -3,8 +3,8 @@ title: 品销宝-明星店铺-报表下载
 description: 下载品销宝明星店铺报表 XLSX，解析账户/推广计划/推广单元/创意/品牌流量包/定向人群六个维度数据并合并返回
 entry: rpa.conn.alimm.pxb.star.shop.report
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                                                                    |

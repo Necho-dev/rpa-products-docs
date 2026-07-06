@@ -3,8 +3,8 @@ title: 云图-行业内容榜-素材详情秒级拆解
 description: 采集巨量云图行业内容榜中指定素材的秒级拆解指数（点赞/流失/点击/互动/评论）及视频链接
 entry: rpa.conn.juliang.yt.industry.content.rankings.detail
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 ---
 
 | 属性             | 值                                                                                                                                            |
