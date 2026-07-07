@@ -8,6 +8,7 @@
     "./rpa-conn-doudian-all",
     "./rpa-conn-alimm-all",
     "./rpa-conn-dewu-all",
-    "./rpa-conn-juliang-all"
+    "./rpa-conn-juliang-all",
+    "./rpa-conn-jdsz-all"
   ]
 }

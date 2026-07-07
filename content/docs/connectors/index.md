@@ -16,4 +16,6 @@ doudian:
   label: 抖店
 juliang:
   label: 巨量
+jdsz:
+  label: 京东商智
 :::
