@@ -25,18 +25,14 @@ import {
 } from '@/lib/docs/selection/excerpt-ai-tools';
 import { getDocAccessContext } from '@/lib/docs/access/doc-access';
 import { inferSiteOrigin } from '@/lib/core/site-origin';
-import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
+import { createLlmProvider } from '@/lib/ai/llm';
 import { convertToModelMessages, stepCountIs, streamText, tool } from 'ai';
 import { docsRoute } from '@/lib/core/shared';
 import type { InkeepUIMessage } from '@/lib/ai/chat-types';
 
 export type { InkeepUIMessage };
 
-const openai = createOpenAICompatible({
-  name: 'inkeep',
-  apiKey: process.env.LLM_API_KEY,
-  baseURL: process.env.LLM_BASE_URL ?? '',
-});
+const openai = createLlmProvider();
 
 export async function POST(req: Request, _ctx: RouteContext<"/api/chat">) {
   let reqJson: unknown;
@@ -90,8 +86,8 @@ After every tool call, you MUST continue and write a clear reply in the same lan
       searchDocumentationPages: tool({
         description: searchDocsToolDescription,
         inputSchema: SearchDocumentationInputSchema,
-        execute: async ({ query, locale, limit }) => {
-          const r = await searchDocumentation(siteOrigin, query, { locale, limit }, access);
+        execute: async ({ query, locale, limit, scope }) => {
+          const r = await searchDocumentation(siteOrigin, query, { locale, limit, scope }, access);
           return r.text;
         },
       }),

@@ -22,6 +22,12 @@ export function registerSearchDocsTool(
           .max(25)
           .optional()
           .describe('Max results (default 15, max 25).'),
+        scope: z
+          .enum(['full', 'page'])
+          .optional()
+          .describe(
+            "Result granularity: 'full' (default) includes matching headings/text snippets; 'page' returns at most one result per document (use when you only need to know which documents match).",
+          ),
       },
       annotations: {
         readOnlyHint: true,
@@ -30,8 +36,8 @@ export function registerSearchDocsTool(
         openWorldHint: false,
       },
     },
-    async ({ query, locale, limit }) => {
-      const r = await searchDocumentation(siteOrigin, query, { locale, limit }, access);
+    async ({ query, locale, limit, scope }) => {
+      const r = await searchDocumentation(siteOrigin, query, { locale, limit, scope }, access);
       return {
         content: [{ type: 'text', text: r.text }],
         ...(r.ok ? {} : { isError: true }),

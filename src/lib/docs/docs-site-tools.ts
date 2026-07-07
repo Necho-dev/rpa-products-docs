@@ -2,6 +2,7 @@ import { z } from 'zod';
 import type { DocAccessContext } from '@/lib/docs/access/doc-access';
 import { getEffectiveDocAccess } from '@/lib/docs/access/docs-access-effective';
 import { getDocsSearchApi } from '@/lib/docs/search/docs-search-server';
+import { filterSearchByScope, type SearchScope } from '@/lib/docs/search/search-utils';
 import { getLLMText, source } from '@/lib/docs/source/source';
 import { docsRoute } from '@/lib/core/shared';
 
@@ -170,7 +171,7 @@ WHEN TO USE: User asks open-ended questions, keywords, or topics without a known
 
 WHEN NOT TO USE: If you already have an exact path, prefer get_docs_content or get_docs_meta directly.
 
-Returns ranked hits with url, type (page/heading/text), and snippet content.`;
+Returns ranked hits with url, type (page/heading/text), and snippet content. Set scope='page' when you only need to know which documents match (no heading/text snippets).`;
 
 export const getPageMetaToolDescription = `Returns page metadata and table of contents without the full body (token-efficient).
 
@@ -223,6 +224,12 @@ export const SearchDocumentationInputSchema = z.object({
     .max(25)
     .optional()
     .describe('Max results (default 15, max 25).'),
+  scope: z
+    .enum(['full', 'page'])
+    .optional()
+    .describe(
+      "Result granularity: 'full' (default) includes matching headings/text snippets for in-page navigation; 'page' returns at most one result per document (useful when you only need to know which documents match, not where).",
+    ),
 });
 
 export const GetDocumentationPageMetaInputSchema = GetDocumentationPageInputSchema;
@@ -230,7 +237,7 @@ export const GetDocumentationPageMetaInputSchema = GetDocumentationPageInputSche
 export async function searchDocumentation(
   siteOrigin: string,
   query: string,
-  options: { locale?: string | null; limit?: number } | undefined,
+  options: { locale?: string | null; limit?: number; scope?: SearchScope } | undefined,
   access: DocAccessContext,
 ): Promise<DocToolTextResult> {
   const q = query.trim();
@@ -247,7 +254,7 @@ export async function searchDocumentation(
     limit,
   });
 
-  results = filterSearchHitsByDocAccess(results, access);
+  results = filterSearchByScope(filterSearchHitsByDocAccess(results, access), options?.scope ?? 'full');
 
   const base = siteOrigin.replace(/\/$/, '');
   const list = results.map((r) => ({
