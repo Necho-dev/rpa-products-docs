@@ -1,0 +1,41 @@
+---
+title: 阿里妈妈
+description: 覆盖阿里妈妈平台各场景的 rpa-conn-alimm-all 包说明与安装
+entry: rpa-conn-alimm-all
+---
+
+<ConnectorMeta
+  platform="阿里妈妈"
+  platformUrl="https://ppxk.tmall.com"
+  components={[{ pkg: 'rpa-comp-login-alimm', type: 'login' }]}
+  requireLogin
+  sdkConstraint="rpa-hero-sdk >=3.0.0"
+/>
+
+## 安装 PyPI 包
+
+```bash
+pip install -i https://nexus.yucekj.cn/repository/pypi-hero/simple/ rpa-conn-alimm-all
+```
+
+## 内含连接器
+
+### 品牌新享/Ppxx
+
+<Cards className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+  <ModuleCard
+    title="超级新客加速-订单明细"
+    href="./rpa-conn-alimm-ppxx-data-center-tyroacc-order"
+    code="rpa.conn.alimm.ppxx.data.center.tyroacc.order"
+  />
+</Cards>
+
+### 达摩盘/Dmp
+
+<Cards className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+  <ModuleCard
+    title="竞争商品分析"
+    href="./rpa-conn-alimm-dmp-compete-situation-item"
+    code="rpa.conn.alimm.dmp.compete.situation.item"
+  />
+</Cards>
