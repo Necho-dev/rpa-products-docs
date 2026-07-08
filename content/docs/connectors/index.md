@@ -18,4 +18,6 @@ juliang:
   label: 巨量
 jdsz:
   label: 京东商智
+jingmai:
+  label: 京麦
 :::
