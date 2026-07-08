@@ -26,7 +26,7 @@ import {
 import { getDocAccessContext } from '@/lib/docs/access/doc-access';
 import { inferSiteOrigin } from '@/lib/core/site-origin';
 import { createLlmProvider } from '@/lib/ai/llm';
-import { convertToModelMessages, stepCountIs, streamText, tool } from 'ai';
+import { convertToModelMessages, createUIMessageStreamResponse, stepCountIs, streamText, tool } from 'ai';
 import { docsRoute } from '@/lib/core/shared';
 import type { InkeepUIMessage } from '@/lib/ai/chat-types';
 
@@ -138,5 +138,13 @@ After every tool call, you MUST continue and write a clear reply in the same lan
     toolChoice: 'auto',
   });
 
-  return result.toUIMessageStreamResponse();
+  return createUIMessageStreamResponse({
+    stream: result.toUIMessageStream({
+      messageMetadata: ({ part }) => {
+        if (part.type === 'finish') {
+          return { createdAt: Date.now() };
+        }
+      },
+    }),
+  });
 }

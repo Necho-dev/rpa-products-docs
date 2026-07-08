@@ -1,1058 +1,50 @@
 'use client';
 import {
   type ComponentProps,
-  createContext,
   type ReactNode,
-  type SyntheticEvent,
   use,
   useCallback,
   useEffect,
-  useEffectEvent,
   useMemo,
   useRef,
   useState,
 } from 'react';
-import {
-  Bot,
-  Check,
-  ChevronDown,
-  Copy,
-  History,
-  Loader2,
-  MessageCircleIcon,
-  MessageSquarePlus,
-  RefreshCw,
-  Send,
-  Trash2,
-  User,
-  X,
-} from 'lucide-react';
 import { cn } from '@/lib/core/cn';
-import { safeWriteClipboard } from '@/lib/ui/code-block-utils';
-import { buttonVariants } from '@/components/ui/button';
-import Link from 'fumadocs-core/link';
 import { useChat, type UseChatHelpers } from '@ai-sdk/react';
-import type { ProvideLinksToolSchema } from '@/lib/ai/inkeep-qa-schema';
-import type { z } from 'zod';
 import {
   DefaultChatTransport,
-  getToolName,
-  isToolUIPart,
   lastAssistantMessageIsCompleteWithToolCalls,
-  type DynamicToolUIPart,
-  type ToolUIPart,
 } from 'ai';
-import { Markdown } from '@/components/docs/markdown';
-import { Presence } from '@radix-ui/react-presence';
-import { Popover, PopoverContent, PopoverTrigger } from 'fumadocs-ui/components/ui/popover';
-import { buttonVariants as fdButtonVariants } from 'fumadocs-ui/components/ui/button';
 import { Card } from 'fumadocs-ui/components/card';
 import type { InkeepUIMessage } from '@/lib/ai/chat-types';
-import {
-  getExcerptToolExecutors,
-} from '@/lib/docs/selection/excerpt-ai-tools-registry';
-import {
-  isExcerptClientToolName,
-  type DeleteExcerptInput,
-} from '@/lib/docs/selection/excerpt-ai-tools';
-import { ExcerptDeleteConfirmPanel } from '@/components/docs/selection/excerpt-delete-confirm-panel';
-import {
-  idbGetHighlightById,
-  type DocHighlight,
-} from '@/lib/docs/selection/highlight-idb';
+import { getExcerptToolExecutors } from '@/lib/docs/selection/excerpt-ai-tools-registry';
+import { isExcerptClientToolName } from '@/lib/docs/selection/excerpt-ai-tools';
 import type { SessionListItem } from '@/lib/ai/chat-idb';
 import {
   deriveTitleFromMessages,
   idbBootstrap,
-  idbClearDraftInput,
   idbCreateSession,
   idbDeleteSession,
-  idbGetDraftInput,
   idbGetSession,
   idbListSessions,
   idbPutSession,
   idbSetActiveSessionId,
   idbSetDraftInput,
-  formatChatSessionUpdatedAt,
 } from '@/lib/ai/chat-idb';
-
-const Context = createContext<{
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  chat: UseChatHelpers<InkeepUIMessage>;
-  modelDisplayName?: string;
-  /** IndexedDB 已就绪，可发送消息 */
-  chatBooted: boolean;
-  /** IndexedDB 初始化失败的错误信息 */
-  bootError: string | null;
-  /** useChat 的网络/API 错误（本次运行时） */
-  chatError: Error | undefined;
-  /** 上次关闭/刷新前持久化的错误消息 */
-  persistedError: string | null;
-  sessions: SessionListItem[];
-  activeSessionId: string;
-  newChatSession: () => Promise<void>;
-  selectChatSession: (id: string) => Promise<void>;
-  deleteChatSession: (id: string) => Promise<void>;
-  /** 文档选区上下文，随首条消息发送 */
-  selectionContext: { text: string; pageUrl: string; pageTitle?: string } | null;
-  clearSelectionContext: () => void;
-  openWithSelection: (ctx: { text: string; pageUrl: string; pageTitle?: string }) => void;
-  inputSeed: string | null;
-  inputSeedVersion: number;
-} | null>(null);
-
-/** Scoped typography for assistant markdown (tables, code, headings). */
-const aiChatMarkdownClass = cn(
-  'prose prose-sm max-w-none min-w-0 w-full text-fd-foreground/95',
-  '[&_.docs-table-scroll]:my-3 [&_.docs-table-scroll]:max-w-full [&_.docs-table-scroll]:overflow-x-auto',
-  '[&_table]:border-collapse [&_table]:text-[13px] [&_table]:min-w-full [&_table]:w-max',
-  '[&_thead]:border-b [&_thead]:border-fd-border',
-  '[&_th]:bg-fd-muted/50 [&_th]:px-3 [&_th]:py-2.5 [&_th]:text-left [&_th]:font-semibold [&_th]:whitespace-nowrap',
-  '[&_td]:border-b [&_td]:border-fd-border/50 [&_td]:px-3 [&_td]:py-2.5 [&_td]:align-top',
-  '[&_tr:last-child_td]:border-b-0',
-  '[&_figure]:my-3 [&_figure]:max-w-full',
-  '[&_p]:my-2.5 [&_p]:leading-relaxed',
-  '[&_ul]:my-2 [&_ol]:my-2 [&_li]:my-1',
-  '[&_h1]:mb-3 [&_h1]:mt-0 [&_h1]:text-lg [&_h1]:font-semibold',
-  '[&_h2]:mb-2 [&_h2]:mt-8 [&_h2]:border-b [&_h2]:border-fd-border/70 [&_h2]:pb-1.5 [&_h2]:text-base [&_h2]:font-semibold',
-  '[&_h3]:mb-2 [&_h3]:mt-6 [&_h3]:text-sm [&_h3]:font-semibold',
-  '[&_blockquote]:border-fd-border [&_blockquote]:text-fd-muted-foreground',
-);
-
-export function AISearchPanelHeader({ className, ...props }: ComponentProps<'div'>) {
-  const { setOpen, sessions, activeSessionId, chatBooted, chat } = useAISearchContext();
-
-  const headingTitle = useMemo(() => {
-    if (!chatBooted) return 'AI 对话';
-    const visible = chat.messages.filter((m) => m.role !== 'system');
-    const live = deriveTitleFromMessages(visible);
-    if (live !== '新对话') return live;
-    const meta = sessions.find((s) => s.id === activeSessionId);
-    return meta?.title ?? '新对话';
-  }, [chatBooted, chat.messages, sessions, activeSessionId]);
-
-  const lastUpdatedText = useMemo(() => {
-    if (!chatBooted) return null;
-    const meta = sessions.find((s) => s.id === activeSessionId);
-    if (!meta?.updatedAt) return null;
-    return formatChatSessionUpdatedAt(meta.updatedAt);
-  }, [chatBooted, sessions, activeSessionId]);
-
-  return (
-    <div
-      className={cn(
-        'sticky top-0 flex items-start gap-2 border rounded-xl bg-fd-secondary text-fd-secondary-foreground shadow-sm',
-        className,
-      )}
-      {...props}
-    >
-      <div className="px-4 py-2.5 flex-1 min-w-0">
-        <p className="text-sm font-medium leading-snug truncate" title={headingTitle}>
-          {headingTitle}
-        </p>
-        {lastUpdatedText ? (
-          <p className="text-xs text-fd-muted-foreground truncate">
-            {lastUpdatedText}
-          </p>
-        ) : null}
-      </div>
-
-      <button
-        aria-label="Close"
-        tabIndex={-1}
-        className={cn(
-          buttonVariants({
-            size: 'icon-sm',
-            color: 'ghost',
-            className: 'text-fd-muted-foreground rounded-full',
-          }),
-        )}
-        onClick={() => setOpen(false)}
-      >
-        <X />
-      </button>
-    </div>
-  );
-}
-
-export function AISearchSessionBar() {
-  const [historyOpen, setHistoryOpen] = useState(false);
-  const {
-    chatBooted,
-    sessions,
-    activeSessionId,
-    newChatSession,
-    selectChatSession,
-    deleteChatSession,
-  } = useAISearchContext();
-
-  if (!chatBooted) return null;
-
-  const handlePick = (id: string) => {
-    void (async () => {
-      await selectChatSession(id);
-      setHistoryOpen(false);
-    })();
-  };
-
-  return (
-    <div
-      className="flex items-center justify-between gap-2 px-0.5 pb-2 pt-0.5"
-      onClick={(e) => e.stopPropagation()}
-    >
-      <Popover open={historyOpen} onOpenChange={setHistoryOpen}>
-        <PopoverTrigger
-          className={cn(
-            fdButtonVariants({ color: 'secondary', size: 'sm' }),
-            'h-9 max-w-[min(100%,240px)] shrink gap-2 rounded-full border border-fd-border/90 bg-fd-secondary/90 px-3 shadow-sm',
-            'data-[state=open]:border-fd-primary/35 data-[state=open]:bg-fd-accent/80 data-[state=open]:text-fd-accent-foreground',
-          )}
-          aria-expanded={historyOpen}
-          aria-haspopup="dialog"
-          aria-label="打开历史会话"
-        >
-          <History className="size-4 shrink-0 text-fd-muted-foreground" aria-hidden />
-          <span className="truncate text-xs font-medium">历史会话</span>
-          <ChevronDown className="size-3.5 shrink-0 opacity-70" aria-hidden />
-        </PopoverTrigger>
-        <PopoverContent
-          align="start"
-          side="top"
-          sideOffset={8}
-          collisionPadding={12}
-          className={cn(
-            'flex min-h-0 w-[min(calc(100vw-2rem),320px)] max-w-[calc(100vw-2rem)] flex-col gap-0 overflow-hidden p-1',
-          )}
-          onCloseAutoFocus={(e) => e.preventDefault()}
-        >
-          <div className="max-h-72 min-h-0 overflow-y-auto overscroll-contain fd-scroll-container p-1">
-            {sessions.length === 0 ? (
-              <p className="px-3 py-6 text-center text-xs text-fd-muted-foreground">暂无会话</p>
-            ) : (
-              <ul className="flex flex-col gap-0.5 px-1">
-                {sessions.map((s) => {
-                  const active = s.id === activeSessionId;
-                  return (
-                    <li key={s.id}>
-                      <div
-                        className={cn(
-                          'group flex items-start gap-1 rounded-lg px-2 py-2 transition-colors',
-                          active
-                            ? 'bg-fd-primary/12 ring-1 ring-fd-primary/25'
-                            : 'hover:bg-fd-accent hover:text-fd-accent-foreground',
-                        )}
-                      >
-                        <button
-                          type="button"
-                          className="min-w-0 flex-1 text-start"
-                          onClick={() => handlePick(s.id)}
-                        >
-                          <span className="block truncate text-xs font-medium leading-snug">{s.title}</span>
-                          <span className="mt-0.5 block text-[11px] text-fd-muted-foreground">
-                            {formatChatSessionUpdatedAt(s.updatedAt)}
-                          </span>
-                        </button>
-                        <button
-                          type="button"
-                          title="删除此会话"
-                          className={cn(
-                            'flex size-8 shrink-0 items-center justify-center rounded-md text-fd-muted-foreground',
-                            'opacity-70 hover:bg-destructive/15 hover:text-destructive hover:opacity-100',
-                          )}
-                          onClick={(ev) => {
-                            ev.preventDefault();
-                            ev.stopPropagation();
-                            if (
-                              typeof window !== 'undefined' &&
-                              window.confirm(`确定删除「${s.title}」？`)
-                            ) {
-                              void deleteChatSession(s.id).then(() => {
-                                setHistoryOpen(false);
-                              });
-                            }
-                          }}
-                        >
-                          <Trash2 className="size-4" />
-                        </button>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </div>
-        </PopoverContent>
-      </Popover>
-
-      <button
-        type="button"
-        title="新建会话"
-        aria-label="新建会话"
-        className={cn(
-          fdButtonVariants({ color: 'secondary', size: 'icon' }),
-          'group h-9 w-9 shrink-0 rounded-full border border-fd-border/90 bg-fd-secondary/90 shadow-sm',
-          'transition-[background-color,transform,box-shadow]',
-          'hover:bg-fd-accent hover:shadow',
-          'active:scale-[0.96]',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring focus-visible:ring-offset-2 focus-visible:ring-offset-fd-card',
-        )}
-        onClick={() => void newChatSession()}
-      >
-        <MessageSquarePlus
-          className={cn(
-            'size-[18px] transition-colors',
-            'text-sky-600 dark:text-sky-400',
-            'group-hover:text-violet-600 dark:group-hover:text-violet-400',
-            'group-active:text-violet-700 dark:group-active:text-violet-300',
-          )}
-          strokeWidth={2}
-          aria-hidden
-        />
-      </button>
-    </div>
-  );
-}
-
-export function AISearchPanelFooter({ className, ...props }: ComponentProps<'div'>) {
-  const { modelDisplayName, chatBooted } = useAISearchContext();
-
-  if (!chatBooted || !modelDisplayName) return null;
-
-  return (
-    <div
-      className={cn(
-        'mt-2 px-1 text-[11px] leading-relaxed text-fd-muted-foreground',
-        className,
-      )}
-      {...props}
-    >
-      <p className="text-xs text-fd-muted-foreground truncate" title={modelDisplayName}>
-        回复内容由 <strong>{modelDisplayName}</strong> 提供
-      </p>
-    </div>
-  );
-}
-
-const DRAFT_SAVE_DEBOUNCE_MS = 300;
-
-function AISearchInputInner({
-  initialInput,
-  ...props
-}: ComponentProps<'form'> & { initialInput: string }) {
-  const { status, sendMessage, stop } = useChatContext();
-  const { chatBooted, selectionContext, clearSelectionContext } = useAISearchContext();
-  const [input, setInput] = useState(initialInput);
-  const draftSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const isLoading = status === 'streaming' || status === 'submitted';
-
-  useEffect(() => {
-    return () => {
-      if (draftSaveTimerRef.current) clearTimeout(draftSaveTimerRef.current);
-    };
-  }, []);
-
-  const persistDraft = useCallback((value: string) => {
-    if (draftSaveTimerRef.current) clearTimeout(draftSaveTimerRef.current);
-    draftSaveTimerRef.current = setTimeout(() => {
-      void idbSetDraftInput(value);
-    }, DRAFT_SAVE_DEBOUNCE_MS);
-  }, []);
-
-  const onStart = (e?: SyntheticEvent) => {
-    e?.preventDefault();
-    const message = input.trim();
-    if (message.length === 0) return;
-
-    void sendMessage({
-      role: 'user',
-      parts: [
-        {
-          type: 'data-client',
-          data: {
-            location: location.href,
-            ...(selectionContext
-              ? {
-                  selection: {
-                    text: selectionContext.text,
-                    pageTitle: selectionContext.pageTitle,
-                    pageUrl: selectionContext.pageUrl,
-                  },
-                }
-              : {}),
-          },
-        },
-        {
-          type: 'text',
-          text: message,
-        },
-      ],
-    });
-    setInput('');
-    if (draftSaveTimerRef.current) clearTimeout(draftSaveTimerRef.current);
-    void idbClearDraftInput();
-    clearSelectionContext();
-  };
-
-  useEffect(() => {
-    if (isLoading) document.getElementById('nd-ai-input')?.focus();
-  }, [isLoading]);
-
-  return (
-    <form {...props} className={cn('flex items-start pe-2', props.className)} onSubmit={onStart}>
-      <Input
-        value={input}
-        placeholder={isLoading ? '正在回答...' : '请输入问题...'}
-        autoFocus
-        className="p-3"
-        disabled={!chatBooted || status === 'streaming' || status === 'submitted'}
-        onChange={(e) => {
-          const value = e.target.value;
-          setInput(value);
-          persistDraft(value);
-        }}
-        onKeyDown={(event) => {
-          if (!event.shiftKey && event.key === 'Enter') {
-            onStart(event);
-          }
-        }}
-      />
-      {isLoading ? (
-        <button
-          key="bn"
-          type="button"
-          className={cn(
-            buttonVariants({
-              color: 'secondary',
-              className: 'transition-all rounded-full mt-2 gap-2',
-            }),
-          )}
-          onClick={stop}
-        >
-          <Loader2 className="size-4 animate-spin text-fd-muted-foreground" />
-          停止回答
-        </button>
-      ) : (
-        <button
-          key="bn"
-          type="submit"
-          className={cn(
-            buttonVariants({
-              color: 'primary',
-              className: 'transition-all rounded-full mt-2',
-            }),
-          )}
-          disabled={!chatBooted || input.length === 0}
-        >
-          <Send className="size-4" />
-        </button>
-      )}
-    </form>
-  );
-}
-
-export function AISearchInput(props: ComponentProps<'form'>) {
-  const { inputSeed, inputSeedVersion, chatBooted } = useAISearchContext();
-
-  if (inputSeed !== null) {
-    return (
-      <AISearchInputInner key={inputSeedVersion} initialInput={inputSeed} {...props} />
-    );
-  }
-
-  return (
-    <AISearchInputFromIdb
-      key={inputSeedVersion}
-      chatBooted={chatBooted}
-      {...props}
-    />
-  );
-}
-
-function AISearchInputFromIdb({
-  chatBooted,
-  ...props
-}: ComponentProps<'form'> & { chatBooted: boolean }) {
-  const [savedDraft, setSavedDraft] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!chatBooted) return;
-
-    let cancelled = false;
-    void idbGetDraftInput().then((draft) => {
-      if (!cancelled) setSavedDraft(draft);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [chatBooted]);
-
-  if (!chatBooted || savedDraft === null) {
-    return (
-      <form {...props} className={cn('flex items-start pe-2', props.className)}>
-        <Input value="" placeholder="请输入问题..." disabled className="p-3" />
-      </form>
-    );
-  }
-
-  return <AISearchInputInner initialInput={savedDraft} {...props} />;
-}
-
-function List({ scrollToBottomKey, ...props }: Omit<ComponentProps<'div'>, 'dir'> & {
-  /** 变化时强制滚动到底部（如面板打开、切换会话） */
-  scrollToBottomKey?: unknown;
-}) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  /** true = user has scrolled up, suppress auto-scroll */
-  const userScrolledRef = useRef(false);
-
-  const scrollToBottom = useCallback((behavior: ScrollBehavior = 'instant') => {
-    const container = containerRef.current;
-    if (!container) return;
-    container.scrollTo({ top: container.scrollHeight, behavior });
-  }, []);
-
-  // 监听用户手动上滚
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-    const onScroll = () => {
-      const distFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
-      userScrolledRef.current = distFromBottom > 80;
-    };
-    container.addEventListener('scroll', onScroll, { passive: true });
-    return () => container.removeEventListener('scroll', onScroll);
-  }, []);
-
-  // 面板打开或切换会话时，强制重置并滚底
-  useEffect(() => {
-    userScrolledRef.current = false;
-    scrollToBottom('instant');
-  }, [scrollToBottomKey, scrollToBottom]);
-
-  // 内容增长时（流式回复）自动跟随底部
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const observer = new ResizeObserver(() => {
-      if (userScrolledRef.current) return;
-      scrollToBottom('instant');
-    });
-
-    // 观察直接子节点，子节点增高时触发
-    const inner = container.firstElementChild;
-    if (inner) observer.observe(inner);
-
-    // 初始也滚一次
-    scrollToBottom('instant');
-
-    return () => observer.disconnect();
-  }, [scrollToBottom]);
-
-  return (
-    <div
-      ref={containerRef}
-      {...props}
-      className={cn('fd-scroll-container overflow-y-auto min-w-0 flex flex-col', props.className)}
-    >
-      {props.children}
-    </div>
-  );
-}
-
-const MAX_INPUT_HEIGHT = 300;
-
-function Input(props: ComponentProps<'textarea'>) {
-  const taRef = useRef<HTMLTextAreaElement>(null);
-
-  const adjust = () => {
-    const ta = taRef.current;
-    if (!ta) return;
-    ta.style.height = 'auto';
-    const next = Math.min(ta.scrollHeight, MAX_INPUT_HEIGHT);
-    ta.style.height = `${next}px`;
-    ta.style.overflowY = ta.scrollHeight > MAX_INPUT_HEIGHT ? 'auto' : 'hidden';
-  };
-
-  useEffect(() => {
-    adjust();
-  }, [props.value]);
-
-  return (
-    <div className="flex-1 min-w-0">
-      <textarea
-        ref={taRef}
-        id="nd-ai-input"
-        rows={3}
-        {...props}
-        style={{ overflowY: 'hidden', ...props.style }}
-        className={cn(
-          'w-full resize-none bg-transparent placeholder:text-fd-muted-foreground focus-visible:outline-none',
-          '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-          props.className,
-        )}
-        onInput={(e) => {
-          adjust();
-          props.onInput?.(e);
-        }}
-      />
-    </div>
-  );
-}
-
-const roleName: Record<string, string> = {
-  user: 'You',
-  assistant: 'Assistant',
-};
-
-/** 流式或提交中时，当前正在进行的「用户提问」对应的消息 id（用于隐藏该条上的重试） */
-function getActiveTurnUserId(messages: InkeepUIMessage[], status: string): string | undefined {
-  if (status !== 'streaming' && status !== 'submitted') return undefined;
-  const last = messages.at(-1);
-  if (!last) return undefined;
-  if (last.role === 'assistant') {
-    const prev = messages[messages.length - 2];
-    return prev?.role === 'user' ? prev.id : undefined;
-  }
-  if (last.role === 'user') return last.id;
-  return undefined;
-}
-
-/** 将原始 AI SDK 错误转为用户可读的中文描述 */
-function friendlyChatError(err: Error): string {
-  const msg = err.message;
-  if (/inference limit|rate.?limit|quota|limit.*reached/i.test(msg))
-    return '模型调用次数已达上限，请稍后再试或在后台调整用量配置。';
-  if (/unauthorized|invalid.*key|api.?key/i.test(msg))
-    return 'API 密钥无效，请联系管理员检查配置。';
-  if (/network|fetch.*fail|ECONNREFUSED|ETIMEDOUT/i.test(msg))
-    return '网络连接失败，请检查网络后重试。';
-  if (/5\d\d|server.?error|internal/i.test(msg))
-    return '服务端异常，请稍后重试。';
-  return msg;
-}
-
-const toolDisplayName: Record<string, string> = {
-  listDocumentationPages: '查看文档目录',
-  searchDocumentationPages: '搜索文档',
-  getDocumentationPageMeta: '读取页面元信息',
-  getDocumentationPage: '读取文档内容',
-  provideLinks: '引用链接',
-  listExcerpts: '查看摘录',
-  searchExcerpts: '搜索摘录',
-  addExcerpt: '添加摘录',
-  deleteExcerpt: '删除摘录',
-};
-
-const mcpAlias: Record<string, string> = {
-  listDocumentationPages: 'list_docs',
-  searchDocumentationPages: 'search_docs',
-  getDocumentationPageMeta: 'get_docs_meta',
-  getDocumentationPage: 'get_docs_content',
-};
-
-function formatToolPayload(value: unknown, maxLen: number): string {
-  if (value === undefined || value === null) return '';
-  const raw = typeof value === 'string' ? value : JSON.stringify(value, null, 2);
-  if (raw.length <= maxLen) return raw;
-  return `${raw.slice(0, maxLen)}\n...[已截断]`;
-}
-
-const EXCERPT_NOT_FOUND_MESSAGE = '未找到该摘录，可能已被删除';
-
-function DeleteExcerptApprovalBlock({
-  excerptId,
-  toolCallId,
-  approvalId,
-}: {
-  excerptId: string;
-  toolCallId: string;
-  approvalId: string;
-}) {
-  const { addToolOutput, addToolApprovalResponse } = useChatContext();
-  const [deleteTarget, setDeleteTarget] = useState<DocHighlight | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-  const autoResolvedRef = useRef(false);
-
-  const notFound = !loading && !deleteTarget && Boolean(error);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    void idbGetHighlightById(excerptId).then((highlight) => {
-      if (cancelled) return;
-      setDeleteTarget(highlight);
-      setError(highlight ? null : EXCERPT_NOT_FOUND_MESSAGE);
-      setLoading(false);
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [excerptId]);
-
-  useEffect(() => {
-    if (!notFound || autoResolvedRef.current) return;
-    autoResolvedRef.current = true;
-
-    void (async () => {
-      await addToolApprovalResponse({
-        id: approvalId,
-        approved: false,
-        reason: '摘录不存在',
-      });
-      await addToolOutput({
-        tool: 'deleteExcerpt',
-        toolCallId,
-        output: JSON.stringify(
-          {
-            ok: false,
-            error: 'Not found',
-            message: EXCERPT_NOT_FOUND_MESSAGE,
-            id: excerptId,
-          },
-          null,
-          2,
-        ),
-      });
-    })();
-  }, [notFound, excerptId, approvalId, toolCallId, addToolApprovalResponse, addToolOutput]);
-
-  const handleApproval = async (approved: boolean) => {
-    if (busy) return;
-    setBusy(true);
-    try {
-      if (approved) {
-        const executors = getExcerptToolExecutors();
-        if (!executors) {
-          await addToolApprovalResponse({ id: approvalId, approved: false, reason: '摘录工具未就绪' });
-          await addToolOutput({
-            tool: 'deleteExcerpt',
-            toolCallId,
-            state: 'output-error',
-            errorText: '摘录工具未就绪，请刷新页面后重试',
-          });
-          return;
-        }
-        const result = await executors.deleteExcerpt({ id: excerptId });
-        await addToolApprovalResponse({ id: approvalId, approved: true });
-        await addToolOutput({
-          tool: 'deleteExcerpt',
-          toolCallId,
-          output: result,
-        });
-      } else {
-        await addToolApprovalResponse({ id: approvalId, approved: false, reason: '用户取消' });
-        await addToolOutput({
-          tool: 'deleteExcerpt',
-          toolCallId,
-          state: 'output-error',
-          errorText: '您取消了删除操作',
-        });
-      }
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  return (
-    <ExcerptDeleteConfirmPanel
-      className="mt-2"
-      variant={notFound ? 'not-found' : 'confirm'}
-      highlight={deleteTarget}
-      loading={loading}
-      notFoundMessage={notFound ? `${error} 无需确认，将自动继续对话` : error}
-      busy={busy}
-      onConfirm={() => void handleApproval(true)}
-      onCancel={() => void handleApproval(false)}
-    />
-  );
-}
-
-function ToolTraceCard({
-  part,
-}: {
-  part: ToolUIPart | DynamicToolUIPart;
-}) {
-  const name = getToolName(part);
-  const label = toolDisplayName[name] ?? name;
-  const mcp = mcpAlias[name];
-  const state = part.state;
-
-  const stateLabel: Record<string, string> = {
-    'input-streaming': '解析参数…',
-    'input-available': '即将执行',
-    'approval-requested': '等待确认',
-    'approval-responded': '已确认',
-    'output-available': '已完成',
-    'output-error': '执行失败',
-    'output-denied': '已拒绝',
-  };
-
-  const input =
-    'input' in part && part.input !== undefined
-      ? (part.input as Record<string, unknown>)
-      : undefined;
-  const output = 'output' in part ? part.output : undefined;
-  const errorText = 'errorText' in part ? part.errorText : undefined;
-  const approval = 'approval' in part ? part.approval : undefined;
-
-  const provideLinksInput = name === 'provideLinks' && input && 'links' in input ? input.links : null;
-
-  const deleteInput =
-    name === 'deleteExcerpt' && input && typeof input.id === 'string'
-      ? (input as DeleteExcerptInput)
-      : null;
-
-  const showDeleteApproval = name === 'deleteExcerpt' && state === 'approval-requested' && deleteInput;
-
-  return (
-    <div
-      className={cn(
-        'min-w-0 rounded-lg border border-fd-border bg-fd-muted/40 px-3 py-2.5 text-xs',
-        state === 'output-error' && 'border-red-500/40 bg-red-500/5',
-        showDeleteApproval && 'border-destructive/25 bg-destructive/[0.02]',
-      )}
-    >
-      <div className="flex flex-wrap items-center gap-2 mb-1.5">
-        <span className="font-medium text-fd-foreground">{label}</span>
-        {mcp ? (
-          <span className="rounded bg-fd-secondary px-1.5 py-0.5 font-mono text-fd-muted-foreground">
-            MCP: {mcp}
-          </span>
-        ) : null}
-        <span
-          className={cn(
-            'rounded px-1.5 py-0.5',
-            state === 'output-available' && 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-200',
-            state === 'output-error' && 'bg-red-500/15 text-red-800 dark:text-red-200',
-            state === 'approval-requested' && 'bg-amber-500/15 text-amber-900 dark:text-amber-100',
-            (state === 'input-streaming' || state === 'input-available') &&
-              'bg-amber-500/15 text-amber-900 dark:text-amber-100',
-          )}
-        >
-          {stateLabel[state] ?? state}
-        </span>
-      </div>
-      {input !== undefined && Object.keys(input).length > 0 && !showDeleteApproval ? (
-        <details className="group/in mt-1">
-          <summary className="cursor-pointer text-fd-muted-foreground hover:text-fd-foreground">
-            调用参数
-          </summary>
-          <pre className="mt-1 max-h-40 overflow-auto rounded-lg border border-fd-border/80 bg-fd-background p-2.5 font-mono text-[11px] leading-snug whitespace-pre-wrap wrap-break-word">
-            {formatToolPayload(input, 8000)}
-          </pre>
-        </details>
-      ) : null}
-      {state === 'output-available' && output !== undefined ? (
-        <details className="group/in mt-1">
-          <summary className="cursor-pointer text-fd-muted-foreground hover:text-fd-foreground">
-            返回结果
-          </summary>
-          <pre className="mt-1 max-h-56 overflow-auto rounded-lg border border-fd-border/80 bg-fd-background p-2.5 font-mono text-[11px] leading-snug whitespace-pre-wrap wrap-break-word">
-            {formatToolPayload(output, 12000)}
-          </pre>
-        </details>
-      ) : null}
-      {errorText ? (
-        <p className="mt-1 text-red-600 dark:text-red-400 whitespace-pre-wrap wrap-break-word">{errorText}</p>
-      ) : null}
-      {showDeleteApproval && deleteInput && approval ? (
-        <DeleteExcerptApprovalBlock
-          key={`${part.toolCallId}:${deleteInput.id}`}
-          excerptId={deleteInput.id}
-          toolCallId={part.toolCallId}
-          approvalId={approval.id}
-        />
-      ) : null}
-      {Array.isArray(provideLinksInput) && provideLinksInput.length > 0 ? (
-        <div className="mt-2 flex flex-row flex-wrap gap-1">
-          {provideLinksInput.map((item: { url?: string; title?: string | null; label?: string | null }, i: number) =>
-            item.url ? (
-              <Link
-                key={i}
-                href={item.url}
-                className="block rounded-lg border bg-fd-card p-2 hover:bg-fd-accent hover:text-fd-accent-foreground"
-              >
-                <p className="font-medium">{item.title ?? item.url}</p>
-                {item.label != null ? (
-                  <p className="text-fd-muted-foreground">参考 {item.label}</p>
-                ) : null}
-              </Link>
-            ) : null,
-          )}
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
-function Message({ message, ...props }: { message: InkeepUIMessage } & ComponentProps<'div'>) {
-  const { messages: allMessages, status, regenerate } = useChatContext();
-  const visibleMessages = allMessages.filter((m) => m.role !== 'system');
-  const activeUserId = getActiveTurnUserId(visibleMessages, status);
-  const isStreaming = status === 'streaming' || status === 'submitted';
-  const showRetryOnUser =
-    message.role === 'user' && (activeUserId === undefined || message.id !== activeUserId);
-  const isAssistant = message.role === 'assistant';
-  const isActiveAssistant = isAssistant && isStreaming && message.id === visibleMessages.at(-1)?.id;
-
-  const [copied, setCopied] = useState(false);
-  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const segments: ReactNode[] = [];
-  let textBuf = '';
-  let linksFallback: z.infer<typeof ProvideLinksToolSchema>['links'] = [];
-
-  const flushText = () => {
-    if (textBuf.length === 0) return;
-    segments.push(
-      <div key={`md-${segments.length}`} className="min-w-0 -mx-0.5 overflow-x-auto px-0.5">
-        <div className={aiChatMarkdownClass}>
-          <Markdown text={textBuf} />
-        </div>
-      </div>,
-    );
-    textBuf = '';
-  };
-
-  for (const part of message.parts ?? []) {
-    if (part.type === 'text') {
-      textBuf += part.text;
-      continue;
-    }
-
-    if (part.type === 'data-client') {
-      continue;
-    }
-
-    if (part.type === 'tool-provideLinks' && 'input' in part && part.input) {
-      linksFallback = (part.input as z.infer<typeof ProvideLinksToolSchema>).links;
-    }
-
-    if (isToolUIPart(part)) {
-      flushText();
-      segments.push(<ToolTraceCard key={part.toolCallId} part={part} />);
-      continue;
-    }
-
-    flushText();
-  }
-  flushText();
-
-  const linksFromParts = linksFallback;
-  const hasProvideLinksToolPart = (message.parts ?? []).some(
-    (p) => isToolUIPart(p) && getToolName(p) === 'provideLinks',
-  );
-  const showLegacyLinks =
-    Boolean(linksFromParts?.length) && !hasProvideLinksToolPart;
-
-  /** Plain text of the full assistant reply, used for copy */
-  const plainText = (message.parts ?? [])
-    .filter((p) => p.type === 'text')
-    .map((p) => (p as { text: string }).text)
-    .join('');
-
-  useEffect(() => {
-    return () => {
-      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
-    };
-  }, []);
-
-  const handleCopy = () => {
-    void safeWriteClipboard(plainText).then(() => {
-      setCopied(true);
-      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
-      copyTimerRef.current = setTimeout(() => setCopied(false), 2000);
-    });
-  };
-
-  return (
-    <div onClick={(e) => e.stopPropagation()} {...props}>
-      {/* Header row */}
-      <div
-        className={cn(
-          'mb-1 flex items-center justify-between gap-2 text-sm font-medium text-fd-muted-foreground',
-          isAssistant && 'text-fd-primary',
-        )}
-      >
-        <span className="flex min-w-0 items-center gap-2">
-          {isAssistant ? (
-            <Bot className="size-4 shrink-0 text-fd-primary" aria-hidden />
-          ) : message.role === 'user' ? (
-            <User className="size-4 shrink-0 opacity-80" aria-hidden />
-          ) : null}
-          <span>{roleName[message.role] ?? 'unknown'}</span>
-        </span>
-        {showRetryOnUser ? (
-          <button
-            type="button"
-            title="重新生成该轮回复"
-            className={cn(
-              buttonVariants({
-                color: 'ghost',
-                size: 'sm',
-                className:
-                  'h-7 shrink-0 gap-1 rounded-full px-2 text-xs font-normal text-fd-muted-foreground hover:bg-fd-accent hover:text-fd-accent-foreground',
-              }),
-            )}
-            onClick={() => void regenerate({ messageId: message.id })}
-          >
-            <RefreshCw className="size-3.5" aria-hidden />
-            重试
-          </button>
-        ) : null}
-      </div>
-
-      {/* Body */}
-      <div className="flex flex-col gap-2">{segments}</div>
-
-      {/* Legacy reference links */}
-      {showLegacyLinks && linksFromParts ? (
-        <div className="mt-2 flex flex-row flex-wrap items-center gap-1">
-          {linksFromParts.map((item, i) => (
-            <Link
-              key={i}
-              href={item.url}
-              className="block text-xs rounded-lg border p-3 hover:bg-fd-accent hover:text-fd-accent-foreground"
-            >
-              <p className="font-medium">{item.title}</p>
-              <p className="text-fd-muted-foreground">Reference {item.label}</p>
-            </Link>
-          ))}
-        </div>
-      ) : null}
-
-      {/* Footer: copy button — only for completed assistant messages */}
-      {isAssistant && !isActiveAssistant && plainText.length > 0 ? (
-        <div className="mt-3">
-          <button
-            type="button"
-            title={copied ? '已复制' : '复制回答'}
-            aria-label={copied ? '已复制' : '复制回答'}
-            onClick={handleCopy}
-            className={cn(
-              'flex h-7 items-center gap-1.5 rounded-md border px-2.5 text-xs font-medium transition-colors',
-              copied
-                ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
-                : 'border-fd-border bg-fd-background text-fd-muted-foreground hover:border-fd-border/80 hover:bg-fd-accent hover:text-fd-accent-foreground',
-            )}
-          >
-            {copied ? (
-              <Check className="size-3.5" aria-hidden />
-            ) : (
-              <Copy className="size-3.5" aria-hidden />
-            )}
-            {copied ? '已复制' : '复制回答'}
-          </button>
-        </div>
-      ) : null}
-    </div>
-  );
-}
+import {
+  AISearchContext,
+  type AISearchBackgroundNotify,
+  type AISearchPanelView,
+} from '@/components/ai/ai-search-context';
+
+export { useAISearchContext } from '@/components/ai/ai-search-context';
+export { useHotKey } from '@/components/ai/use-ai-hotkey';
+export { AISearchPanel } from '@/components/ai/ai-search-panel';
+export { AISearchPanelHeader } from '@/components/ai/ai-search-header';
+export { AISearchHistoryPanel } from '@/components/ai/ai-search-history-panel';
+export { AISearchWelcome } from '@/components/ai/ai-search-welcome';
+export { AISearchPanelList } from '@/components/ai/ai-search-messages';
+export { AISearchInput, AISearchPanelFooter } from '@/components/ai/ai-search-input';
 
 export function AISearch({
   children,
@@ -1063,6 +55,8 @@ export function AISearch({
   modelDisplayName?: string;
 }) {
   const [open, setOpen] = useState(false);
+  const [panelView, setPanelView] = useState<AISearchPanelView>('chat');
+  const [backgroundNotify, setBackgroundNotify] = useState<AISearchBackgroundNotify>('idle');
   const [booted, setBooted] = useState(false);
   const [bootError, setBootError] = useState<string | null>(null);
   const [persistedError, setPersistedError] = useState<string | null>(null);
@@ -1224,6 +218,25 @@ export function AISearch({
     };
   }, [booted, sessionId, chat.messages, flushSession]);
 
+  // 面板关闭期间生成结束（成功或失败）→ 短暂提示「回复已完成」，供右下角锚点动效使用
+  const prevStatusRef = useRef(chat.status);
+  const openRef = useRef(open);
+  useEffect(() => {
+    openRef.current = open;
+  }, [open]);
+  useEffect(() => {
+    const prevStatus = prevStatusRef.current;
+    const wasBusy = prevStatus === 'submitted' || prevStatus === 'streaming';
+    const isDone = chat.status === 'ready' || chat.status === 'error';
+    if (!openRef.current && wasBusy && isDone) {
+      setBackgroundNotify('completed');
+      const timer = setTimeout(() => setBackgroundNotify('idle'), 3000);
+      prevStatusRef.current = chat.status;
+      return () => clearTimeout(timer);
+    }
+    prevStatusRef.current = chat.status;
+  }, [chat.status]);
+
   const newChatSession = useCallback(async () => {
     chat.stop();
     const id = await idbCreateSession();
@@ -1294,11 +307,24 @@ export function AISearch({
     });
   }, []);
 
+  const fillInputDraft = useCallback((draft: string) => {
+    setInputSeed(draft);
+    setInputSeedVersion((v) => v + 1);
+    void idbSetDraftInput(draft);
+    requestAnimationFrame(() => {
+      document.getElementById('nd-ai-input')?.focus();
+    });
+  }, []);
+
   const contextValue = useMemo(
     () => ({
       chat,
+      chatStatus: chat.status,
       open,
       setOpen,
+      panelView,
+      setPanelView,
+      backgroundNotify,
       modelDisplayName,
       chatBooted: booted,
       bootError,
@@ -1312,12 +338,15 @@ export function AISearch({
       selectionContext,
       clearSelectionContext,
       openWithSelection,
+      fillInputDraft,
       inputSeed,
       inputSeedVersion,
     }),
     [
       chat,
       open,
+      panelView,
+      backgroundNotify,
       modelDisplayName,
       booted,
       bootError,
@@ -1330,12 +359,13 @@ export function AISearch({
       selectionContext,
       clearSelectionContext,
       openWithSelection,
+      fillInputDraft,
       inputSeed,
       inputSeedVersion,
     ],
   );
 
-  return <Context value={contextValue}>{children}</Context>;
+  return <AISearchContext value={contextValue}>{children}</AISearchContext>;
 }
 
 const circleTriggerClassName = cn(
@@ -1358,7 +388,7 @@ export function AISearchTrigger({
   position?: 'default' | 'float' | 'anchor';
   variant?: 'default' | 'circle';
 }) {
-  const { open, setOpen } = useAISearchContext();
+  const { open, setOpen } = use(AISearchContext)!;
 
   return (
     <button
@@ -1396,7 +426,7 @@ export function AIChatOpenCard({
   description,
   className,
 }: Pick<ComponentProps<typeof Card>, 'icon' | 'title' | 'description' | 'className'>) {
-  const ctx = use(Context);
+  const ctx = use(AISearchContext);
   const enabled = ctx != null;
 
   return (
@@ -1424,168 +454,4 @@ export function AIChatOpenCard({
       }}
     />
   );
-}
-
-export function AISearchPanel() {
-  const { open, setOpen } = useAISearchContext();
-  useHotKey();
-
-  return (
-    <>
-      <style>
-        {`
-        @keyframes ask-ai-open {
-          from {
-            translate: 100% 0;
-          }
-          to {
-            translate: 0 0;
-          }
-        }
-        @keyframes ask-ai-close {
-          from {
-            width: var(--ai-chat-width);
-          }
-          to {
-            width: 0px;
-          }
-        }`}
-      </style>
-      <Presence present={open}>
-        <div
-          data-state={open ? 'open' : 'closed'}
-          className="fixed inset-0 z-40 backdrop-blur-xs bg-fd-overlay data-[state=open]:animate-fd-fade-in data-[state=closed]:animate-fd-fade-out lg:hidden"
-          onClick={() => setOpen(false)}
-        />
-      </Presence>
-      <Presence present={open}>
-        <div
-          className={cn(
-            /* 悬浮层，不占用任何布局空间 */
-            'fixed z-50 overflow-hidden bg-fd-card text-fd-card-foreground shadow-2xl border rounded-2xl',
-            '[--ai-chat-width:min(calc(100vw-1.25rem),640px)]',
-            /* 小屏：铺满视口 */
-            'max-lg:inset-x-1.5 max-lg:inset-y-3',
-            /* 大屏：右下角浮窗；必须同时设 h（或 height）才能让内部 flex 列正确分配 */
-            'lg:[--ai-chat-width:600px]',
-            'lg:bottom-[max(4.5rem,calc(env(safe-area-inset-bottom,0px)+4.5rem))]',
-            'lg:inset-e-[max(1.25rem,calc(1.25rem+var(--removed-body-scroll-bar-size,0px)))]',
-            /* 固定高度：默认 960px，视口不够时收缩，保底 400px */
-            'lg:h-[min(960px,calc(100dvh-6rem))] lg:min-h-[400px]',
-            open
-              ? 'animate-fd-dialog-in'
-              : 'animate-fd-dialog-out',
-          )}
-        >
-          {/* 内层必须撑满外层固定高度，flex 列才能正确把 overflow 交给 List */}
-          <div className="flex flex-col h-full w-full p-3 lg:p-4 lg:w-(--ai-chat-width)">
-            <AISearchPanelHeader />
-            {/* min-h-0 防止 flex 子项撑破父容器 */}
-            <AISearchPanelList className="flex-1 min-h-0" />
-            <div className="shrink-0 flex flex-col gap-0">
-              <AISearchSessionBar />
-              <div className="rounded-xl border bg-fd-secondary text-fd-secondary-foreground shadow-sm has-focus-visible:shadow-md">
-                <AISearchInput />
-              </div>
-              <AISearchPanelFooter />
-            </div>
-          </div>
-        </div>
-      </Presence>
-    </>
-  );
-}
-
-export function AISearchPanelList({ className, style, ...props }: ComponentProps<'div'>) {
-  const chat = useChatContext();
-  const { bootError, chatError, persistedError, open, activeSessionId } = useAISearchContext();
-  const messages = chat.messages.filter((msg) => msg.role !== 'system');
-
-  // 优先展示运行时错误，其次展示持久化的历史错误（刷新后恢复）
-  const displayError = chatError ?? (persistedError ? new Error(persistedError) : undefined);
-
-  return (
-    <List
-      scrollToBottomKey={`${String(open)}-${activeSessionId}`}
-      className={cn('py-4 overscroll-contain', className)}
-      style={{
-        maskImage:
-          'linear-gradient(to bottom, transparent, white 1rem, white calc(100% - 1rem), transparent 100%)',
-        ...style,
-      }}
-      {...props}
-    >
-      {bootError && (
-        <div className="mx-1 mb-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 text-xs text-amber-700 dark:text-amber-300">
-          <p className="font-semibold">会话存储不可用</p>
-          <p className="mt-0.5 opacity-80">对话记录将不会被保存。{bootError}</p>
-        </div>
-      )}
-      {messages.length === 0 && !displayError ? (
-        <div className="text-sm text-fd-muted-foreground/80 size-full flex flex-col items-center justify-center text-center gap-2">
-          <MessageCircleIcon fill="currentColor" stroke="none" />
-          <p onClick={(e) => e.stopPropagation()}>向 AI 提问以开始对话</p>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-5 px-1 sm:px-2 lg:px-1">
-          {messages.map((item) => (
-            <Message key={item.id} message={item} />
-          ))}
-          {displayError && (
-            <div className="flex items-start gap-2.5 rounded-xl border border-red-500/25 bg-red-500/8 px-3 py-2.5 text-xs text-red-700 dark:text-red-300">
-              <svg className="mt-px size-3.5 shrink-0 fill-current opacity-70" viewBox="0 0 16 16" aria-hidden>
-                <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1Zm-.75 4.5h1.5v4h-1.5v-4Zm0 5h1.5v1.5h-1.5V10.5Z" />
-              </svg>
-              <div className="min-w-0">
-                <p className="font-semibold leading-snug">回复失败</p>
-                <p className="mt-0.5 opacity-80">{friendlyChatError(displayError)}</p>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-    </List>
-  );
-}
-
-export function useHotKey() {
-  const { open, setOpen } = useAISearchContext();
-
-  const onKeyPress = useEffectEvent((e: KeyboardEvent) => {
-    const target = e.target as HTMLElement | null;
-    const isEditableTarget =
-      target instanceof HTMLInputElement ||
-      target instanceof HTMLTextAreaElement ||
-      target instanceof HTMLSelectElement ||
-      target?.isContentEditable;
-
-    if (e.key === 'Escape' && open) {
-      setOpen(false);
-      e.preventDefault();
-      return;
-    }
-
-    const isToggleShortcut =
-      (e.metaKey || e.ctrlKey) &&
-      (e.key === '/' || e.key === 'i' || e.key === 'I');
-
-    // 在可编辑元素内不触发 toggle（除非是 AI 输入框本身，允许 Escape 关闭）
-    if (isToggleShortcut && !isEditableTarget) {
-      setOpen(!open);
-      e.preventDefault();
-    }
-  });
-
-  useEffect(() => {
-    window.addEventListener('keydown', onKeyPress);
-    return () => window.removeEventListener('keydown', onKeyPress);
-  }, []);
-}
-
-export function useAISearchContext() {
-  return use(Context)!;
-}
-
-function useChatContext() {
-  return use(Context)!.chat;
 }

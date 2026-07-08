@@ -136,6 +136,63 @@ html > body[data-scroll-locked] {
   }
 }
 
+/* 关窗后台生成中：比 idle 更快更明显的呼吸/发光，提示「仍在努力干活」 */
+@keyframes ai-anchor-working-pulse {
+  0%,
+  100% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.12;
+  }
+}
+
+@keyframes ai-anchor-working-glow {
+  0%,
+  100% {
+    opacity: 0.55;
+    scale: 1;
+  }
+  50% {
+    opacity: 1;
+    scale: 1.22;
+  }
+}
+
+@keyframes ai-anchor-working-orbit {
+  0% {
+    rotate: 0deg;
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    rotate: 360deg;
+    opacity: 1;
+  }
+}
+
+/* 后台生成完成：短暂的完成态高亮闪烁，提示用户点击查看 */
+@keyframes ai-anchor-completed-flash {
+  0% {
+    scale: 1;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.55);
+  }
+  30% {
+    scale: 1.15;
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+  }
+  60% {
+    scale: 1;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+  100% {
+    scale: 1;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
 @keyframes back-to-top-rocket-launch {
   0% {
     translate: 0 3px;
@@ -160,6 +217,19 @@ html > body[data-scroll-locked] {
   .ai-anchor-orbit-dot {
     animation: none !important;
     opacity: 0.5 !important;
+  }
+
+  .ai-anchor-working,
+  .ai-anchor-completed {
+    animation: none !important;
+  }
+
+  .ai-anchor-working {
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.55) !important;
+  }
+
+  .ai-anchor-completed {
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.65) !important;
   }
 
   .back-to-top-rocket-launch {
