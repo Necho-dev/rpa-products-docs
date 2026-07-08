@@ -16,6 +16,7 @@ import { ModuleCard } from '@/components/docs/mdx/module-card';
 import { SearchOpenCard } from '@/components/docs/mdx/search-open-card';
 import { FieldTreeTable } from '@/components/docs/mdx/field-tree-table';
 import { TableWithExport } from '@/components/docs/mdx/table-export';
+import { DocsLink } from '@/components/docs/docs-link';
 
 /** Recursively extract plain text from React node tree (handles shiki span nesting) */
 function extractText(node: React.ReactNode): string {
@@ -77,6 +78,7 @@ export function getMDXComponents(components?: MDXComponents) {
 
   return {
     ...defaultMdxComponents,
+    a: DocsLink,
     ...TabsComponents,
     Files,
     Folder,

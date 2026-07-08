@@ -16,6 +16,7 @@ import { notFound, redirect } from 'next/navigation';
 import { getMDXComponents } from '@/components/docs/mdx';
 import type { Metadata } from 'next';
 import { createRelativeLink } from 'fumadocs-ui/mdx';
+import { DocsLink } from '@/components/docs/docs-link';
 import { getSiteDescription, siteName } from '@/lib/core/shared';
 import { AddMcpButton } from '@/components/docs/add-mcp-button';
 import { ConnectorSchedulePanel } from '@/components/docs/connector-schedule-panel';
@@ -105,7 +106,7 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
         <MDX
           components={getMDXComponents({
             // this allows you to link to other pages with relative file paths
-            a: createRelativeLink(source, page),
+            a: createRelativeLink(source, page, DocsLink),
           })}
         />
         {lastModified ? <PageLastUpdate date={lastModified} /> : null}

@@ -1,4 +1,4 @@
-import Link from 'fumadocs-core/link';
+import { DocsLink } from '@/components/docs/docs-link';
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/core/cn';
 import { BugPlay, ExternalLink, GitPullRequestArrow, Puzzle, UserLock, UserRoundKey, UserStar } from 'lucide-react';
@@ -112,14 +112,12 @@ export function MetaPanel({
             {platformUrl ? (
               <>
                 <span className="text-fd-muted-foreground">（</span>
-                <a
+                <DocsLink
                   className="break-all font-mono text-[12px] text-sky-700 underline decoration-fd-border/60 underline-offset-2 hover:decoration-sky-700 dark:text-sky-200"
                   href={platformUrl}
-                  target="_blank"
-                  rel="noreferrer"
                 >
                   {platformUrl}
-                </a>
+                </DocsLink>
                 <span className="text-fd-muted-foreground">）</span>
               </>
             ) : null}
@@ -171,14 +169,14 @@ export function MetaPanel({
               }
 
               return (
-                <Link
+                <DocsLink
                   key={`${i}-${pkg}`}
                   href={href}
                   className="inline-flex max-w-full items-center gap-2 rounded-md border border-fd-border/60 bg-fd-background/50 px-2 py-1 font-mono text-[12px] font-semibold text-fd-foreground hover:bg-fd-accent/40"
                 >
                   <span className="min-w-0 flex-1 truncate">{pkg}</span>
                   <ExternalLink className="size-3.5 shrink-0 text-fd-muted-foreground" />
-                </Link>
+                </DocsLink>
               );
             })}
           </div>

@@ -23,6 +23,7 @@ import type { ElementContent, Root, RootContent } from 'hast';
 import { CodeDownloadButton } from '@/components/docs/mdx/code-download-button';
 import { Mermaid } from '@/components/docs/mdx/mermaid';
 import { TableWithExport } from '@/components/docs/mdx/table-export';
+import { DocsLink } from '@/components/docs/docs-link';
 
 export interface Processor {
   process: (content: string) => Promise<ReactNode>;
@@ -131,6 +132,7 @@ function createProcessor(): Processor {
         Fragment,
         components: {
           ...defaultMdxComponents,
+          a: DocsLink,
           pre: MarkdownCodePre,
           table: TableWithExport,
           img: undefined, // use JSX

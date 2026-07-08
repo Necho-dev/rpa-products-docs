@@ -4,7 +4,7 @@ import { AlertCircle, Ban, Bot, Check, CheckCircle2, ChevronDown, Clock, Copy, L
 import { cn } from '@/lib/core/cn';
 import { safeWriteClipboard } from '@/lib/ui/code-block-utils';
 import { buttonVariants } from '@/components/ui/button';
-import Link from 'fumadocs-core/link';
+import { DocsLink } from '@/components/docs/docs-link';
 import type { ProvideLinksToolSchema } from '@/lib/ai/inkeep-qa-schema';
 import type { z } from 'zod';
 import { getToolName, isToolUIPart, type DynamicToolUIPart, type ToolUIPart } from 'ai';
@@ -453,7 +453,7 @@ function ToolTraceCard({ part }: { part: ToolUIPart | DynamicToolUIPart }) {
         <div className="border-t border-fd-border/50 px-2.5 pb-2.5 pt-2 flex flex-row flex-wrap gap-1">
           {provideLinksInput.map((item: { url?: string; title?: string | null; label?: string | null }, i: number) =>
             item.url ? (
-              <Link
+              <DocsLink
                 key={i}
                 href={item.url}
                 className="block rounded-lg border bg-fd-card p-2 hover:bg-fd-accent hover:text-fd-accent-foreground"
@@ -462,7 +462,7 @@ function ToolTraceCard({ part }: { part: ToolUIPart | DynamicToolUIPart }) {
                 {item.label != null ? (
                   <p className="text-fd-muted-foreground">参考 {item.label}</p>
                 ) : null}
-              </Link>
+              </DocsLink>
             ) : null,
           )}
         </div>
@@ -626,14 +626,14 @@ function Message({ message, ...props }: { message: InkeepUIMessage } & Component
         {showLegacyLinks && linksFromParts ? (
           <div className="mt-2 flex flex-row flex-wrap items-center gap-1">
             {linksFromParts.map((item, i) => (
-              <Link
+              <DocsLink
                 key={i}
                 href={item.url}
                 className="block text-xs rounded-lg border p-3 hover:bg-fd-accent hover:text-fd-accent-foreground"
               >
                 <p className="font-medium">{item.title}</p>
                 <p className="text-fd-muted-foreground">Reference {item.label}</p>
-              </Link>
+              </DocsLink>
             ))}
           </div>
         ) : null}

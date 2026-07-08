@@ -18,6 +18,7 @@ import { getMDXComponents } from '@/components/docs/mdx';
 import { ConnectorSchedulePanel } from '@/components/docs/connector-schedule-panel';
 import { hasScheduleMeta } from '@/lib/docs/format-schedule-meta';
 import { createRelativeLink } from 'fumadocs-ui/mdx';
+import { DocsLink } from '@/components/docs/docs-link';
 
 export const dynamic = 'force-dynamic';
 
@@ -78,7 +79,7 @@ export default async function EmbedDocPage(props: PageProps<'/embed/docs/[[...sl
         ) : null}
         <MDX
           components={getMDXComponents({
-            a: createRelativeLink(source, page),
+            a: createRelativeLink(source, page, DocsLink),
           })}
         />
       </article>
