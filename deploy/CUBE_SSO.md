@@ -390,6 +390,8 @@ python3 scripts/mock-cube-docs-auth.py
 
 | 现象 | 可能原因 | 解决 |
 |------|---------|------|
+| SSO callback `unknown secret hash` | `sh` 未登记到 `secrets.json` | `./scripts/manage-secrets.sh add` 登记魔方 App Secret |
+| SSO callback `EACCES` 读 secrets | 宿主机 `secrets.json` 为 root:600，容器 nextjs(1001) 无读权限 | `sudo ./scripts/manage-secrets.sh fix-perms` 后重启容器 |
 | 嵌入返回 401 | `sh` 不一致、时钟偏差 >3 分钟、签名 PATH 错误 | 检查密钥文件；对齐 NTP；确认 PATH 是纯 pathname |
 | iframe 内 JS 报错、页面空白 | `render=html` 用了 BFF 代理 / srcdoc | 改用 `iframe src` 直连文档站签名 URL |
 | 嵌入图片不显示 | 未传 `X-Cube-Origin` 或 pattern 不匹配 | 补全 Header；检查 `DOCS_CUBE_ORIGIN_PATTERN` |

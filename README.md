@@ -265,9 +265,12 @@ DOCS_SECRETS_FILE_PATH=/opt/secrets/secrets.json
 ./scripts/manage-secrets.sh add              # 交互输入 App Secret
 ./scripts/manage-secrets.sh remove <sh前缀>
 ./scripts/manage-secrets.sh show <sh前缀> --reveal   # 需二次确认
+./scripts/manage-secrets.sh fix-perms        # 修复已有文件的容器可读权限（nextjs 1001:1001）
 ```
 
-路径默认读项目根 `.env` 的 `DOCS_SECRETS_FILE_PATH`，可用 `--file` 覆盖。变更后请重启对应 Docker 实例。
+路径默认读项目根 `.env` 的 `DOCS_SECRETS_FILE_PATH`，可用 `--file` 覆盖。`add` / `remove` 写入后会自动 `chown` 为容器用户（默认 `1001:1001`，可用 `DOCS_SECRETS_UID` / `DOCS_SECRETS_GID` 覆盖）。变更后请重启对应 Docker 实例。
+
+> 若 SSO callback 报 `EACCES: permission denied, open '/opt/secrets/secrets.json'`，在宿主机执行 `sudo ./scripts/manage-secrets.sh fix-perms` 后重启容器。
 
 > **注意**：`docker compose restart` 不会重新加载 `env_file`；改 env 后请用 `docker compose up -d`。  
 > `NEXT_PUBLIC_*` 在 `next build` 时内联进客户端 bundle，须 `docker compose up -d --build`；服务端通过 `getSiteName()` 等读取的同名变量在 `up -d` 重建后即可更新。
