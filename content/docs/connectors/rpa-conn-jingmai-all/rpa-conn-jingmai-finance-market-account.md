@@ -5,6 +5,8 @@ entry: rpa.conn.jingmai.finance.market.account
 badge:
   label: 待上线
   color: "#EA580C"
+estimatedDuration:
+  sec: 300
 ---
 
 :::warning[店铺兼容性说明]
@@ -19,7 +21,6 @@ badge:
 | **操作类型**     | 浏览器自动化操作 + 网络请求监听 + CSV 文件导出                                     |
 | **目标网页**     | `https://shop.jd.com/jdm/finance/detailAccount/marketAccount`                      |
 | **适用场景**     | 在京麦商家后台营销对账页，按订单下单时间范围导出营销对账明细数据                   |
-| **预估耗时**     | `300s`                                                                             |
 
 ### 目标页面
 

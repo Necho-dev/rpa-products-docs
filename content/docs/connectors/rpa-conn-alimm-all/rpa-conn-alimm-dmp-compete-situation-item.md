@@ -5,6 +5,8 @@ entry: rpa.conn.alimm.dmp.compete.situation.item
 badge:
   label: 已上线
   color: "#16A34A"
+estimatedDuration:
+  sec: 300
 ---
 
 | 属性            | 值                                                                          |
@@ -15,7 +17,6 @@ badge:
 | **操作类型**      | 浏览器自动化操作 + 网络请求监听                                                          |
 | **目标网页**      | `https://dmp.taobao.com/index_new.html#!/compete/compete-situation`        |
 | **适用场景**      | 采集达摩盘竞争态势分析页中本品与竞品的基础分析（含竞争控比）、流量分析（付免/无界投资结构占比、广告域/全域归因渠道明细）及客群画像；四段自定义日期均填时启用自定义周期，均未填时默认近7天；本品或竞品未搜到时返回空数据 |
-| **预估耗时**      | `300s`                                                                      |
 
 
 ### 目标页面

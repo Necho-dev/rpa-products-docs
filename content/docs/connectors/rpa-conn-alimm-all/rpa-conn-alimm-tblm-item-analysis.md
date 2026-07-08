@@ -5,6 +5,8 @@ entry: rpa.conn.alimm.tblm.item.analysis
 badge:
   label: 已上线
   color: "#16A34A"
+estimatedDuration:
+  sec: 300
 ---
 
 | 属性             | 值                                                                                       |
@@ -15,7 +17,6 @@ badge:
 | **操作类型**     | 浏览器自动化操作 + 网络请求监听 + CSV 文件导出                                           |
 | **目标网页**     | `https://ad.alimama.com/portal/v2/report/item/list.htm`                                  |
 | **适用场景**     | 采集淘宝联盟商家中心商品分析报表，按商品维度导出付款、结算、预售及进店转化等指标，支持快捷日期与自定义日期范围 |
-| **预估耗时**     | `300s`                                                                                   |
 
 ### 目标页面
 

@@ -5,6 +5,8 @@ entry: rpa.conn.dewu.finance.finebill
 badge:
   label: 已上线
   color: "#16A34A"
+estimatedDuration:
+  sec: 300
 ---
 
 | 属性             | 值                                                                             |
@@ -15,7 +17,6 @@ badge:
 | **操作类型**     | 浏览器自动化操作 + XLSX 文件导出                                               |
 | **目标网页**     | `https://stark.dewu.com/main/finebill`                                         |
 | **适用场景**     | 导出得物商家后台缴款单费用明细数据，支持按缴款类型、缴款方式、缴款状态、费用生成时间、业务编码筛选 |
-| **预估耗时**     | `300s`                                                                         |
 
 ### 目标页面
 

@@ -5,6 +5,8 @@ entry: rpa.conn.juliang.yt.industry.content.rankings.list
 badge:
   label: 已上线
   color: "#16A34A"
+estimatedDuration:
+  sec: 300
 ---
 
 | 属性             | 值                                                                                                                                       |
@@ -15,7 +17,6 @@ badge:
 | **操作类型**     | 浏览器自动化操作 + 网络请求监听                                                                                                          |
 | **目标网页**     | `https://yuntu.oceanengine.com/yuntu_brand/ecom/content_new/creative/content_lab/inspiration/industryContent`                            |
 | **适用场景**     | 采集巨量云图行业灵感页行业内容榜视频列表，支持按行业、时间、品牌范围、截取方式及年龄/性别/八大人群筛选，返回榜内素材详情及页面实际筛选项 |
-| **预估耗时**     | `300s`                                                                                                                                   |
 
 ### 目标页面
 

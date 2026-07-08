@@ -6,6 +6,13 @@ import type { ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
 import { Check, Copy, Globe, ImageOff, Loader2, PackagePlus } from 'lucide-react';
 import { cn } from '@/lib/core/cn';
+import { ConnectorScheduleChips } from '@/components/docs/connector-schedule-panel';
+import {
+  hasScheduleMeta,
+  type DataReadyMeta,
+  type EstimatedDurationMeta,
+  type MinIntervalMeta,
+} from '@/lib/docs/format-schedule-meta';
 import { safeWriteClipboard } from '@/lib/ui/code-block-utils';
 import { useModuleCoverImage } from '@/components/docs/mdx/use-module-cover-image';
 
@@ -31,6 +38,12 @@ export type ModuleCardProps = {
   url?: string;
   /** ModuleGrid 封面 OG（cover.png） */
   coverUrl?: string;
+  /** 数据就绪（周期 + 时间） */
+  dataReady?: DataReadyMeta;
+  /** 预估执行耗时 */
+  estimatedDuration?: EstimatedDurationMeta;
+  /** 最小调度间隔 */
+  minInterval?: MinIntervalMeta;
   className?: string;
 };
 
@@ -177,6 +190,38 @@ function ModuleCardCover({
   );
 }
 
+function ModuleCardScheduleLine({
+  dataReady,
+  estimatedDuration,
+  minInterval,
+  code,
+}: {
+  dataReady?: DataReadyMeta;
+  estimatedDuration?: EstimatedDurationMeta;
+  minInterval?: MinIntervalMeta;
+  code: string;
+}) {
+  if (
+    !hasScheduleMeta({
+      entry: code,
+      dataReady,
+      estimatedDuration,
+      minInterval,
+    })
+  ) {
+    return null;
+  }
+
+  return (
+    <ConnectorScheduleChips
+      dataReady={dataReady}
+      estimatedDuration={estimatedDuration}
+      minInterval={minInterval}
+      className="mt-2"
+    />
+  );
+}
+
 function ModuleCardHeader({
   icon,
   title,
@@ -184,6 +229,10 @@ function ModuleCardHeader({
   badge,
   href,
   resolvedHref,
+  dataReady,
+  estimatedDuration,
+  minInterval,
+  code,
 }: {
   icon?: ReactNode;
   title: string;
@@ -191,6 +240,10 @@ function ModuleCardHeader({
   badge?: ModuleCardBadge;
   href: string;
   resolvedHref: string;
+  dataReady?: DataReadyMeta;
+  estimatedDuration?: EstimatedDurationMeta;
+  minInterval?: MinIntervalMeta;
+  code: string;
 }) {
   const content = (
     <div className="flex items-start gap-2">
@@ -219,6 +272,12 @@ function ModuleCardHeader({
             {description}
           </p>
         ) : null}
+        <ModuleCardScheduleLine
+          dataReady={dataReady}
+          estimatedDuration={estimatedDuration}
+          minInterval={minInterval}
+          code={code}
+        />
       </div>
     </div>
   );
@@ -246,6 +305,9 @@ export function ModuleCard({
   badge,
   url,
   coverUrl,
+  dataReady,
+  estimatedDuration,
+  minInterval,
   className,
 }: ModuleCardProps) {
   const pathname = usePathname() ?? '/';
@@ -275,6 +337,10 @@ export function ModuleCard({
         badge={badge}
         href={href}
         resolvedHref={resolvedHref}
+        dataReady={dataReady}
+        estimatedDuration={estimatedDuration}
+        minInterval={minInterval}
+        code={code}
       />
 
       <div className="mt-auto space-y-2 pt-3">

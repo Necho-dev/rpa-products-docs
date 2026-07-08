@@ -1,5 +1,5 @@
 ---
-title: 巨量
+title: 巨量引擎
 description: 覆盖巨量千川素材分析、巨量云图行业内容榜等场景的 rpa-conn-juliang-all 包说明与安装
 entry: rpa-conn-juliang-all
 moduleGroup: juliang

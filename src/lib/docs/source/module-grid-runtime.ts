@@ -17,6 +17,11 @@ import { normalizeModuleIcon } from '@/lib/docs/source/module-icon-config';
 import { shouldInjectModuleGridTocHeadings } from '@/lib/docs/source/module-grid-toc';
 import { parseMetaPanelPlatformUrl } from '@/lib/docs/source/module-grid-fs-scan';
 import { resolveModuleCoverUrl } from '@/lib/docs/source/resolve-module-cover-url';
+import type {
+  DataReadyMeta,
+  EstimatedDurationMeta,
+  MinIntervalMeta,
+} from '@/lib/docs/format-schedule-meta';
 import { source } from '@/lib/docs/source/source';
 
 type PageExtras = {
@@ -28,6 +33,9 @@ type PageExtras = {
   moduleIcon?: unknown;
   moduleUrl?: string;
   badge?: { label: string; color?: string };
+  dataReady?: DataReadyMeta;
+  estimatedDuration?: EstimatedDurationMeta;
+  minInterval?: MinIntervalMeta;
 };
 
 function isIndexPage(slugs: string[]): boolean {
@@ -86,6 +94,9 @@ async function collectModuleGridSiblingInputs(
       moduleIcon: normalizeModuleIcon(data.moduleIcon),
       moduleUrl,
       badge: data.badge,
+      dataReady: data.dataReady,
+      estimatedDuration: data.estimatedDuration,
+      minInterval: data.minInterval,
       coverUrl: resolveModuleCoverUrl(page.slugs, {
         gridCover,
         moduleCover: (page.data as PageExtras & { moduleCover?: boolean }).moduleCover,

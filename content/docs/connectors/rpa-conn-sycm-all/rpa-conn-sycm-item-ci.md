@@ -5,6 +5,8 @@ entry: rpa.conn.sycm.item.ci
 badge:
   label: 已上线
   color: "#16A34A"
+estimatedDuration:
+  sec: 120
 ---
 
 | 属性             | 值                                                                                 |
@@ -15,7 +17,6 @@ badge:
 | **操作类型**     | 浏览器自动化操作 + 网络请求监听                                                    |
 | **目标网页**     | `https://sycm.taobao.com/mc/free/ci_item`                                          |
 | **适用场景**     | 按本店与竞品商品 ID 采集生意参谋竞品对比页的销售分析、来源渠道与客群分析数据       |
-| **预估耗时**     | `120s`                                                                             |
 
 ### 目标页面
 

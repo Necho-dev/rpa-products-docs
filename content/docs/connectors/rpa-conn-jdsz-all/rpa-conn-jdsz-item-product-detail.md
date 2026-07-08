@@ -5,6 +5,8 @@ entry: rpa.conn.jdsz.item.product.detail
 badge:
   label: 待上线
   color: "#EA580C"
+estimatedDuration:
+  sec: 300
 ---
 
 | 属性             | 值                                                                                      |
@@ -15,7 +17,6 @@ badge:
 | **操作类型**     | 浏览器自动化操作 + XLSX 文件导出                                                        |
 | **目标网页**     | `https://jdsz.jd.com/szweb/view/product/productDetail.html`                             |
 | **适用场景**     | 在京东商智商品明细页导出 SKU 维度商品数据，支持实时及昨天/近7天/近30天/天/周/月/自定义等多种时间筛选；非实时场景支持汇总下载与分天下载 |
-| **预估耗时**     | `300s`                                                                                  |
 
 ### 目标页面
 

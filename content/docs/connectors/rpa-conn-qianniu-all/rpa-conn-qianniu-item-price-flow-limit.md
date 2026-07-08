@@ -5,6 +5,8 @@ entry: rpa.conn.qianniu.item.price.flow.limit
 badge:
   label: 已上线
   color: "#16A34A"
+minInterval:
+  min: 15
 ---
 
 | 属性             | 值                                                                                          |

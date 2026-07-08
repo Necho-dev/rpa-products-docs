@@ -5,6 +5,8 @@ entry: rpa.conn.doudian.shop.shipping.package.list
 badge:
   label: 已上线
   color: "#16A34A"
+estimatedDuration:
+  sec: 600
 ---
 
 | 属性             | 值                                                                                         |
@@ -15,7 +17,6 @@ badge:
 | **操作类型**     | 浏览器自动化操作 + 网络请求监听                                                            |
 | **目标网页**     | `https://fxg.jinritemai.com/ffa/logistics/parcelCenter`                                    |
 | **适用场景**     | 采集抖店包裹中心发货包裹异常列表，支持按发货时间、异常类型、包裹异常状态、是否已忽略异常预警筛选 |
-| **预估耗时**     | `600s`                                                                                     |
 
 ### 目标页面
 

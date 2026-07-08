@@ -5,6 +5,8 @@ entry: rpa.conn.alimm.pxb.star.shop.report
 badge:
   label: 已上线
   color: "#16A34A"
+estimatedDuration:
+  sec: 300
 ---
 
 | 属性             | 值                                                                                                                                    |
@@ -15,7 +17,6 @@ badge:
 | **操作类型**     | 浏览器自动化操作 + XLSX 文件导出                                                                                                      |
 | **目标网页**     | `https://branding.taobao.com/#!/report/index`                                                                                       |
 | **适用场景**     | 下载品销宝明星店铺报表 XLSX，解析账户/推广计划/推广单元/创意/品牌流量包/定向人群六个维度数据并合并返回                                 |
-| **预估耗时**     | `300s`                                                                                                                                |
 
 ### 目标页面
 

@@ -187,6 +187,23 @@ type DocPageMetaFields = {
   badge?: { label: string; color?: string };
   toc?: unknown;
   lastModified?: string | Date;
+  dataReady?: {
+    time?: string;
+    cycle?: string;
+    description?: string;
+  };
+  estimatedDuration?: {
+    sec?: number;
+    min?: number;
+    hour?: number;
+    description?: string;
+  };
+  minInterval?: {
+    sec?: number;
+    min?: number;
+    hour?: number;
+    description?: string;
+  };
 };
 
 function tocTitleToString(title: unknown): string {
@@ -311,6 +328,9 @@ export async function getDocumentationPageMeta(
     badge: data.badge ?? null,
     toc: serializeTocForMeta(data.toc),
     lastModified: data.lastModified ?? null,
+    dataReady: data.dataReady ?? null,
+    estimatedDuration: data.estimatedDuration ?? null,
+    minInterval: data.minInterval ?? null,
   };
 
   return { ok: true, text: JSON.stringify(payload, null, 2) };

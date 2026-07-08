@@ -1,4 +1,11 @@
 import {
+  hasScheduleMeta,
+  type DataReadyMeta,
+  type EstimatedDurationMeta,
+  type MinIntervalMeta,
+  type ScheduleMetaFields,
+} from '@/lib/docs/format-schedule-meta';
+import {
   type ModuleGroupConfig,
   normalizeModuleGroupEntry,
 } from './module-group-config';
@@ -26,6 +33,9 @@ export type SiblingModuleInput = {
   moduleUrl?: string;
   badge?: DocBadge;
   coverUrl?: string;
+  dataReady?: DataReadyMeta;
+  estimatedDuration?: EstimatedDurationMeta;
+  minInterval?: MinIntervalMeta;
   groupExplicit: boolean;
 };
 
@@ -38,6 +48,9 @@ export type ModuleCardData = {
   icon?: ModuleIconConfig;
   url?: string;
   coverUrl?: string;
+  dataReady?: DataReadyMeta;
+  estimatedDuration?: EstimatedDurationMeta;
+  minInterval?: MinIntervalMeta;
 };
 
 export type ModuleGroupData = {
@@ -159,6 +172,12 @@ export function collectSiblingModuleGroups(
       resolveGroupBucket(rawKey, groupsYaml, mod.groupExplicit);
 
     const bucket = ensureBucket(bucketKey, bucketLabel, bucketIcon);
+    const scheduleFields: ScheduleMetaFields = {
+      entry: mod.entry,
+      dataReady: mod.dataReady,
+      estimatedDuration: mod.estimatedDuration,
+      minInterval: mod.minInterval,
+    };
     bucket.modules.push({
       title: mod.moduleTitle?.trim() || mod.title,
       description: mod.description?.trim() || undefined,
@@ -168,6 +187,13 @@ export function collectSiblingModuleGroups(
       ...(mod.moduleIcon ? { icon: mod.moduleIcon } : {}),
       ...(mod.moduleUrl?.trim() ? { url: mod.moduleUrl.trim() } : {}),
       ...(mod.coverUrl ? { coverUrl: mod.coverUrl } : {}),
+      ...(hasScheduleMeta(scheduleFields)
+        ? {
+            dataReady: mod.dataReady,
+            estimatedDuration: mod.estimatedDuration,
+            minInterval: mod.minInterval,
+          }
+        : {}),
     });
   }
 

@@ -18,6 +18,8 @@ import type { Metadata } from 'next';
 import { createRelativeLink } from 'fumadocs-ui/mdx';
 import { getSiteDescription, siteName } from '@/lib/core/shared';
 import { AddMcpButton } from '@/components/docs/add-mcp-button';
+import { ConnectorSchedulePanel } from '@/components/docs/connector-schedule-panel';
+import { hasScheduleMeta } from '@/lib/docs/format-schedule-meta';
 import { headers } from 'next/headers';
 import { inferSiteOrigin } from '@/lib/core/site-origin';
 
@@ -55,10 +57,25 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
   const toc =
     stackToc.length > 0 ? [...(page.data.toc ?? []), ...stackToc] : page.data.toc;
 
+  const scheduleMeta = {
+    entry: page.data.entry,
+    dataReady: page.data.dataReady,
+    estimatedDuration: page.data.estimatedDuration,
+    minInterval: page.data.minInterval,
+  };
+  const showSchedulePanel = hasScheduleMeta(scheduleMeta);
+
   return (
     <DocsPage toc={toc} full={page.data.full} className={docsPageArticleClassName}>
       <div className="flex flex-col gap-1.5">
-        <DocsTitle className="mb-2">{page.data.title}</DocsTitle>
+        <DocsTitle className="mb-0">{page.data.title}</DocsTitle>
+        {showSchedulePanel ? (
+          <ConnectorSchedulePanel
+            dataReady={scheduleMeta.dataReady}
+            estimatedDuration={scheduleMeta.estimatedDuration}
+            minInterval={scheduleMeta.minInterval}
+          />
+        ) : null}
         <DocsDescription className="mb-0 text-base">{page.data.description}</DocsDescription>
         {Array.isArray(page.data.tags) && page.data.tags.length > 0 ? (
           <div className="flex flex-wrap gap-1.5 pt-1">

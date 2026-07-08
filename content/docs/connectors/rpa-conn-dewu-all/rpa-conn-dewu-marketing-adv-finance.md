@@ -5,6 +5,8 @@ entry: rpa.conn.dewu.marketing.adv.finance
 badge:
   label: 已上线
   color: "#16A34A"
+estimatedDuration:
+  sec: 300
 ---
 
 | 属性             | 值                                                                 |
@@ -15,7 +17,6 @@ badge:
 | **操作类型**     | 浏览器自动化操作 + 网络请求监听 + XLSX 文件导出                    |
 | **目标网页**     | `https://stark.dewu.com/main/newAdv/advFinance`                    |
 | **适用场景**     | 导出得物推财务流水数据，支持按资金类型、流水类型、日期范围筛选     |
-| **预估耗时**     | `300s`                                                             |
 
 ### 目标页面
 

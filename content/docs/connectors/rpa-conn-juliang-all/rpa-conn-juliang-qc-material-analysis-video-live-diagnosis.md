@@ -5,6 +5,8 @@ entry: rpa.conn.juliang.qc.material.analysis.video.live.diagnosis
 badge:
   label: 已上线
   color: "#16A34A"
+estimatedDuration:
+  sec: 600
 ---
 
 | 属性             | 值                                                                                                                                    |
@@ -15,7 +17,6 @@ badge:
 | **操作类型**     | 浏览器自动化操作 + 网络请求监听 + XLSX 文件导出                                                                                       |
 | **目标网页**     | `https://qianchuan.jinritemai.com/dataV2/roi2-material-analysis`                                                                      |
 | **适用场景**     | 采集巨量千川素材分析页指定素材的「数据内容人群诊断」面板数据，含内容分析互动时序、素材元信息、脚本分析、人群维度分布及投放明细分日数据 |
-| **预估耗时**     | `600s`                                                                                                                                |
 
 ### 目标页面
 

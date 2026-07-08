@@ -46,6 +46,9 @@ function ModuleCardsGrid({
           code={mod.code}
           url={mod.url}
           coverUrl={mod.coverUrl}
+          dataReady={mod.dataReady}
+          estimatedDuration={mod.estimatedDuration}
+          minInterval={mod.minInterval}
           icon={mod.icon ? <ModuleCardIcon icon={mod.icon} /> : undefined}
         />
       ))}

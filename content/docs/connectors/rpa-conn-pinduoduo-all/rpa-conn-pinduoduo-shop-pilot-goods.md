@@ -5,6 +5,8 @@ entry: rpa.conn.pinduoduo.shop.pilot.goods
 badge:
   label: 已上线
   color: "#16A34A"
+estimatedDuration:
+  sec: 800
 ---
 
 | 属性             | 值                                                                          |
@@ -15,7 +17,6 @@ badge:
 | **操作类型**     | 浏览器自动化操作 + 网络请求监听                                             |
 | **目标网页**     | `https://mms.pinduoduo.com/sycm/goods_quality/pilot_goods`                  |
 | **适用场景**     | 采集拼多多商家后台商品领航员列表数据，包含综合分、考核指标排名及商品表现等维度 |
-| **预估耗时**     | `800s`                                                                      |
 
 ### 目标页面
 

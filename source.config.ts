@@ -33,6 +33,47 @@ const moduleIconSchema = z.union([
   }),
 ]);
 
+const dataReadyCycleSchema = z
+  .string()
+  .regex(
+    /^(realtime|hourly|daily|weekly\.[1-7]|monthly\.([1-9]|[12]\d|3[01]))$/,
+    '格式须为 realtime / hourly / daily / weekly.1-7 / monthly.1-31',
+  );
+
+const scheduleIndicatorDescriptionSchema = z.string().optional();
+
+/** 数据就绪：周期 + 时间点 + 可选说明 */
+const dataReadySchema = z
+  .object({
+    time: z
+      .string()
+      .regex(/^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/, '格式须为 HH:MM:SS')
+      .optional(),
+    cycle: dataReadyCycleSchema.optional(),
+    description: scheduleIndicatorDescriptionSchema,
+  })
+  .refine((v) => v.time != null || v.cycle != null, 'dataReady 至少须配置 time 或 cycle')
+  .optional();
+
+/** 时长类指标：sec / min / hour 至少配一个，多个时取换算后的最大值 */
+const durationValueSchema = z
+  .object({
+    sec: z.coerce.number().int().positive().optional(),
+    min: z.coerce.number().int().positive().optional(),
+    hour: z.coerce.number().int().positive().optional(),
+    description: scheduleIndicatorDescriptionSchema,
+  })
+  .refine(
+    (v) => v.sec != null || v.min != null || v.hour != null,
+    '至少须配置 sec / min / hour 之一',
+  );
+
+/** 预估执行耗时 + 可选说明 */
+const estimatedDurationSchema = durationValueSchema.optional();
+
+/** 最小调度间隔 + 可选说明 */
+const minIntervalSchema = durationValueSchema.optional();
+
 /** 页面：不写 `access` 时继承目录 meta；可写 `public` 强制公开 */
 const docsPageSchema = pageSchema.extend({
   access: z.enum(['public', 'private']).optional(),
@@ -55,6 +96,12 @@ const docsPageSchema = pageSchema.extend({
   moduleGroup: z.string().optional(),
   /** 覆盖 grid `cover`：单卡强制开/关 cover.png */
   moduleCover: z.boolean().optional(),
+  /** 数据就绪（周期 + 时间）；仅 rpa.conn.* 连接器页展示 */
+  dataReady: dataReadySchema,
+  /** 预估执行耗时；仅 rpa.conn.* 连接器页展示 */
+  estimatedDuration: estimatedDurationSchema,
+  /** 最小调度间隔；仅 rpa.conn.* 连接器页展示 */
+  minInterval: minIntervalSchema,
 });
 
 /** 目录 meta：`access: private` 时其下所有页面默认私有（除非某页写 `access: public`） */

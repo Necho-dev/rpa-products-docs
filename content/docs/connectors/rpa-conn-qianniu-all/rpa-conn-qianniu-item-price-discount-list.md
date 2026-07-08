@@ -8,6 +8,10 @@ badge:
 tags:
   - 商品
   - 文件导出
+estimatedDuration:
+  sec: 60
+minInterval:
+  min: 5
 ---
 
 | 属性             | 值                                                                                       |

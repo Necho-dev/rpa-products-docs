@@ -15,6 +15,8 @@ import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
 import { source } from '@/lib/docs/source/source';
 import { notFound } from 'next/navigation';
 import { getMDXComponents } from '@/components/docs/mdx';
+import { ConnectorSchedulePanel } from '@/components/docs/connector-schedule-panel';
+import { hasScheduleMeta } from '@/lib/docs/format-schedule-meta';
 import { createRelativeLink } from 'fumadocs-ui/mdx';
 
 export const dynamic = 'force-dynamic';
@@ -36,11 +38,28 @@ export default async function EmbedDocPage(props: PageProps<'/embed/docs/[[...sl
 
   const MDX = page.data.body;
 
+  const scheduleMeta = {
+    entry: page.data.entry,
+    dataReady: page.data.dataReady,
+    estimatedDuration: page.data.estimatedDuration,
+    minInterval: page.data.minInterval,
+  };
+  const showSchedulePanel = hasScheduleMeta(scheduleMeta);
+
   return (
     // id="nd-docs-layout" 让 docs-prose-override.css 的选择器（blockquote、table 等）生效，与主站渲染一致
     <div id="nd-docs-layout">
       <article className="prose max-w-none px-4 py-6 md:px-6 md:py-8">
         <h1>{page.data.title}</h1>
+        {showSchedulePanel ? (
+          <div className="not-prose mb-3">
+            <ConnectorSchedulePanel
+              dataReady={scheduleMeta.dataReady}
+              estimatedDuration={scheduleMeta.estimatedDuration}
+              minInterval={scheduleMeta.minInterval}
+            />
+          </div>
+        ) : null}
         {page.data.description ? (
           <p className="lead text-fd-muted-foreground">{page.data.description}</p>
         ) : null}
