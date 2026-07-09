@@ -12,16 +12,19 @@ estimatedDuration:
 | 属性             | 值                                                                                                                                    |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
 | **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_千川推直播视频素材指定素材数据诊断明细表(巨量千川RPA)`|
 | **连接器代码**   | `rpa.conn.juliang.qc.material.analysis.video.live.diagnosis`|
 | **操作类型**     | `页面解析` + `文件导出`|
 | **目标网页**     | `https://qianchuan.jinritemai.com/dataV2/roi2-material-analysis`|
-| **适用场景**     | 采集巨量千川素材分析页指定素材的「数据内容人群诊断」面板数据，含内容分析互动时序、素材元信息、脚本分析、人群维度分布及投放明细分日数据 |
+| **适用场景**     | 采集巨量千川素材分析页指定素材的「数据内容人群诊断」面板数据，含内容分析互动时序、素材元信息、脚本分析、人群维度分布及投放明细分日数据|
+| **数据表名**     | `ods_rpa_juliang_qc_material_analysis_video_live_diagnosis_du`|
+| **业务表名**     | `ODS_千川推直播视频素材指定素材数据诊断明细表(巨量千川RPA)`|
 
 ### 目标页面
 
-> **路径**：巨量千川—数据—素材分析—视频素材—推直播—数据内容人群诊断
+> **取数路径**：巨量千川—数据—素材分析—视频素材—推直播—数据内容人群诊断
 >
-> **网址**：[https://qianchuan.jinritemai.com/dataV2/roi2-material-analysis](https://qianchuan.jinritemai.com/dataV2/roi2-material-analysis)
+> **取数链接**：[https://qianchuan.jinritemai.com/dataV2/roi2-material-analysis](https://qianchuan.jinritemai.com/dataV2/roi2-material-analysis)
 
 ![巨量千川—素材分析列表页](../../public/images/juliang/qc_material_analysis_video_live_diagnosis_1_20260629.png)
 

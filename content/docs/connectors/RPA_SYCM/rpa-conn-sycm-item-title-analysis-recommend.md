@@ -13,17 +13,20 @@ dataReady:
 
 | 属性             | 值                                                                                           |
 | ---------------- | -------------------------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                                 |
-| **连接器代码**   | `rpa.conn.sycm.item.title.analysis.recommend`                                              |
-| **操作类型**     | `页面解析`                                                              |
-| **目标网页**     | `https://sycm.taobao.com/cc/item_archives`                                                   |
-| **适用场景**     | 按商品 ID 与统计周期采集生意参谋商品360标题页的标题分析分词（含标签色）与标题推荐方案         |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_商品360标题分析&推荐数据(生意参谋RPA)`|
+| **连接器代码**   | `rpa.conn.sycm.item.title.analysis.recommend`|
+| **操作类型**     | `页面解析`|
+| **目标网页**     | `https://sycm.taobao.com/cc/item_archives`|
+| **适用场景**     | 按商品 ID 与统计周期采集生意参谋商品360标题页的标题分析分词（含标签色）与标题推荐方案|
+| **数据表名**     | `ods_rpa_sycm_item_title_analysis_recommend_du`|
+| **业务表名**     | `ODS_商品360标题分析&推荐数据(生意参谋RPA)`|
 
 ### 目标页面
 
-> **路径**：生意参谋—商品—商品360—标题分析
+> **取数路径**：生意参谋—商品—商品360—标题分析
 >
-> **网址**：[https://sycm.taobao.com/cc/item_archives?activeKey=title](https://sycm.taobao.com/cc/item_archives?activeKey=title)
+> **取数链接**：[https://sycm.taobao.com/cc/item_archives?activeKey=title](https://sycm.taobao.com/cc/item_archives?activeKey=title)
 
 ![生意参谋—商品360—标题分析/标题推荐](../../public/images/sycm/item_title_analysis_recommend_20260520.png)
 

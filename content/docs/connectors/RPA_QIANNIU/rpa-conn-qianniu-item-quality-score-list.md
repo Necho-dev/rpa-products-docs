@@ -9,17 +9,20 @@ badge:
 
 | 属性             | 值                                                                                                    |
 | ---------------- | ----------------------------------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                                          |
-| **连接器代码**   | `rpa.conn.qianniu.item.quality.score.list`                                                            |
-| **操作类型**     | `页面解析`                                                                       |
-| **目标网页**     | `https://qn.taobao.com/home.htm/item-diagnose-manage/?queryDiagnoseCode=ALL&current=1&pageSize=5`     |
-| **适用场景**     | 按页获取商品质量分、30日销量与访客数信息，用于质量诊断与运营跟进；默认配置每页条数20、最大翻页次数100 |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_商品质量分明细表(千牛RPA)`|
+| **连接器代码**   | `rpa.conn.qianniu.item.quality.score.list`|
+| **操作类型**     | `页面解析`|
+| **目标网页**     | `https://qn.taobao.com/home.htm/item-diagnose-manage/?queryDiagnoseCode=ALL&current=1&pageSize=5`|
+| **适用场景**     | 按页获取商品质量分、30日销量与访客数信息，用于质量诊断与运营跟进；默认配置每页条数20、最大翻页次数100|
+| **数据表名**     | `ods_rpa_qianniu_item_quality_score_list_du`|
+| **业务表名**     | `ODS_商品质量分明细表(千牛RPA)`|
 
 ### 目标页面
 
-> **路径**：千牛后台—商品—商品质量分—全部
+> **取数路径**：千牛后台—商品—商品质量分—全部
 >
-> **网址**：https://qn.taobao.com/home.htm/item-diagnose-manage/?onlyHaveExposure=false&autoGovernance=false&openAllIssueGovernanceV2=false&queryDiagnoseCode=ALL&current=1&pageSize=5
+> **取数链接**：https://qn.taobao.com/home.htm/item-diagnose-manage/?onlyHaveExposure=false&autoGovernance=false&openAllIssueGovernanceV2=false&queryDiagnoseCode=ALL&current=1&pageSize=5
 
 ![千牛后台—商品质量分—全部](../../public/images/qianniu/item_quality_score_list_20260521.png)
 

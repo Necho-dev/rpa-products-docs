@@ -15,17 +15,20 @@ estimatedDuration:
 
 | 属性             | 值                                                                                 |
 | ---------------- | ---------------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                       |
-| **连接器代码**   | `rpa.conn.sycm.item.ci`                                                            |
-| **操作类型**     | `页面解析`                                                    |
-| **目标网页**     | `https://sycm.taobao.com/mc/free/ci_item`                                          |
-| **适用场景**     | 按本店与竞品商品 ID 采集生意参谋竞品对比页的销售分析、来源渠道与客群分析数据       |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_市场竞品对比信息表(生意参谋RPA)`|
+| **连接器代码**   | `rpa.conn.sycm.item.ci`|
+| **操作类型**     | `页面解析`|
+| **目标网页**     | `https://sycm.taobao.com/mc/free/ci_item`|
+| **适用场景**     | 按本店与竞品商品 ID 采集生意参谋竞品对比页的销售分析、来源渠道与客群分析数据|
+| **数据表名**     | `ods_rpa_sycm_item_ci_detail_du`|
+| **业务表名**     | `ODS_市场竞品对比信息表(生意参谋RPA)`|
 
 ### 目标页面
 
-> **路径**：生意参谋—市场—竞争—竞品对比
+> **取数路径**：生意参谋—市场—竞争—竞品对比
 >
-> **网址**：[https://sycm.taobao.com/mc/free/ci_item](https://sycm.taobao.com/mc/free/ci_item)
+> **取数链接**：[https://sycm.taobao.com/mc/free/ci_item](https://sycm.taobao.com/mc/free/ci_item)
 
 ![生意参谋—市场—竞争—竞品对比](../../public/images/sycm/item_ci_20260615.png)
 

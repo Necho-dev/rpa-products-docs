@@ -13,17 +13,20 @@ badge:
 
 | 属性             | 值                                                                |
 | ---------------- | ----------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                      |
-| **连接器代码**   | `rpa.conn.qianniu.shop.overview.todolist`                         |
-| **操作类型**     | `页面解析`                                   |
-| **目标网页**     | `https://myseller.taobao.com/home.htm/QnworkbenchHome/`           |
-| **适用场景**     | 采集千牛工作台首页各模块待办数据（物流监控、售前售后、宝贝管理、小二提醒） |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_店铺首页待办总览指标(千牛RPA)`|
+| **连接器代码**   | `rpa.conn.qianniu.shop.overview.todolist`|
+| **操作类型**     | `页面解析`|
+| **目标网页**     | `https://myseller.taobao.com/home.htm/QnworkbenchHome/`|
+| **适用场景**     | 采集千牛工作台首页各模块待办数据（物流监控、售前售后、宝贝管理、小二提醒）|
+| **数据表名**     | `ods_rpa_qianniu_shop_overview_todolist_du`|
+| **业务表名**     | `ODS_店铺首页待办总览指标(千牛RPA)`|
 
 ### 目标页面
 
-> **路径**：千牛商家工作台—首页
+> **取数路径**：千牛商家工作台—首页
 >
-> **网址**：[https://myseller.taobao.com/home.htm/QnworkbenchHome/](https://myseller.taobao.com/home.htm/QnworkbenchHome/)
+> **取数链接**：[https://myseller.taobao.com/home.htm/QnworkbenchHome/](https://myseller.taobao.com/home.htm/QnworkbenchHome/)
 
 ![千牛—工作台首页数据总览](../../public/images/qianniu/home_overview_20260428.png)
 

@@ -12,16 +12,19 @@ estimatedDuration:
 | 属性             | 值                                                                                                                                       |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_云图行业内容榜视频列表(巨量云图RPA)`|
 | **连接器代码**   | `rpa.conn.juliang.yt.industry.content.rankings.list`|
 | **操作类型**     | `页面解析`|
 | **目标网页**     | `https://yuntu.oceanengine.com/yuntu_brand/ecom/content_new/creative/content_lab/inspiration/industryContent`|
-| **适用场景**     | 采集巨量云图行业灵感页行业内容榜视频列表，支持按行业、时间、品牌范围、截取方式及年龄/性别/八大人群筛选，返回榜内素材详情及页面实际筛选项 |
+| **适用场景**     | 采集巨量云图行业灵感页行业内容榜视频列表，支持按行业、时间、品牌范围、截取方式及年龄/性别/八大人群筛选，返回榜内素材详情及页面实际筛选项|
+| **数据表名**     | `ods_rpa_juliang_yt_industry_content_rankings_list_du`|
+| **业务表名**     | `ODS_云图行业内容榜视频列表(巨量云图RPA)`|
 
 ### 目标页面
 
-> **路径**：巨量云图—内容—创意内容实验室—行业灵感—行业内容榜
+> **取数路径**：巨量云图—内容—创意内容实验室—行业灵感—行业内容榜
 >
-> **网址**：[https://yuntu.oceanengine.com/yuntu_brand/ecom/content_new/creative/content_lab/inspiration/industryContent](https://yuntu.oceanengine.com/yuntu_brand/ecom/content_new/creative/content_lab/inspiration/industryContent)
+> **取数链接**：[https://yuntu.oceanengine.com/yuntu_brand/ecom/content_new/creative/content_lab/inspiration/industryContent](https://yuntu.oceanengine.com/yuntu_brand/ecom/content_new/creative/content_lab/inspiration/industryContent)
 
 ![巨量云图—行业内容榜](../../public/images/juliang/yt_industry_content_rankings_list_20260703.png)
 

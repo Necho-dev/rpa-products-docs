@@ -11,17 +11,20 @@ estimatedDuration:
 
 | 属性             | 值                                                                                   |
 | ---------------- | ------------------------------------------------------------------------------------ |
-| **连接器类型**   | `RPA 连接器`                                                                         |
-| **连接器代码**   | `rpa.conn.dewu.gravity.task.export`                                                 |
-| **操作类型**     | `文件导出`                                      |
-| **目标网页**     | `https://gravity.dewu.com/task`                                                      |
-| **适用场景**     | 导出得物引力平台任务明细数据，支持按任务创建时间、推广形式、任务模式、任务状态筛选   |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_引力任务明细表(得物RPA)`|
+| **连接器代码**   | `rpa.conn.dewu.gravity.task.export`|
+| **操作类型**     | `文件导出`|
+| **目标网页**     | `https://gravity.dewu.com/task`|
+| **适用场景**     | 导出得物引力平台任务明细数据，支持按任务创建时间、推广形式、任务模式、任务状态筛选|
+| **数据表名**     | `ods_rpa_dewu_gravity_task_export_du`|
+| **业务表名**     | `ODS_引力任务明细表(得物RPA)`|
 
 ### 目标页面
 
-> **路径**：得物引力—我的工作台—任务
+> **取数路径**：得物引力—我的工作台—任务
 >
-> **网址**：[https://gravity.dewu.com/task](https://gravity.dewu.com/task)
+> **取数链接**：[https://gravity.dewu.com/task](https://gravity.dewu.com/task)
 
 ![得物—引力任务明细导出](../../public/images/dewu/gravity_task_export_20260618.png)
 

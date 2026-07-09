@@ -9,17 +9,20 @@ badge:
 
 | 属性             | 值                                                                                          |
 | ---------------- | ------------------------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                                |
-| **连接器代码**   | `rpa.conn.qianniu.shop.aggregated.fund.bill.detail`                                                 |
-| **操作类型**     | `文件导出`                                                            |
-| **目标网页**     | `https://myseller.taobao.com/home.htm/whale-accountant/pay/capital/home?active=fund_detail` |
-| **适用场景**     | 导出「财务-聚合结算-收支明细」明细数据，支持按入账日区间拉取（起止日期遵循平台规则限制）    |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_财务聚合账单明细表(千牛RPA)`|
+| **连接器代码**   | `rpa.conn.qianniu.shop.aggregated.fund.bill.detail`|
+| **操作类型**     | `文件导出`|
+| **目标网页**     | `https://myseller.taobao.com/home.htm/whale-accountant/pay/capital/home?active=fund_detail`|
+| **适用场景**     | 导出「财务-聚合结算-收支明细」明细数据，支持按入账日区间拉取（起止日期遵循平台规则限制）|
+| **数据表名**     | `ods_rpa_qianniu_aggregated_fund_bill_du`|
+| **业务表名**     | `ODS_财务聚合账单明细表(千牛RPA)`|
 
 ### 目标页面
 
-> **路径**：千牛—财务—资金管理—聚合结算账户—收支明细
+> **取数路径**：千牛—财务—资金管理—聚合结算账户—收支明细
 >
-> **网址**：[https://myseller.taobao.com/home.htm/whale-accountant/pay/capital/home?active=fund_detail](https://myseller.taobao.com/home.htm/whale-accountant/pay/capital/home?active=fund_detail)
+> **取数链接**：[https://myseller.taobao.com/home.htm/whale-accountant/pay/capital/home?active=fund_detail](https://myseller.taobao.com/home.htm/whale-accountant/pay/capital/home?active=fund_detail)
 
 ![千牛后台—聚合结算—收支明细](../../public/images/qianniu/shop_aggregated_fund_bill_20260423.png)
 

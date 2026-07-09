@@ -13,17 +13,20 @@ dataReady:
 
 | 属性             | 值                                                                                      |
 | ---------------- | --------------------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器` |
-| **连接器代码**   | `rpa.conn.sycm.item.archives.flow.source` |
-| **操作类型**     | `文件导出` |
-| **目标网页**     | `https://sycm.taobao.com/cc/item_archives` |
-| **适用场景**     | 按商品 ID 和统计日期查询指定商品的流量来源数据，导出获取的单品维度的流量来源拆解（一级～四级来源、UV/PV、加购收藏、支付等） |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_商品360流量来源明细下载(生意参谋RPA)`|
+| **连接器代码**   | `rpa.conn.sycm.item.archives.flow.source`|
+| **操作类型**     | `文件导出`|
+| **目标网页**     | `https://sycm.taobao.com/cc/item_archives`|
+| **适用场景**     | 按商品 ID 和统计日期查询指定商品的流量来源数据，导出获取的单品维度的流量来源拆解（一级～四级来源、UV/PV、加购收藏、支付等）|
+| **数据表名**     | `ods_rpa_sycm_item_archives_flow_source_du`|
+| **业务表名**     | `ODS_商品360流量来源明细下载(生意参谋RPA)`|
 
 ### 目标页面
 
-> **路径**：生意参谋—商品—商品360—流量来源
+> **取数路径**：生意参谋—商品—商品360—流量来源
 >
-> **网址**：[https://sycm.taobao.com/cc/item_archives](https://sycm.taobao.com/cc/item_archives?activeKey=flow&activeTab=diagnosis)
+> **取数链接**：[https://sycm.taobao.com/cc/item_archives](https://sycm.taobao.com/cc/item_archives?activeKey=flow&activeTab=diagnosis)
 
 ![生意参谋—商品360—流量来源](../../public/images/sycm/item_archives_flow_source_20260521.png)
 

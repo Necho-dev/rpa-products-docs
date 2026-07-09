@@ -9,17 +9,20 @@ badge:
 
 | 属性             | 值                                                                                         |
 | ---------------- | ------------------------------------------------------------------------------------------ |
-| **连接器类型**   | `RPA 连接器`                                                                               |
-| **连接器代码**   | `rpa.conn.qianniu.shop.tools.usable.list`                                                  |
-| **操作类型**     | `页面解析`                                                            |
-| **目标网页**     | `https://myseller.taobao.com/home.htm/qianniu-service-market/`                             |
-| **适用场景**     | 采集千牛服务市场中当前店铺已订购且可使用的工具/服务列表，包含到期时间、剩余天数等信息       |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_店铺服务市场可使用工具列表(千牛RPA)`|
+| **连接器代码**   | `rpa.conn.qianniu.shop.tools.usable.list`|
+| **操作类型**     | `页面解析`|
+| **目标网页**     | `https://myseller.taobao.com/home.htm/qianniu-service-market/`|
+| **适用场景**     | 采集千牛服务市场中当前店铺已订购且可使用的工具/服务列表，包含到期时间、剩余天数等信息|
+| **数据表名**     | `ods_rpa_qianniu_shop_tools_usable_list_du`|
+| **业务表名**     | `ODS_店铺服务市场可使用工具列表(千牛RPA)`|
 
 ### 目标页面
 
-> **路径**：千牛后台—服务市场—我的工具—可使用
+> **取数路径**：千牛后台—服务市场—我的工具—可使用
 >
-> **网址**：[https://myseller.taobao.com/home.htm/qianniu-service-market/](https://myseller.taobao.com/home.htm/qianniu-service-market/)
+> **取数链接**：[https://myseller.taobao.com/home.htm/qianniu-service-market/](https://myseller.taobao.com/home.htm/qianniu-service-market/)
 
 ![千牛后台—服务市场可使用工具列表](../../public/images/qianniu/tools_usable_list_20260518.png)
 

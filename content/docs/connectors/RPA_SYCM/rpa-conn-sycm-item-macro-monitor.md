@@ -13,17 +13,20 @@ dataReady:
 
 | 属性             | 值                                                                                           |
 | ---------------- | -------------------------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                                 |
-| **连接器代码**   | `rpa.conn.sycm.item.macro.monitor`                                                          |
-| **操作类型**     | `文件导出`                                                              |
-| **目标网页**     | `https://sycm.taobao.com/cc/macro_monitor`                                                  |
-| **适用场景**     | 采集生意参谋宏观监控页面按日维度的商品经营数据，含支付、加购、访客、转化率等核心指标         |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_商品宏观监控日更指标数据下载(生意参谋RPA)`|
+| **连接器代码**   | `rpa.conn.sycm.item.macro.monitor`|
+| **操作类型**     | `文件导出`|
+| **目标网页**     | `https://sycm.taobao.com/cc/macro_monitor`|
+| **适用场景**     | 采集生意参谋宏观监控页面按日维度的商品经营数据，含支付、加购、访客、转化率等核心指标|
+| **数据表名**     | `ods_rpa_sycm_item_macro_monitor_du`|
+| **业务表名**     | `ODS_商品宏观监控日更指标数据下载(生意参谋RPA)`|
 
 ### 目标页面
 
-> **路径**：生意参谋—商品—宏观监控
+> **取数路径**：生意参谋—商品—宏观监控
 >
-> **网址**：[https://sycm.taobao.com/cc/macro_monitor](https://sycm.taobao.com/cc/macro_monitor)
+> **取数链接**：[https://sycm.taobao.com/cc/macro_monitor](https://sycm.taobao.com/cc/macro_monitor)
 
 ![生意参谋—宏观监控(日)数据下载](../../public/images/sycm/macro_monitor_20260429.png)
 

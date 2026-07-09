@@ -15,17 +15,20 @@ estimatedDuration:
 
 | 属性             | 值                                                                                 |
 | ---------------- | ---------------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                       |
-| **连接器代码**   | `rpa.conn.jingmai.finance.market.account`                                          |
-| **操作类型**     | `页面解析` + `文件导出`                                     |
-| **目标网页**     | `https://shop.jd.com/jdm/finance/detailAccount/marketAccount`                      |
-| **适用场景**     | 在京麦商家后台营销对账页，按订单下单时间范围导出营销对账明细数据                   |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_财务营销对账明细表(京麦RPA)`|
+| **连接器代码**   | `rpa.conn.jingmai.finance.market.account`|
+| **操作类型**     | `页面解析` + `文件导出`|
+| **目标网页**     | `https://shop.jd.com/jdm/finance/detailAccount/marketAccount`|
+| **适用场景**     | 在京麦商家后台营销对账页，按订单下单时间范围导出营销对账明细数据|
+| **数据表名**     | `ods_rpa_jingmai_finance_market_account_du`|
+| **业务表名**     | `ODS_财务营销对账明细表(京麦RPA)`|
 
 ### 目标页面
 
-> **路径**：京麦商家后台—财务—明细对账—营销对账
+> **取数路径**：京麦商家后台—财务—明细对账—营销对账
 >
-> **网址**：[https://shop.jd.com/jdm/finance/detailAccount/marketAccount](https://shop.jd.com/jdm/finance/detailAccount/marketAccount)
+> **取数链接**：[https://shop.jd.com/jdm/finance/detailAccount/marketAccount](https://shop.jd.com/jdm/finance/detailAccount/marketAccount)
 
 ![京麦—营销对账明细导出](../../public/images/jingmai/finance_market_account_20260708.png)
 

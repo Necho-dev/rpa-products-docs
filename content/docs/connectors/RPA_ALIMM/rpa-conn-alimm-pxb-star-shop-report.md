@@ -12,16 +12,19 @@ estimatedDuration:
 | 属性             | 值                                                                                                                                    |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
 | **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_品销宝明星店铺报表下载明细表(阿里妈妈RPA)`|
 | **连接器代码**   | `rpa.conn.alimm.pxb.star.shop.report`|
 | **操作类型**     | `文件导出`|
 | **目标网页**     | `https://branding.taobao.com/#!/report/index`|
 | **适用场景**     | 下载品销宝明星店铺报表 XLSX，解析账户/推广计划/推广单元/创意/品牌流量包/定向人群六个维度数据并合并返回|
+| **数据表名**     | `ods_rpa_alimm_pxb_star_shop_report_du`|
+| **业务表名**     | `ODS_品销宝明星店铺报表下载明细表(阿里妈妈RPA)`|
 
 ### 目标页面
 
-> **路径**：阿里妈妈—品销宝—报表中心—明星店铺
+> **取数路径**：阿里妈妈—品销宝—报表中心—明星店铺
 >
-> **网址**：[https://branding.taobao.com/#!/report/index](https://branding.taobao.com/#!/report/index)
+> **取数链接**：[https://branding.taobao.com/#!/report/index](https://branding.taobao.com/#!/report/index)
 
 ![阿里妈妈—品销宝明星店铺报表](../../public/images/alimm/pxb_star_shop_report_20250630.png)
 

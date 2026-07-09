@@ -11,17 +11,20 @@ estimatedDuration:
 
 | 属性             | 值                                                                 |
 | ---------------- | ------------------------------------------------------------------ |
-| **连接器类型**   | `RPA 连接器`                                                       |
-| **连接器代码**   | `rpa.conn.dewu.marketing.adv.finance`                              |
-| **操作类型**     | `文件导出`                    |
-| **目标网页**     | `https://stark.dewu.com/main/newAdv/advFinance`                    |
-| **适用场景**     | 导出得物推财务流水数据，支持按资金类型、流水类型、日期范围筛选     |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_营销得物推财务流水明细表(得物RPA)`|
+| **连接器代码**   | `rpa.conn.dewu.marketing.adv.finance`|
+| **操作类型**     | `文件导出`|
+| **目标网页**     | `https://stark.dewu.com/main/newAdv/advFinance`|
+| **适用场景**     | 导出得物推财务流水数据，支持按资金类型、流水类型、日期范围筛选|
+| **数据表名**     | `ods_rpa_dewu_marketing_adv_finance_du`|
+| **业务表名**     | `ODS_营销得物推财务流水明细表(得物RPA)`|
 
 ### 目标页面
 
-> **路径**：得物商家后台—营销—得物推—财务流水
+> **取数路径**：得物商家后台—营销—得物推—财务流水
 >
-> **网址**：[https://stark.dewu.com/main/newAdv/advFinance](https://stark.dewu.com/main/newAdv/advFinance)
+> **取数链接**：[https://stark.dewu.com/main/newAdv/advFinance](https://stark.dewu.com/main/newAdv/advFinance)
 
 ![得物—得物推财务流水](../../public/images/dewu/marketing_adv_finance_20260618.png)
 

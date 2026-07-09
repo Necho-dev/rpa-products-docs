@@ -13,17 +13,20 @@ dataReady:
 
 | 属性             | 值                                                                                |
 | ---------------- | --------------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                      |
-| **连接器代码**   | `rpa.conn.sycm.flow.drainage.keyword`                                              |
-| **操作类型**     | `文件导出`                                                       |
-| **目标网页**     | `https://sycm.taobao.com/flow/monitor/keyword_assistant`                          |
-| **适用场景**     | 导出「引流搜索关键词」明细报表，获得引流侧搜索词效果（UV、加购、收藏、支付、UV 价值等）与流量转化         |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_流量引流搜索关键词列表下载(生意参谋RPA)`|
+| **连接器代码**   | `rpa.conn.sycm.flow.drainage.keyword`|
+| **操作类型**     | `文件导出`|
+| **目标网页**     | `https://sycm.taobao.com/flow/monitor/keyword_assistant`|
+| **适用场景**     | 导出「引流搜索关键词」明细报表，获得引流侧搜索词效果（UV、加购、收藏、支付、UV 价值等）与流量转化|
+| **数据表名**     | `ods_rpa_sycm_flow_drainage_keyword_du`|
+| **业务表名**     | `ODS_流量引流搜索关键词列表下载(生意参谋RPA)`|
 
 ### 目标页面
 
-> **路径**：生意参谋—流量—搜索词分析—引流搜索关键词
+> **取数路径**：生意参谋—流量—搜索词分析—引流搜索关键词
 >
-> **网址**：[https://sycm.taobao.com/flow/monitor/keyword_assistant](https://sycm.taobao.com/flow/monitor/keyword_assistant)
+> **取数链接**：[https://sycm.taobao.com/flow/monitor/keyword_assistant](https://sycm.taobao.com/flow/monitor/keyword_assistant)
 
 ![生意参谋—引流搜索关键词](../../public/images/sycm/flow_drainage_keyword_20260521.png)
 

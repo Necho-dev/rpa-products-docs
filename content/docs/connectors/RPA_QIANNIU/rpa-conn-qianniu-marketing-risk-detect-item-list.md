@@ -9,17 +9,20 @@ badge:
 
 | 属性             | 值                                                                                                      |
 | ---------------- | ------------------------------------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                                            |
-| **连接器代码**   | `rpa.conn.qianniu.marketing.risk.detect.item.list`                                                      |
-| **操作类型**     | `页面解析`                                                                         |
-| **目标网页**     | `https://myseller.taobao.com/home.htm/PriceManagement/?source=qianniulist&TabCode=Risk`                 |
-| **适用场景**     | 按指定商品维度风险类型采集营销风险检测记录全量列表，用于价格与促销风险监控与处置跟进；默认配置每个风险选项卡最大翻页次数 100 |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_营销风险商品维度明细表(千牛RPA)`|
+| **连接器代码**   | `rpa.conn.qianniu.marketing.risk.detect.item.list`|
+| **操作类型**     | `页面解析`|
+| **目标网页**     | `https://myseller.taobao.com/home.htm/PriceManagement/?source=qianniulist&TabCode=Risk`|
+| **适用场景**     | 按指定商品维度风险类型采集营销风险检测记录全量列表，用于价格与促销风险监控与处置跟进；默认配置每个风险选项卡最大翻页次数 100|
+| **数据表名**     | `ods_rpa_qianniu_marketing_risk_detect_item_list_du`|
+| **业务表名**     | `ODS_营销风险商品维度明细表(千牛RPA)`|
 
 ### 目标页面
 
-> **路径**：千牛后台—价格管理—营销风险
+> **取数路径**：千牛后台—价格管理—营销风险
 >
-> **网址**：[https://myseller.taobao.com/home.htm/PriceManagement/?source=qianniulist&TabCode=Risk](https://myseller.taobao.com/home.htm/PriceManagement/?source=qianniulist&TabCode=Risk)
+> **取数链接**：[https://myseller.taobao.com/home.htm/PriceManagement/?source=qianniulist&TabCode=Risk](https://myseller.taobao.com/home.htm/PriceManagement/?source=qianniulist&TabCode=Risk)
 
 ![千牛后台—价格管理—营销风险](../../public/images/qianniu/marketing_risk_detect_item_list_20260520.png)
 

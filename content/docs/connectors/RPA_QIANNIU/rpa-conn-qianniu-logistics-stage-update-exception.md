@@ -9,17 +9,20 @@ badge:
 
 | 属性             | 值                                                                              |
 | ---------------- | ------------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                    |
-| **连接器代码**   | `rpa.conn.qianniu.logistics.stage.update.exception`                             |
-| **操作类型**     | `文件导出`                                 |
-| **目标网页**     | `https://myseller.taobao.com/home.htm/package-center/packageMonitor`            |
-| **适用场景**     | 导出包裹中心阶段更新异常数据（揽收/运输/派送更新异常），支持按发货时间范围、运单号/交易单号筛选 |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_物流包裹中心阶段更新异常明细表(千牛RPA)`|
+| **连接器代码**   | `rpa.conn.qianniu.logistics.stage.update.exception`|
+| **操作类型**     | `文件导出`|
+| **目标网页**     | `https://myseller.taobao.com/home.htm/package-center/packageMonitor`|
+| **适用场景**     | 导出包裹中心阶段更新异常数据（揽收/运输/派送更新异常），支持按发货时间范围、运单号/交易单号筛选|
+| **数据表名**     | `ods_rpa_qianniu_logistics_stage_update_exception_du`|
+| **业务表名**     | `ODS_物流包裹中心阶段更新异常明细表(千牛RPA)`|
 
 ### 目标页面
 
-> **路径**：千牛后台—物流—包裹中心—阶段更新异常（揽收更新异常 / 运输更新异常 / 派送更新异常）
+> **取数路径**：千牛后台—物流—包裹中心—阶段更新异常（揽收更新异常 / 运输更新异常 / 派送更新异常）
 >
-> **网址**：[https://myseller.taobao.com/home.htm/package-center/packageMonitor](https://myseller.taobao.com/home.htm/package-center/packageMonitor)
+> **取数链接**：[https://myseller.taobao.com/home.htm/package-center/packageMonitor](https://myseller.taobao.com/home.htm/package-center/packageMonitor)
 
 ![千牛后台—物流—包裹中心—阶段更新异常](../../public/images/qianniu/stage_update_exception_20260611.png)
 

@@ -9,17 +9,20 @@ badge:
 
 | 属性             | 值                                                                          |
 | ---------------- | --------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                |
-| **连接器代码**   | `rpa.conn.qianniu.item.sellmanage.list`                                     |
-| **操作类型**     | `页面解析`                                             |
-| **目标网页**     | `https://myseller.taobao.com/home.htm/SellManage/all`                       |
-| **适用场景**     | 采集千牛商品管理列表（出售中/仓库中/已售完等状态），支持按标题、商品ID搜索及自定义排序，自动翻页最多100页 |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_店铺商品列表(千牛RPA)`|
+| **连接器代码**   | `rpa.conn.qianniu.item.sellmanage.list`|
+| **操作类型**     | `页面解析`|
+| **目标网页**     | `https://myseller.taobao.com/home.htm/SellManage/all`|
+| **适用场景**     | 采集千牛商品管理列表（出售中/仓库中/已售完等状态），支持按标题、商品ID搜索及自定义排序，自动翻页最多100页|
+| **数据表名**     | `ods_rpa_qianniu_item_sellmanage_list_du`|
+| **业务表名**     | `ODS_店铺商品列表(千牛RPA)`|
 
 ### 目标页面
 
-> **路径**：千牛商家工作台—商品—商品管理
+> **取数路径**：千牛商家工作台—商品—商品管理
 >
-> **网址**：[https://myseller.taobao.com/home.htm/SellManage/all](https://myseller.taobao.com/home.htm/SellManage/all)
+> **取数链接**：[https://myseller.taobao.com/home.htm/SellManage/all](https://myseller.taobao.com/home.htm/SellManage/all)
 
 ![千牛—商品管理列表](../../public/images/qianniu/sellmanage_list_20260509.png)
 

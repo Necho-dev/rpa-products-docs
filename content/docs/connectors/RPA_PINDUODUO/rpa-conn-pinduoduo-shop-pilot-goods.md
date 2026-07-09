@@ -11,17 +11,20 @@ estimatedDuration:
 
 | 属性             | 值                                                                          |
 | ---------------- | --------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                |
-| **连接器代码**   | `rpa.conn.pinduoduo.shop.pilot.goods`                                       |
-| **操作类型**     | `页面解析`                                             |
-| **目标网页**     | `https://mms.pinduoduo.com/sycm/goods_quality/pilot_goods`                  |
-| **适用场景**     | 采集拼多多商家后台商品领航员列表数据，包含综合分、考核指标排名及商品表现等维度 |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_店铺服务数据商品领航员明细表(拼多多RPA)`|
+| **连接器代码**   | `rpa.conn.pinduoduo.shop.pilot.goods`|
+| **操作类型**     | `页面解析`|
+| **目标网页**     | `https://mms.pinduoduo.com/sycm/goods_quality/pilot_goods`|
+| **适用场景**     | 采集拼多多商家后台商品领航员列表数据，包含综合分、考核指标排名及商品表现等维度|
+| **数据表名**     | `ods_rpa_pinduoduo_shop_pilot_goods_du`|
+| **业务表名**     | `ODS_店铺服务数据商品领航员明细表(拼多多RPA)`|
 
 ### 目标页面
 
-> **路径**：拼多多商家后台—服务数据—商品领航员
+> **取数路径**：拼多多商家后台—服务数据—商品领航员
 >
-> **网址**：[https://mms.pinduoduo.com/sycm/goods_quality/pilot_goods](https://mms.pinduoduo.com/sycm/goods_quality/pilot_goods)
+> **取数链接**：[https://mms.pinduoduo.com/sycm/goods_quality/pilot_goods](https://mms.pinduoduo.com/sycm/goods_quality/pilot_goods)
 
 ![拼多多商家后台—服务数据—商品领航员](../../public/images/pinduoduo/pilot_goods_20260616.png)
 

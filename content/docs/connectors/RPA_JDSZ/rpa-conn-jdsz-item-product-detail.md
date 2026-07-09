@@ -11,17 +11,20 @@ estimatedDuration:
 
 | 属性             | 值                                                                                      |
 | ---------------- | --------------------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                            |
-| **连接器代码**   | `rpa.conn.jdsz.item.product.detail`                                                     |
-| **操作类型**     | `文件导出`                                                        |
-| **目标网页**     | `https://jdsz.jd.com/szweb/view/product/productDetail.html`                             |
-| **适用场景**     | 在京东商智商品明细页导出 SKU 维度商品数据，支持实时及昨天/近7天/近30天/天/周/月/自定义等多种时间筛选；非实时场景支持汇总下载与分天下载 |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_商品SKU维度数据明细表(京东商智RPA)`|
+| **连接器代码**   | `rpa.conn.jdsz.item.product.detail`|
+| **操作类型**     | `文件导出`|
+| **目标网页**     | `https://jdsz.jd.com/szweb/view/product/productDetail.html`|
+| **适用场景**     | 在京东商智商品明细页导出 SKU 维度商品数据，支持实时及昨天/近7天/近30天/天/周/月/自定义等多种时间筛选；非实时场景支持汇总下载与分天下载|
+| **数据表名**     | `ods_rpa_jdsz_item_product_detail_du`|
+| **业务表名**     | `ODS_商品SKU维度数据明细表(京东商智RPA)`|
 
 ### 目标页面
 
-> **路径**：京东商智—商品—商品明细
+> **取数路径**：京东商智—商品—商品明细
 >
-> **网址**：[https://jdsz.jd.com/szweb/view/product/productDetail.html](https://jdsz.jd.com/szweb/view/product/productDetail.html)
+> **取数链接**：[https://jdsz.jd.com/szweb/view/product/productDetail.html](https://jdsz.jd.com/szweb/view/product/productDetail.html)
 
 ![京东商智—商品明细](../../public/images/jdsz/item_product_detail_20260707.png)
 

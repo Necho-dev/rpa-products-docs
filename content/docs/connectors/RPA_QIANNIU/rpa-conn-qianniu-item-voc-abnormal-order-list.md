@@ -9,17 +9,20 @@ badge:
 
 | 属性             | 值                                                                                        |
 | ---------------- | ----------------------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                              |
-| **连接器代码**   | `rpa.conn.qianniu.item.voc.abnormal.order.list`                                            |
-| **操作类型**     | `页面解析` + `文件导出`                                                |
-| **目标网页**     | `https://myseller.taobao.com/home.htm/voc-tmall/task/QuestionReporter`                    |
-| **适用场景**     | 导出店铺体验问题订单率「商品分析」明细报表，附加页面提供的汇总指标数据 |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_店铺体验问题订单率明细表(千牛RPA)`|
+| **连接器代码**   | `rpa.conn.qianniu.item.voc.abnormal.order.list`|
+| **操作类型**     | `页面解析` + `文件导出`|
+| **目标网页**     | `https://myseller.taobao.com/home.htm/voc-tmall/task/QuestionReporter`|
+| **适用场景**     | 导出店铺体验问题订单率「商品分析」明细报表，附加页面提供的汇总指标数据|
+| **数据表名**     | `ods_rpa_qianniu_item_voc_abnormal_order_list_du`|
+| **业务表名**     | `ODS_店铺体验问题订单率明细表(千牛RPA)`|
 
 ### 目标页面
 
-> **路径**：千牛后台—店铺—店铺管理—真实体验分—体验问题订单率（试运行）
+> **取数路径**：千牛后台—店铺—店铺管理—真实体验分—体验问题订单率（试运行）
 >
-> **网址**：[https://myseller.taobao.com/home.htm/voc-tmall/task/QuestionReporter](https://myseller.taobao.com/home.htm/voc-tmall/task/QuestionReporter)
+> **取数链接**：[https://myseller.taobao.com/home.htm/voc-tmall/task/QuestionReporter](https://myseller.taobao.com/home.htm/voc-tmall/task/QuestionReporter)
 
 ![千牛后台—体验问题订单率](../../public/images/qianniu/item_voc_abnormal_order_list_20260521.png)
 

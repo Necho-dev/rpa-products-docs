@@ -9,17 +9,20 @@ badge:
 
 | 属性             | 值                                                                                 |
 | ---------------- | ---------------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                       |
-| **连接器代码**   | `rpa.conn.qianniu.item.voc.pxi.list`                                               |
-| **操作类型**     | `文件导出`                                                       |
-| **目标网页**     | `https://myseller.taobao.com/home.htm/voc-tmall/task/pxi`                         |
-| **适用场景**     | 导出「商品体验分 PXI—按商品查看」商品明细报表，按商品查看近 30 天问题/成交订单与 PXI 得分、同类目排名描述                          |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_店铺商品体验分(PXI)明细表(千牛RPA)`|
+| **连接器代码**   | `rpa.conn.qianniu.item.voc.pxi.list`|
+| **操作类型**     | `文件导出`|
+| **目标网页**     | `https://myseller.taobao.com/home.htm/voc-tmall/task/pxi`|
+| **适用场景**     | 导出「商品体验分 PXI—按商品查看」商品明细报表，按商品查看近 30 天问题/成交订单与 PXI 得分、同类目排名描述|
+| **数据表名**     | `ods_rpa_qianniu_item_voc_pxi_list_du`|
+| **业务表名**     | `ODS_店铺商品体验分(PXI)明细表(千牛RPA)`|
 
 ### 目标页面
 
-> **路径**：千牛—店铺—店铺管理—真实体验分—商品体验分(PXI)—按商品查看
+> **取数路径**：千牛—店铺—店铺管理—真实体验分—商品体验分(PXI)—按商品查看
 >
-> **网址**：[https://myseller.taobao.com/home.htm/voc-tmall/task/pxi](https://myseller.taobao.com/home.htm/voc-tmall/task/pxi)
+> **取数链接**：[https://myseller.taobao.com/home.htm/voc-tmall/task/pxi](https://myseller.taobao.com/home.htm/voc-tmall/task/pxi)
 
 ![千牛后台—商品体验分 PXI](../../public/images/qianniu/item_voc_pxi_list_20260521.png)
 

@@ -15,17 +15,20 @@ estimatedDuration:
 
 | 属性             | 值                                                                                 |
 | ---------------- | ---------------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                       |
-| **连接器代码**   | `rpa.conn.jingmai.wl.inventory.flow`                                               |
-| **操作类型**     | `页面解析` + `文件导出`                                     |
-| **目标网页**     | `https://wl.jdl.com/supplychain--inventory/flow`                                   |
-| **适用场景**     | 在京东物流工作台仓库库存流水页，按日期范围导出库存流水明细数据                     |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_物流仓库库存流水明细表(京麦RPA)`|
+| **连接器代码**   | `rpa.conn.jingmai.wl.inventory.flow`|
+| **操作类型**     | `页面解析` + `文件导出`|
+| **目标网页**     | `https://wl.jdl.com/supplychain--inventory/flow`|
+| **适用场景**     | 在京东物流工作台仓库库存流水页，按日期范围导出库存流水明细数据|
+| **数据表名**     | `ods_rpa_jingmai_wl_inventory_flow_du`|
+| **业务表名**     | `ODS_物流仓库库存流水明细表(京麦RPA)`|
 
 ### 目标页面
 
-> **路径**：京东物流工作台—供应链—库存—库存流水
+> **取数路径**：京东物流工作台—供应链—库存—库存流水
 >
-> **网址**：[https://wl.jdl.com/supplychain--inventory/flow](https://wl.jdl.com/supplychain--inventory/flow)
+> **取数链接**：[https://wl.jdl.com/supplychain--inventory/flow](https://wl.jdl.com/supplychain--inventory/flow)
 
 ![京麦—仓库库存流水导出](../../public/images/jingmai/wl_inventory_flow_20260709.png)
 

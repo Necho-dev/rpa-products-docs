@@ -9,17 +9,20 @@ badge:
 
 | 属性             | 值                                                                                       |
 | ---------------- | ---------------------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                             |
-| **连接器代码**   | `rpa.conn.alimm.tblm.home.overview`                                                     |
-| **操作类型**     | `页面解析`                                                          |
-| **目标网页**     | `https://ad.alimama.com/portal/v2/dashboard.htm`                                         |
-| **适用场景**     | 采集淘宝联盟商家中心 Dashboard 数据概览指标，支持快捷日期与自定义日期范围                 |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_淘宝联盟商家中心数据概览(阿里妈妈RPA)`|
+| **连接器代码**   | `rpa.conn.alimm.tblm.home.overview`|
+| **操作类型**     | `页面解析`|
+| **目标网页**     | `https://ad.alimama.com/portal/v2/dashboard.htm`|
+| **适用场景**     | 采集淘宝联盟商家中心 Dashboard 数据概览指标，支持快捷日期与自定义日期范围|
+| **数据表名**     | `ods_rpa_alimm_tblm_home_overview_du`|
+| **业务表名**     | `ODS_淘宝联盟商家中心数据概览(阿里妈妈RPA)`|
 
 ### 目标页面
 
-> **路径**：阿里妈妈—淘宝联盟—商家中心—数据概览
+> **取数路径**：阿里妈妈—淘宝联盟—商家中心—数据概览
 >
-> **网址**：[https://ad.alimama.com/portal/v2/dashboard.htm](https://ad.alimama.com/portal/v2/dashboard.htm)
+> **取数链接**：[https://ad.alimama.com/portal/v2/dashboard.htm](https://ad.alimama.com/portal/v2/dashboard.htm)
 
 ![阿里妈妈—淘宝联盟商家中心数据概览](../../public/images/alimm/home_overview_20260512.png)
 

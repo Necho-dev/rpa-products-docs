@@ -9,17 +9,20 @@ badge:
 
 | 属性             | 值                                                                                                                |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                                                      |
-| **连接器代码**   | `rpa.conn.qianniu.shop.comment.list`                                                                              |
-| **操作类型**     | `页面解析`                                                                                 |
-| **目标网页**     | `https://myseller.taobao.com/home.htm/comment-manage/list/rateWait4PC`                                            |
-| **适用场景**     | 按全部/正面/中性/负面及评价日期筛选，用于客服与口碑分析；默认配置最大翻页次数 100 |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_店铺来自买家的评价明细表(千牛RPA)`|
+| **连接器代码**   | `rpa.conn.qianniu.shop.comment.list`|
+| **操作类型**     | `页面解析`|
+| **目标网页**     | `https://myseller.taobao.com/home.htm/comment-manage/list/rateWait4PC`|
+| **适用场景**     | 按全部/正面/中性/负面及评价日期筛选，用于客服与口碑分析；默认配置最大翻页次数 100|
+| **数据表名**     | `ods_rpa_qianniu_shop_comment_list_du`|
+| **业务表名**     | `ODS_店铺来自买家的评价明细表(千牛RPA)`|
 
 ### 目标页面
 
-> **路径**：千牛后台—交易—评价管理—来自买家的评价
+> **取数路径**：千牛后台—交易—评价管理—来自买家的评价
 >
-> **网址**：[https://myseller.taobao.com/home.htm/comment-manage/list/rateWait4PC](https://myseller.taobao.com/home.htm/comment-manage/list/rateWait4PC)
+> **取数链接**：[https://myseller.taobao.com/home.htm/comment-manage/list/rateWait4PC](https://myseller.taobao.com/home.htm/comment-manage/list/rateWait4PC)
 
 ![千牛后台—评价管理—来自买家的评价](../../public/images/qianniu/shop_comment_list_20260521.png)
 

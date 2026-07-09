@@ -11,17 +11,20 @@ minInterval:
 
 | 属性             | 值                                                                                          |
 | ---------------- | ------------------------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                                |
-| **连接器代码**   | `rpa.conn.qianniu.item.price.flow.limit`                                                    |
-| **操作类型**     | `文件导出`                                            |
-| **目标网页**     | `https://myseller.taobao.com/home.htm/starb/price-home`                                   |
-| **适用场景**     | 导出「价格力竞争 → 五星价格力 → 高价限流商品」明细报表，对淘内外比价与限流状态进行采集   |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_商品高价限流商品明细报表(千牛RPA)`|
+| **连接器代码**   | `rpa.conn.qianniu.item.price.flow.limit`|
+| **操作类型**     | `文件导出`|
+| **目标网页**     | `https://myseller.taobao.com/home.htm/starb/price-home`|
+| **适用场景**     | 导出「价格力竞争 → 五星价格力 → 高价限流商品」明细报表，对淘内外比价与限流状态进行采集|
+| **数据表名**     | `ods_rpa_qianniu_item_price_flow_limit_du`|
+| **业务表名**     | `ODS_商品高价限流商品明细报表(千牛RPA)`|
 
 ### 目标页面
 
-> **路径**：千牛后台—商品—商业运营—价格力竞争—同款价格力—高价限流商品
+> **取数路径**：千牛后台—商品—商业运营—价格力竞争—同款价格力—高价限流商品
 >
-> **网址**：https://myseller.taobao.com/home.htm/starb/price-home
+> **取数链接**：https://myseller.taobao.com/home.htm/starb/price-home
 
 ![千牛后台—价格力竞争—高价限流商品](../../public/images/qianniu/item_price_flow_limit_20260521.png)
 

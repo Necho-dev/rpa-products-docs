@@ -11,17 +11,20 @@ estimatedDuration:
 
 | 属性            | 值                                                                          |
 | ------------- | -------------------------------------------------------------------------- |
-| **连接器类型**     | `RPA 连接器`                                                                  |
-| **连接器代码**     | `rpa.conn.alimm.dmp.compete.situation.item`                                |
-| **操作类型**      | `页面解析`                                                          |
-| **目标网页**      | `https://dmp.taobao.com/index_new.html#!/compete/compete-situation`        |
-| **适用场景**      | 采集达摩盘竞争态势分析页中本品与竞品的基础分析（含竞争控比）、流量分析（付免/无界投资结构占比、广告域/全域归因渠道明细）及客群画像；四段自定义日期均填时启用自定义周期，均未填时默认近7天；本品或竞品未搜到时返回空数据 |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_达摩盘竞争态势竞争商品分析信息表(阿里妈妈RPA)`|
+| **连接器代码**   | `rpa.conn.alimm.dmp.compete.situation.item`|
+| **操作类型**     | `页面解析`|
+| **目标网页**     | `https://dmp.taobao.com/index_new.html#!/compete/compete-situation`|
+| **适用场景**     | 采集达摩盘竞争态势分析页中本品与竞品的基础分析（含竞争控比）、流量分析（付免/无界投资结构占比、广告域/全域归因渠道明细）及客群画像；四段自定义日期均填时启用自定义周期，均未填时默认近7天；本品或竞品未搜到时返回空数据|
+| **数据表名**     | `ods_rpa_alimm_dmp_compete_situation_item_du`|
+| **业务表名**     | `ODS_达摩盘竞争态势竞争商品分析信息表(阿里妈妈RPA)`|
 
 ### 目标页面
 
-> **路径**：阿里妈妈达摩盘—市场—竞争分析—竞争态势分析—竞争商品分析
+> **取数路径**：阿里妈妈达摩盘—市场—竞争分析—竞争态势分析—竞争商品分析
 >
-> **网址**：[https://dmp.taobao.com/index_new.html#!/compete/compete-situation](https://dmp.taobao.com/index_new.html#!/compete/compete-situation)
+> **取数链接**：[https://dmp.taobao.com/index_new.html#!/compete/compete-situation](https://dmp.taobao.com/index_new.html#!/compete/compete-situation)
 
 ![阿里妈妈达摩盘—竞争商品分析](../../public/images/alimm/dmp_compete_situation_item_20260706.png)
 

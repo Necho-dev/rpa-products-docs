@@ -9,17 +9,20 @@ badge:
 
 | 属性             | 值                                                                 |
 | ---------------- | ------------------------------------------------------------------ |
-| **连接器类型**   | `RPA 连接器`                                                       |
-| **连接器代码**   | `rpa.conn.alimm.wxt.account.detail`                                |
-| **操作类型**     | `文件导出`                                    |
-| **目标网页**     | `https://one.alimama.com/index.html#!/account/detail`              |
-| **适用场景**     | 导出阿里妈妈万相台账户明细（现金收支）数据，支持按收支类型、交易类型及日期范围筛选 |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_万相台账户明细表(阿里妈妈RPA)`|
+| **连接器代码**   | `rpa.conn.alimm.wxt.account.detail`|
+| **操作类型**     | `文件导出`|
+| **目标网页**     | `https://one.alimama.com/index.html#!/account/detail`|
+| **适用场景**     | 导出阿里妈妈万相台账户明细（现金收支）数据，支持按收支类型、交易类型及日期范围筛选|
+| **数据表名**     | `ods_rpa_alimm_wxt_account_detail_du`|
+| **业务表名**     | `ODS_万相台账户明细表(阿里妈妈RPA)`|
 
 ### 目标页面
 
-> **路径**：阿里妈妈—万相台—账户—账户明细
+> **取数路径**：阿里妈妈—万相台—账户—账户明细
 >
-> **网址**：[https://one.alimama.com/index.html#!/account/detail](https://one.alimama.com/index.html#!/account/detail)
+> **取数链接**：[https://one.alimama.com/index.html#!/account/detail](https://one.alimama.com/index.html#!/account/detail)
 
 ![阿里妈妈—万相台账户明细](../../public/images/alimm/wxt_account_detail_20260611.png)
 

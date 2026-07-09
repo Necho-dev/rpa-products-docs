@@ -16,17 +16,20 @@ minInterval:
 
 | 属性             | 值                                                                                       |
 | ---------------- | ---------------------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                             |
-| **连接器代码**   | `rpa.conn.qianniu.item.price.discount.list`                                              |
-| **操作类型**     | `文件导出`                                           |
-| **目标网页**     | `https://myseller.taobao.com/home.htm/PriceManagement/?source=qianniulist&TabCode=Price` |
-| **适用场景**     | 按商品 ID 批量导出价格优惠明细，支持按价格类型、导出维度筛选，单次最多 800 个商品            |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_商品价格优惠明细表(千牛RPA)`|
+| **连接器代码**   | `rpa.conn.qianniu.item.price.discount.list`|
+| **操作类型**     | `文件导出`|
+| **目标网页**     | `https://myseller.taobao.com/home.htm/PriceManagement/?source=qianniulist&TabCode=Price`|
+| **适用场景**     | 按商品 ID 批量导出价格优惠明细，支持按价格类型、导出维度筛选，单次最多 800 个商品|
+| **数据表名**     | `ods_rpa_qianniu_item_price_discount_du`|
+| **业务表名**     | `ODS_商品价格优惠明细表(千牛RPA)`|
 
 ### 目标页面
 
-> **路径**：千牛后台—营销—营销风险—商品价格管理—价格查询
+> **取数路径**：千牛后台—营销—营销风险—商品价格管理—价格查询
 >
-> **网址**：[https://myseller.taobao.com/home.htm/PriceManagement/?source=qianniulist&TabCode=Price](https://myseller.taobao.com/home.htm/PriceManagement/?source=qianniulist&TabCode=Price)
+> **取数链接**：[https://myseller.taobao.com/home.htm/PriceManagement/?source=qianniulist&TabCode=Price](https://myseller.taobao.com/home.htm/PriceManagement/?source=qianniulist&TabCode=Price)
 
 ![千牛后台—营销—营销风险—商品价格管理—价格查询](../../public/images/qianniu/item_price_discount_list_20260521.png)
 

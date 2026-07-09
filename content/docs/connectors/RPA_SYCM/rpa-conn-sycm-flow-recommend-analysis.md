@@ -14,16 +14,19 @@ dataReady:
 | 属性| 值|
 | ---------------- | ---------------- |
 | **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_流量推荐流量概况下载(生意参谋RPA)`|
 | **连接器代码**   | `rpa.conn.sycm.flow.recommend.analysis`|
-| **操作类型**     | `文件导出` |
-| **目标网页**     | `https://sycm.taobao.com/flow/recommend/analysis` |
-| **适用场景**     |根据统计日期 LEFT JOIN 合并「推荐概况」和「同行同层平均」两个 Sheet 字段， 推荐流量渗透、全屏/双列/互动等行为指标 |
+| **操作类型**     | `文件导出`|
+| **目标网页**     | `https://sycm.taobao.com/flow/recommend/analysis`|
+| **适用场景**     | 根据统计日期 LEFT JOIN 合并「推荐概况」和「同行同层平均」两个 Sheet 字段， 推荐流量渗透、全屏/双列/互动等行为指标|
+| **数据表名**     | `ods_rpa_sycm_flow_recommend_analysis_du`|
+| **业务表名**     | `ODS_流量推荐流量概况下载(生意参谋RPA)`|
 
 ### 目标页面
 
-> **路径**：生意参谋—流量—推荐分析—推荐概况
+> **取数路径**：生意参谋—流量—推荐分析—推荐概况
 >
-> **网址**：[https://sycm.taobao.com/flow/recommend/analysis](https://sycm.taobao.com/flow/recommend/analysis)
+> **取数链接**：[https://sycm.taobao.com/flow/recommend/analysis](https://sycm.taobao.com/flow/recommend/analysis)
 
 ![生意参谋—推荐分析—推荐概况](../../public/images/sycm/flow_recommend_analysis_20260521.png)
 

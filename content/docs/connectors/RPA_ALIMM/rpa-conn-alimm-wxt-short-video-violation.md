@@ -9,17 +9,20 @@ badge:
 
 | 属性             | 值                                                                                                |
 | ---------------- | ------------------------------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                                      |
-| **连接器代码**   | `rpa.conn.alimm.wxt.short.video.violation`                                                        |
-| **操作类型**     | `页面解析`                                                                   |
-| **目标网页**     | `https://one.alimama.com/index.html#!/account/violation/index?tab=content&tabIndex=short_video`   |
-| **适用场景**     | 采集阿里妈妈万相台内容违规列表中的短视频违规记录，支持推广场景、物料ID、违规类型、违规影响及时间范围筛选 |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_万相台短视频违规明细表(阿里妈妈RPA)`|
+| **连接器代码**   | `rpa.conn.alimm.wxt.short.video.violation`|
+| **操作类型**     | `页面解析`|
+| **目标网页**     | `https://one.alimama.com/index.html#!/account/violation/index?tab=content&tabIndex=short_video`|
+| **适用场景**     | 采集阿里妈妈万相台内容违规列表中的短视频违规记录，支持推广场景、物料ID、违规类型、违规影响及时间范围筛选|
+| **数据表名**     | `ods_rpa_alimm_wxt_short_video_violation_du`|
+| **业务表名**     | `ODS_万相台短视频违规明细表(阿里妈妈RPA)`|
 
 ### 目标页面
 
-> **路径**：阿里妈妈—万相台—账户—违规管理—内容违规—短视频
+> **取数路径**：阿里妈妈—万相台—账户—违规管理—内容违规—短视频
 >
-> **网址**：[https://one.alimama.com/index.html#!/account/violation/index?tab=content&tabIndex=short_video](https://one.alimama.com/index.html#!/account/violation/index?tab=content&tabIndex=short_video)
+> **取数链接**：[https://one.alimama.com/index.html#!/account/violation/index?tab=content&tabIndex=short_video](https://one.alimama.com/index.html#!/account/violation/index?tab=content&tabIndex=short_video)
 
 ![阿里妈妈—万相台短视频违规列表](../../public/images/alimm/short_video_violation_20260604.png)
 

@@ -13,17 +13,20 @@ dataReady:
 
 | 属性             | 值                                                         |
 | ---------------- | ---------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                               |
-| **连接器代码**   | `rpa.conn.sycm.item.rank.all`                              |
-| **操作类型**     | `文件导出`                            |
-| **目标网页**     | `https://sycm.taobao.com/cc/item_rank`                     |
-| **适用场景**     | 按日期类型（日/周/月）和日期参数下载生意参谋商品排行全部数据，支持天、自然周、自然月维度 |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_商品排行全部商品数据下载(生意参谋RPA)`|
+| **连接器代码**   | `rpa.conn.sycm.item.rank.all`|
+| **操作类型**     | `文件导出`|
+| **目标网页**     | `https://sycm.taobao.com/cc/item_rank`|
+| **适用场景**     | 按日期类型（日/周/月）和日期参数下载生意参谋商品排行全部数据，支持天、自然周、自然月维度|
+| **数据表名**     | `ods_rpa_sycm_item_rank_all_du`|
+| **业务表名**     | `ODS_商品排行全部商品数据下载(生意参谋RPA)`|
 
 ### 目标页面
 
-> **路径**：生意参谋—商品—商品排行
+> **取数路径**：生意参谋—商品—商品排行
 >
-> **网址**：[https://sycm.taobao.com/cc/item_rank](https://sycm.taobao.com/cc/item_rank)
+> **取数链接**：[https://sycm.taobao.com/cc/item_rank](https://sycm.taobao.com/cc/item_rank)
 
 ![生意参谋—商品排行全部数据下载](../../public/images/sycm/rank_all_20260429.png)
 

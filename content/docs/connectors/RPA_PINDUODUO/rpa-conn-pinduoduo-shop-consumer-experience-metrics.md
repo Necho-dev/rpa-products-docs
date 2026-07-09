@@ -9,17 +9,20 @@ badge:
 
 | 属性             | 值                                                                                  |
 | ---------------- | ----------------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                        |
-| **连接器代码**   | `rpa.conn.pinduoduo.shop.consumer.experience.metrics`                             |
-| **操作类型**     | `页面解析`                                                     |
-| **目标网页**     | `https://mms.pinduoduo.com/sycm/goods_quality/help`                                 |
-| **适用场景**     | 采集拼多多商家后台消费者服务体验分、各维度体验分及店铺服务体验问题数据              |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_店铺服务消费者体验指标明细表(拼多多RPA)`|
+| **连接器代码**   | `rpa.conn.pinduoduo.shop.consumer.experience.metrics`|
+| **操作类型**     | `页面解析`|
+| **目标网页**     | `https://mms.pinduoduo.com/sycm/goods_quality/help`|
+| **适用场景**     | 采集拼多多商家后台消费者服务体验分、各维度体验分及店铺服务体验问题数据|
+| **数据表名**     | `ods_rpa_pinduoduo_shop_consumer_experience_metrics_du`|
+| **业务表名**     | `ODS_店铺服务消费者体验指标明细表(拼多多RPA)`|
 
 ### 目标页面
 
-> **路径**：拼多多商家后台—服务数据—消费者体验指标
+> **取数路径**：拼多多商家后台—服务数据—消费者体验指标
 >
-> **网址**：[https://mms.pinduoduo.com/sycm/goods_quality/help](https://mms.pinduoduo.com/sycm/goods_quality/help)
+> **取数链接**：[https://mms.pinduoduo.com/sycm/goods_quality/help](https://mms.pinduoduo.com/sycm/goods_quality/help)
 
 ![拼多多商家后台—服务数据—消费者体验指标](../../public/images/pinduoduo/shop_consumer_experience_metrics_20260609.png)
 

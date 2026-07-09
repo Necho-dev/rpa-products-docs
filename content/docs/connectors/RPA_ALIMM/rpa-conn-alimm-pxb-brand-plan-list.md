@@ -9,17 +9,20 @@ badge:
 
 | 属性             | 值                                                          |
 | ---------------- | ----------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                |
-| **连接器代码**   | `rpa.conn.alimm.pxb.brand.plan.list`                        |
-| **操作类型**     | `页面解析`                             |
-| **目标网页**     | `https://branding.taobao.com/#!/plan/index`                 |
-| **适用场景**     | 采集合妈妈品销宝品牌专区推广计划列表及展现、点击、消耗等报表指标 |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_品销宝品牌专区计划明细表(阿里妈妈RPA)`|
+| **连接器代码**   | `rpa.conn.alimm.pxb.brand.plan.list`|
+| **操作类型**     | `页面解析`|
+| **目标网页**     | `https://branding.taobao.com/#!/plan/index`|
+| **适用场景**     | 采集合妈妈品销宝品牌专区推广计划列表及展现、点击、消耗等报表指标|
+| **数据表名**     | `ods_rpa_alimm_pxb_brand_plan_list_du`|
+| **业务表名**     | `ODS_品销宝品牌专区计划明细表(阿里妈妈RPA)`|
 
 ### 目标页面
 
-> **路径**：阿里妈妈—品销宝—品牌专区—计划列表
+> **取数路径**：阿里妈妈—品销宝—品牌专区—计划列表
 >
-> **网址**：[https://branding.taobao.com/#!/plan/index](https://branding.taobao.com/#!/plan/index)
+> **取数链接**：[https://branding.taobao.com/#!/plan/index](https://branding.taobao.com/#!/plan/index)
 
 ![阿里妈妈—品销宝品牌专区计划列表](../../public/images/alimm/pxb_brand_plan_list_20260610.png)
 

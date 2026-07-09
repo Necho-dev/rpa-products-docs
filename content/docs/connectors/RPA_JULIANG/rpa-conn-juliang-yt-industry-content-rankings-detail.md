@@ -12,16 +12,19 @@ estimatedDuration:
 | 属性             | 值                                                                                                                                            |
 | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_云图行业内容榜素材详情秒级拆解信息表(巨量云图RPA)`|
 | **连接器代码**   | `rpa.conn.juliang.yt.industry.content.rankings.detail`|
 | **操作类型**     | `页面解析`|
 | **目标网页**     | `https://yuntu.oceanengine.com/yuntu_brand/ecom/content_new/creative/content_lab/inspiration/industryContent`|
-| **适用场景**     | 采集巨量云图行业内容榜中指定素材的秒级拆解指数（点赞/流失/点击/互动/评论）及视频链接                                                         |
+| **适用场景**     | 采集巨量云图行业内容榜中指定素材的秒级拆解指数（点赞/流失/点击/互动/评论）及视频链接|
+| **数据表名**     | `ods_rpa_juliang_yt_industry_content_rankings_detail_du`|
+| **业务表名**     | `ODS_云图行业内容榜素材详情秒级拆解信息表(巨量云图RPA)`|
 
 ### 目标页面
 
-> **路径**：巨量云图—内容—创意内容实验室—行业灵感—行业内容榜—素材详情—秒级拆解
+> **取数路径**：巨量云图—内容—创意内容实验室—行业灵感—行业内容榜—素材详情—秒级拆解
 >
-> **网址**：[https://yuntu.oceanengine.com/yuntu_brand/ecom/content_new/creative/content_lab/inspiration/industryContent](https://yuntu.oceanengine.com/yuntu_brand/ecom/content_new/creative/content_lab/inspiration/industryContent)
+> **取数链接**：[https://yuntu.oceanengine.com/yuntu_brand/ecom/content_new/creative/content_lab/inspiration/industryContent](https://yuntu.oceanengine.com/yuntu_brand/ecom/content_new/creative/content_lab/inspiration/industryContent)
 
 ![巨量云图—行业内容榜素材详情秒级拆解](../../public/images/juliang/yt_industry_content_rankings_detail_20260704.png)
 

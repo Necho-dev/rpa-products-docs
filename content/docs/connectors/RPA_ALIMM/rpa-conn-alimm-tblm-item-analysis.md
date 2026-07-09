@@ -11,17 +11,20 @@ estimatedDuration:
 
 | 属性             | 值                                                                                       |
 | ---------------- | ---------------------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                             |
-| **连接器代码**   | `rpa.conn.alimm.tblm.item.analysis`                                                     |
-| **操作类型**     | `页面解析` + `文件导出`                                           |
-| **目标网页**     | `https://ad.alimama.com/portal/v2/report/item/list.htm`                                  |
-| **适用场景**     | 采集淘宝联盟商家中心商品分析报表，按商品维度导出付款、结算、预售及进店转化等指标，支持快捷日期与自定义日期范围 |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_淘宝联盟商家中心商品分析明细表(阿里妈妈RPA)`|
+| **连接器代码**   | `rpa.conn.alimm.tblm.item.analysis`|
+| **操作类型**     | `页面解析` + `文件导出`|
+| **目标网页**     | `https://ad.alimama.com/portal/v2/report/item/list.htm`|
+| **适用场景**     | 采集淘宝联盟商家中心商品分析报表，按商品维度导出付款、结算、预售及进店转化等指标，支持快捷日期与自定义日期范围|
+| **数据表名**     | `ods_rpa_alimm_tblm_item_analysis_du`|
+| **业务表名**     | `ODS_淘宝联盟商家中心商品分析明细表(阿里妈妈RPA)`|
 
 ### 目标页面
 
-> **路径**：阿里妈妈—淘宝联盟—商家中心—商品分析
+> **取数路径**：阿里妈妈—淘宝联盟—商家中心—商品分析
 >
-> **网址**：[https://ad.alimama.com/portal/v2/report/item/list.htm](https://ad.alimama.com/portal/v2/report/item/list.htm)
+> **取数链接**：[https://ad.alimama.com/portal/v2/report/item/list.htm](https://ad.alimama.com/portal/v2/report/item/list.htm)
 
 ![阿里妈妈—淘宝联盟商家中心商品分析](../../public/images/alimm/tblm_item_analysis_20260704.png)
 

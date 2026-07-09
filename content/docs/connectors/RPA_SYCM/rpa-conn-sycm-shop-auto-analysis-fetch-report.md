@@ -13,17 +13,20 @@ dataReady:
 
 | 属性             | 值                  |
 | ---------------- | ------------------- |
-| **连接器类型**   | `RPA 连接器`        |
-| **连接器代码**   | `rpa.conn.sycm.shop.auto.analysis.fetch.report` |
-| **操作类型**     | `文件导出` |
-| **目标网页**     | `https://sycm.taobao.com/adm/v3/micro/auto_analysis/my_space?tab=fetch` |
-| **适用场景**     | 在生意参谋自助分析「分析空间」中按报表名称精确匹配并下载取数报表，逐行输出 Excel 表头与数据 |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_自助分析空间取数报表下载(生意参谋RPA)`|
+| **连接器代码**   | `rpa.conn.sycm.shop.auto.analysis.fetch.report`|
+| **操作类型**     | `文件导出`|
+| **目标网页**     | `https://sycm.taobao.com/adm/v3/micro/auto_analysis/my_space?tab=fetch`|
+| **适用场景**     | 在生意参谋自助分析「分析空间」中按报表名称精确匹配并下载取数报表，逐行输出 Excel 表头与数据|
+| **数据表名**     | `ods_rpa_sycm_shop_auto_analysis_fetch_report_du`|
+| **业务表名**     | `ODS_自助分析空间取数报表下载(生意参谋RPA)`|
 
 ### 目标页面
 
-> **路径**：生意参谋—自助分析—分析空间—取数报表
+> **取数路径**：生意参谋—自助分析—分析空间—取数报表
 >
-> **网址**：[https://sycm.taobao.com/adm/v3/micro/auto_analysis/my_space?tab=fetch](https://sycm.taobao.com/adm/v3/micro/auto_analysis/my_space?tab=fetch)
+> **取数链接**：[https://sycm.taobao.com/adm/v3/micro/auto_analysis/my_space?tab=fetch](https://sycm.taobao.com/adm/v3/micro/auto_analysis/my_space?tab=fetch)
 
 ![生意参谋—自助分析—分析空间—取数报表](../../public/images/sycm/shop_auto_analysis_fetch_report_20260521.png)
 

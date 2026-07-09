@@ -14,16 +14,19 @@ dataReady:
 | 属性 | 值 |
 | ---------------- | ---------------- |
 | **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_流量店铺流量来源明细下载(生意参谋RPA)`|
 | **连接器代码**   | `rpa.conn.sycm.flow.shop.source`|
-| **操作类型**     | `文件导出` |
+| **操作类型**     | `文件导出`|
 | **目标网页**     | `https://sycm.taobao.com/flow/monitor/shopsource/construction`|
-| **适用场景**     | 拼接「全店流量来源」与「分载体流量来源」两个 Sheet 数据，获得流量载体与多级流量来源构成指标 |
+| **适用场景**     | 拼接「全店流量来源」与「分载体流量来源」两个 Sheet 数据，获得流量载体与多级流量来源构成指标|
+| **数据表名**     | `ods_rpa_sycm_flow_shop_source_du`|
+| **业务表名**     | `ODS_流量店铺流量来源明细下载(生意参谋RPA)`|
 
 ### 目标页面
 
-> **路径**：生意参谋—流量—店铺来源—流量来源构成
+> **取数路径**：生意参谋—流量—店铺来源—流量来源构成
 >
-> **网址**：[https://sycm.taobao.com/flow/monitor/shopsource/construction](https://sycm.taobao.com/flow/monitor/shopsource/construction)
+> **取数链接**：[https://sycm.taobao.com/flow/monitor/shopsource/construction](https://sycm.taobao.com/flow/monitor/shopsource/construction)
 
 ![生意参谋—店铺来源—流量来源构成](../../public/images/sycm/flow_shop_source_20260521.png)
 

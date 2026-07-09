@@ -11,17 +11,20 @@ estimatedDuration:
 
 | 属性             | 值                                                                             |
 | ---------------- | ------------------------------------------------------------------------------ |
-| **连接器类型**   | `RPA 连接器`                                                                   |
-| **连接器代码**   | `rpa.conn.dewu.finance.finebill`                                              |
-| **操作类型**     | `文件导出`                                               |
-| **目标网页**     | `https://stark.dewu.com/main/finebill`                                         |
-| **适用场景**     | 导出得物商家后台缴款单费用明细数据，支持按缴款类型、缴款方式、缴款状态、费用生成时间、业务编码筛选 |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_财务缴款单费用明细表(得物RPA)`|
+| **连接器代码**   | `rpa.conn.dewu.finance.finebill`|
+| **操作类型**     | `文件导出`|
+| **目标网页**     | `https://stark.dewu.com/main/finebill`|
+| **适用场景**     | 导出得物商家后台缴款单费用明细数据，支持按缴款类型、缴款方式、缴款状态、费用生成时间、业务编码筛选|
+| **数据表名**     | `ods_rpa_dewu_finance_finebill_du`|
+| **业务表名**     | `ODS_财务缴款单费用明细表(得物RPA)`|
 
 ### 目标页面
 
-> **路径**：得物商家后台—财务—缴款单
+> **取数路径**：得物商家后台—财务—缴款单
 >
-> **网址**：[https://stark.dewu.com/main/finebill](https://stark.dewu.com/main/finebill)
+> **取数链接**：[https://stark.dewu.com/main/finebill](https://stark.dewu.com/main/finebill)
 
 ![得物—缴款单费用明细](../../public/images/dewu/finance_finebill_20260617.png)
 

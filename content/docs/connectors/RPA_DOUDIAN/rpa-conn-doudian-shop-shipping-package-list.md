@@ -11,17 +11,20 @@ estimatedDuration:
 
 | 属性             | 值                                                                                         |
 | ---------------- | ------------------------------------------------------------------------------------------ |
-| **连接器类型**   | `RPA 连接器`                                                                               |
-| **连接器代码**   | `rpa.conn.doudian.shop.shipping.package.list`                                              |
-| **操作类型**     | `页面解析`                                                            |
-| **目标网页**     | `https://fxg.jinritemai.com/ffa/logistics/parcelCenter`                                    |
-| **适用场景**     | 采集抖店包裹中心发货包裹异常列表，支持按发货时间、异常类型、包裹异常状态、是否已忽略异常预警筛选 |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_物流包裹中心发货包裹异常明细表(抖店RPA)`|
+| **连接器代码**   | `rpa.conn.doudian.shop.shipping.package.list`|
+| **操作类型**     | `页面解析`|
+| **目标网页**     | `https://fxg.jinritemai.com/ffa/logistics/parcelCenter`|
+| **适用场景**     | 采集抖店包裹中心发货包裹异常列表，支持按发货时间、异常类型、包裹异常状态、是否已忽略异常预警筛选|
+| **数据表名**     | `ods_rpa_doudian_shop_shipping_package_list_du`|
+| **业务表名**     | `ODS_物流包裹中心发货包裹异常明细表(抖店RPA)`|
 
 ### 目标页面
 
-> **路径**：抖店商家后台—物流—包裹中心—发货包裹
+> **取数路径**：抖店商家后台—物流—包裹中心—发货包裹
 >
-> **网址**：[https://fxg.jinritemai.com/ffa/logistics/parcelCenter](https://fxg.jinritemai.com/ffa/logistics/parcelCenter)
+> **取数链接**：[https://fxg.jinritemai.com/ffa/logistics/parcelCenter](https://fxg.jinritemai.com/ffa/logistics/parcelCenter)
 
 ![抖店—包裹中心发货包裹异常列表](../../public/images/doudian/shop_shipping_package_list_20260624.png)
 

@@ -11,17 +11,20 @@ estimatedDuration:
 
 | 属性             | 值                                                                          |
 | ---------------- | --------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                |
-| **连接器代码**   | `rpa.conn.pinduoduo.shop.pilot.mall`                                        |
-| **操作类型**     | `页面解析`                                             |
-| **目标网页**     | `https://mms.pinduoduo.com/sycm/goods_quality/pilot_mall`                   |
-| **适用场景**     | 采集拼多多商家后台店铺综合体验星级及维度指标表现明细                        |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_店铺服务数据综合体验星级信息表(拼多多RPA)`|
+| **连接器代码**   | `rpa.conn.pinduoduo.shop.pilot.mall`|
+| **操作类型**     | `页面解析`|
+| **目标网页**     | `https://mms.pinduoduo.com/sycm/goods_quality/pilot_mall`|
+| **适用场景**     | 采集拼多多商家后台店铺综合体验星级及维度指标表现明细|
+| **数据表名**     | `ods_rpa_pinduoduo_shop_pilot_mall_du`|
+| **业务表名**     | `ODS_店铺服务数据综合体验星级信息表(拼多多RPA)`|
 
 ### 目标页面
 
-> **路径**：拼多多商家后台—服务数据—综合体验星级
+> **取数路径**：拼多多商家后台—服务数据—综合体验星级
 >
-> **网址**：[https://mms.pinduoduo.com/sycm/goods_quality/pilot_mall](https://mms.pinduoduo.com/sycm/goods_quality/pilot_mall)
+> **取数链接**：[https://mms.pinduoduo.com/sycm/goods_quality/pilot_mall](https://mms.pinduoduo.com/sycm/goods_quality/pilot_mall)
 
 ![拼多多商家后台—服务数据—综合体验星级](../../public/images/pinduoduo/shop_pilot_mall_20260617.png)
 

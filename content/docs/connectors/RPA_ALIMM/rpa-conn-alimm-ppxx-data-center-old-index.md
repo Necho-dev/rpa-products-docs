@@ -9,17 +9,20 @@ badge:
 
 | 属性             | 值                                                                          |
 | ---------------- | --------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                |
-| **连接器代码**   | `rpa.conn.alimm.ppxx.data.center.old.index`                                |
-| **操作类型**     | `文件导出`                                            |
-| **目标网页**     | `https://ppxk.tmall.com/new/index.htm#!/data-center/old/index`              |
-| **适用场景**     | 采集阿里妈妈品牌新享数据中心「超级老客加速」模块的老客数据指标              |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_品牌新享超级老客加速数据导出明细表(阿里妈妈RPA)`|
+| **连接器代码**   | `rpa.conn.alimm.ppxx.data.center.old.index`|
+| **操作类型**     | `文件导出`|
+| **目标网页**     | `https://ppxk.tmall.com/new/index.htm#!/data-center/old/index`|
+| **适用场景**     | 采集阿里妈妈品牌新享数据中心「超级老客加速」模块的老客数据指标|
+| **数据表名**     | `ods_rpa_alimm_ppxx_data_center_old_index_du`|
+| **业务表名**     | `ODS_品牌新享超级老客加速数据导出明细表(阿里妈妈RPA)`|
 
 ### 目标页面
 
-> **路径**：阿里妈妈—品牌新享—数据中心—超级老客加速
+> **取数路径**：阿里妈妈—品牌新享—数据中心—超级老客加速
 >
-> **网址**：[https://ppxk.tmall.com/new/index.htm#!/data-center/old/index](https://ppxk.tmall.com/new/index.htm#!/data-center/old/index)
+> **取数链接**：[https://ppxk.tmall.com/new/index.htm#!/data-center/old/index](https://ppxk.tmall.com/new/index.htm#!/data-center/old/index)
 
 ![阿里妈妈—品牌新享超级老客加速数据](../../public/images/alimm/data_center_old_index_20260512.png)
 

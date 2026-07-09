@@ -9,17 +9,20 @@ badge:
 
 | 属性             | 值                                                                                          |
 | ---------------- | ------------------------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                                |
-| **连接器代码**   | `rpa.conn.pinduoduo.jinbao.order.detail`                                                    |
-| **操作类型**     | `页面解析`                                                             |
-| **目标网页**     | `https://mms.pinduoduo.com/jinbao/orderDetail`                                              |
-| **适用场景**     | 从拼多多多多进宝推广效果页面导出订单明细数据，支持按时间范围、订单ID、推广类型、活动ID、状态筛选 |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_多多进宝推广订单明细表(拼多多RPA)`|
+| **连接器代码**   | `rpa.conn.pinduoduo.jinbao.order.detail`|
+| **操作类型**     | `页面解析`|
+| **目标网页**     | `https://mms.pinduoduo.com/jinbao/orderDetail`|
+| **适用场景**     | 从拼多多多多进宝推广效果页面导出订单明细数据，支持按时间范围、订单ID、推广类型、活动ID、状态筛选|
+| **数据表名**     | `ods_rpa_pinduoduo_jinbao_order_detail_du`|
+| **业务表名**     | `ODS_多多进宝推广订单明细表(拼多多RPA)`|
 
 ### 目标页面
 
-> **路径**：拼多多商家后台 → 多多进宝 → 推广效果 → 订单明细
+> **取数路径**：拼多多商家后台 → 多多进宝 → 推广效果 → 订单明细
 >
-> **网址**：[https://mms.pinduoduo.com/jinbao/orderDetail](https://mms.pinduoduo.com/jinbao/orderDetail)
+> **取数链接**：[https://mms.pinduoduo.com/jinbao/orderDetail](https://mms.pinduoduo.com/jinbao/orderDetail)
 
 ![拼多多商家后台—多多进宝订单明细](../../public/images/pinduoduo/order_detail_20260506.png)
 

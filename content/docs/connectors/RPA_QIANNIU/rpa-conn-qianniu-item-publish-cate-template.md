@@ -9,17 +9,20 @@ badge:
 
 | 属性             | 值                                                                              |
 | ---------------- | ------------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                    |
-| **连接器代码**   | `rpa.conn.qianniu.item.publish.cate.template`                                   |
-| **操作类型**     | `页面解析`                                                 |
-| **目标网页**     | `https://item.upload.taobao.com/sell/ai/category.htm`                          |
-| **适用场景**     | 在千牛商品发布页搜索并选择目标类目，自动提取该类目的基础信息、销售信息、物流服务、图文描述等可直接填写的上架模板结构。 |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_商品发布类目属性模板查询(千牛RPA)`|
+| **连接器代码**   | `rpa.conn.qianniu.item.publish.cate.template`|
+| **操作类型**     | `页面解析`|
+| **目标网页**     | `https://item.upload.taobao.com/sell/ai/category.htm`|
+| **适用场景**     | 在千牛商品发布页搜索并选择目标类目，自动提取该类目的基础信息、销售信息、物流服务、图文描述等可直接填写的上架模板结构。|
+| **数据表名**     | `ods_rpa_qianniu_item_publish_cate_template_du`|
+| **业务表名**     | `ODS_商品发布类目属性模板查询(千牛RPA)`|
 
 ### 目标页面
 
-> **路径**：千牛商家工作台—商品发布—选择类目
+> **取数路径**：千牛商家工作台—商品发布—选择类目
 >
-> **网址**：[https://item.upload.taobao.com/sell/ai/category.htm](https://item.upload.taobao.com/sell/ai/category.htm)
+> **取数链接**：[https://item.upload.taobao.com/sell/ai/category.htm](https://item.upload.taobao.com/sell/ai/category.htm)
 
 ![千牛—商品发布类目属性模板提取](../../public/images/qianniu/item_publish_cate_template_20260424.png)
 

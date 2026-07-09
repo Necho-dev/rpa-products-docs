@@ -13,17 +13,20 @@ badge:
 
 | 属性             | 值                                                                                               |
 | ---------------- | ------------------------------------------------------------------------------------------------ |
-| **连接器类型**   | `RPA 连接器`                                                                                     |
-| **连接器代码**   | `rpa.conn.qianniu.shop.qualification.brand.list`                                                 |
-| **操作类型**     | `页面解析`                                                                  |
-| **目标网页**     | `https://myseller.taobao.com/home.htm/tm-shop-info-manage/?tab=qualification&qualiTabType=brand` |
-| **适用场景**     | 获取店铺「品牌资质」明细数据，包含状态、审核结果与有效期等信息，可用于品牌授权与资质到期监控；   |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_店铺品牌资质管理(千牛RPA)`|
+| **连接器代码**   | `rpa.conn.qianniu.shop.qualification.brand.list`|
+| **操作类型**     | `页面解析`|
+| **目标网页**     | `https://myseller.taobao.com/home.htm/tm-shop-info-manage/?tab=qualification&qualiTabType=brand`|
+| **适用场景**     | 获取店铺「品牌资质」明细数据，包含状态、审核结果与有效期等信息，可用于品牌授权与资质到期监控；|
+| **数据表名**     | `ods_rpa_qianniu_shop_qualification_brand_du`|
+| **业务表名**     | `ODS_店铺品牌资质管理(千牛RPA)`|
 
 ### 目标页面
 
-> **路径**：千牛后台—店铺—店铺信息—资质管理—品牌资质
+> **取数路径**：千牛后台—店铺—店铺信息—资质管理—品牌资质
 >
-> **网址**：[https://myseller.taobao.com/home.htm/tm-shop-info-manage](https://myseller.taobao.com/home.htm/tm-shop-info-manage/?tab=qualification&qualiTabType=brand)
+> **取数链接**：[https://myseller.taobao.com/home.htm/tm-shop-info-manage](https://myseller.taobao.com/home.htm/tm-shop-info-manage/?tab=qualification&qualiTabType=brand)
 
 ![千牛后台—资质管理—品牌资质](../../public/images/qianniu/shop_qualification_brand_list_20260423.png)
 

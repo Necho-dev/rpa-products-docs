@@ -9,17 +9,20 @@ badge:
 
 | 属性             | 值                  |
 | ---------------- | ------------------- |
-| **连接器类型**   | `RPA 连接器`        |
-| **连接器代码**   | `rpa.conn.pinduoduo.item.goods.data` |
-| **操作类型**     | `页面解析` |
-| **目标网页**     | `https://mms.pinduoduo.com/sycm/goods_effect?msfrom=mms_sidenav` |
-| **适用场景**     | 在商品数据明细页按所选统计周期采集各商品的流量、转化、成交与环比及同行等指标，列表按成交金额降序，支持翻页汇总（单任务上限 100 页） |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_数据中心商品数据明细表(拼多多RPA)`|
+| **连接器代码**   | `rpa.conn.pinduoduo.item.goods.data`|
+| **操作类型**     | `页面解析`|
+| **目标网页**     | `https://mms.pinduoduo.com/sycm/goods_effect?msfrom=mms_sidenav`|
+| **适用场景**     | 在商品数据明细页按所选统计周期采集各商品的流量、转化、成交与环比及同行等指标，列表按成交金额降序，支持翻页汇总（单任务上限 100 页）|
+| **数据表名**     | `ods_rpa_pinduoduo_item_goods_data_du`|
+| **业务表名**     | `ODS_数据中心商品数据明细表(拼多多RPA)`|
 
 ### 目标页面
 
-> **路径**：拼多多商家后台—数据中心—商品数据—商品明细
+> **取数路径**：拼多多商家后台—数据中心—商品数据—商品明细
 >
-> **网址**：[https://mms.pinduoduo.com/sycm/goods_effect?msfrom=mms_sidenav](https://mms.pinduoduo.com/sycm/goods_effect?msfrom=mms_sidenav)
+> **取数链接**：[https://mms.pinduoduo.com/sycm/goods_effect?msfrom=mms_sidenav](https://mms.pinduoduo.com/sycm/goods_effect?msfrom=mms_sidenav)
 
 ![拼多多商家后台—数据中心—商品数据—商品明细](../../public/images/pinduoduo/item_goods_data_20260521.png)
 

@@ -9,17 +9,20 @@ badge:
 
 | 属性             | 值                                                                                  |
 | ---------------- | ----------------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                        |
-| **连接器代码**   | `rpa.conn.pinduoduo.shop.register.record`                                           |
-| **操作类型**     | `页面解析`                                                     |
-| **目标网页**     | `https://mms.pinduoduo.com/act/register_record?tab=0`                               |
-| **适用场景**     | 采集拼多多商家后台营销活动报名记录数据，支持按状态标签、活动类型、活动状态、商品名称/ID、提交时间筛选；支持翻页采集，最大 100 页 |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_店铺营销活动报名记录表(拼多多RPA)`|
+| **连接器代码**   | `rpa.conn.pinduoduo.shop.register.record`|
+| **操作类型**     | `页面解析`|
+| **目标网页**     | `https://mms.pinduoduo.com/act/register_record?tab=0`|
+| **适用场景**     | 采集拼多多商家后台营销活动报名记录数据，支持按状态标签、活动类型、活动状态、商品名称/ID、提交时间筛选；支持翻页采集，最大 100 页|
+| **数据表名**     | `ods_rpa_pinduoduo_shop_act_register_record_du`|
+| **业务表名**     | `ODS_店铺营销活动报名记录表(拼多多RPA)`|
 
 ### 目标页面
 
-> **路径**：拼多多商家后台—营销活动—报名记录
+> **取数路径**：拼多多商家后台—营销活动—报名记录
 >
-> **网址**：[https://mms.pinduoduo.com/act/register_record](https://mms.pinduoduo.com/act/register_record?tab=0)
+> **取数链接**：[https://mms.pinduoduo.com/act/register_record](https://mms.pinduoduo.com/act/register_record?tab=0)
 
 ![拼多多—营销活动报名记录](../../public/images/pinduoduo/register_record_20260508.png)
 

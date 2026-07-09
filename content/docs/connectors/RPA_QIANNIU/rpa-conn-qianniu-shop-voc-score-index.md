@@ -9,17 +9,20 @@ badge:
 
 | 属性             | 值                                                                                    |
 | ---------------- | ------------------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                          |
-| **连接器代码**   | `rpa.conn.qianniu.shop.voc.score.index`                                                |
-| **操作类型**     | `页面解析`                                                               |
-| **目标网页**     | `https://myseller.taobao.com/home.htm/voc-tmall/serverReport`                         |
-| **适用场景**     | 获取真实体验分及子指标（宝贝质量、物流、服务等）数据以及同行对比值，用于店铺体验治理       |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_店铺真实体验分明细表(千牛RPA)`|
+| **连接器代码**   | `rpa.conn.qianniu.shop.voc.score.index`|
+| **操作类型**     | `页面解析`|
+| **目标网页**     | `https://myseller.taobao.com/home.htm/voc-tmall/serverReport`|
+| **适用场景**     | 获取真实体验分及子指标（宝贝质量、物流、服务等）数据以及同行对比值，用于店铺体验治理|
+| **数据表名**     | `ods_rpa_qianniu_shop_voc_score_index_du`|
+| **业务表名**     | `ODS_店铺真实体验分明细表(千牛RPA)`|
 
 ### 目标页面
 
-> **路径**：千牛后台—店铺—店铺管理—真实体验分
+> **取数路径**：千牛后台—店铺—店铺管理—真实体验分
 >
-> **网址**：[https://myseller.taobao.com/home.htm/voc-tmall/serverReport](https://myseller.taobao.com/home.htm/voc-tmall/serverReport)
+> **取数链接**：[https://myseller.taobao.com/home.htm/voc-tmall/serverReport](https://myseller.taobao.com/home.htm/voc-tmall/serverReport)
 
 ![千牛后台—真实体验分](../../public/images/qianniu/shop_voc_score_index_20260521.png)
 

@@ -9,17 +9,20 @@ badge:
 
 | 属性             | 值                                                                                                   |
 | ---------------- | ---------------------------------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器` |
-| **连接器代码**   | `rpa.conn.pinduoduo.shop.comment.list` |
-| **操作类型**     | `页面解析` |
-| **目标网页**     | `https://mms.pinduoduo.com/goods/evaluation/index?msfrom=mms_sidenav` |
-| **适用场景**     | 按时间/评分/内容类型/回复状态/活动/订单/商品/关键词获取商品评价明细数据；默认配置最大翻页次数 100        |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_商品评价管理(拼多多RPA)`|
+| **连接器代码**   | `rpa.conn.pinduoduo.shop.comment.list`|
+| **操作类型**     | `页面解析`|
+| **目标网页**     | `https://mms.pinduoduo.com/goods/evaluation/index?msfrom=mms_sidenav`|
+| **适用场景**     | 按时间/评分/内容类型/回复状态/活动/订单/商品/关键词获取商品评价明细数据；默认配置最大翻页次数 100|
+| **数据表名**     | `ods_rpa_pinduoduo_shop_comment_list_du`|
+| **业务表名**     | `ODS_商品评价管理(拼多多RPA)`|
 
 ### 目标页面
 
-> **路径**：拼多多商家后台—商品管理—评价管理—评价列表
+> **取数路径**：拼多多商家后台—商品管理—评价管理—评价列表
 >
-> **网址**：[https://mms.pinduoduo.com/goods/evaluation/index](https://mms.pinduoduo.com/goods/evaluation/index?msfrom=mms_sidenav)
+> **取数链接**：[https://mms.pinduoduo.com/goods/evaluation/index](https://mms.pinduoduo.com/goods/evaluation/index?msfrom=mms_sidenav)
 
 ![拼多多商家后台—评价管理—评价列表](../../public/images/pinduoduo/shop_comment_list_20260521.png)
 

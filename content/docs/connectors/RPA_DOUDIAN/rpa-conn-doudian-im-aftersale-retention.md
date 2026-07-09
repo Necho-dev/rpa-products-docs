@@ -9,17 +9,20 @@ badge:
 
 | 属性             | 值                                                                      |
 | ---------------- | ----------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                            |
-| **连接器代码**   | `rpa.conn.doudian.im.aftersale.retention`                               |
-| **操作类型**     | `页面解析`                                         |
-| **目标网页**     | `https://im.jinritemai.com/pc_seller_v2/main/workspace`                 |
-| **适用场景**     | 采集飞鸽客服系统售后挽单面板的消息数据，支持按日期查询与自动翻页        |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_飞鸽售后挽单数据采集信息表(抖店RPA)`|
+| **连接器代码**   | `rpa.conn.doudian.im.aftersale.retention`|
+| **操作类型**     | `页面解析`|
+| **目标网页**     | `https://im.jinritemai.com/pc_seller_v2/main/workspace`|
+| **适用场景**     | 采集飞鸽客服系统售后挽单面板的消息数据，支持按日期查询与自动翻页|
+| **数据表名**     | `ods_rpa_doudian_im_aftersale_retention_du`|
+| **业务表名**     | `ODS_飞鸽售后挽单数据采集信息表(抖店RPA)`|
 
 ### 目标页面
 
-> **路径**：抖店商家后台—飞鸽客服—工作台—售后挽单
+> **取数路径**：抖店商家后台—飞鸽客服—工作台—售后挽单
 >
-> **网址**：[https://im.jinritemai.com/pc_seller_v2/main/workspace](https://im.jinritemai.com/pc_seller_v2/main/workspace)
+> **取数链接**：[https://im.jinritemai.com/pc_seller_v2/main/workspace](https://im.jinritemai.com/pc_seller_v2/main/workspace)
 
 ![抖店—飞鸽售后挽单面板](../../public/images/doudian/im_aftersale_retention_20260511.png)
 

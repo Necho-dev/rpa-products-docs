@@ -9,17 +9,20 @@ badge:
 
 | 属性             | 值                                                                                                                   |
 | ---------------- | -------------------------------------------------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                                                         |
-| **连接器代码**   | `rpa.conn.qianniu.shop.violation.list`                                                                               |
-| **操作类型**     | `页面解析`                                                                                      |
-| **目标网页**     | `https://qn.taobao.com/home.htm/ysb-new-ksr-q/violation/VIOLATION?tab=pending`                                       |
-| **适用场景**     | 获取店铺违规管理中心记录，查询待处理/全部/已撤销违规，按违规时间范围筛选，用于违规处理跟进；默认配置最大翻页次数 100 |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_店铺体检违规记录明细表(千牛RPA)`|
+| **连接器代码**   | `rpa.conn.qianniu.shop.violation.list`|
+| **操作类型**     | `页面解析`|
+| **目标网页**     | `https://qn.taobao.com/home.htm/ysb-new-ksr-q/violation/VIOLATION?tab=pending`|
+| **适用场景**     | 获取店铺违规管理中心记录，查询待处理/全部/已撤销违规，按违规时间范围筛选，用于违规处理跟进；默认配置最大翻页次数 100|
+| **数据表名**     | `ods_rpa_qianniu_shop_violation_list_du`|
+| **业务表名**     | `ODS_店铺体检违规记录明细表(千牛RPA)`|
 
 ### 目标页面
 
-> **路径**：千牛后台—店铺—店铺体检—违规管理—待处理/全部违规/已撤销
+> **取数路径**：千牛后台—店铺—店铺体检—违规管理—待处理/全部违规/已撤销
 >
-> **网址**：[https://qn.taobao.com/home.htm/ysb-new-ksr-q/violation/VIOLATION?tab=pending](https://qn.taobao.com/home.htm/ysb-new-ksr-q/violation/VIOLATION?tab=pending)
+> **取数链接**：[https://qn.taobao.com/home.htm/ysb-new-ksr-q/violation/VIOLATION?tab=pending](https://qn.taobao.com/home.htm/ysb-new-ksr-q/violation/VIOLATION?tab=pending)
 
 ![千牛后台—店铺体检—违规记录](../../public/images/qianniu/shop_violation_list_20260423.png)
 

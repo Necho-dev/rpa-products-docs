@@ -9,17 +9,20 @@ badge:
 
 | 属性             | 值                                                                |
 | ---------------- | ----------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                      |
-| **连接器代码**   | `rpa.conn.pinduoduo.promotion.live.report.download`                     |
-| **操作类型**     | `文件导出`                                  |
-| **目标网页**     | `https://yingxiao.pinduoduo.com/tools/report/download`            |
-| **适用场景**     | 从拼多多推广平台下载「直播推广-数据汇总」分天数据报表，支持快捷日期与自定义日期范围 |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_直播推广数据报表下载(拼多多RPA)`|
+| **连接器代码**   | `rpa.conn.pinduoduo.promotion.live.report.download`|
+| **操作类型**     | `文件导出`|
+| **目标网页**     | `https://yingxiao.pinduoduo.com/tools/report/download`|
+| **适用场景**     | 从拼多多推广平台下载「直播推广-数据汇总」分天数据报表，支持快捷日期与自定义日期范围|
+| **数据表名**     | `ods_rpa_pinduoduo_promotion_live_report_download_du`|
+| **业务表名**     | `ODS_直播推广数据报表下载(拼多多RPA)`|
 
 ### 目标页面
 
-> **路径**：拼多多推广平台—工具—报表下载
+> **取数路径**：拼多多推广平台—工具—报表下载
 >
-> **网址**：[https://yingxiao.pinduoduo.com/tools/report/download](https://yingxiao.pinduoduo.com/tools/report/download)
+> **取数链接**：[https://yingxiao.pinduoduo.com/tools/report/download](https://yingxiao.pinduoduo.com/tools/report/download)
 
 ![拼多多推广平台—直播推广-数据汇总报表下载](../../public/images/pinduoduo/live_report_download_20260429.png)
 

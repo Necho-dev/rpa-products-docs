@@ -9,17 +9,20 @@ badge:
 
 | 属性             | 值                                                                                          |
 | ---------------- | ------------------------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                                |
-| **连接器代码**   | `rpa.conn.pinduoduo.finance.bill.list`                                                      |
-| **操作类型**     | `文件导出`                                                  |
-| **目标网页**     | `https://cashier.pinduoduo.com/main/bills`                                                  |
-| **适用场景**     | 按日期区间从拼多多对账中心导出账单明细；支持单日（`bizDate`）或区间（`beginDate`/`endDate`），区间含首尾不超过 31 天，仅支持最近 12 个自然月内日期 |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_对账中心账单明细(拼多多RPA)`|
+| **连接器代码**   | `rpa.conn.pinduoduo.finance.bill.list`|
+| **操作类型**     | `文件导出`|
+| **目标网页**     | `https://cashier.pinduoduo.com/main/bills`|
+| **适用场景**     | 按日期区间从拼多多对账中心导出账单明细；支持单日（`bizDate`）或区间（`beginDate`/`endDate`），区间含首尾不超过 31 天，仅支持最近 12 个自然月内日期|
+| **数据表名**     | `ods_rpa_pinduoduo_finance_bill_list_du`|
+| **业务表名**     | `ODS_对账中心账单明细(拼多多RPA)`|
 
 ### 目标页面
 
-> **路径**：拼多多商家后台—对账中心—账单
+> **取数路径**：拼多多商家后台—对账中心—账单
 >
-> **网址**：[https://cashier.pinduoduo.com/main/bills](https://cashier.pinduoduo.com/main/bills?tab=4001&__app_code=113)
+> **取数链接**：[https://cashier.pinduoduo.com/main/bills](https://cashier.pinduoduo.com/main/bills?tab=4001&__app_code=113)
 
 ![拼多多商家后台—对账中心—账单明细](../../public/images/pinduoduo/finance_bill_list_20260424.png)
 

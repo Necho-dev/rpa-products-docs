@@ -9,17 +9,20 @@ badge:
 
 | 属性             | 值                                                                                       |
 | ---------------- | ---------------------------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                                             |
-| **连接器代码**   | `rpa.conn.pinduoduo.finance.settlement.batch.list`                                       |
-| **操作类型**     | `页面解析`                                                          |
-| **目标网页**     | `https://mms.pinduoduo.com/finance/expense`                                              |
-| **适用场景**     | 采集拼多多商家后台营销活动结算批次列表数据，支持按批次号、商品ID、结算状态筛选            |
+| **连接器类型**   | `RPA 连接器`|
+| **连接器名称**   | `ODS_财务营销结算批次列表(拼多多RPA)`|
+| **连接器代码**   | `rpa.conn.pinduoduo.finance.settlement.batch.list`|
+| **操作类型**     | `页面解析`|
+| **目标网页**     | `https://mms.pinduoduo.com/finance/expense`|
+| **适用场景**     | 采集拼多多商家后台营销活动结算批次列表数据，支持按批次号、商品ID、结算状态筛选|
+| **数据表名**     | `ods_rpa_pinduoduo_finance_settlement_batch_list_du`|
+| **业务表名**     | `ODS_财务营销结算批次列表(拼多多RPA)`|
 
 ### 目标页面
 
-> **路径**：拼多多商家后台—营销结算
+> **取数路径**：拼多多商家后台—营销结算
 >
-> **网址**：[https://mms.pinduoduo.com/finance/expense](https://mms.pinduoduo.com/finance/expense)
+> **取数链接**：[https://mms.pinduoduo.com/finance/expense](https://mms.pinduoduo.com/finance/expense)
 
 ![拼多多—营销结算批次列表](../../public/images/pinduoduo/settlement_batch_list_20260513.png)
 
