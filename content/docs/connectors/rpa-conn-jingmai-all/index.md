@@ -34,4 +34,9 @@ finance:
   icon:
     comp: Wallet
     color: '#059669'
+wl:
+  label: 物流/WL
+  icon:
+    comp: Truck
+    color: '#2563eb'
 :::
