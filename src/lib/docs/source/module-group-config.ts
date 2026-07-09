@@ -2,7 +2,10 @@ import { parse as parseYaml } from 'yaml';
 import { normalizeModuleIcon, type ModuleIconConfig } from '@/lib/docs/source/module-icon-config';
 export type ModuleGroupConfig = {
   label: string;
-  /** lucide 图标：`ShoppingBag` 或 `{ comp, color? }`；无 color 时为 muted 默认样式 */
+  /**
+   * 图标：`{ comp, color? }` 或简写字符串。
+   * `comp` 优先匹配 platform-favicons codes（如 `TAOBAO`、`RPA_QIANNIU`），否则为 Lucide 名。
+   */
   icon?: ModuleIconConfig;
 };
 

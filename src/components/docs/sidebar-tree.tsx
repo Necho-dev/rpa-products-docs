@@ -17,8 +17,9 @@ import type { SidebarFolderWithBadge, SidebarItemWithBadge } from '@/lib/docs/so
 
 /** 与 `fumadocs-ui/layouts/docs/slots/sidebar` 中 itemVariants 一致；双行时顶对齐图标与标题行 */
 const rowBase =
-  'relative flex flex-row items-center gap-2 rounded-lg p-2 text-start text-fd-muted-foreground [&_svg]:size-4 [&_svg]:shrink-0';
-const rowWithSubline = 'items-start [&>svg]:mt-0.5';
+  'relative flex flex-row items-center gap-2 rounded-lg p-2 text-start text-fd-muted-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&_img]:size-full [&_img]:object-contain';
+/** 双行时顶对齐：Lucide svg 与平台 favicon 外框 span 均微调 */
+const rowWithSubline = 'items-start [&>svg]:mt-0.5 [&>span]:mt-0.5';
 
 const linkRest =
   'transition-colors hover:bg-fd-accent/50 hover:text-fd-accent-foreground/80 hover:transition-none data-[active=true]:bg-fd-primary/10 data-[active=true]:text-fd-primary data-[active=true]:hover:transition-colors';
@@ -52,11 +53,9 @@ function depthLabelClass(visualDepth: number) {
   if (visualDepth <= 0)
     return 'text-[15px] font-bold leading-snug tracking-tight text-fd-foreground';
   if (visualDepth === 1)
-    return 'text-[14px] font-semibold leading-snug text-fd-foreground/95';
+    return 'text-[13.5px] font-medium text-fd-muted-foreground';
   if (visualDepth === 2)
-    return 'text-[13px] font-medium text-fd-muted-foreground';
-  if (visualDepth === 3)
-    return 'text-[12px] font-normal text-fd-muted-foreground/90';
+    return 'text-[12.5px] font-normal text-fd-muted-foreground/90';
   return 'text-[11px] font-normal text-fd-muted-foreground/75';
 }
 

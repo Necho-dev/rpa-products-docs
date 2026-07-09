@@ -158,7 +158,7 @@ describe('scanCatalogPackageIndexModulesSync', () => {
   it('reads package index pages from subdirectories', () => {
     const indexPath = path.join(
       process.cwd(),
-      'content/docs/connectors/index.md',
+      'content/docs/index.mdx',
     );
     const modules = scanCatalogPackageIndexModulesSync(indexPath);
 
@@ -172,7 +172,7 @@ describe('scanModuleGridModulesSync', () => {
   it('falls back to catalog scan when flat siblings are empty', () => {
     const indexPath = path.join(
       process.cwd(),
-      'content/docs/connectors/index.md',
+      'content/docs/index.mdx',
     );
     const modules = scanModuleGridModulesSync(indexPath);
 

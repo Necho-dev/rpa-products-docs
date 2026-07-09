@@ -189,7 +189,7 @@ const remarkMdxDocBlocks: Plugin<[], Root> = () => {
         const { layout, cover, groups } = parseModuleGridDirectiveYaml(raw, filePath);
         const pageSlug = pageSlugFromDocFile(resolvedFilePath);
 
-        if (pageSlug.length === 0) {
+        if (pageSlug == null) {
           throw new Error(`${filePath}: cannot derive pageSlug for :::module-grid`);
         }
 

@@ -10,12 +10,9 @@
 documents/
 ├── content/
 │   └── docs/                   # 文档正文（Markdown / MDX）
-│       ├── index.mdx            # 文档首页
+│       ├── index.mdx            # 文档概览（含平台 module-grid）
 │       ├── meta.json            # 侧边栏顺序与分组配置
-│       ├── apps/                # 应用相关文档
-│       ├── components/          # 组件相关文档
-│       ├── connectors/          # 连接器相关文档
-│       ├── changelogs.md        # 更新日志
+│       ├── RPA_*/               # 各平台连接器文档
 │       └── public/              # 文档内静态资源（图片等）
 ├── src/
 │   ├── app/                     # Next.js App Router 路由

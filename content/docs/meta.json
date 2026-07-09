@@ -2,9 +2,14 @@
   "root": true,
   "pages": [
     "index",
-    "./connectors",
-    "./components",
-    "./apps",
-    "changelogs"
+    "./RPA_QIANNIU",
+    "./RPA_SYCM",
+    "./RPA_PINDUODUO",
+    "./RPA_DOUDIAN",
+    "./RPA_ALIMM",
+    "./RPA_DEWU",
+    "./RPA_JULIANG",
+    "./RPA_JDSZ",
+    "./RPA_JINGMAI"
   ]
 }

@@ -128,25 +128,46 @@ export const docs = defineDocs({
   },
 });
 
+async function fileMtime(filePath: string): Promise<Date | null> {
+  try {
+    return (await stat(filePath)).mtime;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * 文档「最后更新」时间来源：
- * - 默认 `git`：用 `git log`（需本机/CI 可执行 git、且非过浅的 clone，时间更接近真实提交日）
- * - 环境变量 `FUMADOCS_LAST_MODIFIED=fs`：用文件 mtime（Docker slim 无 git、不跑 apt，见 Dockerfile）
+ * - 默认: 优先 `git log`；无提交历史时 (如未 commit 的路径迁移) 回退文件 mtime
+ * - 环境变量 `FUMADOCS_LAST_MODIFIED=fs`: 仅用文件 mtime (Docker slim 无 git, 见 Dockerfile 注释)
  * @see https://fumadocs.dev/docs/mdx/last-modified
  */
-const lastModifiedPlugin = lastModified(
-  process.env.FUMADOCS_LAST_MODIFIED === 'fs'
-    ? {
-        versionControl: async (filePath: string) => {
-          try {
-            return (await stat(filePath)).mtime;
-          } catch {
-            return null;
-          }
-        },
+const lastModifiedPlugin = lastModified({
+  versionControl: async (filePath: string) => {
+    if (process.env.FUMADOCS_LAST_MODIFIED === 'fs') {
+      return fileMtime(filePath);
+    }
+
+    // 与 fumadocs-mdx 默认 git 策略一致，但未入库路径会得到 null → 回退 mtime
+    const { x } = await import('tinyexec');
+    const path = await import('node:path');
+    const relative = path.relative(process.cwd(), filePath);
+    try {
+      const out = await x(
+        'git',
+        ['log', '-1', '--pretty=%ai', relative],
+        { nodeOptions: { cwd: process.cwd() } },
+      );
+      if (out.exitCode === 0) {
+        const date = new Date(out.stdout.trim().replace(/^"|"$/g, ''));
+        if (!Number.isNaN(date.getTime())) return date;
       }
-    : {},
-);
+    } catch {
+      // ignore git errors
+    }
+    return fileMtime(filePath);
+  },
+});
 
 export default defineConfig({
   mdxOptions: {

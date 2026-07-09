@@ -1,4 +1,8 @@
-/** ModuleGrid 卡片图标：lucide 组件名 + 可选自定义颜色 */
+/**
+ * ModuleGrid 分组 / 卡片图标。
+ * `comp`：platform-favicons code（如 `TAOBAO`）或 Lucide 名（如 `ShoppingBag`）；
+ * `color` 仅对 Lucide 生效。
+ */
 export type ModuleIconConfig = {
   comp: string;
   color?: string;

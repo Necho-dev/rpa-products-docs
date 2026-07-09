@@ -142,9 +142,9 @@ export function scoreTopicHit(hit: SearchHitWithKeywords, topicKeywords: string[
   return points;
 }
 
-/** 连接器平台级 hub（如 /docs/connectors/RPA_QIANNIU） */
+/** 连接器平台级 hub（如 /docs/RPA_QIANNIU） */
 export function isConnectorPackHubUrl(url: string): boolean {
-  return /^\/docs\/connectors\/RPA_[A-Z0-9_]+$/.test(url);
+  return /^\/docs\/RPA_[A-Z0-9_]+$/.test(url);
 }
 
 /**
@@ -174,7 +174,7 @@ export function filterHitsByTopicScope(
 function resolveExpandFolderUrl(best: CatalogPage, catalog: CatalogPage[]): string {
   if (isConnectorPackHub(best)) return best.url;
 
-  if (best.url.includes('/connectors/RPA_')) {
+  if (/\/RPA_[A-Z0-9_]+\//.test(best.url) || /\/RPA_[A-Z0-9_]+$/.test(best.url)) {
     const hub = catalog.find((p) => p.url === best.folderUrl && isConnectorPackHub(p));
     if (hub) return hub.url;
   }
@@ -183,9 +183,9 @@ function resolveExpandFolderUrl(best: CatalogPage, catalog: CatalogPage[]): stri
 }
 
 function isConnectorPackHub(page: CatalogPage): boolean {
-  if (!page.entry || !page.url.includes('/connectors/RPA_')) return false;
-  // 平台级 hub（如 RPA_QIANNIU/index）URL 不再包含子路径；子连接器也有 entry 但不应作为目录扩展根
-  return !page.url.replace(/^\/docs\/connectors\//, '').includes('/');
+  if (!page.entry || !isConnectorPackHubUrl(page.url)) return false;
+  // 平台级 hub（如 /docs/RPA_QIANNIU）；子连接器 URL 含更深路径，不应作为目录扩展根
+  return true;
 }
 
 function isValidExpandFolderUrl(folderUrl: string, catalog: CatalogPage[]): boolean {

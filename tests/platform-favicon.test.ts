@@ -58,6 +58,17 @@ describe('platform-favicon resolve', () => {
     assert.equal(htmlIcon, 'https://x.alicdn.com/icon.ico?v=1');
   });
 
+  it('extractIconLinksFromHtml 不被 mce_href 覆盖真正的 href', () => {
+    // 京麦登录页：href 是京麦图标，mce_href 是京东通用狗标
+    const html =
+      '<link rel="icon" href="//shop.jd.com/jdm/favicon.ico" ' +
+      'mce_href="//www.jd.com/favicon.ico" type="image/x-icon">';
+    const [htmlIcon, candidates] = extractIconLinksFromHtml(html, 'https://shop.jd.com/');
+    assert.equal(htmlIcon, 'https://shop.jd.com/jdm/favicon.ico');
+    assert.equal(candidates[0], htmlIcon);
+    assert.ok(!candidates.includes('https://www.jd.com/favicon.ico'));
+  });
+
   it('pickIconHref 优先 shortcut icon', () => {
     const links: IconLink[] = [
       ['icon shortcut', '/a.ico'],

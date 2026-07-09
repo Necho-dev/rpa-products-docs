@@ -307,7 +307,7 @@ describe('collectSiblingModuleGroups', () => {
           slug: 'rpa-conn-qianniu-item-a',
           title: 'I',
           entry: 'rpa.conn.qianniu.item.a',
-          coverUrl: '/og/docs/connectors/RPA_QIANNIU/rpa-conn-qianniu-item-a/cover.png',
+          coverUrl: '/og/docs/RPA_QIANNIU/rpa-conn-qianniu-item-a/cover.png',
           groupExplicit: false,
         },
       ],
@@ -315,7 +315,7 @@ describe('collectSiblingModuleGroups', () => {
     );
     assert.equal(
       result[0]!.modules[0]!.coverUrl,
-      '/og/docs/connectors/RPA_QIANNIU/rpa-conn-qianniu-item-a/cover.png',
+      '/og/docs/RPA_QIANNIU/rpa-conn-qianniu-item-a/cover.png',
     );
   });
 });

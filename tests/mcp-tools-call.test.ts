@@ -67,10 +67,10 @@ describe('mcp tools/call 审计', () => {
 
   it('extractMcpRpcMeta 解析 get_docs_content path', () => {
     const metas = extractMcpRpcMeta(
-      toolsCallBody('get_docs_content', { path: '/docs/connectors/RPA_QIANNIU' }),
+      toolsCallBody('get_docs_content', { path: '/docs/RPA_QIANNIU' }),
     );
     assert.equal(metas[0]?.tool, 'get_docs_content');
-    assert.deepEqual(metas[0]?.params, { path: '/docs/connectors/RPA_QIANNIU' });
+    assert.deepEqual(metas[0]?.params, { path: '/docs/RPA_QIANNIU' });
   });
 
   it('extractMcpRpcMeta 解析 get_docs_meta path', () => {

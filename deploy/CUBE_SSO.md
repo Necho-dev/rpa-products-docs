@@ -66,7 +66,7 @@ sequenceDiagram
 
 | 参数 | 必须 | 说明 |
 |------|------|------|
-| `redirect` | 是 | 文档站内路径，以 `/` 开头，如 `/docs/connectors/foo` |
+| `redirect` | 是 | 文档站内路径，以 `/` 开头，如 `/docs/RPA_QIANNIU/foo` |
 
 **不传 `render` 参数**（或 `render` 为空）时走此 SSO 分支。
 
@@ -147,7 +147,7 @@ signedUrl = https://docs.example.com/docs/foo
 
 | 参数 | 必须 | 说明 |
 |------|------|------|
-| `redirect` | 是 | 文档站内路径，如 `/docs/connectors/foo` |
+| `redirect` | 是 | 文档站内路径，如 `/docs/RPA_QIANNIU/foo` |
 | `render` | 是 | `html` 或 `markdown` |
 
 **魔方侧处理（render=html）**：
@@ -192,7 +192,7 @@ sequenceDiagram
 
 | 参数 | 必须 | 说明 |
 |------|------|------|
-| `path` | 是 | 文档站内路径，如 `/docs/connectors/foo` |
+| `path` | 是 | 文档站内路径，如 `/docs/RPA_QIANNIU/foo` |
 | `render` | 是 | `html` 或 `markdown` |
 
 行为与 `docsAuth?render=` 完全相同：
@@ -252,7 +252,7 @@ sg = SHA256(METHOD + "\n" + PATH + "\n" + tm + "\n" + App Secret)  ← hex
 
 | 请求类型 | PATH 示例 |
 |---------|----------|
-| 拉文档正文 | `/docs/connectors/foo` |
+| 拉文档正文 | `/docs/RPA_QIANNIU/foo` |
 | 回源图片 | `/resources/images/public/images/qianniu/foo.png` |
 
 **传参方式**（Header 优先，Query 备用）：
@@ -355,9 +355,9 @@ python3 scripts/mock-cube-docs-auth.py
 |------|---------|
 | SSO 全页登录 | `http://127.0.0.1:8765/docsAuth?redirect=/docs` |
 | iframe 嵌入测试页 | `http://127.0.0.1:8765/iframe-test` |
-| 嵌入 HTML（方案 A） | `http://127.0.0.1:8765/docsAuth?redirect=/docs/connectors/foo&render=html` |
-| 嵌入 Markdown（方案 A） | `http://127.0.0.1:8765/docsAuth?redirect=/docs/connectors/foo&render=markdown` |
-| 嵌入 HTML（方案 B） | `http://127.0.0.1:8765/docsContent?path=/docs/connectors/foo&render=html` |
+| 嵌入 HTML（方案 A） | `http://127.0.0.1:8765/docsAuth?redirect=/docs/RPA_QIANNIU/foo&render=html` |
+| 嵌入 Markdown（方案 A） | `http://127.0.0.1:8765/docsAuth?redirect=/docs/RPA_QIANNIU/foo&render=markdown` |
+| 嵌入 HTML（方案 B） | `http://127.0.0.1:8765/docsContent?path=/docs/RPA_QIANNIU/foo&render=html` |
 | 图片代理 | `http://127.0.0.1:8765/docsResources?path=public/images/qianniu/foo.png` |
 | 链式登出 | `http://127.0.0.1:8765/logout` |
 

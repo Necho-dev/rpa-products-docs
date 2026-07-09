@@ -28,7 +28,7 @@ import { NextRequest } from 'next/server';
 describe('access-log', () => {
   it('pathCategory 识别 API 与文档', () => {
     assert.equal(pathCategory('/api/search'), 'api');
-    assert.equal(pathCategory('/docs/connectors/foo'), 'docs');
+    assert.equal(pathCategory('/docs/RPA_QIANNIU/foo'), 'docs');
     assert.equal(pathCategory('/mcp'), 'mcp');
     assert.equal(pathCategory('/og/docs/foo/quote.png'), 'og');
   });

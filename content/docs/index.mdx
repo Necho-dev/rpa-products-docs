@@ -3,40 +3,43 @@ title: 概览
 icon: LayoutDashboard
 ---
 
-import { Bot, Layers, Package, ScrollText, Search, Server, Sparkles } from 'lucide-react';
+import { Search, Server, Sparkles } from 'lucide-react';
 
 👋 **欢迎来到 RPA 公共知识库**
 
-这里是面向内部的 **RPA 连接器、组件与应用** 知识库：建议按照业务目标从下方 **主题入口** 逐级阅读，在不确定路径时，建议首先用 **全文搜索** 或 **AI 智能助手** 进行快速检索；若日常在 **Cursor、Claude Code** 等工具里写代码，建议配置 **MCP** 服务，快速获得检索文档、查看内容的工具。
+这里是面向内部的 **RPA 连接器** 知识库：按平台浏览连接器说明、入参出参与调度信息；不确定路径时，建议先用 **全文搜索** 或 **AI 智能助手** 检索。日常在 Cursor、Claude Code 等工具里写代码时，可配置 **MCP** 服务以快速检索与读取文档。页面改版与修复说明见各连接器文档内的更新记录。
 
-## 按主题浏览
+## 按平台浏览
 
-<Cards>
-  <Card
-    icon={<Bot className="text-sky-600 dark:text-sky-400" />}
-    title="Connector 连接器"
-    href="/docs/connectors"
-    description="定义具体业务逻辑的最小单元，一个任务类型对应一个连接器；遵循「1+1+N」开发模式，即 1 个新平台 = 1 个登录组件 + N 个连接器；知识库按照 「Pypi 集合包 -> 具体连接器」层级进行展开说明。"
-  />
-  <Card
-    icon={<Layers className="text-violet-600 dark:text-violet-400" />}
-    title="Component 组件"
-    href="/docs/components"
-    description="可跨连接器复用的业务能力单元，封装登录、验证码等通用场景；在连接器中使用 LoginComponent 登录组件时，支持开发者通过 @auth 装饰器进行声明式挂载，由 SDK 完成前置依赖调用和执行过程中的自动触发。"
-  />
-  <Card
-    icon={<Package className="text-amber-600 dark:text-amber-400" />}
-    title="App 应用"
-    href="/docs/apps"
-    description="通过 Git 仓库或 PyPI 分发，配合 deploy 脚本可快速部署到执行机的 CLI 应用；提供应用适配封装与部署流程说明，以及如何新建执行机、RPA 应用跨平台快速部署的完整操作流程说明。"
-  />
-  <Card
-    icon={<ScrollText className="text-emerald-600 dark:text-emerald-400" />}
-    title="更新记录"
-    href="/docs/changelogs"
-    description="汇总平台页面改版、接口异常变更或者连接器重大 Bug 修复/升级的说明，按照连接器/日期进行整理，建议使用前查看；提供常见问题说明，避免重复踩坑。"
-  />
-</Cards>
+:::module-grid
+layout: tabs
+cover: false
+taobao:
+  label: 淘系
+  icon:
+    comp: TAOBAO
+    color: "#0284c7"
+pinduoduo:
+  label: 拼多多
+  icon:
+    comp: RPA_PINDUODUO
+    color: "#e11d48"
+doudian:
+  label: 抖店
+  icon:
+    comp: RPA_DOUDIAN
+    color: "#111827"
+jingdong:
+  label: 京东
+  icon:
+    comp: JINGDONG
+    color: "#dc2626"
+dewu:
+  label: 得物
+  icon:
+    comp: RPA_DEWU
+    color: "#0f172a"
+:::
 
 ## 检索&协作
 
@@ -58,5 +61,3 @@ import { Bot, Layers, Package, ScrollText, Search, Server, Sparkles } from 'luci
     description="根据指引即可在 Cursor、Claude Code 等客户端快速配置 MCP 服务，即可在对话里调用工具，快速检索文档、获取文档内容。"
   />
 </Cards>
-
-

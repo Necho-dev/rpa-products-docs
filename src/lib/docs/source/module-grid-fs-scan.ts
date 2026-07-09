@@ -180,14 +180,21 @@ export function readPackageEntryFromFileContent(content: string): string | undef
   return typeof fm.entry === 'string' ? fm.entry : undefined;
 }
 
-export function pageSlugFromDocFile(filePath: string): string[] {
+/**
+ * 从文档绝对/相对路径推导 fumadocs pageSlug。
+ * - `content/docs/index.mdx` → `[]`（根概览页）
+ * - `content/docs/RPA_QIANNIU/index.md` → `['RPA_QIANNIU']`
+ * - 路径不在 content/docs 下 → `null`
+ */
+export function pageSlugFromDocFile(filePath: string): string[] | null {
   const normalized = filePath.replace(/\\/g, '/');
   const marker = '/content/docs/';
   const idx = normalized.indexOf(marker);
-  if (idx === -1) return [];
+  if (idx === -1) return null;
 
   const rel = normalized.slice(idx + marker.length);
-  const parts = rel.split('/');
+  const parts = rel.split('/').filter(Boolean);
+  if (parts.length === 0) return null;
   parts.pop();
   return parts;
 }

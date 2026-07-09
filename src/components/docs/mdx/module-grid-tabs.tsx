@@ -1,6 +1,6 @@
 'use client';
 
-import { createElement, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Cards } from 'fumadocs-ui/components/card';
 import { cn } from '@/lib/core/cn';
@@ -8,7 +8,7 @@ import type { ModuleGroupData } from '@/lib/docs/source/collect-sibling-modules'
 import type { ModuleGridLayout } from '@/lib/docs/source/module-group-config';
 import type { ModuleGridGroupAnchor } from '@/lib/docs/source/module-grid-toc';
 import { groupKeyFromLocationHash } from '@/lib/docs/source/module-grid-toc';
-import { lookupLucideIcon, renderGroupIcon } from '@/lib/docs/source/lucide-group-icon';
+import { renderGroupIcon, renderModuleIcon } from '@/lib/docs/source/lucide-group-icon';
 import type { ModuleIconConfig } from '@/lib/docs/source/module-icon-config';
 import { ModuleCard } from '@/components/docs/mdx/module-card';
 
@@ -20,13 +20,7 @@ const MODULE_CARDS_GRID_CLASS =
   '![grid-template-columns:repeat(auto-fill,minmax(min(100%,20rem),1fr))] gap-4 md:gap-5';
 
 function ModuleCardIcon({ icon }: { icon: ModuleIconConfig }) {
-  const Icon = lookupLucideIcon(icon.comp);
-  if (!Icon) return null;
-  return createElement(Icon, {
-    className: 'size-4',
-    ...(icon.color ? { style: { color: icon.color } } : {}),
-    'aria-hidden': true,
-  });
+  return renderModuleIcon(icon);
 }
 
 function ModuleCardsGrid({

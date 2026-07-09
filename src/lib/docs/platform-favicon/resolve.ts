@@ -6,7 +6,8 @@ export const DEFAULT_TIMEOUT_MS = 15_000;
 export const USER_AGENT = 'Mozilla/5.0 (compatible; RPA-Hero-Docs/1.0)';
 
 const LINK_TAG_RE = /<link\s+([^>]+)>/gi;
-const LINK_ATTR_RE = /(rel|href)\s*=\s*(["'])(.*?)\2/gi;
+// 必须用词边界，避免把 mce_href / data-href 等后缀误当成 href
+const LINK_ATTR_RE = /\b(rel|href)\s*=\s*(["'])(.*?)\2/gi;
 
 export type IconLink = readonly [rel: string, href: string];
 

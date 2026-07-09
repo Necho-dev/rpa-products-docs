@@ -27,9 +27,12 @@ import { inferSiteOrigin } from '@/lib/core/site-origin';
 /** 路由段配置须为静态字面量；按请求做私有文档鉴权也需动态渲染 */
 export const dynamic = 'force-dynamic';
 
-/** 去掉默认 max-w-[900px]，在 grid 主栏内拉满；略减横向 padding 换可读宽度 */
+/**
+ * 去掉默认 max-w-[900px]，在 grid 主栏内拉满；略减横向 padding 换可读宽度。
+ * min-h 对齐文档布局视口高度，配合 DocsBody 的 flex-1，把「最后更新」顶到页面底部。
+ */
 const docsPageArticleClassName =
-  'flex max-w-none w-full flex-col gap-4 px-4 py-6 md:px-5 md:pt-8 xl:px-6 xl:pt-12 xl:layout:[--fd-toc-width:13.5rem]';
+  'flex max-w-none w-full min-h-[calc(var(--fd-docs-height,100dvh)-var(--fd-docs-row-3,0px))] flex-col gap-4 px-4 py-6 md:px-5 md:pt-8 xl:px-6 xl:pt-12 xl:layout:[--fd-toc-width:13.5rem]';
 
 export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
   const params = await props.params;
@@ -109,8 +112,10 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
             a: createRelativeLink(source, page, DocsLink),
           })}
         />
-        {lastModified ? <PageLastUpdate date={lastModified} /> : null}
       </DocsBody>
+      {lastModified ? (
+        <PageLastUpdate date={lastModified} className="mt-auto pt-2" />
+      ) : null}
     </DocsPage>
   );
 }
