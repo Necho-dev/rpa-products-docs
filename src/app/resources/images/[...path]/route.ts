@@ -30,7 +30,7 @@ const DOCS_BASE_DIR = join(process.cwd(), 'content', 'docs');
 /**
  * 仅允许访问的图片扩展名白名单（防止 .md/.json 等非图片文件被访问）。
  */
-const ALLOWED_IMAGE_EXTS = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg']);
+const ALLOWED_IMAGE_EXTS = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'ico']);
 
 /** 根据扩展名返回 Content-Type */
 function mimeFromExt(ext: string): string {
@@ -41,6 +41,7 @@ function mimeFromExt(ext: string): string {
     case 'gif': return 'image/gif';
     case 'webp': return 'image/webp';
     case 'svg': return 'image/svg+xml';
+    case 'ico': return 'image/x-icon';
     default: return 'application/octet-stream';
   }
 }

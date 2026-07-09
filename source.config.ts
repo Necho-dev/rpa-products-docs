@@ -12,6 +12,7 @@ import { remarkSteps } from 'fumadocs-core/mdx-plugins/remark-steps';
 import { remarkMdxJsonSchema } from './src/lib/docs/source/remark-mdx-json-schema';
 import { remarkMdxFieldTree } from './src/lib/docs/source/remark-mdx-field-tree';
 import { remarkMdxDocBlocks } from './src/lib/docs/source/remark-mdx-doc-blocks';
+import { remarkMdxChangelog } from './src/lib/docs/source/remark-mdx-changelog';
 import remarkDirective from 'remark-directive';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -152,6 +153,7 @@ export default defineConfig({
     remarkPlugins: [
       remarkDirective,
       remarkDirectiveAdmonition,
+      remarkMdxChangelog,
       remarkSteps,
       remarkMdxJsonSchema,
       remarkMdxFieldTree,

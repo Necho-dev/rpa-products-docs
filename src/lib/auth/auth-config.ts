@@ -97,14 +97,19 @@ export function resourcesRequireEmbedSign(): boolean {
   return false;
 }
 
+/** 内置免验签前缀（平台 favicon 等共享静态资源） */
+const BUILTIN_RESOURCES_PUBLIC_PREFIXES = ['public/_shared'];
+
 /** 逗号分隔, 相对 `content/docs/` 的路径前缀, 免 embed 验签 (如 `public/images/`) */
 export function resourcesPublicPrefixes(): string[] {
   const raw = trimEnv('DOCS_RESOURCES_PUBLIC_PREFIXES');
-  if (!raw) return [];
-  return raw
-    .split(',')
-    .map((s) => s.trim().replace(/^\/+/, ''))
-    .filter(Boolean);
+  const fromEnv = raw
+    ? raw
+        .split(',')
+        .map((s) => s.trim().replace(/^\/+/, ''))
+        .filter(Boolean)
+    : [];
+  return [...new Set([...BUILTIN_RESOURCES_PUBLIC_PREFIXES, ...fromEnv])];
 }
 
 export function isSecureCookieRequest(request: Request): boolean {

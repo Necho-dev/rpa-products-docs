@@ -2,7 +2,7 @@
 
 import Link from 'fumadocs-core/link';
 import { useCopyButton } from 'fumadocs-ui/utils/use-copy-button';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
 import { Check, Copy, Globe, ImageOff, Loader2, PackagePlus } from 'lucide-react';
 import { cn } from '@/lib/core/cn';
@@ -24,6 +24,8 @@ export type ModuleCardBadge = {
 export type ModuleCardProps = {
   /** 与主标题同一行展示的小图标（可选，用于 connectors/index 等手写页） */
   icon?: ReactNode;
+  /** 站内平台 favicon；加载失败时回退到 icon */
+  faviconUrl?: string;
   /** 卡片主标题 */
   title: string;
   /** 子文档 description，最多展示 2 行 */
@@ -46,6 +48,43 @@ export type ModuleCardProps = {
   minInterval?: MinIntervalMeta;
   className?: string;
 };
+
+function ModuleCardTitleIcon({
+  faviconUrl,
+  icon,
+}: {
+  faviconUrl?: string;
+  icon?: ReactNode;
+}) {
+  const [faviconFailed, setFaviconFailed] = useState(false);
+  const showFavicon = Boolean(faviconUrl) && !faviconFailed;
+
+  if (!showFavicon && !icon) return null;
+
+  return (
+    <span
+      className={cn(
+        'inline-flex size-10 shrink-0 items-center justify-center rounded-xl border border-fd-border/70 bg-fd-muted p-1.5 text-fd-muted-foreground',
+        '[&_svg]:size-5',
+      )}
+    >
+      {showFavicon ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={faviconUrl}
+          alt=""
+          width={24}
+          height={24}
+          referrerPolicy="no-referrer"
+          className="size-6 object-contain"
+          onError={() => setFaviconFailed(true)}
+        />
+      ) : (
+        icon
+      )}
+    </span>
+  );
+}
 
 function isExternalUrl(u: string) {
   return /^https?:\/\//i.test(u);
@@ -224,6 +263,7 @@ function ModuleCardScheduleLine({
 
 function ModuleCardHeader({
   icon,
+  faviconUrl,
   title,
   description,
   badge,
@@ -235,6 +275,7 @@ function ModuleCardHeader({
   code,
 }: {
   icon?: ReactNode;
+  faviconUrl?: string;
   title: string;
   description?: string;
   badge?: ModuleCardBadge;
@@ -247,16 +288,7 @@ function ModuleCardHeader({
 }) {
   const content = (
     <div className="flex items-start gap-2">
-      {icon ? (
-        <span
-          className={cn(
-            'inline-flex size-8 shrink-0 items-center justify-center rounded-lg border border-fd-border/70 bg-fd-muted p-1 text-fd-muted-foreground',
-            '[&_svg]:size-4',
-          )}
-        >
-          {icon}
-        </span>
-      ) : null}
+      <ModuleCardTitleIcon faviconUrl={faviconUrl} icon={icon} />
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">
           <h3
@@ -298,6 +330,7 @@ function ModuleCardHeader({
 
 export function ModuleCard({
   icon,
+  faviconUrl,
   title,
   description,
   href,
@@ -332,6 +365,7 @@ export function ModuleCard({
       ) : null}
       <ModuleCardHeader
         icon={icon}
+        faviconUrl={faviconUrl}
         title={title}
         description={description}
         badge={badge}

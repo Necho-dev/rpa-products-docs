@@ -1,6 +1,8 @@
 import { DocsLink } from '@/components/docs/docs-link';
+import { PlatformFaviconImg } from '@/components/docs/mdx/platform-favicon-img';
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/core/cn';
+import { getCachedPlatformIcon } from '@/lib/docs/platform-favicon/lookup';
 import { BugPlay, ExternalLink, GitPullRequestArrow, Puzzle, UserLock, UserRoundKey, UserStar } from 'lucide-react';
 
 /**
@@ -85,6 +87,8 @@ export function MetaPanel({
   sdkConstraint?: string;
   className?: string;
 }) {
+  const faviconUrl = getCachedPlatformIcon(platformUrl);
+
   return (
     <div
       className={cn(
@@ -107,7 +111,8 @@ export function MetaPanel({
           >
             适用平台
           </RowLabel>
-          <div className="min-w-0 text-sm text-fd-foreground">
+          <div className="flex min-w-0 flex-wrap items-center gap-1.5 text-sm text-fd-foreground">
+            {faviconUrl ? <PlatformFaviconImg src={faviconUrl} /> : null}
             <span className="font-medium">{platform}</span>
             {platformUrl ? (
               <>

@@ -45,6 +45,7 @@ function ModuleCardsGrid({
           href={mod.href}
           code={mod.code}
           url={mod.url}
+          faviconUrl={mod.faviconUrl}
           coverUrl={mod.coverUrl}
           dataReady={mod.dataReady}
           estimatedDuration={mod.estimatedDuration}

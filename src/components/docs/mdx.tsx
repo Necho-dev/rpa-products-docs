@@ -17,6 +17,7 @@ import { SearchOpenCard } from '@/components/docs/mdx/search-open-card';
 import { FieldTreeTable } from '@/components/docs/mdx/field-tree-table';
 import { TableWithExport } from '@/components/docs/mdx/table-export';
 import { DocsLink } from '@/components/docs/docs-link';
+import { ChangelogTimeline, ChangelogEntry } from '@/components/docs/mdx/changelog-timeline';
 
 /** Recursively extract plain text from React node tree (handles shiki span nesting) */
 function extractText(node: React.ReactNode): string {
@@ -91,6 +92,8 @@ export function getMDXComponents(components?: MDXComponents) {
     MetaPanel,
     ModuleGrid,
     FieldTreeTable,
+    ChangelogTimeline,
+    ChangelogEntry,
     table: TableWithExport,
     img: ({ className, ...props }: React.ComponentProps<'img'>) => {
       const isFirst = mdxInlineImageIndex++ === 0;

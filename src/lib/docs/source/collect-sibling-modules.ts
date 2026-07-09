@@ -47,6 +47,8 @@ export type ModuleCardData = {
   code: string;
   icon?: ModuleIconConfig;
   url?: string;
+  /** 站内平台 favicon（/resources/images/public/_shared/...） */
+  faviconUrl?: string;
   coverUrl?: string;
   dataReady?: DataReadyMeta;
   estimatedDuration?: EstimatedDurationMeta;

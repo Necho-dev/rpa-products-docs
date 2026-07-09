@@ -1175,3 +1175,36 @@ html.dark .shared-quote-prompt-btn-default {
   min-width: 0;
 }
 
+
+/* Changelog TOC entry: date muted + title stacked for clearer hierarchy */
+#nd-toc a[href^="#changelog-"] .toc-changelog-entry,
+[data-toc-popover] a[href^="#changelog-"] .toc-changelog-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+#nd-toc a[href^="#changelog-"] .toc-changelog-date,
+[data-toc-popover] a[href^="#changelog-"] .toc-changelog-date {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  color: var(--color-fd-muted-foreground);
+  opacity: 0.85;
+}
+
+#nd-toc a[href^="#changelog-"][data-active="true"] .toc-changelog-date,
+[data-toc-popover] a[href^="#changelog-"][data-active="true"] .toc-changelog-date {
+  color: var(--color-fd-primary);
+  opacity: 0.75;
+}
+
+#nd-toc a[href^="#changelog-"] .toc-changelog-title,
+[data-toc-popover] a[href^="#changelog-"] .toc-changelog-title {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.35;
+}

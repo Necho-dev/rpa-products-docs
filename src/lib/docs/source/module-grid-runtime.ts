@@ -17,6 +17,7 @@ import { normalizeModuleIcon } from '@/lib/docs/source/module-icon-config';
 import { shouldInjectModuleGridTocHeadings } from '@/lib/docs/source/module-grid-toc';
 import { parseMetaPanelPlatformUrl } from '@/lib/docs/source/module-grid-fs-scan';
 import { resolveModuleCoverUrl } from '@/lib/docs/source/resolve-module-cover-url';
+import { getCachedPlatformIcon } from '@/lib/docs/platform-favicon/lookup';
 import type {
   DataReadyMeta,
   EstimatedDurationMeta,
@@ -110,6 +111,16 @@ async function collectModuleGridSiblingInputs(
   return { siblingInputs, packageEntry };
 }
 
+function attachPlatformFavicons(groups: ModuleGroupData[]): ModuleGroupData[] {
+  for (const group of groups) {
+    for (const mod of group.modules) {
+      const faviconUrl = getCachedPlatformIcon(mod.url);
+      if (faviconUrl) mod.faviconUrl = faviconUrl;
+    }
+  }
+  return groups;
+}
+
 export async function collectModuleGridGroups(
   pageSlug: string[],
   groups: Record<string, ModuleGroupConfig | string>,
@@ -121,7 +132,9 @@ export async function collectModuleGridGroups(
     access,
     gridCover,
   );
-  return collectSiblingModuleGroups(siblingInputs, groups, packageEntry);
+  return attachPlatformFavicons(
+    collectSiblingModuleGroups(siblingInputs, groups, packageEntry),
+  );
 }
 
 /**

@@ -1,10 +1,9 @@
 'use client';
 
-import { Check, ChevronDown, Copy, ExternalLinkIcon, TextIcon } from 'lucide-react';
+import { Check, Copy, ScanText } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/core/cn';
 import { buttonVariants } from '@/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from 'fumadocs-ui/components/ui/popover';
 import { safeWriteClipboard } from '@/lib/ui/code-block-utils';
 
 const cache = new Map<string, Promise<string>>();
@@ -16,7 +15,7 @@ const splitButtonClass = buttonVariants({
 });
 
 /**
- * Markdown 工具 Split 按钮：左侧一键复制，右侧下拉 View as Markdown。
+ * Markdown 工具 Split 按钮：左侧一键复制，右侧 ScanText 图标在新标签页 View as Markdown。
  * 复制逻辑使用 safeWriteClipboard，兼容非 HTTPS 环境。
  */
 export function MarkdownActionsButton({
@@ -62,29 +61,19 @@ export function MarkdownActionsButton({
         {checked ? <Check /> : <Copy />}
         {copyLabel}
       </button>
-      <Popover>
-        <PopoverTrigger
-          className={cn(
-            splitButtonClass,
-            'rounded-l-none border-l border-fd-border/60 px-2 data-[state=open]:bg-fd-accent data-[state=open]:text-fd-accent-foreground',
-          )}
-          aria-label="Markdown 更多操作"
-        >
-          <ChevronDown className="size-3.5 text-fd-muted-foreground" />
-        </PopoverTrigger>
-        <PopoverContent className="flex flex-col p-1 min-w-[200px]">
-          <a
-            href={markdownUrl}
-            target="_blank"
-            rel="noreferrer noopener"
-            className="text-sm p-2 rounded-lg inline-flex items-center gap-2 hover:text-fd-accent-foreground hover:bg-fd-accent [&_svg]:size-4"
-          >
-            <TextIcon />
-            View as Markdown
-            <ExternalLinkIcon className="text-fd-muted-foreground size-3.5 ms-auto" />
-          </a>
-        </PopoverContent>
-      </Popover>
+      <a
+        href={markdownUrl}
+        target="_blank"
+        rel="noreferrer noopener"
+        title="View as Markdown"
+        aria-label="View as Markdown"
+        className={cn(
+          splitButtonClass,
+          'rounded-l-none border-l border-fd-border/60 px-2',
+        )}
+      >
+        <ScanText className="size-3.5 text-fd-muted-foreground" />
+      </a>
     </div>
   );
 }
