@@ -6,6 +6,7 @@ import {
   extractStylesheetHrefs,
   normalizeSiteUrl,
   pickIconHref,
+  platformFaviconKey,
   resolvePlatformIcon,
   sniffImageExt,
   type IconLink,
@@ -15,6 +16,16 @@ describe('platform-favicon resolve', () => {
   it('normalizeSiteUrl 补全 https', () => {
     assert.equal(normalizeSiteUrl('example.com'), 'https://example.com');
     assert.equal(normalizeSiteUrl('https://foo.com/path'), 'https://foo.com/path');
+  });
+
+  it('platformFaviconKey 按 origin host 匹配（去协议/路径/尾斜杠）', () => {
+    assert.equal(platformFaviconKey('https://mms.pinduoduo.com/'), 'mms.pinduoduo.com');
+    assert.equal(platformFaviconKey('https://shop.jd.com/jdm/home'), 'shop.jd.com');
+    assert.equal(platformFaviconKey('myseller.taobao.com'), 'myseller.taobao.com');
+    assert.equal(
+      platformFaviconKey('http://example.com:8080/path'),
+      'example.com:8080',
+    );
   });
 
   it('extractIconLinksFromHtml 解析 rel=icon', () => {

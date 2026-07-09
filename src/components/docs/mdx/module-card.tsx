@@ -34,7 +34,7 @@ export type ModuleCardProps = {
   href: string;
   /** 子文档 entry */
   code: string;
-  /** 状态徽标（如 已上线 / 待上线） */
+  /** 状态徽标（任意 label / color，由文档 frontmatter 决定） */
   badge?: ModuleCardBadge;
   /** 平台/后台入口（可选，用于 connectors/index 等手写页） */
   url?: string;
@@ -399,7 +399,7 @@ export function ModuleCard({
           <div className="flex min-w-0 items-center gap-1.5 rounded-lg border border-fd-border/60 bg-fd-muted/30 px-2 py-1">
             <span
               className="inline-flex size-6 shrink-0 items-center justify-center rounded-md border border-fd-border/60 bg-fd-muted/40 text-fd-muted-foreground"
-              title="平台入口"
+              title="平台主页"
               aria-hidden
             >
               <Globe className="size-3.5" />

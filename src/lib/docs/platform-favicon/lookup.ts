@@ -3,7 +3,7 @@ import 'server-only';
 import { readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import type { PlatformFaviconManifest } from '@/lib/docs/platform-favicon/types';
-import { normalizeSiteUrl } from '@/lib/docs/platform-favicon/resolve';
+import { platformFaviconKey } from '@/lib/docs/platform-favicon/resolve';
 
 const MANIFEST_PATH = path.join(
   process.cwd(),
@@ -49,7 +49,7 @@ export function platformFaviconResourceUrl(relativeFile: string): string {
 }
 
 /**
- * 根据 platformUrl 返回站内 favicon URL；无映射时返回 undefined。
+ * 根据 platformUrl 返回站内 favicon URL；按 origin host 匹配，无映射时返回 undefined。
  */
 export function getCachedPlatformIcon(platformUrl: string | undefined | null): string | undefined {
   if (!platformUrl?.trim()) return undefined;
@@ -58,7 +58,7 @@ export function getCachedPlatformIcon(platformUrl: string | undefined | null): s
 
   let key: string;
   try {
-    key = normalizeSiteUrl(platformUrl);
+    key = platformFaviconKey(platformUrl);
   } catch {
     return undefined;
   }

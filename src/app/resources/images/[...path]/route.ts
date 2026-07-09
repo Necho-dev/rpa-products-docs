@@ -20,8 +20,8 @@ export const runtime = 'nodejs';
  * URL 与文件系统映射规则：
  * - `/resources/images/public/images/qianniu/foo.png`
  *     → `content/docs/public/images/qianniu/foo.png`   （公共图片目录，旧格式兼容）
- * - `/resources/images/connectors/rpa-conn-alimm-all/foo.png`
- *     → `content/docs/connectors/rpa-conn-alimm-all/foo.png`  （连接器目录内图片）
+ * - `/resources/images/connectors/RPA_ALIMM/foo.png`
+ *     → `content/docs/connectors/RPA_ALIMM/foo.png`  （连接器目录内图片）
  *
  * 安全限制：只允许访问图片扩展名文件，防止 .md / .json 等文档源码泄露。
  */

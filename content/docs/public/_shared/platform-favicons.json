@@ -1,50 +1,50 @@
 {
-  "generatedAt": "2026-07-09T06:44:20.135Z",
+  "generatedAt": "2026-07-09T11:43:40.383Z",
   "icons": {
-    "https://fxg.jinritemai.com": {
+    "fxg.jinritemai.com": {
       "host": "fxg.jinritemai.com",
       "file": "favicons/fxg.jinritemai.com.ico",
       "sourceIcon": "https://fxg.jinritemai.com/favicon.ico"
     },
-    "https://jdsz.jd.com": {
+    "jdsz.jd.com": {
       "host": "jdsz.jd.com",
       "file": "favicons/jdsz.jd.com.ico",
       "sourceIcon": "https://storage.360buyimg.com/sz-resource/szweb/static/img/favicon-29929a73.ico"
     },
-    "https://mms.pinduoduo.com/": {
+    "mms.pinduoduo.com": {
       "host": "mms.pinduoduo.com",
       "file": "favicons/mms.pinduoduo.com.ico",
       "sourceIcon": "https://mms.pinduoduo.com/login/favicon.ico"
     },
-    "https://myseller.taobao.com": {
+    "myseller.taobao.com": {
       "host": "myseller.taobao.com",
       "file": "favicons/myseller.taobao.com.png",
       "sourceIcon": "https://g.alicdn.com/qn/qn-login-page/0.0.18/favicon.png"
     },
-    "https://qianchuan.jinritemai.com": {
-      "host": "qianchuan.jinritemai.com",
-      "file": "favicons/qianchuan.jinritemai.com.ico",
-      "sourceIcon": "https://lf1-cdn2-tos.bytegoofy.com/ad/ecom_marketing_fe/favicon.ico"
-    },
-    "https://shop.jd.com/jdm/home": {
+    "shop.jd.com": {
       "host": "shop.jd.com",
       "file": "favicons/shop.jd.com.ico",
       "sourceIcon": "https://www.jd.com/favicon.ico"
     },
-    "https://stark.dewu.com": {
+    "stark.dewu.com": {
       "host": "stark.dewu.com",
-      "file": "favicons/stark.dewu.com.ico",
+      "file": "favicons/stark.dewu.com.png",
       "sourceIcon": "https://h5static.dewu.com/stark-web/5.77.4/favicon.ico"
     },
-    "https://sycm.taobao.com": {
+    "sycm.taobao.com": {
       "host": "sycm.taobao.com",
       "file": "favicons/sycm.taobao.com.ico",
       "sourceIcon": "https://img.alicdn.com/tps/TB14m1NKFXXXXXMaXXXXXXXXXXX-48-48.ico"
     },
-    "https://www.alimama.com": {
+    "www.alimama.com": {
       "host": "www.alimama.com",
       "file": "favicons/www.alimama.com.png",
       "sourceIcon": "https://img.alicdn.com/imgextra/i3/O1CN01Wp37a71mYTZB6acBX_!!6000000004966-2-tps-50-50.png"
+    },
+    "www.oceanengine.com": {
+      "host": "www.oceanengine.com",
+      "file": "favicons/www.oceanengine.com.png",
+      "sourceIcon": "https://p6-addone.byteimg.com/tos-cn-i-hhc0kcolqq/ad_growth/c3a9bb92ccd571eb305e5c93c5bbc6ec.ico~tplv-hhc0kcolqq-image.image"
     }
   }
 }

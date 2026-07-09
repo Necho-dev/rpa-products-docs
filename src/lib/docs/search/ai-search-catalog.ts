@@ -142,9 +142,9 @@ export function scoreTopicHit(hit: SearchHitWithKeywords, topicKeywords: string[
   return points;
 }
 
-/** 连接器包级 hub（如 /docs/connectors/rpa-conn-qianniu-all） */
+/** 连接器平台级 hub（如 /docs/connectors/RPA_QIANNIU） */
 export function isConnectorPackHubUrl(url: string): boolean {
-  return /^\/docs\/connectors\/rpa-conn-[^/]+-all$/.test(url);
+  return /^\/docs\/connectors\/RPA_[A-Z0-9_]+$/.test(url);
 }
 
 /**
@@ -174,7 +174,7 @@ export function filterHitsByTopicScope(
 function resolveExpandFolderUrl(best: CatalogPage, catalog: CatalogPage[]): string {
   if (isConnectorPackHub(best)) return best.url;
 
-  if (best.url.includes('/connectors/rpa-conn-')) {
+  if (best.url.includes('/connectors/RPA_')) {
     const hub = catalog.find((p) => p.url === best.folderUrl && isConnectorPackHub(p));
     if (hub) return hub.url;
   }
@@ -183,8 +183,8 @@ function resolveExpandFolderUrl(best: CatalogPage, catalog: CatalogPage[]): stri
 }
 
 function isConnectorPackHub(page: CatalogPage): boolean {
-  if (!page.entry || !page.url.includes('/connectors/rpa-conn-')) return false;
-  // 包级 hub（如 rpa-conn-qianniu-all/index）URL 不再包含子路径；子连接器也有 entry 但不应作为目录扩展根
+  if (!page.entry || !page.url.includes('/connectors/RPA_')) return false;
+  // 平台级 hub（如 RPA_QIANNIU/index）URL 不再包含子路径；子连接器也有 entry 但不应作为目录扩展根
   return !page.url.replace(/^\/docs\/connectors\//, '').includes('/');
 }
 

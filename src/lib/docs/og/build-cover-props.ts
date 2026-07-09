@@ -33,13 +33,10 @@ async function resolveParentGroupContext(page: Page) {
   const parsed = parseModuleGridBlockFromRaw(indexRaw, indexPage.path);
   if (!parsed) return {};
 
-  const packageEntry =
-    ((indexPage.data as PageExtras).entry?.trim()) || slugBasename(parentSlugs);
-
   return resolveModuleGroupYamlContext({
     slug: slugBasename(page.slugs),
+    entry: (page.data as PageExtras).entry,
     moduleGroup: (page.data as PageExtras).moduleGroup,
-    packageEntry,
     groupsYaml: parsed.groups,
   });
 }

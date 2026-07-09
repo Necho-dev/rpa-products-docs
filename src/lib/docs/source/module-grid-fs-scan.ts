@@ -3,8 +3,6 @@ import path from 'node:path';
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 import {
   collectSiblingModuleGroups,
-  inferGroupKeyFromFilename,
-  OTHER_GROUP_KEY,
   type ModuleGroupData,
   type SiblingModuleInput,
 } from '@/lib/docs/source/collect-sibling-modules';
@@ -18,7 +16,8 @@ export type ScannedSiblingModule = {
   title: string;
   entry?: string;
   moduleGroup?: string;
-  groupKey: string;
+  /** frontmatter `badge`；任意 label，不做业务枚举限制 */
+  badge?: { label: string; color?: string };
 };
 
 const META_PANEL_BLOCK_RE = /:::meta-panel\r?\n([\s\S]*?)\r?\n:::/;
@@ -37,7 +36,6 @@ function parseFrontmatter(raw: string): Record<string, unknown> {
 function readSiblingModuleFromMarkdownFile(
   slug: string,
   filePath: string,
-  packageEntry: string,
 ): ScannedSiblingModule | null {
   let raw: string;
   try {
@@ -51,23 +49,33 @@ function readSiblingModuleFromMarkdownFile(
   const entry = typeof fm.entry === 'string' ? fm.entry : undefined;
   const moduleGroup =
     typeof fm.moduleGroup === 'string' ? fm.moduleGroup : undefined;
-  const groupKey =
-    moduleGroup?.trim() ||
-    inferGroupKeyFromFilename(slug, packageEntry) ||
-    OTHER_GROUP_KEY;
+
+  let badge: ScannedSiblingModule['badge'];
+  const rawBadge = fm.badge;
+  if (rawBadge && typeof rawBadge === 'object' && !Array.isArray(rawBadge)) {
+    const b = rawBadge as { label?: unknown; color?: unknown };
+    if (typeof b.label === 'string' && b.label.trim()) {
+      badge = {
+        label: b.label.trim(),
+        color:
+          typeof b.color === 'string' && b.color.trim()
+            ? b.color.trim()
+            : undefined,
+      };
+    }
+  }
 
   return {
     slug,
     title,
     entry,
     moduleGroup,
-    groupKey,
+    badge,
   };
 }
 
 export function scanSiblingMarkdownModulesSync(
   indexFilePath: string,
-  packageEntry: string,
 ): ScannedSiblingModule[] {
   const dir = path.dirname(indexFilePath);
   let names: string[];
@@ -85,7 +93,7 @@ export function scanSiblingMarkdownModulesSync(
 
     const slug = name.replace(/\.mdx?$/, '');
     const filePath = path.join(dir, name);
-    const module = readSiblingModuleFromMarkdownFile(slug, filePath, packageEntry);
+    const module = readSiblingModuleFromMarkdownFile(slug, filePath);
     if (module) modules.push(module);
   }
 
@@ -114,8 +122,8 @@ export function scanCatalogPackageIndexModulesSync(
     const indexMdx = path.join(dir, slug, 'index.mdx');
 
     const module =
-      readSiblingModuleFromMarkdownFile(slug, indexMd, slug) ??
-      readSiblingModuleFromMarkdownFile(slug, indexMdx, slug);
+      readSiblingModuleFromMarkdownFile(slug, indexMd) ??
+      readSiblingModuleFromMarkdownFile(slug, indexMdx);
     if (module) modules.push(module);
   }
 
@@ -124,20 +132,10 @@ export function scanCatalogPackageIndexModulesSync(
 
 export function scanModuleGridModulesSync(
   indexFilePath: string,
-  packageEntry: string,
 ): ScannedSiblingModule[] {
-  const flat = scanSiblingMarkdownModulesSync(indexFilePath, packageEntry);
+  const flat = scanSiblingMarkdownModulesSync(indexFilePath);
   if (flat.length > 0) return flat;
   return scanCatalogPackageIndexModulesSync(indexFilePath);
-}
-
-export function resolveEffectivePackageEntry(
-  packageEntry: string | undefined,
-  pageSlug: string[],
-): string {
-  const trimmed = packageEntry?.trim();
-  if (trimmed) return trimmed;
-  return pageSlug.length > 0 ? pageSlug[pageSlug.length - 1]! : '';
 }
 
 function scannedModulesToSiblingInputs(
@@ -172,10 +170,9 @@ export function parseMetaPanelPlatformUrl(content: string): string | undefined {
 export function collectModuleGridGroupsFromScan(
   modules: ScannedSiblingModule[],
   groupsYaml: Record<string, ModuleGroupConfig | string>,
-  packageEntry: string,
 ): ModuleGroupData[] {
   const inputs = scannedModulesToSiblingInputs(modules);
-  return collectSiblingModuleGroups(inputs, groupsYaml, packageEntry);
+  return collectSiblingModuleGroups(inputs, groupsYaml);
 }
 
 export function readPackageEntryFromFileContent(content: string): string | undefined {

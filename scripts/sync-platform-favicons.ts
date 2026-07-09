@@ -21,6 +21,7 @@ import {
   downloadIcon,
   hostFromPageUrl,
   normalizeSiteUrl,
+  platformFaviconKey,
   resolvePlatformIcon,
   SERVABLE_IMAGE_EXTS,
 } from '../src/lib/docs/platform-favicon/resolve';
@@ -43,6 +44,13 @@ const FORCE =
 
 type SyncStatus = 'added' | 'skipped' | 'deferred' | 'failed';
 
+type PlatformTarget = {
+  /** manifest / 匹配用：origin host */
+  key: string;
+  /** 抓取用：规范化后的完整 platformUrl */
+  pageUrl: string;
+};
+
 function parseCliIconOverrides(argv: string[]): Map<string, string> {
   const map = new Map<string, string>();
   for (let i = 0; i < argv.length; i += 1) {
@@ -56,7 +64,7 @@ function parseCliIconOverrides(argv: string[]): Map<string, string> {
         continue;
       }
       try {
-        const platform = normalizeSiteUrl(raw.slice(0, eq));
+        const platform = platformFaviconKey(raw.slice(0, eq));
         const icon = raw.slice(eq + 1).trim();
         if (!icon) {
           console.warn(`忽略空图标 URL：${raw}`);
@@ -73,7 +81,7 @@ function parseCliIconOverrides(argv: string[]): Map<string, string> {
       const eq = raw.indexOf('=');
       if (eq <= 0) continue;
       try {
-        map.set(normalizeSiteUrl(raw.slice(0, eq)), raw.slice(eq + 1).trim());
+        map.set(platformFaviconKey(raw.slice(0, eq)), raw.slice(eq + 1).trim());
       } catch {
         // ignore
       }
@@ -84,8 +92,8 @@ function parseCliIconOverrides(argv: string[]): Map<string, string> {
 
 const CLI_ICON_OVERRIDES = parseCliIconOverrides(process.argv.slice(2));
 
-async function collectPlatformUrls(): Promise<string[]> {
-  const urls = new Set<string>();
+async function collectPlatformTargets(): Promise<PlatformTarget[]> {
+  const byKey = new Map<string, PlatformTarget>();
   let entries: string[];
   try {
     entries = await readdir(CONNECTORS_DIR);
@@ -106,14 +114,18 @@ async function collectPlatformUrls(): Promise<string[]> {
       const platformUrl = parseMetaPanelPlatformUrl(raw);
       if (!platformUrl) continue;
       try {
-        urls.add(normalizeSiteUrl(platformUrl));
+        const pageUrl = normalizeSiteUrl(platformUrl);
+        const key = platformFaviconKey(pageUrl);
+        if (!byKey.has(key)) {
+          byKey.set(key, { key, pageUrl });
+        }
       } catch (err) {
         console.warn(`[skip] invalid platformUrl in ${filePath}: ${platformUrl}`, err);
       }
     }
   }
 
-  return [...urls].sort();
+  return [...byKey.values()].sort((a, b) => a.key.localeCompare(b.key));
 }
 
 async function loadManifest(): Promise<PlatformFaviconManifest> {
@@ -136,8 +148,8 @@ function pickServableExt(ext: string): string | null {
   return null;
 }
 
-async function promptIconUrl(pageUrl: string): Promise<string | null> {
-  const fromCli = CLI_ICON_OVERRIDES.get(pageUrl);
+async function promptIconUrl(key: string, pageUrl: string): Promise<string | null> {
+  const fromCli = CLI_ICON_OVERRIDES.get(key);
   if (fromCli) {
     console.log(`  使用 --icon 提供的地址：${fromCli}`);
     return fromCli;
@@ -153,7 +165,7 @@ async function promptIconUrl(pageUrl: string): Promise<string | null> {
   const rl = createInterface({ input, output });
   try {
     console.log('');
-    console.log(`  未能自动解析平台图标：${pageUrl}`);
+    console.log(`  未能自动解析平台图标：${pageUrl}（key=${key}）`);
     console.log('  请粘贴图标直链（png/ico/svg/webp/jpg），直接回车则跳过并使用 Lucide 兜底。');
     const answer = (await rl.question('  图标 URL> ')).trim();
     return answer || null;
@@ -196,12 +208,13 @@ async function downloadAndStore(
 }
 
 async function syncOne(
-  pageUrl: string,
+  target: PlatformTarget,
   existing: PlatformFaviconEntry | undefined,
 ): Promise<{ status: SyncStatus; entry?: PlatformFaviconEntry; error?: string }> {
-  const cliIcon = CLI_ICON_OVERRIDES.get(pageUrl);
+  const { key, pageUrl } = target;
+  const cliIcon = CLI_ICON_OVERRIDES.get(key);
 
-  // 已有映射且未 --force、也未对该 URL 传 --icon → 跳过
+  // 已有映射且未 --force、也未对该 host 传 --icon → 跳过
   if (!FORCE && !cliIcon && existing?.file) {
     return { status: 'skipped', entry: existing };
   }
@@ -217,7 +230,7 @@ async function syncOne(
     }
 
     if (!iconUrl) {
-      iconUrl = await promptIconUrl(pageUrl);
+      iconUrl = await promptIconUrl(key, pageUrl);
       if (!iconUrl) {
         return { status: 'deferred' };
       }
@@ -229,7 +242,7 @@ async function syncOne(
     const message = err instanceof Error ? err.message : String(err);
 
     // 自动解析到了 URL 但下载失败时，也允许用户改填
-    const manual = await promptIconUrl(pageUrl);
+    const manual = await promptIconUrl(key, pageUrl);
     if (!manual) {
       return { status: 'deferred', error: message };
     }
@@ -244,15 +257,24 @@ async function syncOne(
 }
 
 async function main() {
-  const urls = await collectPlatformUrls();
-  if (urls.length === 0) {
+  const targets = await collectPlatformTargets();
+  if (targets.length === 0) {
     console.log('未找到任何 platformUrl，退出。');
     return;
   }
 
   await mkdir(FAVICONS_DIR, { recursive: true });
   const manifest = await loadManifest();
-  const nextIcons: Record<string, PlatformFaviconEntry> = { ...manifest.icons };
+  // 兼容旧 manifest（key 为完整 URL）：迁移为 host key
+  const nextIcons: Record<string, PlatformFaviconEntry> = {};
+  for (const [rawKey, entry] of Object.entries(manifest.icons)) {
+    try {
+      const key = platformFaviconKey(rawKey.includes('://') ? rawKey : `https://${rawKey}`);
+      nextIcons[key] = entry;
+    } catch {
+      nextIcons[rawKey] = entry;
+    }
+  }
 
   let added = 0;
   let skipped = 0;
@@ -260,40 +282,40 @@ async function main() {
   let failed = 0;
 
   console.log(
-    `同步平台 favicon：共 ${urls.length} 个 URL${FORCE ? '（--force）' : '（增量）'}`,
+    `同步平台 favicon：共 ${targets.length} 个 origin${FORCE ? '（--force）' : '（增量）'}`,
   );
   if (CLI_ICON_OVERRIDES.size > 0) {
     console.log(`CLI --icon 覆盖：${CLI_ICON_OVERRIDES.size} 条`);
   }
 
-  for (const pageUrl of urls) {
-    const result = await syncOne(pageUrl, nextIcons[pageUrl]);
+  for (const target of targets) {
+    const result = await syncOne(target, nextIcons[target.key]);
     if (result.status === 'skipped') {
       skipped += 1;
-      console.log(`  skip     ${pageUrl}`);
+      console.log(`  skip     ${target.key}`);
       continue;
     }
     if (result.status === 'deferred') {
       deferred += 1;
-      delete nextIcons[pageUrl];
+      delete nextIcons[target.key];
       console.warn(
-        `  deferred ${pageUrl}（未提供图标，页面将使用 Lucide 兜底）`,
+        `  deferred ${target.key}（未提供图标，页面将使用 Lucide 兜底）`,
       );
       continue;
     }
     if (result.status === 'failed') {
       failed += 1;
-      console.warn(`  fail     ${pageUrl}: ${result.error}`);
+      console.warn(`  fail     ${target.key}: ${result.error}`);
       continue;
     }
     added += 1;
-    nextIcons[pageUrl] = result.entry!;
-    console.log(`  add      ${pageUrl} → ${result.entry!.file}`);
+    nextIcons[target.key] = result.entry!;
+    console.log(`  add      ${target.key} → ${result.entry!.file}`);
   }
 
   const pruned: Record<string, PlatformFaviconEntry> = {};
-  for (const pageUrl of urls) {
-    if (nextIcons[pageUrl]) pruned[pageUrl] = nextIcons[pageUrl]!;
+  for (const target of targets) {
+    if (nextIcons[target.key]) pruned[target.key] = nextIcons[target.key]!;
   }
 
   const out: PlatformFaviconManifest = {

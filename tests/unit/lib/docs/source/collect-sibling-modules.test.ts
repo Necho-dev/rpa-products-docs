@@ -3,32 +3,74 @@ import assert from 'node:assert/strict';
 import {
   collectSiblingModuleGroups,
   capitalizeGroupKey,
-  inferGroupKeyFromFilename,
+  inferGroupKeyByKeyword,
   OTHER_GROUP_KEY,
   OTHER_GROUP_LABEL,
-  packageEntryToFilenamePrefix,
   resolveGroupBucket,
   resolveModuleGroupYamlContext,
+  tokenizeModuleIdentifier,
 } from '@/lib/docs/source/collect-sibling-modules';
 
-describe('packageEntryToFilenamePrefix', () => {
-  it('strips -all suffix', () => {
-    assert.equal(packageEntryToFilenamePrefix('rpa-conn-qianniu-all'), 'rpa-conn-qianniu-');
+describe('tokenizeModuleIdentifier', () => {
+  it('splits slug by hyphen and entry by dot', () => {
+    assert.deepEqual(
+      new Set(
+        tokenizeModuleIdentifier(
+          'rpa-conn-alimm-ppxx-data-center',
+          'rpa.conn.alimm.ppxx.data.center',
+        ),
+      ),
+      new Set([
+        'rpa',
+        'conn',
+        'alimm',
+        'ppxx',
+        'data',
+        'center',
+      ]),
+    );
   });
 });
 
-describe('inferGroupKeyFromFilename', () => {
-  it('extracts first segment after package prefix', () => {
+describe('inferGroupKeyByKeyword', () => {
+  it('matches YAML group keys against slug/entry tokens in declaration order', () => {
     assert.equal(
-      inferGroupKeyFromFilename(
+      inferGroupKeyByKeyword(
         'rpa-conn-qianniu-item-price-flow-limit',
-        'rpa-conn-qianniu-all',
+        'rpa.conn.qianniu.item.price.flow.limit',
+        ['item', 'shop'],
       ),
       'item',
     );
     assert.equal(
-      inferGroupKeyFromFilename('rpa-conn-alimm-ppxx-foo', 'rpa-conn-alimm-all'),
+      inferGroupKeyByKeyword(
+        'rpa-conn-alimm-ppxx-foo',
+        'rpa.conn.alimm.ppxx.foo',
+        ['pxb', 'wxt', 'ppxx', 'tblm', 'dmp'],
+      ),
       'ppxx',
+    );
+  });
+
+  it('returns undefined when no group key token is present', () => {
+    assert.equal(
+      inferGroupKeyByKeyword(
+        'rpa-conn-qianniu-marketing-foo',
+        'rpa.conn.qianniu.marketing.foo',
+        ['item', 'shop'],
+      ),
+      undefined,
+    );
+  });
+
+  it('prefers earlier YAML keys when multiple tokens match', () => {
+    assert.equal(
+      inferGroupKeyByKeyword(
+        'rpa-conn-demo-item-shop-mix',
+        'rpa.conn.demo.item.shop.mix',
+        ['shop', 'item'],
+      ),
+      'shop',
     );
   });
 });
@@ -62,10 +104,10 @@ describe('resolveGroupBucket', () => {
 });
 
 describe('resolveModuleGroupYamlContext', () => {
-  it('returns label and icon from parent module-grid YAML', () => {
+  it('returns label and icon from parent module-grid YAML via keyword match', () => {
     const ctx = resolveModuleGroupYamlContext({
       slug: 'rpa-conn-qianniu-item-foo',
-      packageEntry: 'rpa-conn-qianniu-all',
+      entry: 'rpa.conn.qianniu.item.foo',
       groupsYaml: {
         item: { label: '商品/Item', icon: { comp: 'ShoppingBag', color: '#ea580c' } },
       },
@@ -80,7 +122,7 @@ describe('resolveModuleGroupYamlContext', () => {
   it('falls back to Package icon when group has no icon', () => {
     const ctx = resolveModuleGroupYamlContext({
       slug: 'rpa-conn-qianniu-shop-foo',
-      packageEntry: 'rpa-conn-qianniu-all',
+      entry: 'rpa.conn.qianniu.shop.foo',
       groupsYaml: { shop: { label: '店铺/Shop' } },
     });
     assert.deepEqual(ctx.icon, { comp: 'Package' });
@@ -93,7 +135,7 @@ describe('collectSiblingModuleGroups', () => {
     shop: { label: '店铺/Shop' },
   };
 
-  it('uses YAML labels for inferred keys', () => {
+  it('uses YAML labels for keyword-inferred keys', () => {
     const result = collectSiblingModuleGroups(
       [
         {
@@ -104,7 +146,6 @@ describe('collectSiblingModuleGroups', () => {
         },
       ],
       groupsYaml,
-      'rpa-conn-qianniu-all',
     );
     assert.equal(result.length, 1);
     assert.equal(result[0]!.key, 'item');
@@ -123,12 +164,11 @@ describe('collectSiblingModuleGroups', () => {
         },
       ],
       { shop: '店铺/Shop' },
-      'rpa-conn-qianniu-all',
     );
     assert.equal(result[0]!.label, '店铺/Shop');
   });
 
-  it('puts inferred unknown keys into Other', () => {
+  it('puts unmatched modules into Other', () => {
     const result = collectSiblingModuleGroups(
       [
         {
@@ -139,7 +179,6 @@ describe('collectSiblingModuleGroups', () => {
         },
       ],
       groupsYaml,
-      'rpa-conn-qianniu-all',
     );
     assert.equal(result.length, 1);
     assert.equal(result[0]!.key, OTHER_GROUP_KEY);
@@ -158,7 +197,6 @@ describe('collectSiblingModuleGroups', () => {
         },
       ],
       groupsYaml,
-      'rpa-conn-alimm-all',
     );
     assert.equal(result.length, 1);
     assert.equal(result[0]!.key, 'ppxx');
@@ -175,7 +213,6 @@ describe('collectSiblingModuleGroups', () => {
         },
       ],
       groupsYaml,
-      'rpa-conn-qianniu-all',
     );
     assert.equal(result.length, 0);
   });
@@ -203,7 +240,6 @@ describe('collectSiblingModuleGroups', () => {
         },
       ],
       groupsYaml,
-      'rpa-conn-qianniu-all',
     );
     assert.deepEqual(
       result.map((g) => g.key),
@@ -223,7 +259,6 @@ describe('collectSiblingModuleGroups', () => {
         },
       ],
       groupsYaml,
-      'rpa-conn-qianniu-all',
     );
     assert.equal(result[0]!.modules[0]!.title, 'Short');
   });
@@ -232,9 +267,9 @@ describe('collectSiblingModuleGroups', () => {
     const result = collectSiblingModuleGroups(
       [
         {
-          slug: 'rpa-conn-qianniu-all',
+          slug: 'RPA_QIANNIU',
           title: '千牛',
-          entry: 'rpa-conn-qianniu-all',
+          entry: 'RPA_QIANNIU',
           moduleGroup: 'taobao',
           moduleIcon: { comp: 'Bot', color: '#0284c7' },
           moduleUrl: 'https://myseller.taobao.com',
@@ -242,7 +277,6 @@ describe('collectSiblingModuleGroups', () => {
         },
       ],
       { taobao: { label: '淘宝 / 天猫' } },
-      'connectors',
     );
     const card = result[0]!.modules[0]!;
     assert.deepEqual(card.icon, { comp: 'Bot', color: '#0284c7' });
@@ -253,16 +287,15 @@ describe('collectSiblingModuleGroups', () => {
     const result = collectSiblingModuleGroups(
       [
         {
-          slug: 'rpa-conn-qianniu-all',
+          slug: 'RPA_QIANNIU',
           title: '千牛',
-          entry: 'rpa-conn-qianniu-all',
+          entry: 'RPA_QIANNIU',
           moduleGroup: 'taobao',
           moduleIcon: { comp: 'Bot' },
           groupExplicit: true,
         },
       ],
       { taobao: { label: '淘宝 / 天猫' } },
-      'connectors',
     );
     assert.deepEqual(result[0]!.modules[0]!.icon, { comp: 'Bot' });
   });
@@ -274,16 +307,15 @@ describe('collectSiblingModuleGroups', () => {
           slug: 'rpa-conn-qianniu-item-a',
           title: 'I',
           entry: 'rpa.conn.qianniu.item.a',
-          coverUrl: '/og/docs/connectors/rpa-conn-qianniu-all/rpa-conn-qianniu-item-a/cover.png',
+          coverUrl: '/og/docs/connectors/RPA_QIANNIU/rpa-conn-qianniu-item-a/cover.png',
           groupExplicit: false,
         },
       ],
       groupsYaml,
-      'rpa-conn-qianniu-all',
     );
     assert.equal(
       result[0]!.modules[0]!.coverUrl,
-      '/og/docs/connectors/rpa-conn-qianniu-all/rpa-conn-qianniu-item-a/cover.png',
+      '/og/docs/connectors/RPA_QIANNIU/rpa-conn-qianniu-item-a/cover.png',
     );
   });
 });

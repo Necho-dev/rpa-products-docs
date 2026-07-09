@@ -1,23 +1,19 @@
 ---
 title: RPA 连接器
-description: 按平台/应用的 RPA 连接器集合包，按照 PyPI 包划分模块
+description: 按平台代码划分的 RPA 连接器集合
 ---
 
 :::module-grid
 layout: stack
 cover: false
 taobao:
-  label: 淘宝 / 天猫
+  label: 淘系
 pinduoduo:
   label: 拼多多
-dewu:
-  label: 得物
 doudian:
   label: 抖店
-juliang:
-  label: 巨量
-jdsz:
-  label: 京东商智
-jingmai:
-  label: 京麦
+jingdong:
+  label: 京东
+dewu:
+  label: 得物
 :::

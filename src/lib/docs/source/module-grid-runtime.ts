@@ -48,12 +48,7 @@ async function collectModuleGridSiblingInputs(
   pageSlug: string[],
   access: DocAccessContext,
   gridCover: boolean,
-): Promise<{ siblingInputs: SiblingModuleInput[]; packageEntry: string }> {
-  const indexPage = source.getPage(pageSlug);
-  const packageEntry =
-    (indexPage?.data as PageExtras | undefined)?.entry?.trim() ||
-    slugBasename(pageSlug);
-
+): Promise<SiblingModuleInput[]> {
   const siblingInputs: SiblingModuleInput[] = [];
   const prefix = pageSlug.join('/');
 
@@ -108,7 +103,7 @@ async function collectModuleGridSiblingInputs(
 
   siblingInputs.sort((a, b) => a.slug.localeCompare(b.slug));
 
-  return { siblingInputs, packageEntry };
+  return siblingInputs;
 }
 
 function attachPlatformFavicons(groups: ModuleGroupData[]): ModuleGroupData[] {
@@ -127,14 +122,12 @@ export async function collectModuleGridGroups(
   access: DocAccessContext,
   gridCover = false,
 ): Promise<ModuleGroupData[]> {
-  const { siblingInputs, packageEntry } = await collectModuleGridSiblingInputs(
+  const siblingInputs = await collectModuleGridSiblingInputs(
     pageSlug,
     access,
     gridCover,
   );
-  return attachPlatformFavicons(
-    collectSiblingModuleGroups(siblingInputs, groups, packageEntry),
-  );
+  return attachPlatformFavicons(collectSiblingModuleGroups(siblingInputs, groups));
 }
 
 /**

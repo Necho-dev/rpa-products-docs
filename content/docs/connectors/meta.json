@@ -2,14 +2,14 @@
   "title": "RPA 连接器",
   "icon": "Bot",
   "pages": [
-    "./rpa-conn-qianniu-all",
-    "./rpa-conn-sycm-all",
-    "./rpa-conn-pinduoduo-all",
-    "./rpa-conn-doudian-all",
-    "./rpa-conn-alimm-all",
-    "./rpa-conn-dewu-all",
-    "./rpa-conn-juliang-all",
-    "./rpa-conn-jdsz-all",
-    "./rpa-conn-jingmai-all"
+    "./RPA_QIANNIU",
+    "./RPA_SYCM",
+    "./RPA_PINDUODUO",
+    "./RPA_DOUDIAN",
+    "./RPA_ALIMM",
+    "./RPA_DEWU",
+    "./RPA_JULIANG",
+    "./RPA_JDSZ",
+    "./RPA_JINGMAI"
   ]
 }

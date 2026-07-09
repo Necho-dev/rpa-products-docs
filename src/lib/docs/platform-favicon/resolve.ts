@@ -91,6 +91,16 @@ export function normalizeSiteUrl(url: string): string {
   return raw;
 }
 
+/**
+ * favicon 映射 key：站点 origin 的 host（含非默认端口），不含协议与路径。
+ * - `https://mms.pinduoduo.com/` → `mms.pinduoduo.com`
+ * - `https://shop.jd.com/jdm/home` → `shop.jd.com`
+ */
+export function platformFaviconKey(url: string): string {
+  const pageUrl = normalizeSiteUrl(url);
+  return new URL(pageUrl).host;
+}
+
 export function originFaviconUrl(pageUrl: string): string {
   const parsed = new URL(pageUrl);
   return `${parsed.protocol}//${parsed.host}/favicon.ico`;
@@ -435,5 +445,5 @@ export async function downloadIcon(
 }
 
 export function hostFromPageUrl(pageUrl: string): string {
-  return new URL(normalizeSiteUrl(pageUrl)).host;
+  return platformFaviconKey(pageUrl);
 }

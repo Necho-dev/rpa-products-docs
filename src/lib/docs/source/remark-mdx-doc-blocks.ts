@@ -10,20 +10,21 @@ import {
   jsxExpressionAttribute,
   jsxStringAttribute,
 } from '@/lib/docs/source/mdx-jsx-ast';
-import { formatModuleGridDirectiveWithModules } from '@/lib/docs/source/module-grid-fs-scan';
+import { aggregateConnectorBadgeStats } from '@/lib/docs/source/connector-badge-stats';
+import type { ConnectorBadgeStat } from '@/lib/docs/source/connector-badge-stats';
+import {
+  collectModuleGridGroupsFromScan,
+  formatModuleGridDirectiveWithModules,
+  pageSlugFromDocFile,
+  scanModuleGridModulesSync,
+  scanSiblingMarkdownModulesSync,
+} from '@/lib/docs/source/module-grid-fs-scan';
 import { parseModuleGridDirectiveYaml } from '@/lib/docs/source/module-group-config';
 import {
   buildTocOnlyGroupHeading,
   findPrecedingHeading,
   shouldInjectModuleGridTocHeadings,
 } from '@/lib/docs/source/module-grid-toc';
-import {
-  collectModuleGridGroupsFromScan,
-  pageSlugFromDocFile,
-  readPackageEntryFromFileContent,
-  resolveEffectivePackageEntry,
-  scanModuleGridModulesSync,
-} from '@/lib/docs/source/module-grid-fs-scan';
 
 interface ContainerDirectiveNode {
   type: 'containerDirective';
@@ -35,22 +36,21 @@ interface ContainerDirectiveNode {
   };
 }
 
-const dependencyRefSchema = z.union([
-  z.string().min(1),
-  z.object({
-    pkg: z.string().min(1),
-    href: z.string().optional(),
-    type: z.string().optional(),
-  }),
-]);
-
 const metaPanelSchema = z.object({
   platform: z.string().min(1),
   platformUrl: z.string().optional(),
   requireLogin: z.boolean().optional(),
-  sdkConstraint: z.string().optional(),
-  components: z.array(dependencyRefSchema).min(1),
+  /** 授权帮助文档链接；未配置时不展示 */
+  authHelpUrl: z.string().optional(),
 });
+
+/** 扫描同目录连接器，按任意 badge.label 聚合（无业务枚举） */
+function scanConnectorBadgeStats(indexFilePath: string) {
+  const modules = scanSiblingMarkdownModulesSync(indexFilePath).filter((m) =>
+    Boolean(m.entry?.trim()),
+  );
+  return aggregateConnectorBadgeStats(modules.map((m) => m.badge));
+}
 
 function extractDirectiveInnerText(directive: ContainerDirectiveNode, file: VFile): string {
   const start = directive.position?.start.offset;
@@ -106,7 +106,10 @@ function parseGroupsYaml(data: unknown, filePath: string) {
   return parseModuleGridDirectiveYaml(data, filePath).groups;
 }
 
-function buildMetaPanelJsx(meta: z.infer<typeof metaPanelSchema>) {
+function buildMetaPanelJsx(
+  meta: z.infer<typeof metaPanelSchema>,
+  stats?: { connectorTotal: number; connectorBadgeStats: ConnectorBadgeStat[] },
+) {
   const attributes: unknown[] = [jsxStringAttribute('platform', meta.platform)];
 
   if (meta.platformUrl) {
@@ -117,11 +120,16 @@ function buildMetaPanelJsx(meta: z.infer<typeof metaPanelSchema>) {
     attributes.push(jsxExpressionAttribute('requireLogin', false));
   }
 
-  if (meta.sdkConstraint) {
-    attributes.push(jsxStringAttribute('sdkConstraint', meta.sdkConstraint));
+  if (meta.authHelpUrl?.trim()) {
+    attributes.push(jsxStringAttribute('authHelpUrl', meta.authHelpUrl.trim()));
   }
 
-  attributes.push(jsxExpressionAttribute('components', meta.components));
+  if (stats) {
+    attributes.push(jsxExpressionAttribute('connectorTotal', stats.connectorTotal));
+    attributes.push(
+      jsxExpressionAttribute('connectorBadgeStats', stats.connectorBadgeStats),
+    );
+  }
 
   return {
     type: 'mdxJsxFlowElement',
@@ -129,14 +137,6 @@ function buildMetaPanelJsx(meta: z.infer<typeof metaPanelSchema>) {
     attributes,
     children: [],
   };
-}
-
-function readPackageEntryFromFile(file: VFile, fileContent: string): string {
-  const frontmatter = file.data?.frontmatter as { entry?: string } | undefined;
-  const fromFrontmatter = frontmatter?.entry?.trim();
-  if (fromFrontmatter) return fromFrontmatter;
-
-  return readPackageEntryFromFileContent(fileContent)?.trim() ?? '';
 }
 
 function resolveDocFilePath(file: VFile, filePath: string): string {
@@ -156,8 +156,6 @@ const remarkMdxDocBlocks: Plugin<[], Root> = () => {
   return (tree, file: VFile) => {
     const filePath = file.path || 'unknown';
     const resolvedFilePath = resolveDocFilePath(file, filePath);
-    const fileContent = typeof file.value === 'string' ? file.value : '';
-    const packageEntry = readPackageEntryFromFile(file, fileContent);
 
     visit(tree, 'containerDirective', (node, idx, parent) => {
       const directive = node as ContainerDirectiveNode;
@@ -172,9 +170,14 @@ const remarkMdxDocBlocks: Plugin<[], Root> = () => {
           throw new Error(`${filePath}: invalid :::meta-panel — ${msg}`);
         }
 
+        const stats =
+          filePath !== 'unknown'
+            ? scanConnectorBadgeStats(resolvedFilePath)
+            : undefined;
+
         const originalText = getOriginalDirectiveText(directive, file);
         (parent.children as unknown[])[idx] = {
-          ...buildMetaPanelJsx(parsed.data),
+          ...buildMetaPanelJsx(parsed.data, stats),
           data: { _stringify: { text: originalText } },
         };
         return;
@@ -207,18 +210,10 @@ const remarkMdxDocBlocks: Plugin<[], Root> = () => {
         let modulesMarkdownList = '';
 
         if (filePath !== 'unknown') {
-          const effectivePackageEntry = resolveEffectivePackageEntry(
-            packageEntry,
-            pageSlug,
-          );
-          const modules = scanModuleGridModulesSync(
-            resolvedFilePath,
-            effectivePackageEntry,
-          );
+          const modules = scanModuleGridModulesSync(resolvedFilePath);
           const nonEmptyGroups = collectModuleGridGroupsFromScan(
             modules,
             groups,
-            effectivePackageEntry,
           ).filter((g) => g.modules.length > 0);
           modulesMarkdownList = formatModuleGridDirectiveWithModules(
             groups,

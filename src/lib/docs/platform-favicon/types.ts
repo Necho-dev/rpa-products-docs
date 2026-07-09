@@ -5,6 +5,9 @@ export type PlatformFaviconEntry = {
   sourceIcon: string;
 };
 
+/**
+ * icons 的 key 为站点 origin host（不含协议/路径），如 `myseller.taobao.com`。
+ */
 export type PlatformFaviconManifest = {
   generatedAt: string;
   icons: Record<string, PlatformFaviconEntry>;

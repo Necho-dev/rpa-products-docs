@@ -91,7 +91,7 @@ const docsPageSchema = pageSchema.extend({
   moduleTitle: z.string().optional(),
   /** ModuleGrid 卡片图标：`Bot` 或 `{ comp, color? }`；无 color 时为 muted 默认样式 */
   moduleIcon: moduleIconSchema.optional(),
-  /** ModuleGrid 卡片平台入口 URL */
+  /** ModuleGrid 卡片平台主页 URL */
   moduleUrl: z.string().url().optional(),
   /** ModuleGrid 分组 bucket key */
   moduleGroup: z.string().optional(),
