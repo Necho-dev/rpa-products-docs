@@ -50,7 +50,7 @@ div.prose {
 /*
  * 列宽（多列表格）— 与下方规则同步维护：
  * - 基线 `table-layout: auto`，末列 30% 仅用于首行 ≥4 列 的表。
- * - 2 列「属性|值」：见 :has(2) 段；3 列「短标签|对照A|对照B」：`fixed` 12%+44%+44%（见 :has(3)）。
+ * - 2 列「属性|值」：见 :has(2) 段（左列地板宽 + 内容撑开）；3 列「短标签|对照A|对照B」：见 :has(3)。
  * - 6 列业务表：见 :has(6) 段。
  *
  * 统筹原则（少反复打补丁）：
@@ -156,7 +156,12 @@ div.prose
   overflow-wrap: break-word;
 }
 
-/* 恰好 2 列（文首「属性 | 值」等）：`auto` 布局 + 左列 1% 与 nowrap = 随标签内容定宽，右列占满剩余，避免两列对半拉满留大片空白 */
+/*
+ * 恰好 2 列（「属性 | 值」「枚举 | 含义」等）：
+ * - 左列 `width: 1%` + `min-width: max(9.5em, 7.5rem)`：短标签有地板宽，避免贴边挤压；
+ * - `white-space: nowrap` 让长标识符以内容最小宽度撑开列（勿把 max-content 写进 max()，非法会被整条丢弃）；
+ * - 取消滚动表对首列 code 的 break-all；不对 code 强制 nowrap；右列吃满剩余。
+ */
 #nd-docs-layout
   .prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
@@ -165,7 +170,9 @@ div.prose
 div.prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(2):last-child
-  ) {
+  ),
+#nd-docs-layout .docs-table-scroll .docs-table:has(> * > tr:first-child > *:nth-child(2):last-child),
+div.prose .docs-table-scroll .docs-table:has(> * > tr:first-child > *:nth-child(2):last-child) {
   table-layout: auto;
 }
 
@@ -190,12 +197,58 @@ div.prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(2):last-child
   )
+  td:first-child,
+#nd-docs-layout
+  .docs-table-scroll
+  .docs-table:has(> * > tr:first-child > *:nth-child(2):last-child)
+  th:first-child,
+#nd-docs-layout
+  .docs-table-scroll
+  .docs-table:has(> * > tr:first-child > *:nth-child(2):last-child)
+  td:first-child,
+div.prose
+  .docs-table-scroll
+  .docs-table:has(> * > tr:first-child > *:nth-child(2):last-child)
+  th:first-child,
+div.prose
+  .docs-table-scroll
+  .docs-table:has(> * > tr:first-child > *:nth-child(2):last-child)
   td:first-child {
   width: 1%;
   min-width: max(9.5em, 7.5rem);
+  max-width: none;
   padding-inline-end: 1.25rem;
   white-space: nowrap;
+  word-break: normal;
+  overflow-wrap: normal;
   vertical-align: top;
+}
+
+/* 两列首列内 code：取消 break-all，继承单元格换行以参与列宽；不单独强制 code nowrap */
+#nd-docs-layout
+  .docs-table-scroll
+  .docs-table:has(> * > tr:first-child > *:nth-child(2):last-child)
+  th:first-child
+  code,
+#nd-docs-layout
+  .docs-table-scroll
+  .docs-table:has(> * > tr:first-child > *:nth-child(2):last-child)
+  td:first-child
+  code,
+div.prose
+  .docs-table-scroll
+  .docs-table:has(> * > tr:first-child > *:nth-child(2):last-child)
+  th:first-child
+  code,
+div.prose
+  .docs-table-scroll
+  .docs-table:has(> * > tr:first-child > *:nth-child(2):last-child)
+  td:first-child
+  code {
+  max-width: none;
+  white-space: inherit;
+  word-break: normal;
+  overflow-wrap: normal;
 }
 
 #nd-docs-layout
@@ -219,11 +272,27 @@ div.prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(2):last-child
   )
+  td:last-child,
+#nd-docs-layout
+  .docs-table-scroll
+  .docs-table:has(> * > tr:first-child > *:nth-child(2):last-child)
+  th:last-child,
+#nd-docs-layout
+  .docs-table-scroll
+  .docs-table:has(> * > tr:first-child > *:nth-child(2):last-child)
+  td:last-child,
+div.prose
+  .docs-table-scroll
+  .docs-table:has(> * > tr:first-child > *:nth-child(2):last-child)
+  th:last-child,
+div.prose
+  .docs-table-scroll
+  .docs-table:has(> * > tr:first-child > *:nth-child(2):last-child)
   td:last-child {
   width: auto;
   max-width: none;
-  min-width: min-content;
-  word-break: break-all;
+  min-width: 0;
+  word-break: break-word;
   overflow-wrap: break-word;
 }
 
@@ -633,6 +702,7 @@ div.prose
 }
 
 /* 6 列：逐列上限与下限 */
+/* 首列字段名：放宽上限，避免长 camelCase 末尾被挤成单字符换行 */
 #nd-docs-layout
   .docs-table-scroll
   .docs-table:has(> * > tr:first-child > *:nth-child(6):last-child)
@@ -649,10 +719,37 @@ div.prose
   .docs-table-scroll
   .docs-table:has(> * > tr:first-child > *:nth-child(6):last-child)
   td:nth-child(1) {
-  min-width: 0;
-  max-width: 14rem;
-  word-break: break-all;
-  overflow-wrap: anywhere;
+  min-width: 5rem;
+  max-width: 20rem;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+/* 6 列首列 code：取消 break-all，优先整词展示；过长时再按词边界折行 */
+#nd-docs-layout
+  .docs-table-scroll
+  .docs-table:has(> * > tr:first-child > *:nth-child(6):last-child)
+  th:nth-child(1)
+  code,
+#nd-docs-layout
+  .docs-table-scroll
+  .docs-table:has(> * > tr:first-child > *:nth-child(6):last-child)
+  td:nth-child(1)
+  code,
+div.prose
+  .docs-table-scroll
+  .docs-table:has(> * > tr:first-child > *:nth-child(6):last-child)
+  th:nth-child(1)
+  code,
+div.prose
+  .docs-table-scroll
+  .docs-table:has(> * > tr:first-child > *:nth-child(6):last-child)
+  td:nth-child(1)
+  code {
+  max-width: none;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 #nd-docs-layout

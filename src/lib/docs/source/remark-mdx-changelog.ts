@@ -201,17 +201,24 @@ function buildEntryTocHeading(
 }
 
 /**
- * 更新日志正文内的标题仍正常渲染，但不进入右侧 TOC。
- * rehype-toc 只收录带 id 的 heading；去掉 id 即可排除。
+ * 更新日志正文内的标题仍正常渲染，不进入右侧 TOC。
+ * 通过 fumadocs rehype-toc 的 `[!toc]` 标记排除，同时保留 hProperties.id，
+ * 避免后续 remark-structure 因缺 id 告警。
  */
 function excludeBodyHeadingsFromToc(nodes: RootContent[]): void {
   for (const node of nodes) {
     if (node.type === 'heading') {
-      const heading = node as Heading & {
-        data?: { hProperties?: Record<string, unknown> };
-      };
-      if (heading.data?.hProperties) {
-        delete heading.data.hProperties.id;
+      const heading = node as Heading;
+      const children = heading.children;
+      if (!children?.length) continue;
+
+      const last = children[children.length - 1];
+      if (last?.type === 'text') {
+        if (!/\[!?toc\]/.test(last.value)) {
+          last.value = `${last.value.replace(/\s+$/, '')} [!toc]`;
+        }
+      } else {
+        children.push({ type: 'text', value: ' [!toc]' });
       }
       continue;
     }
