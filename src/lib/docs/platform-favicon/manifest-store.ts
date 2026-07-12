@@ -36,12 +36,13 @@ let cached:
 
 export function loadPlatformIconManifest(): PlatformIconManifest | null {
   try {
-    const { mtimeMs } = statSync(MANIFEST_PATH);
+    const manifestPath = MANIFEST_PATH;
+    const { mtimeMs } = statSync(/* turbopackIgnore: true */ manifestPath);
     if (cached && cached.mtimeMs === mtimeMs) {
       return cached.data;
     }
 
-    const raw = readFileSync(MANIFEST_PATH, 'utf8');
+    const raw = readFileSync(/* turbopackIgnore: true */ manifestPath, 'utf8');
     const data = JSON.parse(raw) as PlatformIconManifest;
     if (!data?.icons || typeof data.icons !== 'object') {
       cached = { mtimeMs, data: null };

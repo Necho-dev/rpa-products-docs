@@ -1,7 +1,7 @@
 import { findPath } from 'fumadocs-core/page-tree';
 import type { Folder } from 'fumadocs-core/page-tree';
 import type { Root } from 'fumadocs-core/page-tree';
-import { source } from '@/lib/docs/source/source';
+import { sourceLite as source } from '@/lib/docs/source/source-lite';
 
 function normalizeHref(url: string): string {
   let p = url.trim();
