@@ -9,11 +9,23 @@
 ```
 documents/
 ├── content/
-│   └── docs/                   # 文档正文（Markdown / MDX）
-│       ├── index.mdx            # 文档概览（含平台 module-grid）
-│       ├── meta.json            # 侧边栏顺序与分组配置
-│       ├── RPA_*/               # 各平台连接器文档
-│       └── public/              # 文档内静态资源（图片等）
+│   └── docs/                    # 文档正文（Markdown / MDX）
+│       ├── meta.json            # 顶层导航：./rpa、./auth
+│       ├── _public/             # 跨文档区共享静态资源（平台图标等）
+│       ├── rpa/                 # RPA 连接器文档（主仓库跟踪）
+│       │   ├── index.mdx
+│       │   ├── meta.json
+│       │   ├── RPA_*/           # 各平台连接器
+│       │   └── _public/         # rpa 区图片等
+│       └── auth/                # 授权帮助（Git Submodule → connectors-auth-docs）
+│           ├── index.mdx
+│           ├── meta.json
+│           ├── ACCOUNT_PASSWORD/
+│           ├── ISV/
+│           ├── SELF_DEVELOPED/
+│           └── _public/
+├── scripts/
+│   └── deplpy.sh                # 1Panel 拉取主仓 + Submodule 并重建
 ├── src/
 │   ├── app/                     # Next.js App Router 路由
 │   │   ├── layout.tsx           # 根布局（字体、主题）
@@ -26,6 +38,7 @@ documents/
 │   ├── fonts/                   # 本地字体文件（woff2 + TTF）
 │   ├── lib/                     # 工具函数、source 配置
 │   └── server/                  # 服务端专用逻辑
+├── .gitmodules                  # Submodule 定义（auth 使用 SSH URL）
 ├── Dockerfile                   # 多阶段 Docker 构建
 ├── docker-compose.yml           # Compose 一键部署配置
 ├── .env.example                 # 环境变量模板
@@ -34,7 +47,7 @@ documents/
 └── package.json
 ```
 
-> **文档内容维护**：只需编辑 `content/docs/` 下的 `.md` / `.mdx` 文件，无需修改 `src/` 中的代码。
+> **文档内容维护**：编辑 `content/docs/rpa/` 或 `content/docs/auth/` 下的 `.md` / `.mdx` 即可。`auth` 为独立仓库，改完后需在 Submodule 目录内单独 commit / push。
 
 ---
 
@@ -44,6 +57,7 @@ documents/
 
 - Node.js ≥ 20
 - npm ≥ 10
+- 克隆时带上 Submodule（见下方「常见问题」），否则 `/docs/auth` 无内容
 
 ### 安装依赖
 
@@ -59,7 +73,10 @@ npm install
 npm run dev
 ```
 
-默认监听 [http://localhost:3000](http://localhost:3000)，修改 `content/docs/` 内容后热更新生效。
+默认监听 [http://localhost:3000](http://localhost:3000)，修改 `content/docs/` 内容后热更新生效。可抽检：
+
+- [/docs/rpa](http://localhost:3000/docs/rpa)
+- [/docs/auth](http://localhost:3000/docs/auth)
 
 ### 其他常用命令
 
@@ -318,17 +335,42 @@ Dockerfile 采用三阶段构建：
 
 **Q：如何在新机器上克隆并启动？**
 
-`content/docs/auth`（站点 `/docs/auth`）为 Git Submodule（[connectors-auth-docs](https://codeup.aliyun.com/yuce-tech/knowledge/connectors-auth-docs)）；`content/docs/rpa`（`/docs/rpa`）仍在主仓，随主仓分支更新。
+文档分区：
+
+| 路径 | 站点路由 | 归属 |
+|------|----------|------|
+| `content/docs/rpa/` | `/docs/rpa` | 主仓库 |
+| `content/docs/auth/` | `/docs/auth` | Submodule：[connectors-auth-docs](https://codeup.aliyun.com/yuce-tech/knowledge/connectors-auth-docs)（`.gitmodules` 为 SSH：`git@codeup.aliyun.com:yuce-tech/knowledge/connectors-auth-docs.git`） |
 
 ```bash
-# 需带 --recurse-submodules，否则 auth 目录为空
+# 必须带 --recurse-submodules，否则 auth 目录为空
 git clone --recurse-submodules <主仓库地址>
 cd rpa-products-docs   # 或本地 monorepo 下的 documents/
 npm install
 npm run dev
 ```
 
-已有克隆补拉 Submodule：`git submodule update --init --recursive`。
+已有克隆补拉 Submodule：
+
+```bash
+git submodule sync --recursive
+git submodule update --init --recursive
+```
+
+本地需能访问云效：HTTPS（凭据）与/或 SSH 公钥均可；服务器部署推荐 SSH Deploy Key（主仓 + auth 仓都要有读权限）。
+
+**Q：如何单独更新授权文档（auth Submodule）？**
+
+```bash
+cd content/docs/auth
+# 编辑后…
+git add -A && git commit -m "docs: …" && git push origin main
+cd ../../..
+# 若要把主仓锁定的 gitlink 钉到新版本：
+git add content/docs/auth && git commit -m "chore: bump auth submodule"
+```
+
+1Panel 上的 [`scripts/deplpy.sh`](scripts/deplpy.sh) 会跟踪 auth 远程 tip，**即使主仓未 bump gitlink**，auth 有更新也会重建发布。
 
 **Q：1Panel 自动部署如何配置分支？**
 
@@ -340,4 +382,6 @@ npm run dev
 | `BRANCH` | 主仓跟踪分支 |
 | `AUTH_BRANCH` | auth Submodule 跟踪分支 |
 
-脚本内 `SUBMODULES` 为 `path\|branch` 列表，当前仅登记 auth；日后若把 rpa 也拆成 Submodule，追加一行即可。主仓或任一已登记 Submodule 有远程更新时会 `docker compose up -d --build`。
+脚本内 `SUBMODULES` 为 `path|branch` 列表，当前仅登记 auth；日后若把 rpa 也拆成 Submodule，追加一行即可。主仓或任一已登记 Submodule 有远程更新时会 `docker compose up -d --build`。
+
+首次拉到含 Submodule 的提交后，在服务器执行一次 `git submodule update --init --recursive`（或直接跑一遍 `deplpy.sh`）。
