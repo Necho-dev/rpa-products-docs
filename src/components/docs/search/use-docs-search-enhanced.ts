@@ -6,6 +6,7 @@ import { useDocsSearch } from 'fumadocs-core/search/client';
 import {
   dedupeSearchResults,
   filterSearchByScope,
+  interleaveSearchHitsByPage,
   type SearchScope,
   type SearchTagFilter,
 } from '@/lib/docs/search/search-utils';
@@ -100,6 +101,14 @@ export type UseDocsSearchEnhancedOptions = {
   locale?: string;
 };
 
+/** 供 AI howto 回答引用的文档摘要（与展示 scope 无关） */
+export type AiAnswerSourceDoc = {
+  url: string;
+  content: string;
+  breadcrumbs: string[];
+  type: string;
+};
+
 export type UseDocsSearchEnhancedResult = {
   aiEnabled: boolean;
   setAiEnabled: (enabled: boolean) => void;
@@ -110,6 +119,18 @@ export type UseDocsSearchEnhancedResult = {
   submit: () => void;
   /** 最终展示的结果列表（已按 scope + 选中关键词过滤） */
   items: SortedResult[] | 'empty';
+  /**
+   * howto 回答用的文档快照：在每次 AI 搜索成功时固定，不随 chip/scope/输入草稿变化。
+   * 避免列表筛选误触发重新回答。
+   */
+  answerDocs: AiAnswerSourceDoc[];
+  /** 生成回答时应使用的查询词（最近一次成功提交的 AI 查询，而非输入草稿） */
+  answerQuery: string;
+  /**
+   * 每次 AI 搜索成功（含缓存命中）递增；UI 仅应在此变化时触发生成回答。
+   * 0 表示尚无成功结果。
+   */
+  answerEpoch: number;
   /** AI 语义理解结果；仅 AI 模式命中一次成功请求后存在 */
   interpretation: AiSearchInterpretation | null;
   selectedKeywords: Set<string>;
@@ -146,10 +167,20 @@ export function useDocsSearchEnhanced({
   const [aiLoading, setAiLoading] = useState(false);
   const [degraded, setDegraded] = useState(false);
   const [aiError, setAiError] = useState<AiSearchErrorKind | null>(null);
+  /** 回答上下文快照：仅在 AI 搜索成功时更新，与 chip/scope 解耦 */
+  const [answerDocs, setAnswerDocs] = useState<AiAnswerSourceDoc[]>([]);
+  const [answerQuery, setAnswerQuery] = useState('');
+  const [answerEpoch, setAnswerEpoch] = useState(0);
 
   const requestSeq = useRef(0);
   /** 最近一次成功提交的 AI 查询词，用于 page 模式 title 排序 */
   const [lastAiQuery, setLastAiQuery] = useState<string>('');
+
+  const clearAiAnswerSnapshot = useCallback(() => {
+    setAnswerDocs([]);
+    setAnswerQuery('');
+    setAnswerEpoch(0);
+  }, []);
 
   // tag 切换时，清空 AI 结果（检索范围变化，旧结果已失效）
   // 使用 React 官方推荐的"渲染阶段 setState"模式（storing previous prop in state）：
@@ -166,15 +197,34 @@ export function useDocsSearchEnhanced({
       setDegraded(false);
       setAiError(null);
       setLastAiQuery('');
+      setAnswerDocs([]);
+      setAnswerQuery('');
+      setAnswerEpoch(0);
     }
   }
 
-  const applyAiResponse = useCallback((data: AiSearchApiResponse) => {
+  const applyAiResponse = useCallback((data: AiSearchApiResponse, query: string) => {
+    const selected = selectedKeywordsFromInterpretation(data.interpretation);
     setInterpretation(data.interpretation);
     setAiResults(data.results);
-    setSelectedKeywords(selectedKeywordsFromInterpretation(data.interpretation));
+    setSelectedKeywords(selected);
     setDegraded(false);
     setAiError(null);
+    setLastAiQuery(query);
+    setAnswerQuery(query);
+
+    // 回答引用文档在搜索成功时快照，后续 chip/scope 变更不再改动
+    const docs = filterBySelectedKeywords(data.results, selected)
+      .filter((r) => r.type === 'page')
+      .slice(0, 5)
+      .map((r) => ({
+        url: r.url,
+        content: typeof r.content === 'string' ? r.content : String(r.content ?? ''),
+        breadcrumbs: (r.breadcrumbs as string[] | undefined) ?? [],
+        type: r.type,
+      }));
+    setAnswerDocs(docs);
+    setAnswerEpoch((n) => n + 1);
   }, []);
 
   const runAiSubmit = useCallback(
@@ -186,14 +236,14 @@ export function useDocsSearchEnhanced({
         setInterpretation(null);
         setDegraded(false);
         setAiError(null);
+        clearAiAnswerSnapshot();
         return;
       }
 
       const cacheKey = buildClientAiCacheKey(trimmed, locale, tag);
       const cached = getClientAiCache(cacheKey);
       if (cached) {
-        setLastAiQuery(trimmed);
-        applyAiResponse(cached);
+        applyAiResponse(cached, trimmed);
         return;
       }
 
@@ -230,6 +280,7 @@ export function useDocsSearchEnhanced({
           setDegraded(true);
           setInterpretation(null);
           setAiResults('empty');
+          clearAiAnswerSnapshot();
           setKeywordSearch(trimmed);
           return;
         }
@@ -237,21 +288,21 @@ export function useDocsSearchEnhanced({
         const data = (await res.json()) as AiSearchApiResponse;
         if (seq !== requestSeq.current) return;
 
-        setLastAiQuery(trimmed);
         setClientAiCache(cacheKey, data);
-        applyAiResponse(data);
+        applyAiResponse(data, trimmed);
       } catch {
         if (seq !== requestSeq.current) return;
         setAiError('llm_failed');
         setDegraded(true);
         setInterpretation(null);
         setAiResults('empty');
+        clearAiAnswerSnapshot();
         setKeywordSearch(trimmed);
       } finally {
         if (seq === requestSeq.current) setAiLoading(false);
       }
     },
-    [locale, scope, tag, setKeywordSearch, applyAiResponse],
+    [locale, scope, tag, setKeywordSearch, applyAiResponse, clearAiAnswerSnapshot],
   );
 
   const submit = useCallback(() => {
@@ -280,9 +331,10 @@ export function useDocsSearchEnhanced({
         setAiResults('empty');
         setInterpretation(null);
         setSelectedKeywords(new Set());
+        clearAiAnswerSnapshot();
       }
     },
-    [setKeywordSearch],
+    [setKeywordSearch, clearAiAnswerSnapshot],
   );
 
   const toggleKeyword = useCallback((keyword: string) => {
@@ -315,13 +367,16 @@ export function useDocsSearchEnhanced({
 
     const byKeyword = filterBySelectedKeywords(aiResults, selectedKeywords);
     const scoped = filterSearchByScope(byKeyword, scope, lastAiQuery);
-    return dedupeSearchResults(scoped);
+    // 全文：page 与 heading/text 按 URL 交错，避免首屏与「仅文档」无差别
+    const ordered = scope === 'full' ? interleaveSearchHitsByPage(scoped) : scoped;
+    return dedupeSearchResults(ordered);
   }, [
     aiEnabled,
     degraded,
     keywordQuery.data,
     aiResults,
     selectedKeywords,
+    selectedKeywordsKey,
     scope,
     lastAiQuery,
   ]);
@@ -333,6 +388,9 @@ export function useDocsSearchEnhanced({
     setDraftInput: aiEnabled ? setDraftInput : setKeywordSearch,
     submit,
     items,
+    answerDocs,
+    answerQuery,
+    answerEpoch,
     interpretation,
     selectedKeywords,
     toggleKeyword,

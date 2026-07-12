@@ -23,11 +23,21 @@ export type UseAiSearchAnswerResult = {
   clear: () => void;
 };
 
+function buildAnswerRequestKey(
+  query: string,
+  interpretation: AiSearchInterpretation,
+  docs: AiAnswerDoc[],
+): string {
+  return `${query.trim()}\0${interpretation.intent}\0${docs.map((d) => d.url).join('\0')}`;
+}
+
 export function useAiSearchAnswer(): UseAiSearchAnswerResult {
   const [status, setStatus] = useState<AiAnswerStatus>('idle');
   const [answer, setAnswer] = useState('');
   const abortRef = useRef<AbortController | null>(null);
   const seqRef = useRef(0);
+  /** 正在进行或已完成的请求签名，用于跳过重复 generate */
+  const activeKeyRef = useRef<string>('');
 
   const cancel = useCallback(() => {
     abortRef.current?.abort();
@@ -37,6 +47,7 @@ export function useAiSearchAnswer(): UseAiSearchAnswerResult {
   const clear = useCallback(() => {
     cancel();
     seqRef.current += 1;
+    activeKeyRef.current = '';
     setStatus('idle');
     setAnswer('');
   }, [cancel]);
@@ -52,6 +63,11 @@ export function useAiSearchAnswer(): UseAiSearchAnswerResult {
         clear();
         return;
       }
+
+      const requestKey = buildAnswerRequestKey(query, interpretation, docs);
+      // 同一查询+文档已在进行或刚完成时跳过，防止 effect/StrictMode 重复打满限流
+      if (requestKey === activeKeyRef.current) return;
+      activeKeyRef.current = requestKey;
 
       const seq = ++seqRef.current;
       cancel();
@@ -82,6 +98,8 @@ export function useAiSearchAnswer(): UseAiSearchAnswerResult {
         if (seq !== seqRef.current) return;
 
         if (!res.ok || !res.body) {
+          // 失败时清空签名，允许用户重试同一次搜索
+          if (activeKeyRef.current === requestKey) activeKeyRef.current = '';
           setStatus('error');
           return;
         }
@@ -109,6 +127,7 @@ export function useAiSearchAnswer(): UseAiSearchAnswerResult {
       } catch (err) {
         if (seq !== seqRef.current) return;
         if (err instanceof DOMException && err.name === 'AbortError') return;
+        if (activeKeyRef.current === requestKey) activeKeyRef.current = '';
         setStatus('error');
       }
     },

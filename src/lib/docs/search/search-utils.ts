@@ -137,6 +137,50 @@ export function truncateSearchHitsPreservingPages(
 }
 
 /**
+ * 全文展示排序：每个 page 后紧跟同 URL 的 heading/text。
+ *
+ * `truncateSearchHitsPreservingPages` 会把全部 page 堆到前面，导致「全文」首屏
+ * 与「仅文档」观感相同。展示前按页面交错，才能看出正文片段。
+ */
+export function interleaveSearchHitsByPage<T extends { type: string; url: string }>(
+  results: T[],
+): T[] {
+  if (results.length === 0) return results;
+
+  const pages: T[] = [];
+  const childrenByUrl = new Map<string, T[]>();
+
+  for (const r of results) {
+    if (r.type === 'page') {
+      pages.push(r);
+      continue;
+    }
+    const list = childrenByUrl.get(r.url);
+    if (list) list.push(r);
+    else childrenByUrl.set(r.url, [r]);
+  }
+
+  if (pages.length === 0 || childrenByUrl.size === 0) return results;
+
+  const out: T[] = [];
+  const emittedChildUrls = new Set<string>();
+
+  for (const page of pages) {
+    out.push(page);
+    const children = childrenByUrl.get(page.url);
+    if (!children) continue;
+    out.push(...children);
+    emittedChildUrls.add(page.url);
+  }
+
+  for (const [url, children] of childrenByUrl) {
+    if (!emittedChildUrls.has(url)) out.push(...children);
+  }
+
+  return out;
+}
+
+/**
  * 对展示层结果去重：`content` 完全相同（忽略大小写/空白）的同类型条目只保留第一条。
  *
  * 适用场景：同一连接器文档在多个位置有相同的 heading/text 片段，

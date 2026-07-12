@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   SearchDialog,
   SearchDialogContent,
@@ -13,6 +13,7 @@ import {
 import type { SharedProps } from 'fumadocs-ui/contexts/search';
 import { useI18n } from 'fumadocs-ui/contexts/i18n';
 import { Sparkles } from 'lucide-react';
+import { cn } from '@/lib/core/cn';
 import { AiSearchToggle } from '@/components/docs/search/ai-search-toggle';
 import { AiSearchChips } from '@/components/docs/search/ai-search-chips';
 import { AiSearchAnswer } from '@/components/docs/search/ai-search-answer';
@@ -56,6 +57,13 @@ function AiThinkingIndicator() {
 const AI_SEARCH_PLACEHOLDER = '自然语言描述想要搜索的内容...';
 const KEYWORD_SEARCH_PLACEHOLDER = '关键词搜索…';
 
+/**
+ * 模块级去重：同一 answerEpoch 只触发生成一次。
+ * 用于抵御 React Strict Mode 双调用，以及 effect 依赖抖动。
+ * 不放入组件 ref，以免 remount 后丢失。
+ */
+const handledAnswerEpochs = new Set<number>();
+
 export type DocsSearchDialogProps = SharedProps;
 
 export default function DocsSearchDialog(props: DocsSearchDialogProps) {
@@ -72,6 +80,9 @@ export default function DocsSearchDialog(props: DocsSearchDialogProps) {
     setDraftInput,
     submit,
     items,
+    answerDocs,
+    answerQuery,
+    answerEpoch,
     interpretation,
     selectedKeywords,
     toggleKeyword,
@@ -89,37 +100,32 @@ export default function DocsSearchDialog(props: DocsSearchDialogProps) {
     if (!aiSearchUiEnabled && aiEnabled) setAiEnabled(false);
   }, [aiSearchUiEnabled, aiEnabled, setAiEnabled]);
 
-  // AI 搜索完成后，自动触发 howto 回答生成
-  const topDocs = useMemo(() => {
-    if (!Array.isArray(items) || items.length === 0) return [];
-    return items
-      .filter((r) => r.type === 'page')
-      .slice(0, 5)
-      .map((r) => ({
-        url: r.url,
-        content: typeof r.content === 'string' ? r.content : String(r.content ?? ''),
-        breadcrumbs: (r.breadcrumbs as string[] | undefined) ?? [],
-        type: r.type,
-      }));
-  }, [items]);
-
-  // 新查询开始（aiLoading 变 true）时立即清空旧回答，避免旧内容与加载动效同时出现
+  // 新查询开始时清空旧回答
   useEffect(() => {
     if (aiEnabled && aiLoading) clearAnswer();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [aiLoading, aiEnabled]);
 
+  // 仅在「新一次 AI 搜索成功」时生成回答（answerEpoch 递增）。
+  // chip / scope / 输入草稿变化都不会触发，避免误触打满限流。
   useEffect(() => {
-    if (!aiEnabled || !interpretation || aiLoading) return;
-    if (interpretation.intent !== 'howto') {
+    if (answerEpoch === 0) {
+      handledAnswerEpochs.clear();
+      return;
+    }
+    if (!aiEnabled || aiLoading) return;
+    if (handledAnswerEpochs.has(answerEpoch)) return;
+    handledAnswerEpochs.add(answerEpoch);
+
+    if (!interpretation || interpretation.intent !== 'howto' || !answerQuery || answerDocs.length === 0) {
       clearAnswer();
       return;
     }
-    if (topDocs.length === 0) return;
-    generateAnswer(draftInput, interpretation, topDocs);
-  // 当 interpretation 或 topDocs 变化时重新生成（新查询结果到达）
+    // clear 重置 hook 内去重签名，保证同词缓存重搜仍会生成
+    clearAnswer();
+    generateAnswer(answerQuery, interpretation, answerDocs);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [interpretation, topDocs]);
+  }, [answerEpoch, aiEnabled, aiLoading]);
 
   // 弹窗内除搜索框外，Enter 不打开结果（仅鼠标点击）；搜索框 Enter 在 onKeyDown 中提交
   useEffect(() => {
@@ -156,11 +162,10 @@ export default function DocsSearchDialog(props: DocsSearchDialogProps) {
       {...props}
     >
       <SearchDialogOverlay />
-      {/*
-       * overflow-visible 保留给 Popover 下拉；
-       * max-h 限制弹窗整体不超出视口，flex flex-col 让内部各区域弹性分配高度。
-       */}
-      <SearchDialogContent className="overflow-visible flex flex-col max-h-[min(90dvh,680px)]">
+      <SearchDialogContent
+        aria-describedby={undefined}
+        className="overflow-hidden flex flex-col max-h-[min(90dvh,680px)]"
+      >
         <SearchDialogHeader className="shrink-0">
           <DocsSearchDialogInput
             placeholder={
@@ -188,14 +193,16 @@ export default function DocsSearchDialog(props: DocsSearchDialogProps) {
           />
         </SearchDialogHeader>
         {aiEnabled && (interpretation || aiError) && (
-          <AiSearchChips
-            interpretation={interpretation}
-            selectedKeywords={selectedKeywords}
-            onToggle={toggleKeyword}
-            onSelectAll={selectAllKeywords}
-            degraded={degraded}
-            aiError={aiError}
-          />
+          <div className="shrink-0">
+            <AiSearchChips
+              interpretation={interpretation}
+              selectedKeywords={selectedKeywords}
+              onToggle={toggleKeyword}
+              onSelectAll={selectAllKeywords}
+              degraded={degraded}
+              aiError={aiError}
+            />
+          </div>
         )}
         {aiEnabled && interpretation?.intent === 'howto' && (
           <AiSearchAnswer status={answerStatus} answer={answer} />
@@ -206,22 +213,35 @@ export default function DocsSearchDialog(props: DocsSearchDialogProps) {
             <AiThinkingIndicator />
           </div>
         ) : (
-          /* [&>div]:max-h-none 覆盖 fumadocs 内部硬编码的 max-h-[460px]，由外层 flex 控制高度 */
-          <SearchDialogList
-            className="min-h-0 flex-1 overflow-hidden [&>div]:max-h-none [&>div]:overflow-y-auto"
-            items={items === 'empty' ? null : items}
-            Item={(itemProps) => (
-              <SearchDialogListItem
-                {...itemProps}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }
-                }}
-              />
+          /*
+           * 外层承担滚动：AI 回答/chips 占位后，列表区域 flex-1 + min-h-0 才能收缩并可滚。
+           * fumadocs SearchDialogList 用 --fd-animated-height 按内容撑高，需 !h-auto 取消，
+           * 并去掉内部 max-h-[460px]，避免双层滚动抢高度。
+           */
+          <div
+            className={cn(
+              'min-h-0 flex-1 overflow-y-auto overscroll-contain',
+              '[&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent',
+              '[&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-fd-border',
+              'hover:[&::-webkit-scrollbar-thumb]:bg-fd-muted-foreground/40',
             )}
-          />
+          >
+            <SearchDialogList
+              className="h-auto! overflow-visible [&>div]:max-h-none! [&>div]:overflow-visible"
+              items={items === 'empty' ? null : items}
+              Item={(itemProps) => (
+                <SearchDialogListItem
+                  {...itemProps}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }
+                  }}
+                />
+              )}
+            />
+          </div>
         )}
         <SearchDialogFooter className="shrink-0">
           <SearchScopeTabs

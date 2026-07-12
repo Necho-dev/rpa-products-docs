@@ -24,7 +24,6 @@ export function AiSearchToggle({ enabled, onChange, disabled }: AiSearchTogglePr
         type="button"
         aria-pressed={enabled}
         aria-label={enabled ? '智能语义搜索: 已开启' : '智能语义搜索: 已关闭'}
-        title={tooltip}
         disabled={disabled}
         onClick={() => onChange(!enabled)}
         className={cn(
