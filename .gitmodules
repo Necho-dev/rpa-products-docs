@@ -1,0 +1,4 @@
+[submodule "content/docs/auth"]
+	path = content/docs/auth
+	url = https://codeup.aliyun.com/yuce-tech/knowledge/connectors-auth-docs.git
+	branch = main

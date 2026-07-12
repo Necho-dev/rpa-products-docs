@@ -318,10 +318,26 @@ Dockerfile 采用三阶段构建：
 
 **Q：如何在新机器上克隆并启动？**
 
+`content/docs/auth`（站点 `/docs/auth`）为 Git Submodule（[connectors-auth-docs](https://codeup.aliyun.com/yuce-tech/knowledge/connectors-auth-docs)）；`content/docs/rpa`（`/docs/rpa`）仍在主仓，随主仓分支更新。
+
 ```bash
-# 主仓库包含此目录为 submodule，克隆时需带 --recurse-submodules
+# 需带 --recurse-submodules，否则 auth 目录为空
 git clone --recurse-submodules <主仓库地址>
-cd rpa-hero-products/documents
+cd rpa-products-docs   # 或本地 monorepo 下的 documents/
 npm install
 npm run dev
 ```
+
+已有克隆补拉 Submodule：`git submodule update --init --recursive`。
+
+**Q：1Panel 自动部署如何配置分支？**
+
+[`scripts/deplpy.sh`](scripts/deplpy.sh) 用环境变量覆盖（默认均为 `main`）：
+
+| 变量 | 含义 |
+|------|------|
+| `DEPLOY_PATH` | 服务器上的仓库目录 |
+| `BRANCH` | 主仓跟踪分支 |
+| `AUTH_BRANCH` | auth Submodule 跟踪分支 |
+
+脚本内 `SUBMODULES` 为 `path\|branch` 列表，当前仅登记 auth；日后若把 rpa 也拆成 Submodule，追加一行即可。主仓或任一已登记 Submodule 有远程更新时会 `docker compose up -d --build`。
