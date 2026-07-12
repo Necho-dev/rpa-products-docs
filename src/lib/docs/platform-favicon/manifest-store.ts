@@ -3,11 +3,29 @@ import path from 'node:path';
 import type { PlatformIconManifest } from '@/lib/docs/platform-favicon/types';
 import { sharedResourceUrl } from '@/lib/docs/icons/shared-resource-url';
 
-const MANIFEST_PATH = path.join(
-  process.cwd(),
-  process.env.DOCS_FAVICON_MANIFEST_PATH?.trim() ||
-    'content/docs/_public/_shared/platform/icons.json',
-);
+/**
+ * 默认路径用字面量子目录拼接，避免 Turbopack NFT 把整个 cwd 打进 middleware 包。
+ * DOCS_FAVICON_MANIFEST_PATH 可覆盖（绝对路径或相对 cwd）。
+ */
+function resolveManifestPath(): string {
+  const override = process.env.DOCS_FAVICON_MANIFEST_PATH?.trim();
+  if (override) {
+    return path.isAbsolute(override)
+      ? override
+      : path.join(/* turbopackIgnore: true */ process.cwd(), override);
+  }
+  return path.join(
+    process.cwd(),
+    'content',
+    'docs',
+    '_public',
+    '_shared',
+    'platform',
+    'icons.json',
+  );
+}
+
+const MANIFEST_PATH = resolveManifestPath();
 
 let cached:
   | {

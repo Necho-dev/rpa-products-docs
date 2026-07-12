@@ -7,14 +7,30 @@ import type { SharedIconManifest } from '@/lib/docs/shared-icons/types';
 
 /**
  * Shared icons manifest 路径。
- * 通过 DOCS_SHARED_ICONS_MANIFEST_PATH 配置（相对 process.cwd()）；
+ * 通过 DOCS_SHARED_ICONS_MANIFEST_PATH 配置（绝对路径，或相对 process.cwd()）；
  * 默认 `content/docs/_public/_shared/shared-icons.json`。
+ *
+ * 默认路径用字面量子目录拼接，避免 Turbopack NFT 把整个 cwd 打进 middleware 包。
+ * @see https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats
  */
-const MANIFEST_PATH = path.join(
-  process.cwd(),
-  process.env.DOCS_SHARED_ICONS_MANIFEST_PATH?.trim() ||
-    'content/docs/_public/_shared/shared-icons.json',
-);
+function resolveManifestPath(): string {
+  const override = process.env.DOCS_SHARED_ICONS_MANIFEST_PATH?.trim();
+  if (override) {
+    return path.isAbsolute(override)
+      ? override
+      : path.join(/* turbopackIgnore: true */ process.cwd(), override);
+  }
+  return path.join(
+    process.cwd(),
+    'content',
+    'docs',
+    '_public',
+    '_shared',
+    'shared-icons.json',
+  );
+}
+
+const MANIFEST_PATH = resolveManifestPath();
 
 import { sharedResourceUrl } from '@/lib/docs/icons/shared-resource-url';
 
