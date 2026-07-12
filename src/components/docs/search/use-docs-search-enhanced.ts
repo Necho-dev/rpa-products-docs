@@ -1,18 +1,22 @@
 'use client';
 
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { SortedResult } from 'fumadocs-core/search';
 import { useDocsSearch } from 'fumadocs-core/search/client';
 import {
-  filterAiResultsBySelectedKeywords,
+  dedupeSearchResults,
   filterSearchByScope,
   type SearchScope,
+  type SearchTagFilter,
 } from '@/lib/docs/search/search-utils';
 
 export type AiSearchInterpretation = {
   summary: string;
   keywords: string[];
-  docFamilies?: string[];
+  /** keywords 中最核心的 1-3 个词，默认选中为活跃 Chip */
+  primaryKeywords: string[];
+  intent: 'browse' | 'find' | 'howto' | 'compare' | 'general';
+  platformScope?: string;
 };
 
 type AiSearchHit = SortedResult & { matchedKeywords: string[] };
@@ -27,8 +31,8 @@ type AiSearchApiError = { error: string };
 const CLIENT_AI_CACHE_MAX = 32;
 const clientAiCache = new Map<string, AiSearchApiResponse>();
 
-function buildClientAiCacheKey(query: string, locale?: string): string {
-  return `${locale ?? ''}\0${query.trim()}`;
+function buildClientAiCacheKey(query: string, locale?: string, tag?: string | null): string {
+  return `${locale ?? ''}\0${tag ?? ''}\0${query.trim()}`;
 }
 
 function getClientAiCache(key: string): AiSearchApiResponse | undefined {
@@ -48,27 +52,29 @@ function setClientAiCache(key: string, value: AiSearchApiResponse): void {
   clientAiCache.set(key, value);
 }
 
-function partitionAiSearchKeywords(interpretation: AiSearchInterpretation): {
-  topicKeywords: string[];
-  platformKeywords: string[];
-} {
-  const families = new Set(interpretation.docFamilies ?? []);
-  const platformTerms = new Set(['千牛', '连接器', '文档', ...families]);
-  const topicKeywords = interpretation.keywords.filter((k) => {
-    if (platformTerms.has(k)) return false;
-    if (k.endsWith('连接器')) return false;
-    return true;
-  });
-  const platformKeywords = interpretation.keywords.filter((k) => !topicKeywords.includes(k));
-  return { topicKeywords, platformKeywords };
+/**
+ * 初始默认只选中 primaryKeywords（核心词），其余扩展词默认不选中。
+ * 若 primaryKeywords 为空（旧缓存兼容）则退回全选。
+ */
+function selectedKeywordsFromInterpretation(interpretation: AiSearchInterpretation): Set<string> {
+  const primary = interpretation.primaryKeywords?.filter((k) => interpretation.keywords.includes(k));
+  if (primary && primary.length > 0) return new Set(primary);
+  return new Set(interpretation.keywords);
 }
 
-function selectedKeywordsFromInterpretation(interpretation: AiSearchInterpretation): Set<string> {
-  const { topicKeywords } = partitionAiSearchKeywords(interpretation);
-  return new Set(
-    topicKeywords.length > 0
-      ? topicKeywords
-      : [...interpretation.keywords, ...(interpretation.docFamilies ?? [])],
+/**
+ * 按当前选中的 Chip 过滤结果（OR 语义：命中任意一个选中词即保留）。
+ * browse 展开的伪关键词 `__browse_expand__` 始终保留。
+ */
+function filterBySelectedKeywords(
+  results: AiSearchHit[],
+  selectedKeywords: Set<string>,
+): AiSearchHit[] {
+  if (selectedKeywords.size === 0) return [];
+  return results.filter(
+    (r) =>
+      r.matchedKeywords.includes('__browse_expand__') ||
+      r.matchedKeywords.some((k) => selectedKeywords.has(k)),
   );
 }
 
@@ -89,6 +95,8 @@ export function getAiSearchErrorMessage(error: AiSearchErrorKind): string {
 
 export type UseDocsSearchEnhancedOptions = {
   scope: SearchScope;
+  /** 分区 tag 过滤；null 表示全部分区 */
+  tag: SearchTagFilter;
   locale?: string;
 };
 
@@ -119,9 +127,12 @@ export type UseDocsSearchEnhancedResult = {
 
 export function useDocsSearchEnhanced({
   scope,
+  tag,
   locale,
 }: UseDocsSearchEnhancedOptions): UseDocsSearchEnhancedResult {
-  const keywordApi = `/api/search?scope=${scope}`;
+  const keywordApi = tag
+    ? `/api/search?scope=${scope}&tag=${encodeURIComponent(tag)}`
+    : `/api/search?scope=${scope}`;
   const { search: keywordSearch, setSearch: setKeywordSearch, query: keywordQuery } = useDocsSearch(
     { type: 'fetch', api: keywordApi, locale },
     [keywordApi, locale],
@@ -137,6 +148,26 @@ export function useDocsSearchEnhanced({
   const [aiError, setAiError] = useState<AiSearchErrorKind | null>(null);
 
   const requestSeq = useRef(0);
+  /** 最近一次成功提交的 AI 查询词，用于 page 模式 title 排序 */
+  const [lastAiQuery, setLastAiQuery] = useState<string>('');
+
+  // tag 切换时，清空 AI 结果（检索范围变化，旧结果已失效）
+  // 使用 React 官方推荐的"渲染阶段 setState"模式（storing previous prop in state）：
+  // 在渲染期发现 tag 变化时立即 setState，React 会丢弃当前渲染结果并立即重新渲染，
+  // 不会触发额外的 commit/effect，比 useEffect 更高效。
+  const [prevTag, setPrevTag] = useState(tag);
+  if (prevTag !== tag) {
+    setPrevTag(tag);
+    if (aiEnabled) {
+      setAiResults('empty');
+      setInterpretation(null);
+      setSelectedKeywords(new Set());
+      setAiLoading(false);
+      setDegraded(false);
+      setAiError(null);
+      setLastAiQuery('');
+    }
+  }
 
   const applyAiResponse = useCallback((data: AiSearchApiResponse) => {
     setInterpretation(data.interpretation);
@@ -158,9 +189,10 @@ export function useDocsSearchEnhanced({
         return;
       }
 
-      const cacheKey = buildClientAiCacheKey(trimmed, locale);
+      const cacheKey = buildClientAiCacheKey(trimmed, locale, tag);
       const cached = getClientAiCache(cacheKey);
       if (cached) {
+        setLastAiQuery(trimmed);
         applyAiResponse(cached);
         return;
       }
@@ -172,7 +204,12 @@ export function useDocsSearchEnhanced({
         const res = await fetch('/api/search/ai', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query: trimmed, scope, locale }),
+          body: JSON.stringify({
+            query: trimmed,
+            scope,
+            locale,
+            ...(tag ? { tag } : {}),
+          }),
         });
 
         if (seq !== requestSeq.current) return;
@@ -200,6 +237,7 @@ export function useDocsSearchEnhanced({
         const data = (await res.json()) as AiSearchApiResponse;
         if (seq !== requestSeq.current) return;
 
+        setLastAiQuery(trimmed);
         setClientAiCache(cacheKey, data);
         applyAiResponse(data);
       } catch {
@@ -213,7 +251,7 @@ export function useDocsSearchEnhanced({
         if (seq === requestSeq.current) setAiLoading(false);
       }
     },
-    [locale, scope, setKeywordSearch, applyAiResponse],
+    [locale, scope, tag, setKeywordSearch, applyAiResponse],
   );
 
   const submit = useCallback(() => {
@@ -258,12 +296,8 @@ export function useDocsSearchEnhanced({
 
   const selectAllKeywords = useCallback(() => {
     if (!interpretation) return;
-    setSelectedKeywords(
-      new Set([
-        ...interpretation.keywords,
-        ...(interpretation.docFamilies ?? []),
-      ]),
-    );
+    // 全选 = 选中全部 keywords（含扩展词）
+    setSelectedKeywords(new Set(interpretation.keywords));
   }, [interpretation]);
 
   const selectedKeywordsKey = useMemo(
@@ -272,32 +306,24 @@ export function useDocsSearchEnhanced({
   );
 
   const items = useMemo<SortedResult[] | 'empty'>(() => {
-    if (!aiEnabled || degraded) return keywordQuery.data ?? 'empty';
+    if (!aiEnabled || degraded) {
+      const raw = keywordQuery.data ?? 'empty';
+      return raw === 'empty' ? 'empty' : dedupeSearchResults(raw);
+    }
     if (aiResults === 'empty') return 'empty';
     if (selectedKeywords.size === 0) return [];
 
-    const { topicKeywords, platformKeywords } = interpretation
-      ? partitionAiSearchKeywords(interpretation)
-      : { topicKeywords: [], platformKeywords: [] };
-    const families = new Set(interpretation?.docFamilies ?? []);
-    const platformChipsActive = [...selectedKeywords].some(
-      (k) => platformKeywords.includes(k) || families.has(k),
-    );
-
-    const byKeyword = filterAiResultsBySelectedKeywords(aiResults, selectedKeywords, {
-      topicKeywords,
-      platformChipsActive,
-    });
-    return filterSearchByScope(byKeyword, scope);
+    const byKeyword = filterBySelectedKeywords(aiResults, selectedKeywords);
+    const scoped = filterSearchByScope(byKeyword, scope, lastAiQuery);
+    return dedupeSearchResults(scoped);
   }, [
     aiEnabled,
     degraded,
     keywordQuery.data,
     aiResults,
     selectedKeywords,
-    selectedKeywordsKey,
     scope,
-    interpretation,
+    lastAiQuery,
   ]);
 
   return {

@@ -5,6 +5,7 @@ import {
   resolveModuleGroupYamlContext,
   slugBasename,
 } from '@/lib/docs/source/collect-sibling-modules';
+import { readModuleFrontmatter } from '@/lib/docs/source/module-frontmatter';
 import { parseModuleGridBlockFromRaw } from '@/lib/docs/source/module-group-config';
 import { source } from '@/lib/docs/source/source';
 
@@ -13,7 +14,7 @@ type Page = (typeof source)['$inferPage'];
 type PageExtras = {
   entry?: string;
   tags?: string[];
-  moduleGroup?: string;
+  module?: unknown;
 };
 
 async function resolveParentGroupContext(page: Page) {
@@ -33,10 +34,13 @@ async function resolveParentGroupContext(page: Page) {
   const parsed = parseModuleGridBlockFromRaw(indexRaw, indexPage.path);
   if (!parsed) return {};
 
+  const data = page.data as PageExtras;
+  const moduleCfg = readModuleFrontmatter(data as Record<string, unknown>);
+
   return resolveModuleGroupYamlContext({
     slug: slugBasename(page.slugs),
-    entry: (page.data as PageExtras).entry,
-    moduleGroup: (page.data as PageExtras).moduleGroup,
+    entry: data.entry,
+    group: moduleCfg.group,
     groupsYaml: parsed.groups,
   });
 }

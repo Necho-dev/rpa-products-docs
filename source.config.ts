@@ -13,6 +13,7 @@ import { remarkMdxJsonSchema } from './src/lib/docs/source/remark-mdx-json-schem
 import { remarkMdxFieldTree } from './src/lib/docs/source/remark-mdx-field-tree';
 import { remarkMdxDocBlocks } from './src/lib/docs/source/remark-mdx-doc-blocks';
 import { remarkMdxChangelog } from './src/lib/docs/source/remark-mdx-changelog';
+import { remarkSectionDirective } from './src/lib/docs/source/remark-section-directive';
 import remarkDirective from 'remark-directive';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -87,16 +88,23 @@ const docsPageSchema = pageSchema.extend({
   tags: z.array(z.string()).optional(),
   /** 侧栏文档名右侧背景色徽章（与 `entry` 可同时存在） */
   badge: docBadgeSchema.optional(),
-  /** ModuleGrid 卡片主标题；未写则用 title */
-  moduleTitle: z.string().optional(),
-  /** ModuleGrid 卡片图标：`Bot` 或 `{ comp, color? }`；无 color 时为 muted 默认样式 */
-  moduleIcon: moduleIconSchema.optional(),
-  /** ModuleGrid 卡片平台主页 URL */
-  moduleUrl: z.string().url().optional(),
-  /** ModuleGrid 分组 bucket key */
-  moduleGroup: z.string().optional(),
-  /** 覆盖 grid `cover`：单卡强制开/关 cover.png */
-  moduleCover: z.boolean().optional(),
+  /**
+   * ModuleGrid 卡片专用配置（与侧栏 `title` / `icon` 分离）。
+   * - title：可选，默认文档 title
+   * - link：卡片外链
+   * - group：父页 :::module-grid YAML 的 group key
+   * - icon：卡片图标；未写时可回退页面级 `icon`
+   * - cover：覆盖 grid `cover`，单卡强制开/关
+   */
+  module: z
+    .object({
+      title: z.string().optional(),
+      link: z.string().url().optional(),
+      group: z.string().optional(),
+      icon: moduleIconSchema.optional(),
+      cover: z.boolean().optional(),
+    })
+    .optional(),
   /** 数据就绪（周期 + 时间）；仅 rpa.conn.* 连接器页展示 */
   dataReady: dataReadySchema,
   /** 预估执行耗时；仅 rpa.conn.* 连接器页展示 */
@@ -108,6 +116,8 @@ const docsPageSchema = pageSchema.extend({
 /** 目录 meta：`access: private` 时其下所有页面默认私有（除非某页写 `access: public`） */
 const docsMetaSchema = metaSchema.extend({
   access: z.enum(['public', 'private']).optional(),
+  /** 侧边栏 Tab 图标颜色（任意 CSS 颜色值，如 `#3b82f6`、`oklch(...)`）；仅 root: true 的分区目录生效 */
+  color: z.string().optional(),
 });
 
 // 文档以 .md + YAML frontmatter 为主。
@@ -174,6 +184,7 @@ export default defineConfig({
     remarkPlugins: [
       remarkDirective,
       remarkDirectiveAdmonition,
+      remarkSectionDirective,
       remarkMdxChangelog,
       remarkSteps,
       remarkMdxJsonSchema,

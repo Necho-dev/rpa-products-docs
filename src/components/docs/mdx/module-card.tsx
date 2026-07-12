@@ -32,8 +32,8 @@ export type ModuleCardProps = {
   description?: string;
   /** 文档内跳转 */
   href: string;
-  /** 子文档 entry */
-  code: string;
+  /** 子文档 entry; 未定义时不展示底部技术码 */
+  code?: string;
   /** 状态徽标（任意 label / color，由文档 frontmatter 决定） */
   badge?: ModuleCardBadge;
   /** 平台/后台入口（可选，用于 connectors/index 等手写页） */
@@ -64,8 +64,8 @@ function ModuleCardTitleIcon({
   return (
     <span
       className={cn(
-        'inline-flex size-10 shrink-0 items-center justify-center rounded-xl border border-fd-border/70 bg-fd-muted p-1.5 text-fd-muted-foreground',
-        '[&_svg]:size-5',
+        'inline-flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-fd-border/70 bg-fd-muted p-1.5 text-fd-muted-foreground',
+        '[&_img]:size-full [&_img]:object-contain [&_svg]:size-full',
       )}
     >
       {showFavicon ? (
@@ -73,10 +73,10 @@ function ModuleCardTitleIcon({
         <img
           src={faviconUrl}
           alt=""
-          width={24}
-          height={24}
+          width={28}
+          height={28}
           referrerPolicy="no-referrer"
-          className="size-6 object-contain"
+          className="size-full object-contain"
           onError={() => setFaviconFailed(true)}
         />
       ) : (
@@ -233,16 +233,13 @@ function ModuleCardScheduleLine({
   dataReady,
   estimatedDuration,
   minInterval,
-  code,
 }: {
   dataReady?: DataReadyMeta;
   estimatedDuration?: EstimatedDurationMeta;
   minInterval?: MinIntervalMeta;
-  code: string;
 }) {
   if (
     !hasScheduleMeta({
-      entry: code,
       dataReady,
       estimatedDuration,
       minInterval,
@@ -272,7 +269,6 @@ function ModuleCardHeader({
   dataReady,
   estimatedDuration,
   minInterval,
-  code,
 }: {
   icon?: ReactNode;
   faviconUrl?: string;
@@ -284,7 +280,6 @@ function ModuleCardHeader({
   dataReady?: DataReadyMeta;
   estimatedDuration?: EstimatedDurationMeta;
   minInterval?: MinIntervalMeta;
-  code: string;
 }) {
   const content = (
     <div className="flex items-start gap-2">
@@ -308,7 +303,6 @@ function ModuleCardHeader({
           dataReady={dataReady}
           estimatedDuration={estimatedDuration}
           minInterval={minInterval}
-          code={code}
         />
       </div>
     </div>
@@ -374,52 +368,55 @@ export function ModuleCard({
         dataReady={dataReady}
         estimatedDuration={estimatedDuration}
         minInterval={minInterval}
-        code={code}
       />
 
-      <div className="mt-auto space-y-2 pt-3">
-        <div className="flex min-w-0 items-center gap-1.5 rounded-lg border border-fd-border/60 bg-fd-muted/30 px-2 py-1">
-          <span
-            className="inline-flex size-6 shrink-0 items-center justify-center rounded-md border border-fd-border/60 bg-fd-muted/40 text-fd-muted-foreground"
-            title="Entry"
-            aria-hidden
-          >
-            <PackagePlus className="size-3.5" />
-          </span>
-          <code
-            className="min-w-0 flex-1 truncate font-mono text-xs font-medium text-fd-foreground"
-            title={code}
-          >
-            {code}
-          </code>
-          <EntryCopyButton value={code} />
-        </div>
+      {(code || url) ? (
+        <div className="mt-auto space-y-2 pt-3">
+          {code ? (
+            <div className="flex min-w-0 items-center gap-1.5 rounded-lg border border-fd-border/60 bg-fd-muted/30 px-2 py-1">
+              <span
+                className="inline-flex size-6 shrink-0 items-center justify-center rounded-md border border-fd-border/60 bg-fd-muted/40 text-fd-muted-foreground"
+                title="Entry"
+                aria-hidden
+              >
+                <PackagePlus className="size-3.5" />
+              </span>
+              <code
+                className="min-w-0 flex-1 truncate font-mono text-xs font-medium text-fd-foreground"
+                title={code}
+              >
+                {code}
+              </code>
+              <EntryCopyButton value={code} />
+            </div>
+          ) : null}
 
-        {url ? (
-          <div className="flex min-w-0 items-center gap-1.5 rounded-lg border border-fd-border/60 bg-fd-muted/30 px-2 py-1">
-            <span
-              className="inline-flex size-6 shrink-0 items-center justify-center rounded-md border border-fd-border/60 bg-fd-muted/40 text-fd-muted-foreground"
-              title="平台主页"
-              aria-hidden
-            >
-              <Globe className="size-3.5" />
-            </span>
-            <a
-              href={url}
-              target="_blank"
-              rel="noreferrer"
-              title={url}
-              className={cn(
-                'min-w-0 flex-1 truncate font-mono text-[11px] font-medium',
-                'text-sky-700 underline decoration-fd-border/60 underline-offset-2',
-                'hover:decoration-sky-700 dark:text-sky-300 dark:hover:decoration-sky-300',
-              )}
-            >
-              {url}
-            </a>
-          </div>
-        ) : null}
-      </div>
+          {url ? (
+            <div className="flex min-w-0 items-center gap-1.5 rounded-lg border border-fd-border/60 bg-fd-muted/30 px-2 py-1">
+              <span
+                className="inline-flex size-6 shrink-0 items-center justify-center rounded-md border border-fd-border/60 bg-fd-muted/40 text-fd-muted-foreground"
+                title="平台主页"
+                aria-hidden
+              >
+                <Globe className="size-3.5" />
+              </span>
+              <a
+                href={url}
+                target="_blank"
+                rel="noreferrer"
+                title={url}
+                className={cn(
+                  'min-w-0 flex-1 truncate font-mono text-[11px] font-medium',
+                  'text-sky-700 underline decoration-fd-border/60 underline-offset-2',
+                  'hover:decoration-sky-700 dark:text-sky-300 dark:hover:decoration-sky-300',
+                )}
+              >
+                {url}
+              </a>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -11,7 +11,7 @@ import {
   listPagesToolDescription,
   SearchDocumentationInputSchema,
   searchDocumentation,
-  searchDocsToolDescription,
+  buildSearchDocsToolDescription,
 } from '@/lib/docs/docs-site-tools';
 import {
   AddExcerptInputSchema,
@@ -26,6 +26,7 @@ import {
 import { getDocAccessContext } from '@/lib/docs/access/doc-access';
 import { inferSiteOrigin } from '@/lib/core/site-origin';
 import { createLlmProvider } from '@/lib/ai/llm';
+import { getSearchTags } from '@/lib/docs/search/search-tags';
 import { convertToModelMessages, createUIMessageStreamResponse, stepCountIs, streamText, tool } from 'ai';
 import { docsRoute } from '@/lib/core/shared';
 import type { InkeepUIMessage } from '@/lib/ai/chat-types';
@@ -58,6 +59,8 @@ export async function POST(req: Request, _ctx: RouteContext<"/api/chat">) {
 
   const siteOrigin = inferSiteOrigin(req);
   const access = getDocAccessContext(req);
+  const searchTags = getSearchTags();
+  const searchDocsDescription = buildSearchDocsToolDescription(searchTags);
 
   const result = streamText({
     model: openai(process.env.LLM_MODEL ?? ''),
@@ -84,10 +87,15 @@ After every tool call, you MUST continue and write a clear reply in the same lan
         },
       }),
       searchDocumentationPages: tool({
-        description: searchDocsToolDescription,
+        description: searchDocsDescription,
         inputSchema: SearchDocumentationInputSchema,
-        execute: async ({ query, locale, limit, scope }) => {
-          const r = await searchDocumentation(siteOrigin, query, { locale, limit, scope }, access);
+        execute: async ({ query, locale, limit, scope, tag }) => {
+          const r = await searchDocumentation(
+            siteOrigin,
+            query,
+            { locale, limit, scope, tag },
+            access,
+          );
           return r.text;
         },
       }),

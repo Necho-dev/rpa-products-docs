@@ -13,6 +13,7 @@ import {
   normalizeModuleIcon,
   type ModuleIconConfig,
 } from './module-icon-config';
+import { compareBySlugOrder } from './meta-pages-order';
 
 export const OTHER_GROUP_KEY = '__other__';
 export const OTHER_GROUP_LABEL = '其他/Other';
@@ -27,10 +28,14 @@ export type SiblingModuleInput = {
   title: string;
   description?: string;
   entry?: string;
-  moduleTitle?: string;
-  moduleGroup?: string;
-  moduleIcon?: ModuleIconConfig;
-  moduleUrl?: string;
+  /** module.title：卡片标题覆盖 */
+  cardTitle?: string;
+  /** module.group：显式分组 key */
+  group?: string;
+  /** module.icon：卡片图标 */
+  icon?: ModuleIconConfig;
+  /** module.link：卡片外链 */
+  link?: string;
   badge?: DocBadge;
   coverUrl?: string;
   dataReady?: DataReadyMeta;
@@ -44,11 +49,11 @@ export type ModuleCardData = {
   description?: string;
   badge?: DocBadge;
   href: string;
-  code: string;
+  /** 技术入口标识; 未定义 entry 时不展示 */
+  code?: string;
+  /** 卡片图标：来自 module.icon（或页面级 icon 回退） */
   icon?: ModuleIconConfig;
   url?: string;
-  /** 站内平台 favicon（/resources/images/public/_shared/...） */
-  faviconUrl?: string;
   coverUrl?: string;
   dataReady?: DataReadyMeta;
   estimatedDuration?: EstimatedDurationMeta;
@@ -137,11 +142,11 @@ export function resolveGroupBucket(
 export function resolveModuleGroupYamlContext(input: {
   slug: string;
   entry?: string;
-  moduleGroup?: string;
+  group?: string;
   groupsYaml: Record<string, ModuleGroupConfig | string>;
 }): { groupKey?: string; label?: string; icon?: ModuleIconConfig } {
   const groupKey =
-    input.moduleGroup?.trim() ||
+    input.group?.trim() ||
     inferGroupKeyByKeyword(
       input.slug,
       input.entry,
@@ -162,11 +167,13 @@ export function resolveModuleGroupYamlContext(input: {
 
 /**
  * 将 sibling 模块分配到 Tab 分组并排序。
- * 分组优先级：显式 moduleGroup → YAML key 关键词匹配（slug/entry）→ 其他。
+ * 分组优先级：显式 module.group → YAML key 关键词匹配（slug/entry）→ 其他。
+ * 组内卡片顺序: 按照 `pagesOrder` (目录 meta.json pages) 顺序，若无则按 href 字母排序
  */
 export function collectSiblingModuleGroups(
   modules: SiblingModuleInput[],
   groupsYaml: Record<string, ModuleGroupConfig | string>,
+  pagesOrder: readonly string[] = [],
 ): ModuleGroupData[] {
   const yamlOrder = Object.keys(groupsYaml);
   const bucketMap = new Map<string, ModuleGroupData>();
@@ -190,10 +197,12 @@ export function collectSiblingModuleGroups(
   }
 
   for (const mod of modules) {
-    if (!mod.entry?.trim()) continue;
+    // 入格条件: module.group / slug 任意存在即可
+    if (!mod.group?.trim() && !mod.slug?.trim()) continue;
 
+    // 读取优先级: 显式 module.group -> 关键词匹配(slug/entry) -> 其他
     const rawKey =
-      mod.moduleGroup?.trim() ||
+      mod.group?.trim() ||
       inferGroupKeyByKeyword(mod.slug, mod.entry, yamlOrder) ||
       OTHER_GROUP_KEY;
 
@@ -202,19 +211,19 @@ export function collectSiblingModuleGroups(
 
     const bucket = ensureBucket(bucketKey, bucketLabel, bucketIcon);
     const scheduleFields: ScheduleMetaFields = {
-      entry: mod.entry,
       dataReady: mod.dataReady,
       estimatedDuration: mod.estimatedDuration,
       minInterval: mod.minInterval,
     };
+    const entry = mod.entry?.trim();
     bucket.modules.push({
-      title: mod.moduleTitle?.trim() || mod.title,
+      title: mod.cardTitle?.trim() || mod.title,
       description: mod.description?.trim() || undefined,
       badge: mod.badge,
       href: `./${mod.slug}`,
-      code: mod.entry.trim(),
-      ...(mod.moduleIcon ? { icon: mod.moduleIcon } : {}),
-      ...(mod.moduleUrl?.trim() ? { url: mod.moduleUrl.trim() } : {}),
+      ...(entry ? { code: entry } : {}),
+      ...(mod.icon ? { icon: mod.icon } : {}),
+      ...(mod.link?.trim() ? { url: mod.link.trim() } : {}),
       ...(mod.coverUrl ? { coverUrl: mod.coverUrl } : {}),
       ...(hasScheduleMeta(scheduleFields)
         ? {
@@ -227,7 +236,14 @@ export function collectSiblingModuleGroups(
   }
 
   for (const bucket of bucketMap.values()) {
-    bucket.modules.sort((a, b) => a.href.localeCompare(b.href));
+    // 有 meta pages 顺序时按侧栏对齐；否则保持入参顺序（扫描/采集侧已排好）
+    if (pagesOrder.length > 0) {
+      bucket.modules.sort((a, b) => {
+        const slugA = a.href.replace(/^\.\//, '');
+        const slugB = b.href.replace(/^\.\//, '');
+        return compareBySlugOrder(slugA, slugB, pagesOrder);
+      });
+    }
   }
 
   const orderedKeys: string[] = [];

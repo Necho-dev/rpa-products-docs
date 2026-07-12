@@ -101,6 +101,29 @@ describe('formatModuleGridDirectiveWithModules', () => {
     assert.match(md, /layout: stack/);
     assert.match(md, /taobao:/);
   });
+
+  it('preserves flat layout in exported YAML', () => {
+    const md = formatModuleGridDirectiveWithModules(
+      { taobao: { label: '淘宝 / 天猫' } },
+      [
+        {
+          key: 'taobao',
+          label: '淘宝 / 天猫',
+          modules: [
+            {
+              title: '千牛',
+              href: './RPA_QIANNIU',
+              code: 'RPA_QIANNIU',
+            },
+          ],
+        },
+      ],
+      'flat',
+    );
+
+    assert.match(md, /layout: flat/);
+    assert.match(md, /taobao:/);
+  });
 });
 
 describe('stripTocOnlyHeadings', () => {
@@ -158,13 +181,13 @@ describe('scanCatalogPackageIndexModulesSync', () => {
   it('reads package index pages from subdirectories', () => {
     const indexPath = path.join(
       process.cwd(),
-      'content/docs/index.mdx',
+      'content/docs/rpa/index.mdx',
     );
     const modules = scanCatalogPackageIndexModulesSync(indexPath);
 
     assert.ok(modules.length >= 6);
     assert.ok(modules.some((m) => m.slug === 'RPA_QIANNIU'));
-    assert.ok(modules.some((m) => m.moduleGroup === 'taobao'));
+    assert.ok(modules.some((m) => m.group === 'taobao'));
   });
 });
 
@@ -172,7 +195,7 @@ describe('scanModuleGridModulesSync', () => {
   it('falls back to catalog scan when flat siblings are empty', () => {
     const indexPath = path.join(
       process.cwd(),
-      'content/docs/index.mdx',
+      'content/docs/rpa/index.mdx',
     );
     const modules = scanModuleGridModulesSync(indexPath);
 

@@ -34,6 +34,58 @@ html > body[data-scroll-locked] {
   --removed-body-scroll-bar-size: 0px !important;
 }
 
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  50% { transform: translateY(-6px); opacity: 1; }
+}
+
+/* AI 回答区域：彻底禁止 ::marker，用 before 伪元素自定义列表符号 */
+.ai-answer-prose ul,
+.ai-answer-prose ol {
+  list-style: none !important;
+  padding-left: 0 !important;
+  counter-reset: ai-item;
+}
+.ai-answer-prose ul > li,
+.ai-answer-prose ol > li {
+  list-style: none !important;
+}
+.ai-answer-prose ul > li::marker,
+.ai-answer-prose ol > li::marker {
+  content: none !important;
+}
+/* ol 自定义序号（before 伪元素） */
+.ai-answer-prose ol > li {
+  counter-increment: ai-item;
+  position: relative;
+  padding-left: 1.25rem;
+}
+.ai-answer-prose ol > li::before {
+  content: counter(ai-item) ".";
+  position: absolute;
+  left: 0;
+  font-size: 11px;
+  color: var(--color-fd-muted-foreground, #888);
+  font-variant-numeric: tabular-nums;
+}
+/* ul 自定义符号（before 伪元素） */
+.ai-answer-prose ul > li {
+  position: relative;
+  padding-left: 0.875rem;
+}
+.ai-answer-prose ul > li::before {
+  content: "·";
+  position: absolute;
+  left: 0.25rem;
+  font-weight: 700;
+  color: var(--color-fd-muted-foreground, #888);
+}
+
 
 /*
  * 文档区网格（见 fumadocs #nd-docs-layout）：主栏宽度 ≈

@@ -1,7 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
-import { createPortal } from 'react-dom';
+import { useCallback, useState } from 'react';
+import * as RadixDialog from '@radix-ui/react-dialog';
 import {
   AlertTriangleIcon,
   CheckIcon,
@@ -15,12 +15,6 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/core/cn';
 import { siteName } from '@/lib/core/shared';
 import { safeWriteClipboard } from '@/lib/ui/code-block-utils';
-
-const emptySubscribe = () => () => {};
-
-function useIsClient() {
-  return useSyncExternalStore(emptySubscribe, () => true, () => false);
-}
 
 function isExternalHref(href: string): boolean {
   return /^\w+:/.test(href) || href.startsWith('//');
@@ -57,26 +51,15 @@ export type LinkActionDialogProps = {
   onClose: () => void;
 };
 
+/**
+ * 使用 Radix Dialog 实现，确保嵌套在其他 Radix Dialog（如搜索弹窗）内时
+ * 仍能正常接收点击事件——createPortal 到 body 会被父 Dialog 的 aria-hidden 屏蔽。
+ */
 export function LinkActionDialog({ open, href, onClose }: LinkActionDialogProps) {
-  const isClient = useIsClient();
   const router = useRouter();
   const absoluteUrl = toAbsoluteUrl(href);
   const external = !isSameOriginLink(absoluteUrl);
   const hint = getLinkHint(absoluteUrl);
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.removeEventListener('keydown', onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [open, onClose]);
 
   const openSameTab = useCallback(() => {
     onClose();
@@ -92,31 +75,37 @@ export function LinkActionDialog({ open, href, onClose }: LinkActionDialogProps)
     window.open(absoluteUrl, '_blank', 'noopener,noreferrer');
   }, [absoluteUrl, onClose]);
 
-  const dialog =
-    open && isClient ? (
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="链接操作"
-        className="fixed inset-0 z-9999 flex items-end justify-center bg-black/50 backdrop-blur-sm p-0 sm:items-center sm:p-4"
-        onClick={onClose}
-      >
-        <div
-          className="relative flex w-full max-w-md flex-col overflow-hidden rounded-t-2xl border border-fd-border/60 bg-fd-card shadow-2xl sm:rounded-2xl"
-          onClick={(e) => e.stopPropagation()}
+  return (
+    <RadixDialog.Root open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
+      <RadixDialog.Portal>
+        <RadixDialog.Overlay className="fixed inset-0 z-9999 bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <RadixDialog.Content
+          className={cn(
+            'fixed left-1/2 top-1/2 z-9999 w-full max-w-md -translate-x-1/2 -translate-y-1/2',
+            'flex flex-col overflow-hidden rounded-2xl border border-fd-border/60 bg-fd-card shadow-2xl',
+            'data-[state=open]:animate-in data-[state=closed]:animate-out',
+            'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+            'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+          )}
+          onOpenAutoFocus={(e) => e.preventDefault()}
         >
+          <RadixDialog.Title className="sr-only">链接操作</RadixDialog.Title>
+
+          {/* 标题栏 */}
           <div className="flex shrink-0 items-center justify-between gap-3 px-4 py-3">
             <span className="text-sm font-medium">跳转提示</span>
-            <button
-              type="button"
-              title="关闭"
-              onClick={onClose}
-              className="flex size-8 items-center justify-center rounded-lg text-fd-muted-foreground transition-colors hover:bg-fd-muted hover:text-fd-foreground"
-            >
-              <XIcon className="size-4" />
-            </button>
+            <RadixDialog.Close asChild>
+              <button
+                type="button"
+                title="关闭"
+                className="flex size-8 items-center justify-center rounded-lg text-fd-muted-foreground transition-colors hover:bg-fd-muted hover:text-fd-foreground"
+              >
+                <XIcon className="size-4" />
+              </button>
+            </RadixDialog.Close>
           </div>
 
+          {/* 提示内容 */}
           <div className="shrink-0 space-y-1.5 px-4 pb-3">
             <p
               className={cn(
@@ -127,15 +116,9 @@ export function LinkActionDialog({ open, href, onClose }: LinkActionDialogProps)
               )}
             >
               {hint.kind === 'external' ? (
-                <AlertTriangleIcon
-                  className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400"
-                  aria-hidden
-                />
+                <AlertTriangleIcon className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden />
               ) : (
-                <ShieldCheckIcon
-                  className="mt-0.5 size-4 shrink-0 text-emerald-600 dark:text-emerald-400"
-                  aria-hidden
-                />
+                <ShieldCheckIcon className="mt-0.5 size-4 shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden />
               )}
               <span>{hint.text}</span>
             </p>
@@ -148,13 +131,12 @@ export function LinkActionDialog({ open, href, onClose }: LinkActionDialogProps)
             </p>
           </div>
 
+          {/* 操作按钮行 */}
           <div className="flex divide-x divide-fd-border/50 border-t border-fd-border/40">
             <LinkActionButton
               icon={<CopyIcon />}
               label="复制链接"
-              onAction={async () => {
-                await safeWriteClipboard(absoluteUrl);
-              }}
+              onAction={async () => { await safeWriteClipboard(absoluteUrl); }}
               onClose={onClose}
               successLabel="复制成功"
             />
@@ -171,11 +153,10 @@ export function LinkActionDialog({ open, href, onClose }: LinkActionDialogProps)
               onClose={onClose}
             />
           </div>
-        </div>
-      </div>
-    ) : null;
-
-  return isClient && dialog ? createPortal(dialog, document.body) : null;
+        </RadixDialog.Content>
+      </RadixDialog.Portal>
+    </RadixDialog.Root>
+  );
 }
 
 function LinkActionButton({
@@ -211,7 +192,6 @@ function LinkActionButton({
             }, 900);
             return;
           }
-          onClose();
         });
       }}
     >

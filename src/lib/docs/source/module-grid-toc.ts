@@ -1,7 +1,8 @@
 /*
- * ModuleGrid TOC 策略（tabs vs stack）：
- * - tabs：remark 注入带 [toc] 的虚拟 heading，React 用 sectionAnchorId 联动 hash。
- * - stack：分组 H3 由 React 渲染，不在 markdown AST；运行时 resolveModuleGridStackToc 补全 TOC。
+ * ModuleGrid TOC 策略:
+ * - tabs: remark 注入带 [toc] 的虚拟 heading, React 用 sectionAnchorId 联动 hash。
+ * - stack: 分组 H3 由 React 渲染, 不在 markdown AST; 运行时 resolveModuleGridStackToc 补全 TOC。
+ * - flat: 不展示分类, 不注入分组 TOC;
  */
 import GithubSlugger from 'github-slugger';
 import type { Heading, PhrasingContent, RootContent } from 'mdast';

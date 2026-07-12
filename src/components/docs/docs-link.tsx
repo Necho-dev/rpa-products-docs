@@ -4,6 +4,24 @@ import { forwardRef, useState, type MouseEvent } from 'react';
 import FumadocsLink, { type LinkProps } from 'fumadocs-core/link';
 import { LinkActionDialog } from '@/components/docs/link-action-dialog';
 
+function isExternalHref(href: string): boolean {
+  return /^\w+:/.test(href) || href.startsWith('//');
+}
+
+function isSameOrigin(href: string): boolean {
+  if (typeof window === 'undefined') return false;
+  if (!isExternalHref(href)) return true; // 相对路径 / 绝对路径均视为同源
+  try {
+    return new URL(href).origin === window.location.origin;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * 需要弹出操作菜单的链接：所有非纯锚点链接（含同源和外部）。
+ * 纯锚点（#section）不拦截。
+ */
 function shouldInterceptLink(href: string | undefined): boolean {
   if (!href || href === '#') return false;
   if (href.startsWith('#') && !href.slice(1).includes('/')) return false;

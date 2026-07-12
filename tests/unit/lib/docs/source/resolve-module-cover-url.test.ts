@@ -15,22 +15,23 @@ describe('resolveModuleCoverUrl', () => {
       ['RPA_ALIMM', 'rpa-conn-alimm-pxb-foo'],
       { gridCover: true },
     );
-    assert.ok(url?.endsWith('/cover.png'));
+    assert.ok(url?.includes('/cover.png?'));
+    assert.match(url!, /[?&]v=\d+/);
   });
 
-  it('respects moduleCover: true when grid cover is false', () => {
+  it('respects module.cover: true when grid cover is false', () => {
     const url = resolveModuleCoverUrl(['RPA_ALIMM'], {
       gridCover: false,
-      moduleCover: true,
+      cover: true,
     });
-    assert.ok(url?.includes('/og/docs/RPA_ALIMM/cover.png'));
+    assert.ok(url?.includes('/og/docs/RPA_ALIMM/cover.png?'));
   });
 
-  it('respects moduleCover: false when grid cover is true', () => {
+  it('respects module.cover: false when grid cover is true', () => {
     assert.equal(
       resolveModuleCoverUrl(
         ['RPA_ALIMM', 'rpa-conn-alimm-pxb-foo'],
-        { gridCover: true, moduleCover: false },
+        { gridCover: true, cover: false },
       ),
       undefined,
     );

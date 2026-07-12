@@ -95,7 +95,7 @@ export function getMDXComponents(components?: MDXComponents) {
     ChangelogTimeline,
     ChangelogEntry,
     table: TableWithExport,
-    img: ({ className, ...props }: React.ComponentProps<'img'>) => {
+    img: ({ className, style, ...props }: React.ComponentProps<'img'>) => {
       const isFirst = mdxInlineImageIndex++ === 0;
       return (
         <ImageZoom
@@ -103,6 +103,9 @@ export function getMDXComponents(components?: MDXComponents) {
           quality={95}
           priority={isFirst}
           sizes="(max-width: 768px) 100vw, (max-width: 1280px) 90vw, min(72vw, 1600px)"
+          // Global CSS sets max-width:100% which changes width; Next/Image requires
+          // the other axis to be auto on the style prop to keep aspect ratio.
+          style={{ width: 'auto', height: 'auto', ...style }}
           className={cn(
             'rounded-xl shadow-md shadow-black/10 dark:shadow-black/30 border border-fd-border/30 [image-rendering:high-quality]',
             className,

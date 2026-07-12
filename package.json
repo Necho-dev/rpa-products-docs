@@ -9,7 +9,9 @@
     "start:standalone": "bash scripts/start-standalone.sh",
     "types:check": "fumadocs-mdx && next typegen && tsc --noEmit",
     "test:unit": "tsx --test tests/**/*.test.ts",
-    "sync:platform-favicons": "tsx scripts/sync-platform-favicons.ts",
+    "icons": "tsx scripts/icons/index.ts",
+    "icons:platform": "tsx scripts/icons/index.ts platform",
+    "icons:shared": "tsx scripts/icons/index.ts shared",
     "postinstall": "fumadocs-mdx",
     "lint": "eslint"
   },

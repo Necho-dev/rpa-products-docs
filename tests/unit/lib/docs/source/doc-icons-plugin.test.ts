@@ -11,7 +11,7 @@ describe('resolveDocIcon', () => {
   });
 
   it('resolves platform code to bordered favicon frame', () => {
-    const el = resolveDocIcon('RPA_QIANNIU');
+    const el = resolveDocIcon('QIANNIU');
     assert.ok(el);
     assert.equal(isValidElement(el), true);
     assert.equal(el!.type, 'span');
@@ -25,7 +25,7 @@ describe('resolveDocIcon', () => {
     assert.equal(children!.type, 'img');
     assert.equal(
       (children!.props as { src: string }).src,
-      '/resources/images/public/_shared/favicons/myseller.taobao.com.png',
+      '/resources/images/_public/_shared/platform/files/QIANNIU.png',
     );
   });
 

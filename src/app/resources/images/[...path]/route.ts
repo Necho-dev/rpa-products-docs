@@ -18,10 +18,19 @@ export const runtime = 'nodejs';
  * 路由根目录：content/docs/
  *
  * URL 与文件系统映射规则：
- * - `/resources/images/public/images/qianniu/foo.png`
- *     → `content/docs/public/images/qianniu/foo.png`   （公共图片目录，旧格式兼容）
- * - `/resources/images/RPA_ALIMM/foo.png`
- *     → `content/docs/RPA_ALIMM/foo.png`  （平台连接器目录内图片）
+ *
+ *   /resources/images/{relative}  →  content/docs/{relative}
+ *
+ * 示例：
+ * - `/resources/images/_public/_shared/platform/files/DEWU.png`
+ *     → `content/docs/_public/_shared/platform/files/DEWU.png`（全局共享图标）
+ * - `/resources/images/rpa/_public/images/qianniu/foo.png`
+ *     → `content/docs/rpa/_public/images/qianniu/foo.png`（rpa 项目图片）
+ * - `/resources/images/auth/_public/images/ACCOUNT_PASSWORD/RPA_DOUDIAN/foo.png`
+ *     → `content/docs/auth/_public/images/ACCOUNT_PASSWORD/RPA_DOUDIAN/foo.png`（auth 项目图片）
+ *
+ * Markdown 中的相对图片路径（如 `../_public/images/dewu/foo.png`）经
+ * resolveDocRelativeImagePath 展开后已带项目前缀，直接命中上述规则。
  *
  * 安全限制：只允许访问图片扩展名文件，防止 .md / .json 等文档源码泄露。
  */
@@ -75,7 +84,6 @@ export async function GET(
     return new NextResponse('forbidden', { status: 403 });
   }
 
-  // 防路径穿越：规范化后必须仍在 DOCS_BASE_DIR 内
   const relative = path.join('/');
 
   if (resourcesRequireEmbedSign() && !isPublicResourceRelativePath(relative)) {
@@ -87,19 +95,26 @@ export async function GET(
     }
   }
 
+  // 防路径穿越：规范化后必须仍在 DOCS_BASE_DIR 内
   const resolved = normalize(join(DOCS_BASE_DIR, relative));
   if (!resolved.startsWith(DOCS_BASE_DIR + '/') && resolved !== DOCS_BASE_DIR) {
     return new NextResponse('forbidden', { status: 403 });
   }
 
-  let data: Buffer;
+  let data: Buffer | undefined;
+  let lastErr: NodeJS.ErrnoException | undefined;
   try {
     data = await readFile(resolved);
   } catch (err) {
-    if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
+    lastErr = err as NodeJS.ErrnoException;
+    if (lastErr.code !== 'ENOENT') throw err;
+  }
+
+  if (!data) {
+    if (lastErr?.code === 'ENOENT') {
       return new NextResponse('not found', { status: 404 });
     }
-    throw err;
+    return new NextResponse('forbidden', { status: 403 });
   }
 
   const cacheControl = resourcesRequireEmbedSign()

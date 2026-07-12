@@ -210,7 +210,7 @@ sequenceDiagram
 
 | 参数 | 必须 | 说明 |
 |------|------|------|
-| `path` | 是 | 相对路径，如 `public/images/qianniu/foo.png`（不含 `/resources/images` 前缀） |
+| `path` | 是 | 相对路径，如 `_public/images/qianniu/foo.png`（不含 `/resources/images` 前缀） |
 
 **魔方侧处理**：
 
@@ -253,7 +253,7 @@ sg = SHA256(METHOD + "\n" + PATH + "\n" + tm + "\n" + App Secret)  ← hex
 | 请求类型 | PATH 示例 |
 |---------|----------|
 | 拉文档正文 | `/docs/RPA_QIANNIU/foo` |
-| 回源图片 | `/resources/images/public/images/qianniu/foo.png` |
+| 回源图片 | `/resources/images/_public/images/qianniu/foo.png` |
 
 **传参方式**（Header 优先，Query 备用）：
 
@@ -358,7 +358,7 @@ python3 scripts/mock-cube-docs-auth.py
 | 嵌入 HTML（方案 A） | `http://127.0.0.1:8765/docsAuth?redirect=/docs/RPA_QIANNIU/foo&render=html` |
 | 嵌入 Markdown（方案 A） | `http://127.0.0.1:8765/docsAuth?redirect=/docs/RPA_QIANNIU/foo&render=markdown` |
 | 嵌入 HTML（方案 B） | `http://127.0.0.1:8765/docsContent?path=/docs/RPA_QIANNIU/foo&render=html` |
-| 图片代理 | `http://127.0.0.1:8765/docsResources?path=public/images/qianniu/foo.png` |
+| 图片代理 | `http://127.0.0.1:8765/docsResources?path=_public/images/qianniu/foo.png` |
 | 链式登出 | `http://127.0.0.1:8765/logout` |
 
 ---

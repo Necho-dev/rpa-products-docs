@@ -6,8 +6,13 @@ import {
   type ModuleGroupData,
   type SiblingModuleInput,
 } from '@/lib/docs/source/collect-sibling-modules';
+import { readModuleFrontmatter } from '@/lib/docs/source/module-frontmatter';
 import type { ModuleGroupConfig, ModuleGridLayout } from '@/lib/docs/source/module-group-config';
 import type { ModuleIconConfig } from '@/lib/docs/source/module-icon-config';
+import {
+  compareBySlugOrder,
+  parseMetaPagesOrder,
+} from '@/lib/docs/source/meta-pages-order';
 
 const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---/;
 
@@ -15,7 +20,8 @@ export type ScannedSiblingModule = {
   slug: string;
   title: string;
   entry?: string;
-  moduleGroup?: string;
+  /** module.group */
+  group?: string;
   /** frontmatter `badge`；任意 label，不做业务枚举限制 */
   badge?: { label: string; color?: string };
 };
@@ -47,8 +53,7 @@ function readSiblingModuleFromMarkdownFile(
   const fm = parseFrontmatter(raw);
   const title = typeof fm.title === 'string' ? fm.title : slug;
   const entry = typeof fm.entry === 'string' ? fm.entry : undefined;
-  const moduleGroup =
-    typeof fm.moduleGroup === 'string' ? fm.moduleGroup : undefined;
+  const group = readModuleFrontmatter(fm).group;
 
   let badge: ScannedSiblingModule['badge'];
   const rawBadge = fm.badge;
@@ -69,7 +74,7 @@ function readSiblingModuleFromMarkdownFile(
     slug,
     title,
     entry,
-    moduleGroup,
+    group,
     badge,
   };
 }
@@ -78,6 +83,7 @@ export function scanSiblingMarkdownModulesSync(
   indexFilePath: string,
 ): ScannedSiblingModule[] {
   const dir = path.dirname(indexFilePath);
+  const pagesOrder = readMetaPagesOrderFromDir(dir);
   let names: string[];
   try {
     names = readdirSync(dir);
@@ -87,16 +93,17 @@ export function scanSiblingMarkdownModulesSync(
 
   const modules: ScannedSiblingModule[] = [];
 
-  for (const name of names.sort()) {
+  for (const name of names) {
     if (!name.endsWith('.md')) continue;
     if (name === 'index.md' || name === 'index.mdx') continue;
 
     const slug = name.replace(/\.mdx?$/, '');
     const filePath = path.join(dir, name);
-    const module = readSiblingModuleFromMarkdownFile(slug, filePath);
-    if (module) modules.push(module);
+    const scannedModule = readSiblingModuleFromMarkdownFile(slug, filePath);
+    if (scannedModule) modules.push(scannedModule);
   }
 
+  modules.sort((a, b) => compareBySlugOrder(a.slug, b.slug, pagesOrder));
   return modules;
 }
 
@@ -105,6 +112,7 @@ export function scanCatalogPackageIndexModulesSync(
   indexFilePath: string,
 ): ScannedSiblingModule[] {
   const dir = path.dirname(indexFilePath);
+  const pagesOrder = readMetaPagesOrderFromDir(dir);
   let entries: Dirent[];
   try {
     entries = readdirSync(dir, { withFileTypes: true });
@@ -114,19 +122,20 @@ export function scanCatalogPackageIndexModulesSync(
 
   const modules: ScannedSiblingModule[] = [];
 
-  for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+  for (const entry of entries) {
     if (!entry.isDirectory()) continue;
 
     const slug = entry.name;
     const indexMd = path.join(dir, slug, 'index.md');
     const indexMdx = path.join(dir, slug, 'index.mdx');
 
-    const module =
+    const scannedModule =
       readSiblingModuleFromMarkdownFile(slug, indexMd) ??
       readSiblingModuleFromMarkdownFile(slug, indexMdx);
-    if (module) modules.push(module);
+    if (scannedModule) modules.push(scannedModule);
   }
 
+  modules.sort((a, b) => compareBySlugOrder(a.slug, b.slug, pagesOrder));
   return modules;
 }
 
@@ -141,38 +150,72 @@ export function scanModuleGridModulesSync(
 function scannedModulesToSiblingInputs(
   modules: ScannedSiblingModule[],
 ): SiblingModuleInput[] {
+  // module.group / slug 任意满足即可入格
   return modules
-    .filter((m) => m.entry?.trim())
+    .filter((m) => Boolean(m.group?.trim() || m.slug?.trim()))
     .map((m) => ({
       slug: m.slug,
       title: m.title,
       entry: m.entry,
-      moduleGroup: m.moduleGroup,
-      groupExplicit: Boolean(m.moduleGroup?.trim()),
+      group: m.group,
+      groupExplicit: Boolean(m.group?.trim()),
     }));
 }
 
-/** 从 :::meta-panel 块解析 platformUrl，供 moduleUrl 回退 */
-export function parseMetaPanelPlatformUrl(content: string): string | undefined {
+export type MetaPanelFields = {
+  platformUrl?: string;
+  icon?: string;
+};
+
+function parseMetaPanelBlock(content: string): MetaPanelFields {
   const match = META_PANEL_BLOCK_RE.exec(content);
-  if (!match?.[1]) return undefined;
+  if (!match?.[1]) return {};
 
   try {
     const data = parseYaml(match[1]);
-    if (!data || typeof data !== 'object' || Array.isArray(data)) return undefined;
-    const url = (data as Record<string, unknown>).platformUrl;
-    return typeof url === 'string' && url.trim() ? url.trim() : undefined;
+    if (!data || typeof data !== 'object' || Array.isArray(data)) return {};
+    const record = data as Record<string, unknown>;
+    const platformUrl =
+      typeof record.platformUrl === 'string' && record.platformUrl.trim()
+        ? record.platformUrl.trim()
+        : undefined;
+    const icon =
+      typeof record.icon === 'string' && record.icon.trim()
+        ? record.icon.trim()
+        : undefined;
+    return { platformUrl, icon };
   } catch {
-    return undefined;
+    return {};
+  }
+}
+
+/** 从 :::meta-panel 块解析 platformUrl */
+export function parseMetaPanelPlatformUrl(content: string): string | undefined {
+  return parseMetaPanelBlock(content).platformUrl;
+}
+
+/** 从 :::meta-panel 块解析 icon CODE */
+export function parseMetaPanelIcon(content: string): string | undefined {
+  return parseMetaPanelBlock(content).icon;
+}
+
+function readMetaPagesOrderFromDir(dir: string): string[] {
+  try {
+    const raw = readFileSync(path.join(dir, 'meta.json'), 'utf8');
+    const data = JSON.parse(raw) as { pages?: unknown };
+    return parseMetaPagesOrder(data.pages);
+  } catch {
+    return [];
   }
 }
 
 export function collectModuleGridGroupsFromScan(
   modules: ScannedSiblingModule[],
   groupsYaml: Record<string, ModuleGroupConfig | string>,
+  pagesOrder: readonly string[] = [],
 ): ModuleGroupData[] {
   const inputs = scannedModulesToSiblingInputs(modules);
-  return collectSiblingModuleGroups(inputs, groupsYaml);
+  return collectSiblingModuleGroups(inputs, groupsYaml, pagesOrder);
 }
 
 export function readPackageEntryFromFileContent(content: string): string | undefined {
@@ -182,8 +225,9 @@ export function readPackageEntryFromFileContent(content: string): string | undef
 
 /**
  * 从文档绝对/相对路径推导 fumadocs pageSlug。
- * - `content/docs/index.mdx` → `[]`（根概览页）
- * - `content/docs/RPA_QIANNIU/index.md` → `['RPA_QIANNIU']`
+ * - `content/docs/rpa/index.mdx` → `['rpa']`
+ * - `content/docs/rpa/RPA_QIANNIU/index.md` → `['rpa', 'RPA_QIANNIU']`
+ * - `content/docs/auth/index.md` → `['auth']`
  * - 路径不在 content/docs 下 → `null`
  */
 export function pageSlugFromDocFile(filePath: string): string[] | null {
@@ -215,8 +259,8 @@ export function formatModuleGridDirectiveWithModules(
   if (nonEmptyGroups.length === 0) return '';
 
   const payload: Record<string, unknown> = {};
-  if (layout === 'stack') {
-    payload.layout = 'stack';
+  if (layout !== 'tabs') {
+    payload.layout = layout;
   }
   if (cover) {
     payload.cover = true;
@@ -231,7 +275,7 @@ export function formatModuleGridDirectiveWithModules(
       modules: group.modules.map((m) => ({
         title: m.title,
         slug: m.href.replace(/^\.\//, ''),
-        entry: m.code,
+        ...(m.code ? { entry: m.code } : {}),
       })),
     };
   }

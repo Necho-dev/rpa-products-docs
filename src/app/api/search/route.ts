@@ -22,7 +22,7 @@ export async function GET(request: Request) {
 
   const access = getDocAccessContext(request);
   const raw = await getDocsSearchApi().search(query, readOptions);
-  const filtered = filterSearchByScope(filterSearchHitsByDocAccess(raw, access), scope);
+  const filtered = filterSearchByScope(filterSearchHitsByDocAccess(raw, access), scope, query);
 
   return Response.json(filtered);
 }

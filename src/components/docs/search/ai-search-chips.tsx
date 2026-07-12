@@ -24,12 +24,13 @@ export function AiSearchChips({
   degraded,
   aiError,
 }: AiSearchChipsProps) {
-  const chipLabels = interpretation
-    ? [
-        ...interpretation.keywords,
-        ...(interpretation.docFamilies ?? []).filter((f) => !interpretation.keywords.includes(f)),
-      ]
-    : [];
+  const keywords = interpretation?.keywords ?? [];
+  const primarySet = new Set(interpretation?.primaryKeywords ?? []);
+  // 核心词在前，扩展词在后
+  const primary = keywords.filter((k) => primarySet.has(k));
+  const secondary = keywords.filter((k) => !primarySet.has(k));
+  const chipLabels = [...primary, ...secondary];
+
   const allSelected = chipLabels.length > 0 && chipLabels.every((k) => selectedKeywords.has(k));
   const errorMessage = aiError ? getAiSearchErrorMessage(aiError) : null;
 
@@ -39,7 +40,7 @@ export function AiSearchChips({
     <div className="flex flex-col gap-2 border-b px-3 py-2.5">
       {interpretation && (
         <p className="text-xs text-fd-muted-foreground">
-          <span className="font-medium text-fd-foreground/80">智能语义理解:</span>
+          <span className="font-medium text-fd-foreground/80">智能语义理解: </span>
           {interpretation.summary}
         </p>
       )}
@@ -59,6 +60,7 @@ export function AiSearchChips({
         <div className="flex flex-wrap items-center gap-1.5">
           {chipLabels.map((keyword) => {
             const active = selectedKeywords.has(keyword);
+            const isPrimary = primarySet.has(keyword);
             return (
               <button
                 key={keyword}
@@ -69,8 +71,11 @@ export function AiSearchChips({
                   'rounded-full border px-2.5 py-1 text-xs font-medium transition-colors',
                   active
                     ? 'border-fd-primary/40 bg-fd-primary/10 text-fd-primary'
-                    : 'border-fd-border text-fd-muted-foreground hover:bg-fd-accent',
+                    : isPrimary
+                      ? 'border-fd-border/80 text-fd-foreground/60 hover:bg-fd-accent'
+                      : 'border-dashed border-fd-border/60 text-fd-muted-foreground hover:bg-fd-accent',
                 )}
+                title={isPrimary ? '核心关键词' : '扩展词'}
               >
                 {keyword}
               </button>

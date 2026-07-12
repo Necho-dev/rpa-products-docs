@@ -1,6 +1,3 @@
-export function isConnectorEntry(entry?: string): boolean {
-  return entry?.startsWith('rpa.conn.') ?? false;
-}
 
 export type DurationDisplayVariant = {
   value: string;
@@ -122,7 +119,6 @@ export type EstimatedDurationMeta = DurationValueMeta;
 export type MinIntervalMeta = DurationValueMeta;
 
 export type ScheduleMetaFields = {
-  entry?: string;
   dataReady?: DataReadyMeta;
   estimatedDuration?: EstimatedDurationMeta;
   minInterval?: MinIntervalMeta;
@@ -146,8 +142,8 @@ export function hasDataReady(data?: DataReadyMeta): boolean {
   return data != null && (data.time != null || data.cycle != null);
 }
 
+/** 存在任意调度字段即展示调度面板，与 entry 前缀无关。 */
 export function hasScheduleMeta(data: ScheduleMetaFields): boolean {
-  if (!isConnectorEntry(data.entry)) return false;
   return (
     hasDataReady(data.dataReady) ||
     hasDurationMeta(data.estimatedDuration) ||

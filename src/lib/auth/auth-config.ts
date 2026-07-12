@@ -97,10 +97,10 @@ export function resourcesRequireEmbedSign(): boolean {
   return false;
 }
 
-/** 内置免验签前缀（平台 favicon 等共享静态资源） */
-const BUILTIN_RESOURCES_PUBLIC_PREFIXES = ['public/_shared'];
+/** 内置免验签前缀（平台 favicon、shared icons 等共享静态资源） */
+const BUILTIN_RESOURCES_PUBLIC_PREFIXES = ['_public/_shared'];
 
-/** 逗号分隔, 相对 `content/docs/` 的路径前缀, 免 embed 验签 (如 `public/images/`) */
+/** 逗号分隔，相对 `content/docs/` 的路径前缀，免 embed 验签（如 `rpa/_public/images/`） */
 export function resourcesPublicPrefixes(): string[] {
   const raw = trimEnv('DOCS_RESOURCES_PUBLIC_PREFIXES');
   const fromEnv = raw

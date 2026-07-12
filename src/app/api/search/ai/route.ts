@@ -18,6 +18,8 @@ type AiSearchRequestBody = {
   scope?: unknown;
   locale?: unknown;
   limit?: unknown;
+  /** 分区 slug（如 rpa / auth）；省略或空表示全部分区 */
+  tag?: unknown;
 };
 
 export async function POST(request: Request) {
@@ -39,9 +41,11 @@ export async function POST(request: Request) {
   const locale = typeof body.locale === 'string' ? body.locale : null;
   const limit =
     typeof body.limit === 'number' && Number.isInteger(body.limit) ? body.limit : undefined;
+  const tag =
+    typeof body.tag === 'string' && body.tag.trim() ? body.tag.trim() : null;
 
   // 命中 LRU 缓存时不调用 LLM，也不计入限流
-  const cacheHit = Boolean(peekCachedAiInterpretation(query, locale));
+  const cacheHit = Boolean(peekCachedAiInterpretation(query, locale, tag));
   if (!cacheHit) {
     const rateLimitKey = resolveAiSearchRateLimitKey(request, access);
     const rateLimit = checkAiSearchRateLimit(rateLimitKey);
@@ -53,7 +57,7 @@ export async function POST(request: Request) {
     }
   }
 
-  const result = await runAiSearch({ query, scope, locale, limit, access });
+  const result = await runAiSearch({ query, locale, limit, tag, access });
 
   if (!result.ok) {
     const { kind } = result.error;
@@ -62,6 +66,7 @@ export async function POST(request: Request) {
         query,
         scope,
         locale,
+        tag,
         error:
           'cause' in result.error
             ? formatAiSearchLlmError(result.error.cause)

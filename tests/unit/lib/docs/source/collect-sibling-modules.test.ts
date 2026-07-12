@@ -192,7 +192,7 @@ describe('collectSiblingModuleGroups', () => {
           slug: 'rpa-conn-alimm-ppxx-foo',
           title: 'P',
           entry: 'rpa.conn.alimm.ppxx.foo',
-          moduleGroup: 'ppxx',
+          group: 'ppxx',
           groupExplicit: true,
         },
       ],
@@ -203,12 +203,29 @@ describe('collectSiblingModuleGroups', () => {
     assert.equal(result[0]!.label, capitalizeGroupKey('ppxx'));
   });
 
-  it('skips modules without entry', () => {
+  it('includes modules without entry when slug is present', () => {
     const result = collectSiblingModuleGroups(
       [
         {
-          slug: 'rpa-conn-qianniu-item-no-entry',
-          title: 'No Entry',
+          slug: 'rpa-credential',
+          title: '账密托管',
+          group: 'rpa',
+          groupExplicit: true,
+        },
+      ],
+      { rpa: { label: '账密托管' } },
+    );
+    assert.equal(result.length, 1);
+    assert.equal(result[0]!.key, 'rpa');
+    assert.equal(result[0]!.modules[0]!.code, undefined);
+  });
+
+  it('skips modules without group and without slug', () => {
+    const result = collectSiblingModuleGroups(
+      [
+        {
+          slug: '',
+          title: 'Empty',
           groupExplicit: false,
         },
       ],
@@ -247,13 +264,13 @@ describe('collectSiblingModuleGroups', () => {
     );
   });
 
-  it('prefers moduleTitle over title', () => {
+  it('prefers cardTitle over title', () => {
     const result = collectSiblingModuleGroups(
       [
         {
           slug: 'rpa-conn-qianniu-item-a',
           title: 'Long Title',
-          moduleTitle: 'Short',
+          cardTitle: 'Short',
           entry: 'rpa.conn.qianniu.item.a',
           groupExplicit: false,
         },
@@ -263,16 +280,16 @@ describe('collectSiblingModuleGroups', () => {
     assert.equal(result[0]!.modules[0]!.title, 'Short');
   });
 
-  it('passes moduleIcon and moduleUrl to card data', () => {
+  it('passes module icon and link to card data', () => {
     const result = collectSiblingModuleGroups(
       [
         {
           slug: 'RPA_QIANNIU',
           title: '千牛',
           entry: 'RPA_QIANNIU',
-          moduleGroup: 'taobao',
-          moduleIcon: { comp: 'Bot', color: '#0284c7' },
-          moduleUrl: 'https://myseller.taobao.com',
+          group: 'taobao',
+          icon: { comp: 'Bot', color: '#0284c7' },
+          link: 'https://myseller.taobao.com',
           groupExplicit: true,
         },
       ],
@@ -283,15 +300,15 @@ describe('collectSiblingModuleGroups', () => {
     assert.equal(card.url, 'https://myseller.taobao.com');
   });
 
-  it('passes comp-only moduleIcon without color', () => {
+  it('passes comp-only icon without color', () => {
     const result = collectSiblingModuleGroups(
       [
         {
           slug: 'RPA_QIANNIU',
           title: '千牛',
           entry: 'RPA_QIANNIU',
-          moduleGroup: 'taobao',
-          moduleIcon: { comp: 'Bot' },
+          group: 'taobao',
+          icon: { comp: 'Bot' },
           groupExplicit: true,
         },
       ],

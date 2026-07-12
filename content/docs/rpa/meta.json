@@ -1,0 +1,19 @@
+{
+  "root": true,
+  "title": "RPA 连接器",
+  "description": "自动化操作实现数据采集",
+  "icon": "Bot",
+  "color": "#0060ca",
+  "pages": [
+    "index",
+    "./RPA_QIANNIU",
+    "./RPA_SYCM",
+    "./RPA_ALIMM",
+    "./RPA_PINDUODUO",
+    "./RPA_DOUDIAN",
+    "./RPA_JULIANG",
+    "./RPA_JINGMAI",
+    "./RPA_JDSZ",
+    "./RPA_DEWU"
+  ]
+}

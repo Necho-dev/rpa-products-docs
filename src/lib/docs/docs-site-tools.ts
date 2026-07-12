@@ -2,6 +2,7 @@ import { z } from 'zod';
 import type { DocAccessContext } from '@/lib/docs/access/doc-access';
 import { getEffectiveDocAccess } from '@/lib/docs/access/docs-access-effective';
 import { getDocsSearchApi } from '@/lib/docs/search/docs-search-server';
+import type { SearchTag } from '@/lib/docs/search/search-tags';
 import { filterSearchByScope, type SearchScope } from '@/lib/docs/search/search-utils';
 import { getLLMText, source } from '@/lib/docs/source/source';
 import { docsRoute } from '@/lib/core/shared';
@@ -165,13 +166,25 @@ export const GetDocumentationPageInputSchema = z.object({
     ),
 });
 
-export const searchDocsToolDescription = `Full-text search over the documentation index (Orama, same engine as the site search bar).
+export function buildSearchDocsToolDescription(searchTags: SearchTag[] = []): string {
+  const tagHint =
+    searchTags.length > 0
+      ? ` Optional tag filters by documentation partition slug: ${searchTags
+          .map((t) => `"${t.value}" (${t.label})`)
+          .join(', ')}.`
+      : '';
+
+  return `Full-text search over the documentation index (Orama, same engine as the site search bar).
 
 WHEN TO USE: User asks open-ended questions, keywords, or topics without a known page path.
 
 WHEN NOT TO USE: If you already have an exact path, prefer get_docs_content or get_docs_meta directly.
 
-Returns ranked hits with url, type (page/heading/text), and snippet content. Set scope='page' when you only need to know which documents match (no heading/text snippets).`;
+Returns ranked hits with url, type (page/heading/text), snippet content, and page metadata (entry, tags, badge) when available. Set scope='page' when you only need to know which documents match (no heading/text snippets).${tagHint}`;
+}
+
+/** @deprecated Prefer buildSearchDocsToolDescription(getSearchTags()) for partition-aware text */
+export const searchDocsToolDescription = buildSearchDocsToolDescription();
 
 export const getPageMetaToolDescription = `Returns page metadata and table of contents without the full body (token-efficient).
 
@@ -247,14 +260,43 @@ export const SearchDocumentationInputSchema = z.object({
     .describe(
       "Result granularity: 'full' (default) includes matching headings/text snippets for in-page navigation; 'page' returns at most one result per document (useful when you only need to know which documents match, not where).",
     ),
+  tag: z
+    .string()
+    .optional()
+    .describe(
+      'Optional documentation partition slug (first URL segment under /docs, e.g. "rpa" or "auth"). Limits search to that partition.',
+    ),
 });
 
 export const GetDocumentationPageMetaInputSchema = GetDocumentationPageInputSchema;
 
+function enrichSearchHitMeta(path: string): {
+  entry: string | null;
+  tags: string[] | null;
+  badge: { label: string; color?: string } | null;
+  title: string | null;
+  description: string | null;
+} {
+  const page = resolveDocPage(path);
+  if (!page) {
+    return { entry: null, tags: null, badge: null, title: null, description: null };
+  }
+  const data = page.data as DocPageMetaFields;
+  return {
+    entry: data.entry ?? null,
+    tags: data.tags ?? null,
+    badge: data.badge ?? null,
+    title: page.data.title ?? null,
+    description: page.data.description ?? null,
+  };
+}
+
 export async function searchDocumentation(
   siteOrigin: string,
   query: string,
-  options: { locale?: string | null; limit?: number; scope?: SearchScope } | undefined,
+  options:
+    | { locale?: string | null; limit?: number; scope?: SearchScope; tag?: string | null }
+    | undefined,
   access: DocAccessContext,
 ): Promise<DocToolTextResult> {
   const q = query.trim();
@@ -266,24 +308,37 @@ export async function searchDocumentation(
   }
 
   const limit = Math.min(Math.max(options?.limit ?? 15, 1), 25);
+  const tag = options?.tag?.trim() || undefined;
   let results = await getDocsSearchApi().search(q, {
     locale: options?.locale ?? null,
     limit,
+    ...(tag ? { tag: [tag] } : {}),
   });
 
   results = filterSearchByScope(filterSearchHitsByDocAccess(results, access), options?.scope ?? 'full');
 
   const base = siteOrigin.replace(/\/$/, '');
-  const list = results.map((r) => ({
-    id: r.id,
-    type: r.type,
-    url: `${base}${r.url}`,
-    path: r.url,
-    content: typeof r.content === 'string' ? r.content : String(r.content),
-    breadcrumbs: r.breadcrumbs,
-  }));
+  const list = results.map((r) => {
+    const meta = enrichSearchHitMeta(r.url);
+    return {
+      id: r.id,
+      type: r.type,
+      url: `${base}${r.url}`,
+      path: r.url,
+      content: typeof r.content === 'string' ? r.content : String(r.content),
+      breadcrumbs: r.breadcrumbs,
+      title: meta.title,
+      description: meta.description,
+      entry: meta.entry,
+      tags: meta.tags,
+      badge: meta.badge,
+    };
+  });
 
-  return { ok: true, text: JSON.stringify({ query: q, results: list }, null, 2) };
+  return {
+    ok: true,
+    text: JSON.stringify({ query: q, tag: tag ?? null, results: list }, null, 2),
+  };
 }
 
 export async function getDocumentationPageMeta(

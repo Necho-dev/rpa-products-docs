@@ -471,9 +471,14 @@ function ToolTraceCard({ part }: { part: ToolUIPart | DynamicToolUIPart }) {
   );
 }
 
-/** HH:MM 格式 */
+/** MM-DD HH:MM:SS 格式 */
 function formatTime(date: Date): string {
-  return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false });
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  const hh = String(date.getHours()).padStart(2, '0');
+  const min = String(date.getMinutes()).padStart(2, '0');
+  const ss = String(date.getSeconds()).padStart(2, '0');
+  return `${mm}-${dd} ${hh}:${min}:${ss}`;
 }
 
 function Message({ message, ...props }: { message: InkeepUIMessage } & ComponentProps<'div'>) {

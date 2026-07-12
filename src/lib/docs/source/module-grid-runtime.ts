@@ -13,11 +13,10 @@ import {
   parseModuleGridBlockFromRaw,
   type ModuleGroupConfig,
 } from '@/lib/docs/source/module-group-config';
-import { normalizeModuleIcon } from '@/lib/docs/source/module-icon-config';
+import { readModuleFrontmatter } from '@/lib/docs/source/module-frontmatter';
 import { shouldInjectModuleGridTocHeadings } from '@/lib/docs/source/module-grid-toc';
-import { parseMetaPanelPlatformUrl } from '@/lib/docs/source/module-grid-fs-scan';
 import { resolveModuleCoverUrl } from '@/lib/docs/source/resolve-module-cover-url';
-import { getCachedPlatformIcon } from '@/lib/docs/platform-favicon/lookup';
+import { compareBySlugOrder, readDocsMetaPagesOrder } from '@/lib/docs/source/meta-pages-order';
 import type {
   DataReadyMeta,
   EstimatedDurationMeta,
@@ -29,10 +28,9 @@ type PageExtras = {
   title?: string;
   description?: string;
   entry?: string;
-  moduleTitle?: string;
-  moduleGroup?: string;
-  moduleIcon?: unknown;
-  moduleUrl?: string;
+  /** 侧栏图标 CODE / Lucide; 若未配置 `module.icon` 则回退为卡片图标 */
+  icon?: string;
+  module?: unknown;
   badge?: { label: string; color?: string };
   dataReady?: DataReadyMeta;
   estimatedDuration?: EstimatedDurationMeta;
@@ -44,10 +42,16 @@ function isIndexPage(slugs: string[]): boolean {
   return base === 'index' || slugs.length === 0;
 }
 
+/**
+ * ModuleGrid 卡片字段一律来自子页 frontmatter，不读 :::meta-panel。
+ * - title / description / entry
+ * - module.title / link / group / icon / cover
+ */
 async function collectModuleGridSiblingInputs(
   pageSlug: string[],
   access: DocAccessContext,
   gridCover: boolean,
+  pagesOrder: readonly string[],
 ): Promise<SiblingModuleInput[]> {
   const siblingInputs: SiblingModuleInput[] = [];
   const prefix = pageSlug.join('/');
@@ -62,58 +66,45 @@ async function collectModuleGridSiblingInputs(
     const data = page.data as PageExtras;
     const slug = slugBasename(slugs);
     const entry = data.entry?.trim();
+    const moduleCfg = readModuleFrontmatter(data as Record<string, unknown>);
+    const group = moduleCfg.group;
 
-    if (!entry) {
+    // 与 collectSiblingModuleGroups 对齐：module.group / slug 即可入格，entry 可选
+    if (!group && !slug) {
       console.warn(
-        `[ModuleGrid] skip "${prefix}/${slug}": missing frontmatter entry`,
+        `[ModuleGrid] skip "${prefix}/${slug || '(empty)'}": missing module.group and slug`,
       );
       continue;
     }
 
-    let moduleUrl = data.moduleUrl?.trim();
-    if (!moduleUrl) {
-      try {
-        const raw = await page.data.getText('raw');
-        moduleUrl = parseMetaPanelPlatformUrl(raw);
-      } catch {
-        // ignore read errors
-      }
-    }
+    const pageIcon = data.icon?.trim();
+    const icon =
+      moduleCfg.icon ?? (pageIcon ? { comp: pageIcon } : undefined);
 
     siblingInputs.push({
       slug,
       title: data.title?.trim() || slug,
       description: data.description?.trim(),
       entry,
-      moduleTitle: data.moduleTitle,
-      moduleGroup: data.moduleGroup,
-      moduleIcon: normalizeModuleIcon(data.moduleIcon),
-      moduleUrl,
+      cardTitle: moduleCfg.title,
+      group,
+      icon,
+      link: moduleCfg.link,
       badge: data.badge,
       dataReady: data.dataReady,
       estimatedDuration: data.estimatedDuration,
       minInterval: data.minInterval,
       coverUrl: resolveModuleCoverUrl(page.slugs, {
         gridCover,
-        moduleCover: (page.data as PageExtras & { moduleCover?: boolean }).moduleCover,
+        cover: moduleCfg.cover,
       }),
-      groupExplicit: Boolean(data.moduleGroup?.trim()),
+      groupExplicit: Boolean(group),
     });
   }
 
-  siblingInputs.sort((a, b) => a.slug.localeCompare(b.slug));
+  siblingInputs.sort((a, b) => compareBySlugOrder(a.slug, b.slug, pagesOrder));
 
   return siblingInputs;
-}
-
-function attachPlatformFavicons(groups: ModuleGroupData[]): ModuleGroupData[] {
-  for (const group of groups) {
-    for (const mod of group.modules) {
-      const faviconUrl = getCachedPlatformIcon(mod.url);
-      if (faviconUrl) mod.faviconUrl = faviconUrl;
-    }
-  }
-  return groups;
 }
 
 export async function collectModuleGridGroups(
@@ -122,12 +113,15 @@ export async function collectModuleGridGroups(
   access: DocAccessContext,
   gridCover = false,
 ): Promise<ModuleGroupData[]> {
+  // 同目录 meta.json `pages` 顺序
+  const pagesOrder = readDocsMetaPagesOrder(pageSlug.join('/'));
   const siblingInputs = await collectModuleGridSiblingInputs(
     pageSlug,
     access,
     gridCover,
+    pagesOrder,
   );
-  return attachPlatformFavicons(collectSiblingModuleGroups(siblingInputs, groups));
+  return collectSiblingModuleGroups(siblingInputs, groups, pagesOrder);
 }
 
 /**

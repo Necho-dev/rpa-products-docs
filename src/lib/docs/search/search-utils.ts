@@ -6,15 +6,70 @@ export function parseSearchScope(value: string | null | undefined): SearchScope 
   return value === 'page' ? 'page' : 'full';
 }
 
+/** 当前选中的分区 tag；null 表示"全部分区" */
+export type SearchTagFilter = string | null;
+
+/**
+ * 「仅文档」模式下按查询词对 page 条目重排序的得分函数。
+ *
+ * 分层规则（分值不重叠，保证稳定的优先级顺序）：
+ * - title 完全等于查询词      → +40
+ * - title 以查询词开头        → +30
+ * - title 包含查询词          → +20
+ * - breadcrumbs 包含查询词   → +10
+ * - 以上均不命中              → 0（保留 Orama 原始位置）
+ */
+function scorePageByTitle(
+  content: unknown,
+  breadcrumbs: unknown,
+  query: string,
+): number {
+  const needle = normalizeSearchMatchText(query);
+  if (!needle) return 0;
+
+  const title = normalizeSearchMatchText(
+    typeof content === 'string' ? content.replace(/<[^>]+>/g, '') : '',
+  );
+
+  if (title === needle) return 40;
+  if (title.startsWith(needle)) return 30;
+  if (title.includes(needle)) return 20;
+
+  const crumbs = Array.isArray(breadcrumbs)
+    ? normalizeSearchMatchText(
+        (breadcrumbs as unknown[])
+          .map((c) => (typeof c === 'string' ? c : ''))
+          .join(' '),
+      )
+    : '';
+  if (crumbs.includes(needle)) return 10;
+
+  return 0;
+}
+
 /**
  * 「仅文档」模式：匹配逻辑不变（正文/标题均参与检索），仅在展示层过滤掉
  * `heading` / `text` 条目，每篇文档最多保留 1 条 `type: page`。
+ *
+ * 当传入 `query` 时，对过滤后的 page 条目按 title 相关性重新排序，
+ * 避免因 Orama 正文匹配得分高于标题得分而导致标题不相关的文档排在前面。
+ * 得分相同时保留 Orama 原有的相对顺序（稳定排序）。
  */
-export function filterSearchByScope<T extends { type: string }>(
+export function filterSearchByScope<T extends { type: string; content?: unknown; breadcrumbs?: unknown }>(
   results: T[],
   scope: SearchScope,
+  query?: string,
 ): T[] {
-  return scope === 'page' ? results.filter((r) => r.type === 'page') : results;
+  if (scope !== 'page') return results;
+
+  const pages = results.filter((r) => r.type === 'page');
+  if (!query || !query.trim()) return pages;
+
+  // 稳定排序：先记录原始下标，分数相同时按原始位置升序
+  return pages
+    .map((r, i) => ({ r, i, score: scorePageByTitle(r.content, r.breadcrumbs, query) }))
+    .sort((a, b) => b.score - a.score || a.i - b.i)
+    .map(({ r }) => r);
 }
 
 export type SearchHitWithKeywords = SortedResult & { matchedKeywords: string[] };
@@ -79,6 +134,26 @@ export function truncateSearchHitsPreservingPages(
   const pageQuota = Math.min(pages.length, limit);
   const restQuota = Math.max(0, limit - pageQuota);
   return [...pages.slice(0, pageQuota), ...rest.slice(0, restQuota)];
+}
+
+/**
+ * 对展示层结果去重：`content` 完全相同（忽略大小写/空白）的同类型条目只保留第一条。
+ *
+ * 适用场景：同一连接器文档在多个位置有相同的 heading/text 片段，
+ * Orama 会为每个位置生成不同的 `id`，但用户看到的内容完全相同，属于冗余展示。
+ */
+export function dedupeSearchResults<T extends SortedResult>(results: T[]): T[] {
+  const seen = new Set<string>();
+  return results.filter((r) => {
+    // page 类型以 url(id) 去重，heading/text 以 type+content 去重
+    const key =
+      r.type === 'page'
+        ? `page::${r.id}`
+        : `${r.type}::${String(r.content ?? '').trim().toLowerCase()}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 /**

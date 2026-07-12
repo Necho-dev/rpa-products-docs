@@ -15,8 +15,8 @@ SECRETS_FILE="${DOCS_SECRETS_FILE_PATH:-.secrets/dev-secrets.json}"
 CUBE_ORIGIN="${MOCK_CUBE_BASE_HOST:-http://127.0.0.1:8765}"
 
 BROWSER_UA='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-DOC_PATH='/docs/connectors/rpa-conn-qianniu-all/rpa-conn-qianniu-item-quality-score-list'
-IMG_PATH='/resources/images/public/images/qianniu/item_quality_score_list_20260521.png'
+DOC_PATH='/docs/rpa/RPA_QIANNIU/rpa-conn-qianniu-item-quality-score-list'
+IMG_PATH='/resources/images/rpa/_public/images/qianniu/item_quality_score_list_20260521.png'
 
 pass() { echo "PASS: $*"; }
 fail() { echo "FAIL: $*" >&2; exit 1; }

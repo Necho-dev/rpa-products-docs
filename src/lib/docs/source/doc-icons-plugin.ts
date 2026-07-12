@@ -1,51 +1,10 @@
-import { createElement, type ReactElement } from 'react';
-import { icons } from 'lucide-react';
 import type { Folder, Item, Separator } from 'fumadocs-core/page-tree';
 import type { ContentStorage, LoaderPlugin } from 'fumadocs-core/source';
-import { getCachedPlatformIconByCode } from '@/lib/docs/platform-favicon/manifest-store';
+import { resolveDocIcon, bitmapIconElement } from '@/lib/docs/icons/index';
 
-function platformFaviconElement(src: string): ReactElement {
-  // 固定外框 + 尺寸，避免位图撑开侧栏行、挤压标题（Lucide 由 [&_svg]:size-4 约束）
-  return createElement(
-    'span',
-    {
-      className:
-        'inline-flex size-4 shrink-0 items-center justify-center overflow-hidden rounded-[3px] border border-fd-border/80 bg-fd-card p-px',
-      'aria-hidden': true,
-    },
-    createElement('img', {
-      src,
-      alt: '',
-      width: 14,
-      height: 14,
-      className: 'size-full object-contain',
-      referrerPolicy: 'no-referrer',
-    }),
-  );
-}
+export { resolveDocIcon, bitmapIconElement };
 
-/**
- * 解析 frontmatter / meta `icon`：
- * 1. manifest codes（如 `RPA_QIANNIU`、`TAOBAO`）→ 站内平台 favicon
- * 2. 其余 → Lucide 图标名（与官方 lucideIconsPlugin 一致）
- */
-export function resolveDocIcon(icon: string | undefined): ReactElement | undefined {
-  if (icon === undefined) return undefined;
-
-  const platformSrc = getCachedPlatformIconByCode(icon);
-  if (platformSrc) {
-    return platformFaviconElement(platformSrc);
-  }
-
-  const Icon = icons[icon as keyof typeof icons];
-  if (!Icon) {
-    console.warn(`[doc-icons] Unknown icon (not in platform favicons or Lucide): ${icon}`);
-    return undefined;
-  }
-  return createElement(Icon);
-}
-
-type TreeNode = Item | Folder | Separator;
+type TreeNode = Item | Separator;
 
 function replaceIcon<T extends TreeNode>(node: T): T {
   if (node.icon === undefined || typeof node.icon === 'string') {
@@ -60,15 +19,30 @@ function replaceIcon<T extends TreeNode>(node: T): T {
 }
 
 /**
- * 替代 `lucideIconsPlugin`：支持 `icon: RPA_QIANNIU` 与 Lucide 名混用。
+ * Fumadocs loader plugin：将页面树中字符串 icon 统一解析。
+ * 支持 platform icons / shared icons / Lucide，folder 节点额外读取 meta.json `color`。
  */
 export function docIconsPlugin(): LoaderPlugin<ContentStorage> {
   return {
     name: 'docus:doc-icons',
     transformPageTree: {
       file: replaceIcon,
-      folder: replaceIcon,
       separator: replaceIcon,
+      folder(node, _folderPath, metaPath) {
+        if (node.icon !== undefined && typeof node.icon !== 'string') return node;
+
+        const iconName = typeof node.icon === 'string' ? node.icon : undefined;
+        let color: string | undefined;
+
+        if (metaPath) {
+          const metaFile = this.storage.read(metaPath);
+          if (metaFile && metaFile.format === 'meta') {
+            color = (metaFile.data as { color?: string }).color;
+          }
+        }
+
+        return { ...node, icon: resolveDocIcon(iconName, color) };
+      },
     },
   };
 }

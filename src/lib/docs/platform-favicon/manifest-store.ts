@@ -1,25 +1,22 @@
 import { readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
-import type { PlatformFaviconManifest } from '@/lib/docs/platform-favicon/types';
-import { platformFaviconKey } from '@/lib/docs/platform-favicon/resolve';
+import type { PlatformIconManifest } from '@/lib/docs/platform-favicon/types';
+import { sharedResourceUrl } from '@/lib/docs/icons/shared-resource-url';
 
 const MANIFEST_PATH = path.join(
   process.cwd(),
-  'content',
-  'docs',
-  'public',
-  '_shared',
-  'platform-favicons.json',
+  process.env.DOCS_FAVICON_MANIFEST_PATH?.trim() ||
+    'content/docs/_public/_shared/platform/icons.json',
 );
 
 let cached:
   | {
       mtimeMs: number;
-      data: PlatformFaviconManifest | null;
+      data: PlatformIconManifest | null;
     }
   | undefined;
 
-export function loadPlatformFaviconManifest(): PlatformFaviconManifest | null {
+export function loadPlatformIconManifest(): PlatformIconManifest | null {
   try {
     const { mtimeMs } = statSync(MANIFEST_PATH);
     if (cached && cached.mtimeMs === mtimeMs) {
@@ -27,7 +24,7 @@ export function loadPlatformFaviconManifest(): PlatformFaviconManifest | null {
     }
 
     const raw = readFileSync(MANIFEST_PATH, 'utf8');
-    const data = JSON.parse(raw) as PlatformFaviconManifest;
+    const data = JSON.parse(raw) as PlatformIconManifest;
     if (!data?.icons || typeof data.icons !== 'object') {
       cached = { mtimeMs, data: null };
       return null;
@@ -40,48 +37,29 @@ export function loadPlatformFaviconManifest(): PlatformFaviconManifest | null {
   }
 }
 
-/** 站内资源路径前缀（对应 content/docs/public/_shared/...） */
-export function platformFaviconResourceUrl(relativeFile: string): string {
-  const cleaned = relativeFile.replace(/^\/+/, '');
-  return `/resources/images/public/_shared/${cleaned}`;
+/** @deprecated 使用 loadPlatformIconManifest */
+export const loadPlatformFaviconManifest = loadPlatformIconManifest;
+
+export function platformIconResourceUrl(relativeFile: string): string {
+  return sharedResourceUrl(relativeFile);
 }
 
-/**
- * 根据 platformUrl 返回站内 favicon URL；按 origin host 匹配，无映射时返回 undefined。
- */
-export function getCachedPlatformIcon(platformUrl: string | undefined | null): string | undefined {
-  if (!platformUrl?.trim()) return undefined;
-  const manifest = loadPlatformFaviconManifest();
-  if (!manifest) return undefined;
-
-  let key: string;
-  try {
-    key = platformFaviconKey(platformUrl);
-  } catch {
-    return undefined;
-  }
-
-  const entry = manifest.icons[key];
-  if (!entry?.file) return undefined;
-  return platformFaviconResourceUrl(entry.file);
-}
+/** @deprecated 使用 platformIconResourceUrl */
+export const platformFaviconResourceUrl = platformIconResourceUrl;
 
 /**
- * 根据平台包 Code（如 `RPA_QIANNIU`）查找站内 favicon URL。
+ * 根据 platform icon CODE（如 `QIANNIU`）查找站内资源 URL。
  */
-export function getCachedPlatformIconByCode(
+export function getPlatformIconUrl(
   code: string | undefined | null,
 ): string | undefined {
   const normalized = code?.trim();
   if (!normalized) return undefined;
-  const manifest = loadPlatformFaviconManifest();
-  if (!manifest) return undefined;
-
-  for (const entry of Object.values(manifest.icons)) {
-    if (!entry?.file || !Array.isArray(entry.codes)) continue;
-    if (entry.codes.includes(normalized)) {
-      return platformFaviconResourceUrl(entry.file);
-    }
-  }
-  return undefined;
+  const manifest = loadPlatformIconManifest();
+  const entry = manifest?.icons[normalized];
+  if (!entry?.file) return undefined;
+  return platformIconResourceUrl(entry.file);
 }
+
+/** @deprecated 使用 getPlatformIconUrl */
+export const getCachedPlatformIconByCode = getPlatformIconUrl;

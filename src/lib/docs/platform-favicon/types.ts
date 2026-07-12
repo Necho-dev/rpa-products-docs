@@ -1,23 +1,25 @@
-export type PlatformFaviconEntry = {
-  host: string;
-  /**
-   * 关联的图标名 / 平台包 Code（frontmatter `icon` 或目录名），如 `RPA_QIANNIU`、`TAOBAO`。
-   * 同一 host 可对应多个。
-   */
-  codes: string[];
-  /** 相对 `_shared/` 的路径，如 `favicons/myseller.taobao.com.png` */
+/**
+ * Platform icons manifest（content/docs/_public/_shared/platform/icons.json）
+ * 与 shared-icons.json 结构对齐：key 即 icon CODE（如 `DEWU`、`QIANNIU`）。
+ */
+export type PlatformIconEntry = {
+  /** 相对 `_shared/` 的路径，如 `platform/files/DEWU.png` */
   file: string;
-  sourceIcon: string;
-  /**
-   * 由 `--add` 手动登记的条目。常规 sync 不会因未扫到 RPA_* 包而删除。
-   */
-  custom?: boolean;
+  /** 图标源 URL（CLI refresh 用） */
+  sourceIcon?: string;
+  /** 平台域名（如 `mms.pinduoduo.com`，不含协议和尾部斜杠） */
+  origin?: string;
+  /** 可选描述 */
+  description?: string;
 };
 
-/**
- * icons 的 key 为站点 origin host（不含协议/路径），如 `myseller.taobao.com`。
- */
-export type PlatformFaviconManifest = {
-  generatedAt: string;
-  icons: Record<string, PlatformFaviconEntry>;
+export type PlatformIconManifest = {
+  updatedAt: string;
+  icons: Record<string, PlatformIconEntry>;
 };
+
+/** @deprecated 使用 PlatformIconEntry */
+export type PlatformFaviconEntry = PlatformIconEntry;
+
+/** @deprecated 使用 PlatformIconManifest */
+export type PlatformFaviconManifest = PlatformIconManifest;

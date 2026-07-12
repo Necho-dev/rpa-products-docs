@@ -1,18 +1,80 @@
 import { DocsLink } from '@/components/docs/docs-link';
-import { PlatformFaviconImg } from '@/components/docs/mdx/platform-favicon-img';
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/core/cn';
-import { getCachedPlatformIcon } from '@/lib/docs/platform-favicon/lookup';
+import { resolveDocIcon } from '@/lib/docs/icons/index';
 import {
   BookOpenText,
   BugPlay,
-  ExternalLink,
+  SquareArrowOutUpRight,
   Link2,
   Package,
+  ShieldCheck,
   UserLock,
   UserRoundKey,
   UserStar,
 } from 'lucide-react';
+
+/** 传给 MetaPanel 的已归一化登录方式项 */
+export type MetaPanelLoginOption = {
+  text: string;
+  /** Lucide / platform / shared CODE；无则纯文本标签 */
+  icon?: string;
+  color?: string;
+};
+
+function EmptyValue() {
+  return (
+    <span className="text-xs font-medium text-fd-muted-foreground">无</span>
+  );
+}
+
+function MetaValuePill({
+  icon,
+  children,
+  className,
+}: {
+  icon?: ReactNode;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center gap-1.5 rounded-md border border-fd-border/60 bg-fd-muted/20 px-2 py-1 text-xs font-semibold text-fd-foreground',
+        className,
+      )}
+    >
+      {icon}
+      <span>{children}</span>
+    </span>
+  );
+}
+
+function LoginOptionPill({ option }: { option: MetaPanelLoginOption }) {
+  const iconName = option.icon?.trim();
+  const iconEl = iconName ? resolveDocIcon(iconName) : undefined;
+  const color = option.color?.trim();
+
+  return (
+    <MetaValuePill
+      icon={
+        iconEl ? (
+          <span
+            className={cn(
+              'inline-flex shrink-0 items-center [&_svg]:size-3.5',
+              !color && 'text-fuchsia-700 dark:text-fuchsia-300',
+            )}
+            style={color ? { color } : undefined}
+          >
+            {iconEl}
+          </span>
+        ) : undefined
+      }
+    >
+      {option.text}
+    </MetaValuePill>
+  );
+}
 
 function RowLabel({
   icon,
@@ -39,7 +101,7 @@ function RowLabel({
 }
 
 const metaRowClassName =
-  'grid grid-cols-1 gap-y-1.5 sm:grid-cols-[minmax(0,160px)_minmax(0,1fr)] sm:items-start sm:gap-x-2';
+  'grid grid-cols-1 gap-y-1.5 sm:grid-cols-[10.5rem_minmax(0,1fr)] sm:items-center sm:gap-x-3';
 
 export type ConnectorBadgeStat = {
   /** 文档 frontmatter 中的 badge.label，任意文案 */
@@ -72,7 +134,9 @@ function BadgeStatPill({ label, count, color }: ConnectorBadgeStat) {
 export function MetaPanel({
   platform,
   platformUrl,
+  icon,
   requireLogin = true,
+  loginOptions,
   authHelpUrl,
   connectorTotal,
   connectorBadgeStats,
@@ -80,7 +144,11 @@ export function MetaPanel({
 }: {
   platform: string;
   platformUrl?: string;
+  /** 图标名：platform icon / shared icon / Lucide（与 frontmatter `icon` 相同解析链） */
+  icon?: string;
   requireLogin?: boolean;
+  /** 登录方式标签；空或未配置时展示「无」 */
+  loginOptions?: MetaPanelLoginOption[];
   /** 授权帮助文档链接；未配置时不展示该行 */
   authHelpUrl?: string;
   /** 同目录连接器总数（自动扫描） */
@@ -92,7 +160,7 @@ export function MetaPanel({
   connectorBadgeStats?: ConnectorBadgeStat[];
   className?: string;
 }) {
-  const faviconUrl = getCachedPlatformIcon(platformUrl);
+  const platformIconEl = icon?.trim() ? resolveDocIcon(icon.trim()) : undefined;
   const showConnectorStats =
     typeof connectorTotal === 'number' && connectorTotal >= 0;
   const badgeStats = connectorBadgeStats ?? [];
@@ -102,6 +170,9 @@ export function MetaPanel({
   );
   const hasBadgeDesign = labeledBadgeStats.length > 0;
   const showAuthHelp = Boolean(authHelpUrl?.trim());
+  const loginOptionList = (loginOptions ?? []).filter((opt) =>
+    Boolean(opt.text?.trim()),
+  );
 
   return (
     <div
@@ -126,7 +197,11 @@ export function MetaPanel({
             适用平台
           </RowLabel>
           <div className="flex min-w-0 flex-wrap items-center gap-1.5 text-sm text-fd-foreground">
-            {faviconUrl ? <PlatformFaviconImg src={faviconUrl} /> : null}
+            {platformIconEl ? (
+              <span className="inline-flex shrink-0 items-center [&_svg]:size-[18px]">
+                {platformIconEl}
+              </span>
+            ) : null}
             <span className="font-medium">{platform}</span>
           </div>
         </div>
@@ -141,11 +216,11 @@ export function MetaPanel({
             </RowLabel>
             <div className="min-w-0">
               <DocsLink
-                className="inline-flex max-w-full items-center gap-1.5 break-all font-mono text-[12px] text-sky-700 underline decoration-fd-border/60 underline-offset-2 hover:decoration-sky-700 dark:text-sky-200"
+                className="inline-flex max-w-full items-center gap-1.5 break-all font-mono text-[13px] text-sky-700 underline decoration-fd-border/60 underline-offset-2 hover:decoration-sky-700 dark:text-sky-200"
                 href={platformUrl}
               >
                 <span className="min-w-0">{platformUrl}</span>
-                <ExternalLink className="size-3.5 shrink-0 text-fd-muted-foreground" />
+                <SquareArrowOutUpRight className="size-3.5 shrink-0 text-fd-muted-foreground" />
               </DocsLink>
             </div>
           </div>
@@ -173,6 +248,47 @@ export function MetaPanel({
           </div>
         </div>
 
+        <div className={metaRowClassName}>
+          <RowLabel
+            iconWrapperClassName="border-fuchsia-500/20 bg-fuchsia-500/5"
+            icon={<ShieldCheck className="size-3.5 text-fuchsia-800 dark:text-fuchsia-200" />}
+          >
+            登录方式
+          </RowLabel>
+          <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+            {loginOptionList.length === 0 ? (
+              <EmptyValue />
+            ) : (
+              loginOptionList.map((option, index) => (
+                <LoginOptionPill
+                  key={`${option.text}-${option.icon ?? ''}-${index}`}
+                  option={option}
+                />
+              ))
+            )}
+          </div>
+        </div>
+
+        {showAuthHelp ? (
+          <div className={metaRowClassName}>
+            <RowLabel
+              iconWrapperClassName="border-rose-500/20 bg-rose-500/5"
+              icon={<BookOpenText className="size-3.5 text-rose-800 dark:text-rose-200" />}
+            >
+              授权帮助
+            </RowLabel>
+            <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+              <DocsLink
+                className="inline-flex max-w-full items-center gap-1.5 text-sm font-medium text-sky-700 underline decoration-fd-border/60 underline-offset-2 hover:decoration-sky-700 dark:text-sky-200"
+                href={authHelpUrl!.trim()}
+              >
+                查看授权帮助文档
+                <SquareArrowOutUpRight className="size-3.5 shrink-0 text-fd-muted-foreground" />
+              </DocsLink>
+            </div>
+          </div>
+        ) : null}
+
         {showConnectorStats ? (
           <div className={metaRowClassName}>
             <RowLabel
@@ -193,26 +309,6 @@ export function MetaPanel({
                   共 {connectorTotal} 个
                 </span>
               )}
-            </div>
-          </div>
-        ) : null}
-
-        {showAuthHelp ? (
-          <div className={metaRowClassName}>
-            <RowLabel
-              iconWrapperClassName="border-rose-500/20 bg-rose-500/5"
-              icon={<BookOpenText className="size-3.5 text-rose-800 dark:text-rose-200" />}
-            >
-              授权帮助
-            </RowLabel>
-            <div className="min-w-0">
-              <DocsLink
-                className="inline-flex max-w-full items-center gap-1.5 text-sm font-medium text-sky-700 underline decoration-fd-border/60 underline-offset-2 hover:decoration-sky-700 dark:text-sky-200"
-                href={authHelpUrl!.trim()}
-              >
-                查看授权帮助文档
-                <ExternalLink className="size-3.5 shrink-0 text-fd-muted-foreground" />
-              </DocsLink>
             </div>
           </div>
         ) : null}
