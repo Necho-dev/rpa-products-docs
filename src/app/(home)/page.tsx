@@ -75,7 +75,7 @@ export default function HomePage() {
             {siteName}
           </h1>
 
-          <p className="mt-5 max-w-xl text-pretty text-sm leading-relaxed text-fd-muted-foreground sm:mt-6 sm:max-w-2xl sm:text-base">
+          <p className="mt-5 max-w-xl text-justify text-pretty text-sm leading-relaxed text-fd-muted-foreground sm:mt-6 sm:max-w-2xl sm:text-base">
             {siteDescription}
           </p>
 
