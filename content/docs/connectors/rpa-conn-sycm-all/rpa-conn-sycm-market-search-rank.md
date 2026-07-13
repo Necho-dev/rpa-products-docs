@@ -1,0 +1,158 @@
+---
+title: 市场-搜索排行
+description: 采集生意参谋市场搜索排行列表，支持按搜索词类型、榜单类型与统计时间筛选并翻页取全量
+entry: rpa.conn.sycm.market.search.rank
+badge:
+  label: 待上线
+  color: "#EA580C"
+estimatedDuration:
+  sec: 300
+module:
+  group: market
+---
+
+| 属性             | 值                                                                 |
+| ---------------- | ------------------------------------------------------------------ |
+| **连接器类型**   | `RPA 连接器`                                                       |
+| **连接器名称**   | `ODS_市场搜索排行明细表(生意参谋RPA)`                               |
+| **连接器代码**   | `rpa.conn.sycm.market.search.rank`                                 |
+| **操作类型**     | `页面解析`                                                         |
+| **目标网页**     | `https://sycm.taobao.com/mc/free/search_rank`                      |
+| **适用场景**     | 采集生意参谋市场搜索排行列表，支持按搜索词类型、榜单类型与统计时间筛选并翻页取全量 |
+| **数据表名**     | `ods_rpa_sycm_market_search_rank_du`                               |
+| **业务表名**     | `ODS_市场搜索排行明细表(生意参谋RPA)`                               |
+
+### 目标页面
+
+> **取数路径**：生意参谋—市场—搜索排行
+>
+> **取数链接**：[https://sycm.taobao.com/mc/free/search_rank](https://sycm.taobao.com/mc/free/search_rank)
+
+![生意参谋—市场搜索排行](../../public/images/sycm/market_search_rank_20260713.png)
+
+### 业务入参
+
+| 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
+| ---- | -------- | -------- | ---- | ------ | ---- |
+| `keyword_type` | 搜索词类型 | `String` | 是 | — | 可选值：`SEARCH`（搜索词）/ `TREND`（趋势词）/ `CORE`（核心词）/ `PROP`（修饰词） |
+| `rank_type` | 榜单类型 | `String` | 是 | — | 可选值：`HOT`（搜索人气）/ `SOAR`（搜索增速） |
+| `date_type` | 统计时间 | `String` | 是 | — | 可选值：`RECENT_7`（7天）/ `RECENT_30`（30天）/ `DAY`（日） |
+| `custom_date` | 自定义单日日期 | `String` | 条件必填 | — | `date_type=DAY` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不能晚于昨天 |
+
+### 入参样例
+
+```json
+{
+  "keyword_type": "SEARCH",
+  "rank_type": "HOT",
+  "date_type": "RECENT_7"
+}
+```
+
+```json
+{
+  "keyword_type": "TREND",
+  "rank_type": "SOAR",
+  "date_type": "RECENT_30"
+}
+```
+
+```json
+{
+  "keyword_type": "CORE",
+  "rank_type": "HOT",
+  "date_type": "DAY",
+  "custom_date": "20260712"
+}
+```
+
+```json
+{
+  "keyword_type": "PROP",
+  "rank_type": "SOAR",
+  "date_type": "DAY",
+  "custom_date": "2026-07-12"
+}
+```
+
+### 入参校验
+
+```json-schema collapsed
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "生意参谋-市场搜索排行 - 查询入参",
+  "description": "采集生意参谋市场搜索排行列表，支持按搜索词类型、榜单类型与统计时间筛选并翻页取全量",
+  "type": "object",
+  "properties": {
+    "keyword_type": {
+      "type": "string",
+      "description": "搜索词类型。可选值：SEARCH（搜索词）/ TREND（趋势词）/ CORE（核心词）/ PROP（修饰词）",
+      "enum": ["SEARCH", "TREND", "CORE", "PROP"]
+    },
+    "rank_type": {
+      "type": "string",
+      "description": "榜单类型。可选值：HOT（搜索人气）/ SOAR（搜索增速）",
+      "enum": ["HOT", "SOAR"]
+    },
+    "date_type": {
+      "type": "string",
+      "description": "统计时间。可选值：RECENT_7（7天）/ RECENT_30（30天）/ DAY（日）",
+      "enum": ["RECENT_7", "RECENT_30", "DAY"]
+    },
+    "custom_date": {
+      "type": "string",
+      "description": "自定义单日日期；date_type=DAY 时必填。格式 YYYYMMDD 或 YYYY-MM-DD；不能晚于昨天",
+      "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    }
+  },
+  "required": ["keyword_type", "rank_type", "date_type"],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "date_type": { "const": "DAY" }
+        },
+        "required": ["date_type"]
+      },
+      "then": {
+        "required": ["custom_date"]
+      }
+    }
+  ]
+}
+```
+
+### 数据字段
+
+| 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
+| ---- | -------- | -------- | ------ | -------- | ---- |
+| `rn` | 排名 | `Number` | 否 | 页面解析 | `1` |
+| `searchWord` | 搜索词 | `String` | 否 | 页面解析 | `运动风通勤穿搭` |
+| `seIpvUvHits` | 搜索人气 | `String` | 否 | 页面解析 | `2500 ~ 5000` |
+| `seUvEx` | 搜索增速 | `Number` | 是 | `rank_type=HOT` 时为空 | `28.0084033613` |
+| `clickThroughRate` | 点击率 | `Number` | 否 | 页面解析 | `0.94` |
+| `payRate` | 支付转化率 | `String` | 否 | 页面解析 | `5% ~ 7.5%` |
+| `freeClkRate` | 免费点击率 | `Number` | 否 | 页面解析 | `0.94` |
+| `bizDate` | 业务日期 | `String` | 否 | 附加 | `20260713` |
+| `accountId` | 授权 ID | `String` | 否 | 附加 | `126` |
+
+### 数据样例
+
+```json
+[
+  {
+    "rn": 1,
+    "searchWord": "运动风通勤穿搭",
+    "seIpvUvHits": "2500 ~ 5000",
+    "seUvEx": 28.0084033613,
+    "clickThroughRate": 0.94,
+    "payRate": "5% ~ 7.5%",
+    "freeClkRate": 0.94,
+    "bizDate": "20260713",
+    "accountId": "126"
+  }
+]
+```
+
+---
