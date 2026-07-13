@@ -39,6 +39,11 @@ item:
   icon:
     comp: ShoppingBag
     color: '#ea580c'
+market:
+  label: 市场/Market
+  icon:
+    comp: TrendingUp
+    color: '#0d9488'
 shop:
   label: 店铺/Shop
   icon:
