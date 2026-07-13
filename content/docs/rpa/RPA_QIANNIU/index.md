@@ -47,4 +47,9 @@ marketing:
   icon:
     comp: Megaphone
     color: '#9333ea'
+finance:
+  label: 财务/Finance
+  icon:
+    comp: Wallet
+    color: '#059669'
 :::
