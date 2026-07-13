@@ -1,6 +1,11 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
 import { RootProvider } from 'fumadocs-ui/provider/next';
+import DocsSearchDialog from '@/components/docs/search/docs-search-dialog';
+import { AiSearchUiProvider } from '@/components/docs/search/ai-search-ui-context';
+import { SearchTagsProvider } from '@/components/docs/search/search-tags-context';
+import { isAiSearchAvailable } from '@/lib/docs/search/ai-search';
+import { getSearchTags } from '@/lib/docs/search/search-tags';
 import './global.css';
 import 'katex/dist/katex.css';
 /** 在 Tailwind/typography 与 KaTeX 之后覆盖文档 blockquote，避免层叠被吃掉 */
@@ -58,6 +63,9 @@ export function generateMetadata(): Metadata {
 
 export default function Layout({ children }: LayoutProps<'/'>) {
   const siteName = getSiteName();
+  const aiSearchUiEnabled = isAiSearchAvailable();
+  const searchTags = getSearchTags();
+
 
   return (
     <html
@@ -73,19 +81,24 @@ export default function Layout({ children }: LayoutProps<'/'>) {
         />
       </head>
       <body className="flex min-h-screen flex-col font-sans antialiased">
-        <RootProvider
-          i18n={{
-            locale: 'zh-CN',
-            translations: {
-              search: '搜索',
-              toc: '页面导航',
-              lastUpdate: '最后更新于',
-            },
-          }}
-        >
-          <DocumentTitleDefault defaultTitle={siteName} />
-          {children}
-        </RootProvider>
+        <AiSearchUiProvider enabled={aiSearchUiEnabled}>
+          <SearchTagsProvider tags={searchTags}>
+          <RootProvider
+            search={{ SearchDialog: DocsSearchDialog }}
+            i18n={{
+              locale: 'zh-CN',
+              translations: {
+                search: '搜索',
+                toc: '页面导航',
+                lastUpdate: '最后更新于',
+              },
+            }}
+          >
+            <DocumentTitleDefault defaultTitle={siteName} />
+            {children}
+          </RootProvider>
+          </SearchTagsProvider>
+        </AiSearchUiProvider>
       </body>
     </html>
   );

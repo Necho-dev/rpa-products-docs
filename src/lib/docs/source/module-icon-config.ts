@@ -1,10 +1,14 @@
-/** ModuleGrid 卡片图标：lucide 组件名 + 可选自定义颜色 */
+/**
+ * ModuleGrid 分组 / 卡片图标。
+ * `comp`：platform-favicons code（如 `TAOBAO`）或 Lucide 名（如 `ShoppingBag`）；
+ * `color` 仅对 Lucide 生效。
+ */
 export type ModuleIconConfig = {
   comp: string;
   color?: string;
 };
 
-/** 兼容 frontmatter 简写 `moduleIcon: Bot` 与对象 `{ comp, color? }` */
+/** 兼容简写 `Bot` / `module.icon: Bot` 与对象 `{ comp, color? }` */
 export function normalizeModuleIcon(value: unknown): ModuleIconConfig | undefined {
   if (typeof value === 'string') {
     const comp = value.trim();

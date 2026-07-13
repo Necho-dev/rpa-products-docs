@@ -1,7 +1,7 @@
 import { docs } from 'collections/server';
 import { loader } from 'fumadocs-core/source';
-import { lucideIconsPlugin } from 'fumadocs-core/source/lucide-icons';
 import { docsContentRoute, docsImageRoute, docsRoute } from '@/lib/core/shared';
+import { docIconsPlugin } from '@/lib/docs/source/doc-icons-plugin';
 import { docsEntryInSidebarPlugin } from '@/lib/docs/source/docs-entry-in-sidebar-plugin';
 import { rewriteMarkdownImagesForEmbed } from '@/lib/docs/embed/markdown';
 import { stripTocOnlyHeadings } from '@/lib/docs/source/module-grid-fs-scan';
@@ -10,7 +10,7 @@ import { stripTocOnlyHeadings } from '@/lib/docs/source/module-grid-fs-scan';
 export const source = loader({
   baseUrl: docsRoute,
   source: docs.toFumadocsSource(),
-  plugins: [lucideIconsPlugin(), docsEntryInSidebarPlugin()],
+  plugins: [docIconsPlugin(), docsEntryInSidebarPlugin()],
 });
 
 export function getPageImage(page: (typeof source)['$inferPage']) {

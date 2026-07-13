@@ -15,20 +15,24 @@ import { resolveOgSiteOrigin } from '@/lib/core/site-origin';
 import { notFound } from 'next/navigation';
 import { ImageResponse } from 'next/og';
 
-export const revalidate = false;
+/** cover 依赖 markdown / include 内容, 以允许周期性重新生成 */
+export const revalidate = 60;
 export const dynamicParams = true;
 
-const OG_CACHE_CONTROL = 'public, max-age=31536000, immutable';
+/** 支持较长缓存; cover 不用 immutable, 避免占位图被长期锁死 */
+const OG_SHARE_CACHE_CONTROL = 'public, max-age=86400, stale-while-revalidate=604800';
+const OG_COVER_CACHE_CONTROL = 'public, max-age=60, stale-while-revalidate=3600';
 
 function ogImageResponse(
   element: ReactElement,
   options: ConstructorParameters<typeof ImageResponse>[1],
+  cacheControl: string = OG_SHARE_CACHE_CONTROL,
 ): ImageResponse {
   return new ImageResponse(element, {
     ...options,
     headers: {
       ...options?.headers,
-      'Cache-Control': OG_CACHE_CONTROL,
+      'Cache-Control': cacheControl,
     },
   });
 }
@@ -59,11 +63,15 @@ export async function GET(
   if (fileName === 'cover.png') {
     const coverProps = await buildOgCoverProps(page);
 
-    return ogImageResponse(<OgCoverCard {...coverProps} />, {
-      width: COVER_WIDTH,
-      height: COVER_HEIGHT,
-      fonts: ogImageFonts(fonts),
-    });
+    return ogImageResponse(
+      <OgCoverCard {...coverProps} />,
+      {
+        width: COVER_WIDTH,
+        height: COVER_HEIGHT,
+        fonts: ogImageFonts(fonts),
+      },
+      OG_COVER_CACHE_CONTROL,
+    );
   }
 
   if (fileName !== 'image.png') {

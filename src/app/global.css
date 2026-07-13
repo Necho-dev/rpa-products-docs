@@ -34,6 +34,58 @@ html > body[data-scroll-locked] {
   --removed-body-scroll-bar-size: 0px !important;
 }
 
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  50% { transform: translateY(-6px); opacity: 1; }
+}
+
+/* AI 回答区域：彻底禁止 ::marker，用 before 伪元素自定义列表符号 */
+.ai-answer-prose ul,
+.ai-answer-prose ol {
+  list-style: none !important;
+  padding-left: 0 !important;
+  counter-reset: ai-item;
+}
+.ai-answer-prose ul > li,
+.ai-answer-prose ol > li {
+  list-style: none !important;
+}
+.ai-answer-prose ul > li::marker,
+.ai-answer-prose ol > li::marker {
+  content: none !important;
+}
+/* ol 自定义序号（before 伪元素） */
+.ai-answer-prose ol > li {
+  counter-increment: ai-item;
+  position: relative;
+  padding-left: 1.25rem;
+}
+.ai-answer-prose ol > li::before {
+  content: counter(ai-item) ".";
+  position: absolute;
+  left: 0;
+  font-size: 11px;
+  color: var(--color-fd-muted-foreground, #888);
+  font-variant-numeric: tabular-nums;
+}
+/* ul 自定义符号（before 伪元素） */
+.ai-answer-prose ul > li {
+  position: relative;
+  padding-left: 0.875rem;
+}
+.ai-answer-prose ul > li::before {
+  content: "·";
+  position: absolute;
+  left: 0.25rem;
+  font-weight: 700;
+  color: var(--color-fd-muted-foreground, #888);
+}
+
 
 /*
  * 文档区网格（见 fumadocs #nd-docs-layout）：主栏宽度 ≈
@@ -136,6 +188,63 @@ html > body[data-scroll-locked] {
   }
 }
 
+/* 关窗后台生成中：比 idle 更快更明显的呼吸/发光，提示「仍在努力干活」 */
+@keyframes ai-anchor-working-pulse {
+  0%,
+  100% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.12;
+  }
+}
+
+@keyframes ai-anchor-working-glow {
+  0%,
+  100% {
+    opacity: 0.55;
+    scale: 1;
+  }
+  50% {
+    opacity: 1;
+    scale: 1.22;
+  }
+}
+
+@keyframes ai-anchor-working-orbit {
+  0% {
+    rotate: 0deg;
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    rotate: 360deg;
+    opacity: 1;
+  }
+}
+
+/* 后台生成完成：短暂的完成态高亮闪烁，提示用户点击查看 */
+@keyframes ai-anchor-completed-flash {
+  0% {
+    scale: 1;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.55);
+  }
+  30% {
+    scale: 1.15;
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+  }
+  60% {
+    scale: 1;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+  100% {
+    scale: 1;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
 @keyframes back-to-top-rocket-launch {
   0% {
     translate: 0 3px;
@@ -160,6 +269,19 @@ html > body[data-scroll-locked] {
   .ai-anchor-orbit-dot {
     animation: none !important;
     opacity: 0.5 !important;
+  }
+
+  .ai-anchor-working,
+  .ai-anchor-completed {
+    animation: none !important;
+  }
+
+  .ai-anchor-working {
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.55) !important;
+  }
+
+  .ai-anchor-completed {
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.65) !important;
   }
 
   .back-to-top-rocket-launch {

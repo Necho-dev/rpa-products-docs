@@ -2,10 +2,17 @@
 
 import Link from 'fumadocs-core/link';
 import { useCopyButton } from 'fumadocs-ui/utils/use-copy-button';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
 import { Check, Copy, Globe, ImageOff, Loader2, PackagePlus } from 'lucide-react';
 import { cn } from '@/lib/core/cn';
+import { ConnectorScheduleChips } from '@/components/docs/connector-schedule-panel';
+import {
+  hasScheduleMeta,
+  type DataReadyMeta,
+  type EstimatedDurationMeta,
+  type MinIntervalMeta,
+} from '@/lib/docs/format-schedule-meta';
 import { safeWriteClipboard } from '@/lib/ui/code-block-utils';
 import { useModuleCoverImage } from '@/components/docs/mdx/use-module-cover-image';
 
@@ -17,22 +24,67 @@ export type ModuleCardBadge = {
 export type ModuleCardProps = {
   /** 与主标题同一行展示的小图标（可选，用于 connectors/index 等手写页） */
   icon?: ReactNode;
+  /** 站内平台 favicon；加载失败时回退到 icon */
+  faviconUrl?: string;
   /** 卡片主标题 */
   title: string;
   /** 子文档 description，最多展示 2 行 */
   description?: string;
   /** 文档内跳转 */
   href: string;
-  /** 子文档 entry */
-  code: string;
-  /** 状态徽标（如 已上线 / 待上线） */
+  /** 子文档 entry; 未定义时不展示底部技术码 */
+  code?: string;
+  /** 状态徽标（任意 label / color，由文档 frontmatter 决定） */
   badge?: ModuleCardBadge;
   /** 平台/后台入口（可选，用于 connectors/index 等手写页） */
   url?: string;
   /** ModuleGrid 封面 OG（cover.png） */
   coverUrl?: string;
+  /** 数据就绪（周期 + 时间） */
+  dataReady?: DataReadyMeta;
+  /** 预估执行耗时 */
+  estimatedDuration?: EstimatedDurationMeta;
+  /** 最小调度间隔 */
+  minInterval?: MinIntervalMeta;
   className?: string;
 };
+
+function ModuleCardTitleIcon({
+  faviconUrl,
+  icon,
+}: {
+  faviconUrl?: string;
+  icon?: ReactNode;
+}) {
+  const [faviconFailed, setFaviconFailed] = useState(false);
+  const showFavicon = Boolean(faviconUrl) && !faviconFailed;
+
+  if (!showFavicon && !icon) return null;
+
+  return (
+    <span
+      className={cn(
+        'inline-flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-fd-border/70 bg-fd-muted p-1.5 text-fd-muted-foreground',
+        '[&_img]:size-full [&_img]:object-contain [&_svg]:size-full',
+      )}
+    >
+      {showFavicon ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={faviconUrl}
+          alt=""
+          width={28}
+          height={28}
+          referrerPolicy="no-referrer"
+          className="size-full object-contain"
+          onError={() => setFaviconFailed(true)}
+        />
+      ) : (
+        icon
+      )}
+    </span>
+  );
+}
 
 function isExternalUrl(u: string) {
   return /^https?:\/\//i.test(u);
@@ -177,33 +229,61 @@ function ModuleCardCover({
   );
 }
 
+function ModuleCardScheduleLine({
+  dataReady,
+  estimatedDuration,
+  minInterval,
+}: {
+  dataReady?: DataReadyMeta;
+  estimatedDuration?: EstimatedDurationMeta;
+  minInterval?: MinIntervalMeta;
+}) {
+  if (
+    !hasScheduleMeta({
+      dataReady,
+      estimatedDuration,
+      minInterval,
+    })
+  ) {
+    return null;
+  }
+
+  return (
+    <ConnectorScheduleChips
+      dataReady={dataReady}
+      estimatedDuration={estimatedDuration}
+      minInterval={minInterval}
+      className="mt-2"
+    />
+  );
+}
+
 function ModuleCardHeader({
   icon,
+  faviconUrl,
   title,
   description,
   badge,
   href,
   resolvedHref,
+  dataReady,
+  estimatedDuration,
+  minInterval,
 }: {
   icon?: ReactNode;
+  faviconUrl?: string;
   title: string;
   description?: string;
   badge?: ModuleCardBadge;
   href: string;
   resolvedHref: string;
+  dataReady?: DataReadyMeta;
+  estimatedDuration?: EstimatedDurationMeta;
+  minInterval?: MinIntervalMeta;
 }) {
   const content = (
     <div className="flex items-start gap-2">
-      {icon ? (
-        <span
-          className={cn(
-            'inline-flex size-8 shrink-0 items-center justify-center rounded-lg border border-fd-border/70 bg-fd-muted p-1 text-fd-muted-foreground',
-            '[&_svg]:size-4',
-          )}
-        >
-          {icon}
-        </span>
-      ) : null}
+      <ModuleCardTitleIcon faviconUrl={faviconUrl} icon={icon} />
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">
           <h3
@@ -219,6 +299,11 @@ function ModuleCardHeader({
             {description}
           </p>
         ) : null}
+        <ModuleCardScheduleLine
+          dataReady={dataReady}
+          estimatedDuration={estimatedDuration}
+          minInterval={minInterval}
+        />
       </div>
     </div>
   );
@@ -239,6 +324,7 @@ function ModuleCardHeader({
 
 export function ModuleCard({
   icon,
+  faviconUrl,
   title,
   description,
   href,
@@ -246,6 +332,9 @@ export function ModuleCard({
   badge,
   url,
   coverUrl,
+  dataReady,
+  estimatedDuration,
+  minInterval,
   className,
 }: ModuleCardProps) {
   const pathname = usePathname() ?? '/';
@@ -270,56 +359,64 @@ export function ModuleCard({
       ) : null}
       <ModuleCardHeader
         icon={icon}
+        faviconUrl={faviconUrl}
         title={title}
         description={description}
         badge={badge}
         href={href}
         resolvedHref={resolvedHref}
+        dataReady={dataReady}
+        estimatedDuration={estimatedDuration}
+        minInterval={minInterval}
       />
 
-      <div className="mt-auto space-y-2 pt-3">
-        <div className="flex min-w-0 items-center gap-1.5 rounded-lg border border-fd-border/60 bg-fd-muted/30 px-2 py-1">
-          <span
-            className="inline-flex size-6 shrink-0 items-center justify-center rounded-md border border-fd-border/60 bg-fd-muted/40 text-fd-muted-foreground"
-            title="Entry"
-            aria-hidden
-          >
-            <PackagePlus className="size-3.5" />
-          </span>
-          <code
-            className="min-w-0 flex-1 truncate font-mono text-xs font-medium text-fd-foreground"
-            title={code}
-          >
-            {code}
-          </code>
-          <EntryCopyButton value={code} />
-        </div>
+      {(code || url) ? (
+        <div className="mt-auto space-y-2 pt-3">
+          {code ? (
+            <div className="flex min-w-0 items-center gap-1.5 rounded-lg border border-fd-border/60 bg-fd-muted/30 px-2 py-1">
+              <span
+                className="inline-flex size-6 shrink-0 items-center justify-center rounded-md border border-fd-border/60 bg-fd-muted/40 text-fd-muted-foreground"
+                title="Entry"
+                aria-hidden
+              >
+                <PackagePlus className="size-3.5" />
+              </span>
+              <code
+                className="min-w-0 flex-1 truncate font-mono text-xs font-medium text-fd-foreground"
+                title={code}
+              >
+                {code}
+              </code>
+              <EntryCopyButton value={code} />
+            </div>
+          ) : null}
 
-        {url ? (
-          <div className="flex min-w-0 items-center gap-1.5 rounded-lg border border-fd-border/60 bg-fd-muted/30 px-2 py-1">
-            <span
-              className="inline-flex size-6 shrink-0 items-center justify-center rounded-md border border-fd-border/60 bg-fd-muted/40 text-fd-muted-foreground"
-              title="平台入口"
-              aria-hidden
-            >
-              <Globe className="size-3.5" />
-            </span>
-            <a
-              href={url}
-              target="_blank"
-              rel="noreferrer"
-              title={url}
-              className={cn(
-                'min-w-0 flex-1 truncate font-mono text-[11px] font-medium',
-                'text-sky-700 underline decoration-fd-border/60 underline-offset-2',
-                'hover:decoration-sky-700 dark:text-sky-300 dark:hover:decoration-sky-300',
-              )}
-            >
-              {url}
-            </a>
-          </div>
-        ) : null}
-      </div>
+          {url ? (
+            <div className="flex min-w-0 items-center gap-1.5 rounded-lg border border-fd-border/60 bg-fd-muted/30 px-2 py-1">
+              <span
+                className="inline-flex size-6 shrink-0 items-center justify-center rounded-md border border-fd-border/60 bg-fd-muted/40 text-fd-muted-foreground"
+                title="平台主页"
+                aria-hidden
+              >
+                <Globe className="size-3.5" />
+              </span>
+              <a
+                href={url}
+                target="_blank"
+                rel="noreferrer"
+                title={url}
+                className={cn(
+                  'min-w-0 flex-1 truncate font-mono text-[11px] font-medium',
+                  'text-sky-700 underline decoration-fd-border/60 underline-offset-2',
+                  'hover:decoration-sky-700 dark:text-sky-300 dark:hover:decoration-sky-300',
+                )}
+              >
+                {url}
+              </a>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }

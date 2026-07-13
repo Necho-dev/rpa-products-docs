@@ -5,7 +5,6 @@ import {
   collectModuleGridGroupsFromScan,
   formatModuleGridDirectiveWithModules,
   parseMetaPanelPlatformUrl,
-  resolveEffectivePackageEntry,
   scanCatalogPackageIndexModulesSync,
   scanModuleGridModulesSync,
   stripTocOnlyHeadings,
@@ -19,11 +18,9 @@ describe('collectModuleGridGroupsFromScan', () => {
           slug: 'rpa-conn-qianniu-item-a',
           title: 'A',
           entry: 'rpa.conn.qianniu.item.a',
-          groupKey: 'item',
         },
       ],
       { item: { label: '商品/Item' }, shop: { label: '店铺/Shop' } },
-      'rpa-conn-qianniu-all',
     ).filter((g) => g.modules.length > 0);
 
     assert.deepEqual(result.map((g) => g.key), ['item']);
@@ -35,7 +32,7 @@ describe('formatModuleGridDirectiveWithModules', () => {
     const md = formatModuleGridDirectiveWithModules(
       {
         item: { label: '商品/Item', icon: { comp: 'ShoppingBag' } },
-        shop: { label: '店铺/Shop', icon: 'Store' },
+        shop: { label: '店铺/Shop', icon: { comp: 'Store' } },
       },
       [
         {
@@ -53,7 +50,7 @@ describe('formatModuleGridDirectiveWithModules', () => {
         {
           key: 'shop',
           label: '店铺/Shop',
-          icon: 'Store',
+          icon: { comp: 'Store' },
           modules: [
             {
               title: '店铺 B',
@@ -92,8 +89,8 @@ describe('formatModuleGridDirectiveWithModules', () => {
           modules: [
             {
               title: '千牛',
-              href: './rpa-conn-qianniu-all',
-              code: 'rpa-conn-qianniu-all',
+              href: './RPA_QIANNIU',
+              code: 'RPA_QIANNIU',
             },
           ],
         },
@@ -102,6 +99,29 @@ describe('formatModuleGridDirectiveWithModules', () => {
     );
 
     assert.match(md, /layout: stack/);
+    assert.match(md, /taobao:/);
+  });
+
+  it('preserves flat layout in exported YAML', () => {
+    const md = formatModuleGridDirectiveWithModules(
+      { taobao: { label: '淘宝 / 天猫' } },
+      [
+        {
+          key: 'taobao',
+          label: '淘宝 / 天猫',
+          modules: [
+            {
+              title: '千牛',
+              href: './RPA_QIANNIU',
+              code: 'RPA_QIANNIU',
+            },
+          ],
+        },
+      ],
+      'flat',
+    );
+
+    assert.match(md, /layout: flat/);
     assert.match(md, /taobao:/);
   });
 });
@@ -142,8 +162,6 @@ title: Test
 platform: 千牛
 platformUrl: https://myseller.taobao.com
 requireLogin: true
-components:
-  - rpa-comp-login-qianniu
 :::
 
 ## Body
@@ -163,13 +181,13 @@ describe('scanCatalogPackageIndexModulesSync', () => {
   it('reads package index pages from subdirectories', () => {
     const indexPath = path.join(
       process.cwd(),
-      'content/docs/connectors/index.md',
+      'content/docs/rpa/index.mdx',
     );
     const modules = scanCatalogPackageIndexModulesSync(indexPath);
 
     assert.ok(modules.length >= 6);
-    assert.ok(modules.some((m) => m.slug === 'rpa-conn-qianniu-all'));
-    assert.ok(modules.some((m) => m.moduleGroup === 'taobao'));
+    assert.ok(modules.some((m) => m.slug === 'RPA_QIANNIU'));
+    assert.ok(modules.some((m) => m.group === 'taobao'));
   });
 });
 
@@ -177,23 +195,10 @@ describe('scanModuleGridModulesSync', () => {
   it('falls back to catalog scan when flat siblings are empty', () => {
     const indexPath = path.join(
       process.cwd(),
-      'content/docs/connectors/index.md',
+      'content/docs/rpa/index.mdx',
     );
-    const modules = scanModuleGridModulesSync(indexPath, 'connectors');
+    const modules = scanModuleGridModulesSync(indexPath);
 
     assert.ok(modules.length >= 6);
-  });
-});
-
-describe('resolveEffectivePackageEntry', () => {
-  it('falls back to page slug basename', () => {
-    assert.equal(resolveEffectivePackageEntry('', ['connectors']), 'connectors');
-    assert.equal(
-      resolveEffectivePackageEntry('rpa-conn-qianniu-all', [
-        'connectors',
-        'rpa-conn-qianniu-all',
-      ]),
-      'rpa-conn-qianniu-all',
-    );
   });
 });

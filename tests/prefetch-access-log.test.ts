@@ -20,9 +20,9 @@ describe('prefetch-access-log', () => {
 
   it('prefetchTriggerPath 优先 next-url', () => {
     const req = new NextRequest('http://127.0.0.1/docs/target', {
-      headers: { 'next-url': '/docs/connectors/foo' },
+      headers: { 'next-url': '/docs/RPA_QIANNIU/foo' },
     });
-    assert.equal(prefetchTriggerPath(req), '/docs/connectors/foo');
+    assert.equal(prefetchTriggerPath(req), '/docs/RPA_QIANNIU/foo');
   });
 
   it('recordPrefetchAccess 批次结束后写一条汇总', async () => {

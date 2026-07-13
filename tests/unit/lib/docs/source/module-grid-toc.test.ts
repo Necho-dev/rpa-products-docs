@@ -34,6 +34,22 @@ describe('findPrecedingHeading', () => {
     });
   });
 
+  it('derives slug from heading text when hProperties id is missing', () => {
+    const siblings: RootContent[] = [
+      {
+        type: 'heading',
+        depth: 2,
+        children: [{ type: 'text', value: '内含连接器' }],
+      },
+      { type: 'paragraph', children: [{ type: 'text', value: 'x' }] },
+    ];
+
+    assert.deepEqual(findPrecedingHeading(siblings, 2), {
+      depth: 2,
+      id: '内含连接器',
+    });
+  });
+
   it('returns null when no heading exists', () => {
     assert.equal(findPrecedingHeading([], 0), null);
   });

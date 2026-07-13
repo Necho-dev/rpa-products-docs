@@ -4,8 +4,8 @@ import {
   BotIcon,
   ChevronRightIcon,
   FileTextIcon,
-  LayersIcon,
-  PackageIcon,
+  ServerCrash,
+  Users,
   FanIcon,
   RssIcon,
   ServerIcon,
@@ -18,32 +18,32 @@ import { docsRoute, getSiteDescription, getSiteName } from '@/lib/core/shared';
 
 const cards = [
   {
-    href: `${docsRoute}/connectors`,
+    href: `${docsRoute}/rpa`,
     icon: BotIcon,
-    title: 'Connector 连接器',
+    title: 'RPA 连接器',
     description:
-      '定义具体业务逻辑的最小单元, 一个任务类型对应一个连接器, 遵循「1+1+N」开发模式, 即 1 个新平台 = 1个登录组件 + N个连接器。',
+      '通过自动化操作实现数据对接: 提前申请部署执行机环境、添加授权, 按需选择连接器即可执行; 推荐配置定时调度, 数据自动同步至资产表;',
   },
   {
-    href: `${docsRoute}/components`,
-    icon: LayersIcon,
-    title: 'Component 组件',
+    href: `${docsRoute}/api`,
+    icon: ServerCrash,
+    title: 'API 连接器(规划中)',
     description:
-      '可跨连接器复用的业务能力单元, Component 组件封装的是通用能力（比如常用的登录、验证码等）, 提供 @auth 装饰器支持声明式使用。',
+      '面向官方开放 API 的连接器(规划中): 通过预策自研 ISV 服务, 累计对接 1700+ 连接器, 搭配标准化数仓, 助力商家快速接入官方数据;',
   },
   {
-    href: `${docsRoute}/apps`,
-    icon: PackageIcon,
-    title: 'App 应用',
+    href: `${docsRoute}/auth`,
+    icon: Users,
+    title: '授权帮助',
     description:
-      '具备通过 Git 仓库 / PyPI 包快速分发的能力, 提供 deploy 脚本即可快速部署到执行机的 CLI 应用, 提供完整的封装、部署 SOP 说明。',
+      '授权帮助指南: 覆盖账密托管、预策 ISV、商家自研三类流程, 帮助商家快速完成账号开通 / 服务订购 / 应用创建到授权添加的完整流程;',
   },
   {
     href: '/mcp/deeplink',
-    icon: ServerIcon,
+    icon: RssIcon,
     title: 'RSS & MCP 服务',
     description:
-      '提供 RSS 订阅更新、 MCP 服务能力, 添加 MCP 服务到 Cursor 或Claude Code, 即可在 AI 客户端中快速检索和访问文档内容。',
+      '提供 RSS 订阅更新、 MCP 服务能力, 添加 MCP 服务到 Codex 或Claude Code, 即可在 AI 客户端中快速检索和访问文档内容。',
   },
 ] as const;
 
@@ -75,7 +75,7 @@ export default function HomePage() {
             {siteName}
           </h1>
 
-          <p className="mt-5 max-w-xl text-pretty text-sm leading-relaxed text-fd-muted-foreground sm:mt-6 sm:max-w-2xl sm:text-base">
+          <p className="mt-5 max-w-xl text-justify text-pretty text-sm leading-relaxed text-fd-muted-foreground sm:mt-6 sm:max-w-2xl sm:text-base">
             {siteDescription}
           </p>
 
@@ -132,7 +132,7 @@ export default function HomePage() {
             <div className="mb-5 text-center sm:mb-6">
               <h2 className="text-base font-semibold text-fd-foreground sm:text-lg">快速入口</h2>
               <p className="mx-auto mt-1 max-w-md text-pretty text-xs text-fd-muted-foreground sm:text-sm">
-                连接器、组件、应用与 MCP — 按主题进入对应文档
+                RPA 连接器、API 连接器、授权帮助 — 按主题进入对应文档
               </p>
             </div>
             <ul className="grid list-none grid-cols-1 gap-3 p-0 sm:grid-cols-2 sm:gap-4 sm:items-start">

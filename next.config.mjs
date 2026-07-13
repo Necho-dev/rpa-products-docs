@@ -1,8 +1,5 @@
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { createMDX } from 'fumadocs-mdx/next';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const withMDX = createMDX();
 
 function devAllowedOrigins() {
@@ -27,15 +24,53 @@ const config = {
   reactStrictMode: true,
   /** Docker 等多阶段部署：产出 `.next/standalone`，运行时镜像只需 Node + 该目录 */
   output: 'standalone',
-  /** 多 lockfile/嵌套工作区时，避免 Next 把仓库根当项目根，导致 standalone 路径错乱 */
-  turbopack: {
-    root: __dirname,
-  },
+  /**
+   * 禁止设置 `turbopack.root: <本项目目录>`:
+   * Next 16 Turbopack 在 root === projectDir 时会把 CSS `@import` 解析上下文
+   * 错误计算到父目录 (Can't resolve 'tailwindcss' in `../<项目父目录>`)
+   * @see https://github.com/vercel/next.js/issues/90307
+   */
   // 局域网 / localhost 混访 dev 时允许 HMR 与静态资源跨 Host 加载
   allowedDevOrigins: devAllowedOrigins(),
   // MDX 内嵌图通过 `ImageZoom` 使用 `quality={95}`，需显式加入允许列表（Next 16+）
   images: {
     qualities: [75, 95],
+  },
+  async redirects() {
+    /**
+     * DOCS_DEFAULT_SLUG: /docs 根路径的默认重定向目标分区（默认 `rpa`）。
+     * DOCS_LEGACY_SLUG_PREFIX: 旧 URL 一级段（如 `RPA_`），满足此前缀时重定向到默认分区下。
+     * 设为空字符串可禁用对应重定向。
+     */
+    const defaultSlug = process.env.DOCS_DEFAULT_SLUG?.trim() || 'rpa';
+    const legacyPrefix = process.env.DOCS_LEGACY_SLUG_PREFIX?.trim() ?? 'RPA_';
+
+    const rules = [];
+
+    if (defaultSlug) {
+      rules.push({
+        source: '/docs',
+        destination: `/docs/${defaultSlug}`,
+        permanent: true,
+      });
+    }
+
+    if (legacyPrefix && defaultSlug) {
+      rules.push(
+        {
+          source: `/docs/${legacyPrefix}:platform`,
+          destination: `/docs/${defaultSlug}/${legacyPrefix}:platform`,
+          permanent: true,
+        },
+        {
+          source: `/docs/${legacyPrefix}:platform/:path*`,
+          destination: `/docs/${defaultSlug}/${legacyPrefix}:platform/:path*`,
+          permanent: true,
+        },
+      );
+    }
+
+    return rules;
   },
   async rewrites() {
     // quote 需 force-dynamic(读 headers 验签), 内部重定向到 /og/quote

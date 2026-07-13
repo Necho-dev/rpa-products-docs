@@ -24,9 +24,11 @@ export async function ModuleGrid({
 }) {
   const access = await getDocAccessContextFromRequest();
   const grouped = await collectModuleGridGroups(pageSlug, groups, access, cover);
-  const groupAnchors = sectionAnchorId
-    ? buildModuleGridGroupAnchors(sectionAnchorId, grouped)
-    : undefined;
+  // tabs 需要分组锚点做 hash 联动; stack / flat 不注入
+  const groupAnchors =
+    layout === 'tabs' && sectionAnchorId
+      ? buildModuleGridGroupAnchors(sectionAnchorId, grouped)
+      : undefined;
 
   return (
     <ModuleGridTabs groups={grouped} layout={layout} groupAnchors={groupAnchors} />

@@ -12,6 +12,8 @@ import { remarkSteps } from 'fumadocs-core/mdx-plugins/remark-steps';
 import { remarkMdxJsonSchema } from './src/lib/docs/source/remark-mdx-json-schema';
 import { remarkMdxFieldTree } from './src/lib/docs/source/remark-mdx-field-tree';
 import { remarkMdxDocBlocks } from './src/lib/docs/source/remark-mdx-doc-blocks';
+import { remarkMdxChangelog } from './src/lib/docs/source/remark-mdx-changelog';
+import { remarkSectionDirective } from './src/lib/docs/source/remark-section-directive';
 import remarkDirective from 'remark-directive';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -33,6 +35,47 @@ const moduleIconSchema = z.union([
   }),
 ]);
 
+const dataReadyCycleSchema = z
+  .string()
+  .regex(
+    /^(realtime|hourly|daily|weekly\.[1-7]|monthly\.([1-9]|[12]\d|3[01]))$/,
+    '格式须为 realtime / hourly / daily / weekly.1-7 / monthly.1-31',
+  );
+
+const scheduleIndicatorDescriptionSchema = z.string().optional();
+
+/** 数据就绪：周期 + 时间点 + 可选说明 */
+const dataReadySchema = z
+  .object({
+    time: z
+      .string()
+      .regex(/^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/, '格式须为 HH:MM:SS')
+      .optional(),
+    cycle: dataReadyCycleSchema.optional(),
+    description: scheduleIndicatorDescriptionSchema,
+  })
+  .refine((v) => v.time != null || v.cycle != null, 'dataReady 至少须配置 time 或 cycle')
+  .optional();
+
+/** 时长类指标：sec / min / hour 至少配一个，多个时取换算后的最大值 */
+const durationValueSchema = z
+  .object({
+    sec: z.coerce.number().int().positive().optional(),
+    min: z.coerce.number().int().positive().optional(),
+    hour: z.coerce.number().int().positive().optional(),
+    description: scheduleIndicatorDescriptionSchema,
+  })
+  .refine(
+    (v) => v.sec != null || v.min != null || v.hour != null,
+    '至少须配置 sec / min / hour 之一',
+  );
+
+/** 预估执行耗时 + 可选说明 */
+const estimatedDurationSchema = durationValueSchema.optional();
+
+/** 最小调度间隔 + 可选说明 */
+const minIntervalSchema = durationValueSchema.optional();
+
 /** 页面：不写 `access` 时继承目录 meta；可写 `public` 强制公开 */
 const docsPageSchema = pageSchema.extend({
   access: z.enum(['public', 'private']).optional(),
@@ -45,21 +88,36 @@ const docsPageSchema = pageSchema.extend({
   tags: z.array(z.string()).optional(),
   /** 侧栏文档名右侧背景色徽章（与 `entry` 可同时存在） */
   badge: docBadgeSchema.optional(),
-  /** ModuleGrid 卡片主标题；未写则用 title */
-  moduleTitle: z.string().optional(),
-  /** ModuleGrid 卡片图标：`Bot` 或 `{ comp, color? }`；无 color 时为 muted 默认样式 */
-  moduleIcon: moduleIconSchema.optional(),
-  /** ModuleGrid 卡片平台入口 URL */
-  moduleUrl: z.string().url().optional(),
-  /** ModuleGrid 分组 bucket key */
-  moduleGroup: z.string().optional(),
-  /** 覆盖 grid `cover`：单卡强制开/关 cover.png */
-  moduleCover: z.boolean().optional(),
+  /**
+   * ModuleGrid 卡片专用配置（与侧栏 `title` / `icon` 分离）。
+   * - title：可选，默认文档 title
+   * - link：卡片外链
+   * - group：父页 :::module-grid YAML 的 group key
+   * - icon：卡片图标；未写时可回退页面级 `icon`
+   * - cover：覆盖 grid `cover`，单卡强制开/关
+   */
+  module: z
+    .object({
+      title: z.string().optional(),
+      link: z.string().url().optional(),
+      group: z.string().optional(),
+      icon: moduleIconSchema.optional(),
+      cover: z.boolean().optional(),
+    })
+    .optional(),
+  /** 数据就绪（周期 + 时间）；仅 rpa.conn.* 连接器页展示 */
+  dataReady: dataReadySchema,
+  /** 预估执行耗时；仅 rpa.conn.* 连接器页展示 */
+  estimatedDuration: estimatedDurationSchema,
+  /** 最小调度间隔；仅 rpa.conn.* 连接器页展示 */
+  minInterval: minIntervalSchema,
 });
 
 /** 目录 meta：`access: private` 时其下所有页面默认私有（除非某页写 `access: public`） */
 const docsMetaSchema = metaSchema.extend({
   access: z.enum(['public', 'private']).optional(),
+  /** 侧边栏 Tab 图标颜色（任意 CSS 颜色值，如 `#3b82f6`、`oklch(...)`）；仅 root: true 的分区目录生效 */
+  color: z.string().optional(),
 });
 
 // 文档以 .md + YAML frontmatter 为主。
@@ -80,31 +138,54 @@ export const docs = defineDocs({
   },
 });
 
+async function fileMtime(filePath: string): Promise<Date | null> {
+  try {
+    return (await stat(filePath)).mtime;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * 文档「最后更新」时间来源：
- * - 默认 `git`：用 `git log`（需本机/CI 可执行 git、且非过浅的 clone，时间更接近真实提交日）
- * - 环境变量 `FUMADOCS_LAST_MODIFIED=fs`：用文件 mtime（Docker slim 无 git、不跑 apt，见 Dockerfile）
+ * - 默认: 优先 `git log`；无提交历史时 (如未 commit 的路径迁移) 回退文件 mtime
+ * - 环境变量 `FUMADOCS_LAST_MODIFIED=fs`: 仅用文件 mtime (Docker slim 无 git, 见 Dockerfile 注释)
  * @see https://fumadocs.dev/docs/mdx/last-modified
  */
-const lastModifiedPlugin = lastModified(
-  process.env.FUMADOCS_LAST_MODIFIED === 'fs'
-    ? {
-        versionControl: async (filePath: string) => {
-          try {
-            return (await stat(filePath)).mtime;
-          } catch {
-            return null;
-          }
-        },
+const lastModifiedPlugin = lastModified({
+  versionControl: async (filePath: string) => {
+    if (process.env.FUMADOCS_LAST_MODIFIED === 'fs') {
+      return fileMtime(filePath);
+    }
+
+    // 与 fumadocs-mdx 默认 git 策略一致，但未入库路径会得到 null → 回退 mtime
+    const { x } = await import('tinyexec');
+    const path = await import('node:path');
+    const relative = path.relative(process.cwd(), filePath);
+    try {
+      const out = await x(
+        'git',
+        ['log', '-1', '--pretty=%ai', relative],
+        { nodeOptions: { cwd: process.cwd() } },
+      );
+      if (out.exitCode === 0) {
+        const date = new Date(out.stdout.trim().replace(/^"|"$/g, ''));
+        if (!Number.isNaN(date.getTime())) return date;
       }
-    : {},
-);
+    } catch {
+      // ignore git errors
+    }
+    return fileMtime(filePath);
+  },
+});
 
 export default defineConfig({
   mdxOptions: {
     remarkPlugins: [
       remarkDirective,
       remarkDirectiveAdmonition,
+      remarkSectionDirective,
+      remarkMdxChangelog,
       remarkSteps,
       remarkMdxJsonSchema,
       remarkMdxFieldTree,

@@ -6,13 +6,17 @@
 #   ./scripts/manage-secrets.sh list [--file PATH]
 #   ./scripts/manage-secrets.sh add [secret] [--file PATH]
 #   ./scripts/manage-secrets.sh remove <sh_prefix> [--file PATH]
+#   ./scripts/manage-secrets.sh fix-perms [--file PATH]
 #   ./scripts/manage-secrets.sh show <sh_prefix> [--reveal] [--file PATH]
 #
 # 路径优先级: --file > 当前目录 .env 的 DOCS_SECRETS_FILE_PATH > /opt/secrets/secrets.json
+# 写入后自动 chown 为容器 nextjs 用户（默认 uid/gid 1001），避免挂载进容器后 EACCES
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DEFAULT_SECRETS_PATH="/opt/secrets/secrets.json"
+DEFAULT_SECRETS_UID=1001
+DEFAULT_SECRETS_GID=1001
 
 YELLOW='\033[1;33m'
 NC='\033[0m'
@@ -65,11 +69,84 @@ resolve_secrets_path_from_args() {
   echo "$DEFAULT_SECRETS_PATH"
 }
 
+read_env_var() {
+  local key="$1"
+  if [[ -f "$ROOT/.env" ]]; then
+    local value
+    value="$(grep -E "^${key}=" "$ROOT/.env" 2>/dev/null | tail -1 | cut -d= -f2- | tr -d '\r' | sed 's/^["'\'' ]*//;s/["'\'' ]*$//' || true)"
+    if [[ -n "$value" ]]; then
+      echo "$value"
+      return
+    fi
+  fi
+  echo ""
+}
+
+resolve_secrets_uid() {
+  local from_env
+  from_env="$(read_env_var DOCS_SECRETS_UID)"
+  if [[ -n "$from_env" ]]; then
+    echo "$from_env"
+    return
+  fi
+  echo "$DEFAULT_SECRETS_UID"
+}
+
+resolve_secrets_gid() {
+  local from_env
+  from_env="$(read_env_var DOCS_SECRETS_GID)"
+  if [[ -n "$from_env" ]]; then
+    echo "$from_env"
+    return
+  fi
+  echo "$DEFAULT_SECRETS_GID"
+}
+
+fix_secrets_dir_ownership() {
+  local dir="$1"
+  local uid gid
+  uid="$(resolve_secrets_uid)"
+  gid="$(resolve_secrets_gid)"
+  [[ -d "$dir" ]] || return 0
+  if chown "${uid}:${gid}" "$dir" 2>/dev/null; then
+    chmod 700 "$dir" 2>/dev/null || true
+    return 0
+  fi
+  echo "警告: 无法 chown 目录 ${dir} → ${uid}:${gid}（通常需 sudo）；容器内 nextjs 可能无法读取 secrets" >&2
+  return 1
+}
+
+fix_secrets_file_ownership() {
+  local path="$1"
+  local uid gid
+  uid="$(resolve_secrets_uid)"
+  gid="$(resolve_secrets_gid)"
+  [[ -f "$path" ]] || return 0
+  if chown "${uid}:${gid}" "$path" 2>/dev/null; then
+    chmod 600 "$path" 2>/dev/null || true
+    return 0
+  fi
+  echo "警告: 无法 chown 文件 ${path} → ${uid}:${gid}（通常需 sudo）" >&2
+  echo "       请执行: sudo chown ${uid}:${gid} ${path} && sudo chmod 600 ${path}" >&2
+  return 1
+}
+
+fix_secrets_ownership() {
+  local path="$1"
+  local dir
+  dir="$(dirname "$path")"
+  fix_secrets_dir_ownership "$dir" || true
+  fix_secrets_file_ownership "$path"
+}
+
 ensure_parent_dir() {
   local path="$1"
   local dir
   dir="$(dirname "$path")"
-  [[ -d "$dir" ]] || mkdir -p "$dir"
+  if [[ ! -d "$dir" ]]; then
+    mkdir -p "$dir"
+    fix_secrets_dir_ownership "$dir" || true
+  fi
 }
 
 read_secrets_json() {
@@ -103,6 +180,17 @@ write_secrets_json() {
   chmod 600 "$tmp"
   mv "$tmp" "$path"
   chmod 600 "$path"
+  fix_secrets_ownership "$path" || true
+}
+
+cmd_fix_perms() {
+  local path="$1"
+  [[ -f "$path" ]] || err "文件不存在: ${path}"
+  if fix_secrets_ownership "$path"; then
+    echo "已修复权限: ${path} → $(resolve_secrets_uid):$(resolve_secrets_gid)（目录 700 / 文件 600）"
+  else
+    err "修复失败，请使用 sudo 重试"
+  fi
 }
 
 cmd_list() {
@@ -276,8 +364,11 @@ main() {
       [[ ${#positional[@]} -ge 1 ]] || err "用法: show <sh_prefix> [--reveal] [--file PATH]"
       cmd_show "$secrets_path" "${positional[0]}" "$reveal"
       ;;
+    fix-perms)
+      cmd_fix_perms "$secrets_path"
+      ;;
     *)
-      err "未知子命令: $cmd（可用: list | add | remove | show）"
+      err "未知子命令: $cmd（可用: list | add | remove | show | fix-perms）"
       ;;
   esac
 }

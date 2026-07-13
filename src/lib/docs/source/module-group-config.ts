@@ -2,7 +2,10 @@ import { parse as parseYaml } from 'yaml';
 import { normalizeModuleIcon, type ModuleIconConfig } from '@/lib/docs/source/module-icon-config';
 export type ModuleGroupConfig = {
   label: string;
-  /** lucide 图标：`ShoppingBag` 或 `{ comp, color? }`；无 color 时为 muted 默认样式 */
+  /**
+   * 图标：`{ comp, color? }` 或简写字符串。
+   * `comp` 优先匹配 platform icons codes（如 `TAOBAO`、`QIANNIU`），否则为 Lucide 名。
+   */
   icon?: ModuleIconConfig;
 };
 
@@ -83,7 +86,13 @@ export function normalizeModuleGroupsInput(
   return out;
 }
 
-export type ModuleGridLayout = 'tabs' | 'stack';
+/**
+ * ModuleGrid 布局:
+ * - tabs: 顶部标签页样式设计, 按标签页展示一组模块卡片
+ * - stack: 纵向堆叠样式设计, 每组带标题
+ * - flat: 平铺样式设计, 不显示分类, 按分组顺序把卡片平铺成一张网格
+ */
+export type ModuleGridLayout = 'tabs' | 'stack' | 'flat';
 
 export type ParsedModuleGridDirective = {
   layout: ModuleGridLayout;
@@ -91,7 +100,7 @@ export type ParsedModuleGridDirective = {
   groups: Record<string, ModuleGroupConfig>;
 };
 
-const MODULE_GRID_LAYOUTS = new Set<ModuleGridLayout>(['tabs', 'stack']);
+const MODULE_GRID_LAYOUTS = new Set<ModuleGridLayout>(['tabs', 'stack', 'flat']);
 
 /** 解析 :::module-grid YAML，剥离 layout / cover 保留字 */
 export function parseModuleGridDirectiveYaml(
@@ -110,7 +119,7 @@ export function parseModuleGridDirectiveYaml(
     const value = obj.layout;
     if (typeof value !== 'string' || !MODULE_GRID_LAYOUTS.has(value as ModuleGridLayout)) {
       throw new Error(
-        `${filePath}: :::module-grid layout must be "tabs" or "stack"`,
+        `${filePath}: :::module-grid layout must be "tabs", "stack", or "flat"`,
       );
     }
     layout = value as ModuleGridLayout;

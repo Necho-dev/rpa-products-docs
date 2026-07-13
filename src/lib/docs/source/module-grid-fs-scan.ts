@@ -3,13 +3,16 @@ import path from 'node:path';
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 import {
   collectSiblingModuleGroups,
-  inferGroupKeyFromFilename,
-  OTHER_GROUP_KEY,
   type ModuleGroupData,
   type SiblingModuleInput,
 } from '@/lib/docs/source/collect-sibling-modules';
+import { readModuleFrontmatter } from '@/lib/docs/source/module-frontmatter';
 import type { ModuleGroupConfig, ModuleGridLayout } from '@/lib/docs/source/module-group-config';
 import type { ModuleIconConfig } from '@/lib/docs/source/module-icon-config';
+import {
+  compareBySlugOrder,
+  parseMetaPagesOrder,
+} from '@/lib/docs/source/meta-pages-order';
 
 const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---/;
 
@@ -17,8 +20,10 @@ export type ScannedSiblingModule = {
   slug: string;
   title: string;
   entry?: string;
-  moduleGroup?: string;
-  groupKey: string;
+  /** module.group */
+  group?: string;
+  /** frontmatter `badge`；任意 label，不做业务枚举限制 */
+  badge?: { label: string; color?: string };
 };
 
 const META_PANEL_BLOCK_RE = /:::meta-panel\r?\n([\s\S]*?)\r?\n:::/;
@@ -37,7 +42,6 @@ function parseFrontmatter(raw: string): Record<string, unknown> {
 function readSiblingModuleFromMarkdownFile(
   slug: string,
   filePath: string,
-  packageEntry: string,
 ): ScannedSiblingModule | null {
   let raw: string;
   try {
@@ -49,27 +53,37 @@ function readSiblingModuleFromMarkdownFile(
   const fm = parseFrontmatter(raw);
   const title = typeof fm.title === 'string' ? fm.title : slug;
   const entry = typeof fm.entry === 'string' ? fm.entry : undefined;
-  const moduleGroup =
-    typeof fm.moduleGroup === 'string' ? fm.moduleGroup : undefined;
-  const groupKey =
-    moduleGroup?.trim() ||
-    inferGroupKeyFromFilename(slug, packageEntry) ||
-    OTHER_GROUP_KEY;
+  const group = readModuleFrontmatter(fm).group;
+
+  let badge: ScannedSiblingModule['badge'];
+  const rawBadge = fm.badge;
+  if (rawBadge && typeof rawBadge === 'object' && !Array.isArray(rawBadge)) {
+    const b = rawBadge as { label?: unknown; color?: unknown };
+    if (typeof b.label === 'string' && b.label.trim()) {
+      badge = {
+        label: b.label.trim(),
+        color:
+          typeof b.color === 'string' && b.color.trim()
+            ? b.color.trim()
+            : undefined,
+      };
+    }
+  }
 
   return {
     slug,
     title,
     entry,
-    moduleGroup,
-    groupKey,
+    group,
+    badge,
   };
 }
 
 export function scanSiblingMarkdownModulesSync(
   indexFilePath: string,
-  packageEntry: string,
 ): ScannedSiblingModule[] {
   const dir = path.dirname(indexFilePath);
+  const pagesOrder = readMetaPagesOrderFromDir(dir);
   let names: string[];
   try {
     names = readdirSync(dir);
@@ -79,16 +93,17 @@ export function scanSiblingMarkdownModulesSync(
 
   const modules: ScannedSiblingModule[] = [];
 
-  for (const name of names.sort()) {
+  for (const name of names) {
     if (!name.endsWith('.md')) continue;
     if (name === 'index.md' || name === 'index.mdx') continue;
 
     const slug = name.replace(/\.mdx?$/, '');
     const filePath = path.join(dir, name);
-    const module = readSiblingModuleFromMarkdownFile(slug, filePath, packageEntry);
-    if (module) modules.push(module);
+    const scannedModule = readSiblingModuleFromMarkdownFile(slug, filePath);
+    if (scannedModule) modules.push(scannedModule);
   }
 
+  modules.sort((a, b) => compareBySlugOrder(a.slug, b.slug, pagesOrder));
   return modules;
 }
 
@@ -97,6 +112,7 @@ export function scanCatalogPackageIndexModulesSync(
   indexFilePath: string,
 ): ScannedSiblingModule[] {
   const dir = path.dirname(indexFilePath);
+  const pagesOrder = readMetaPagesOrderFromDir(dir);
   let entries: Dirent[];
   try {
     entries = readdirSync(dir, { withFileTypes: true });
@@ -106,76 +122,100 @@ export function scanCatalogPackageIndexModulesSync(
 
   const modules: ScannedSiblingModule[] = [];
 
-  for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+  for (const entry of entries) {
     if (!entry.isDirectory()) continue;
 
     const slug = entry.name;
     const indexMd = path.join(dir, slug, 'index.md');
     const indexMdx = path.join(dir, slug, 'index.mdx');
 
-    const module =
-      readSiblingModuleFromMarkdownFile(slug, indexMd, slug) ??
-      readSiblingModuleFromMarkdownFile(slug, indexMdx, slug);
-    if (module) modules.push(module);
+    const scannedModule =
+      readSiblingModuleFromMarkdownFile(slug, indexMd) ??
+      readSiblingModuleFromMarkdownFile(slug, indexMdx);
+    if (scannedModule) modules.push(scannedModule);
   }
 
+  modules.sort((a, b) => compareBySlugOrder(a.slug, b.slug, pagesOrder));
   return modules;
 }
 
 export function scanModuleGridModulesSync(
   indexFilePath: string,
-  packageEntry: string,
 ): ScannedSiblingModule[] {
-  const flat = scanSiblingMarkdownModulesSync(indexFilePath, packageEntry);
+  const flat = scanSiblingMarkdownModulesSync(indexFilePath);
   if (flat.length > 0) return flat;
   return scanCatalogPackageIndexModulesSync(indexFilePath);
-}
-
-export function resolveEffectivePackageEntry(
-  packageEntry: string | undefined,
-  pageSlug: string[],
-): string {
-  const trimmed = packageEntry?.trim();
-  if (trimmed) return trimmed;
-  return pageSlug.length > 0 ? pageSlug[pageSlug.length - 1]! : '';
 }
 
 function scannedModulesToSiblingInputs(
   modules: ScannedSiblingModule[],
 ): SiblingModuleInput[] {
+  // module.group / slug 任意满足即可入格
   return modules
-    .filter((m) => m.entry?.trim())
+    .filter((m) => Boolean(m.group?.trim() || m.slug?.trim()))
     .map((m) => ({
       slug: m.slug,
       title: m.title,
       entry: m.entry,
-      moduleGroup: m.moduleGroup,
-      groupExplicit: Boolean(m.moduleGroup?.trim()),
+      group: m.group,
+      groupExplicit: Boolean(m.group?.trim()),
     }));
 }
 
-/** 从 :::meta-panel 块解析 platformUrl，供 moduleUrl 回退 */
-export function parseMetaPanelPlatformUrl(content: string): string | undefined {
+export type MetaPanelFields = {
+  platformUrl?: string;
+  icon?: string;
+};
+
+function parseMetaPanelBlock(content: string): MetaPanelFields {
   const match = META_PANEL_BLOCK_RE.exec(content);
-  if (!match?.[1]) return undefined;
+  if (!match?.[1]) return {};
 
   try {
     const data = parseYaml(match[1]);
-    if (!data || typeof data !== 'object' || Array.isArray(data)) return undefined;
-    const url = (data as Record<string, unknown>).platformUrl;
-    return typeof url === 'string' && url.trim() ? url.trim() : undefined;
+    if (!data || typeof data !== 'object' || Array.isArray(data)) return {};
+    const record = data as Record<string, unknown>;
+    const platformUrl =
+      typeof record.platformUrl === 'string' && record.platformUrl.trim()
+        ? record.platformUrl.trim()
+        : undefined;
+    const icon =
+      typeof record.icon === 'string' && record.icon.trim()
+        ? record.icon.trim()
+        : undefined;
+    return { platformUrl, icon };
   } catch {
-    return undefined;
+    return {};
+  }
+}
+
+/** 从 :::meta-panel 块解析 platformUrl */
+export function parseMetaPanelPlatformUrl(content: string): string | undefined {
+  return parseMetaPanelBlock(content).platformUrl;
+}
+
+/** 从 :::meta-panel 块解析 icon CODE */
+export function parseMetaPanelIcon(content: string): string | undefined {
+  return parseMetaPanelBlock(content).icon;
+}
+
+function readMetaPagesOrderFromDir(dir: string): string[] {
+  try {
+    const raw = readFileSync(path.join(dir, 'meta.json'), 'utf8');
+    const data = JSON.parse(raw) as { pages?: unknown };
+    return parseMetaPagesOrder(data.pages);
+  } catch {
+    return [];
   }
 }
 
 export function collectModuleGridGroupsFromScan(
   modules: ScannedSiblingModule[],
   groupsYaml: Record<string, ModuleGroupConfig | string>,
-  packageEntry: string,
+  pagesOrder: readonly string[] = [],
 ): ModuleGroupData[] {
   const inputs = scannedModulesToSiblingInputs(modules);
-  return collectSiblingModuleGroups(inputs, groupsYaml, packageEntry);
+  return collectSiblingModuleGroups(inputs, groupsYaml, pagesOrder);
 }
 
 export function readPackageEntryFromFileContent(content: string): string | undefined {
@@ -183,14 +223,22 @@ export function readPackageEntryFromFileContent(content: string): string | undef
   return typeof fm.entry === 'string' ? fm.entry : undefined;
 }
 
-export function pageSlugFromDocFile(filePath: string): string[] {
+/**
+ * 从文档绝对/相对路径推导 fumadocs pageSlug。
+ * - `content/docs/rpa/index.mdx` → `['rpa']`
+ * - `content/docs/rpa/RPA_QIANNIU/index.md` → `['rpa', 'RPA_QIANNIU']`
+ * - `content/docs/auth/index.md` → `['auth']`
+ * - 路径不在 content/docs 下 → `null`
+ */
+export function pageSlugFromDocFile(filePath: string): string[] | null {
   const normalized = filePath.replace(/\\/g, '/');
   const marker = '/content/docs/';
   const idx = normalized.indexOf(marker);
-  if (idx === -1) return [];
+  if (idx === -1) return null;
 
   const rel = normalized.slice(idx + marker.length);
-  const parts = rel.split('/');
+  const parts = rel.split('/').filter(Boolean);
+  if (parts.length === 0) return null;
   parts.pop();
   return parts;
 }
@@ -211,8 +259,8 @@ export function formatModuleGridDirectiveWithModules(
   if (nonEmptyGroups.length === 0) return '';
 
   const payload: Record<string, unknown> = {};
-  if (layout === 'stack') {
-    payload.layout = 'stack';
+  if (layout !== 'tabs') {
+    payload.layout = layout;
   }
   if (cover) {
     payload.cover = true;
@@ -227,7 +275,7 @@ export function formatModuleGridDirectiveWithModules(
       modules: group.modules.map((m) => ({
         title: m.title,
         slug: m.href.replace(/^\.\//, ''),
-        entry: m.code,
+        ...(m.code ? { entry: m.code } : {}),
       })),
     };
   }

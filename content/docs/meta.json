@@ -1,10 +1,6 @@
 {
-  "root": true,
   "pages": [
-    "index",
-    "./connectors",
-    "./components",
-    "./apps",
-    "changelogs"
+    "./rpa", 
+    "./auth"
   ]
 }

@@ -287,21 +287,43 @@ function useAiAttentionWiggle(enabled: boolean) {
   return wiggling;
 }
 
+/** 面板关闭时，根据后台对话状态覆盖 idle 提示文案 */
+function getBackgroundStatusTooltip(
+  working: boolean,
+  completed: boolean,
+): string | null {
+  if (working) return '正在努力解答中…';
+  if (completed) return '问题已解答，请查看';
+  return null;
+}
+
 function AskAIAnchor({ enabled }: { enabled: boolean }) {
+  const { open: panelOpen, chatStatus, backgroundNotify } = useAISearchContext();
   const tooltip = useRotatingTooltip(enabled);
   const wiggling = useAiAttentionWiggle(enabled);
   const [motionStyle] = useState(randomAiMotionStyle);
 
+  const working = enabled && !panelOpen && (chatStatus === 'submitted' || chatStatus === 'streaming');
+  const completed = enabled && !panelOpen && !working && backgroundNotify === 'completed';
+  const backgroundMessage = getBackgroundStatusTooltip(working, completed);
+  const tooltipVisible = backgroundMessage !== null || tooltip.visible;
+  const tooltipMessage = backgroundMessage ?? tooltip.message;
+
   if (!enabled) return null;
 
   return (
-    <RotatingTooltip message={tooltip.message} visible={tooltip.visible}>
+    <RotatingTooltip message={tooltipMessage} visible={tooltipVisible}>
       <div className="relative" style={motionStyle}>
         <span
-          className="ai-anchor-glow-ring pointer-events-none absolute -inset-1 rounded-full bg-linear-to-br from-fd-primary/30 via-violet-500/20 to-sky-400/25 motion-reduce:opacity-50 dark:from-fd-primary/45 dark:via-violet-500/35 dark:to-sky-400/30"
+          className={cn(
+            'ai-anchor-glow-ring pointer-events-none absolute -inset-1 rounded-full bg-linear-to-br from-fd-primary/30 via-violet-500/20 to-sky-400/25 motion-reduce:opacity-50 dark:from-fd-primary/45 dark:via-violet-500/35 dark:to-sky-400/30',
+            working && 'from-sky-400/45 via-fd-primary/40 to-violet-500/35 dark:from-sky-400/55 dark:via-fd-primary/50 dark:to-violet-500/45',
+          )}
           style={{
-            animation: `ai-anchor-glow var(--ai-glow-duration) ease-in-out infinite`,
-            animationDelay: 'var(--ai-glow-delay)',
+            animation: working
+              ? 'ai-anchor-working-glow 1s ease-in-out infinite'
+              : `ai-anchor-glow var(--ai-glow-duration) ease-in-out infinite`,
+            animationDelay: working ? '0s' : 'var(--ai-glow-delay)',
           }}
           aria-hidden
         />
@@ -309,23 +331,42 @@ function AskAIAnchor({ enabled }: { enabled: boolean }) {
           className="ai-anchor-orbit-dot pointer-events-none absolute -top-0.5 left-1/2 size-1.5 -translate-x-1/2 rounded-full bg-fd-primary/80 shadow-[0_0_6px_rgba(59,130,246,0.6)] motion-reduce:opacity-50 dark:bg-fd-primary dark:shadow-[0_0_10px_rgba(96,165,250,0.75)]"
           style={{
             transformOrigin: '50% 24px',
-            animation: `ai-anchor-orbit var(--ai-orbit-duration) linear infinite`,
+            animation: working
+              ? 'ai-anchor-working-orbit 1.1s linear infinite'
+              : `ai-anchor-orbit var(--ai-orbit-duration) linear infinite`,
           }}
           aria-hidden
         />
+        {working ? (
+          <span
+            className="ai-anchor-orbit-dot pointer-events-none absolute -top-0.5 left-1/2 size-1.5 -translate-x-1/2 rounded-full bg-violet-500/80 shadow-[0_0_6px_rgba(139,92,246,0.6)] dark:bg-violet-400 dark:shadow-[0_0_10px_rgba(167,139,250,0.75)]"
+            style={{
+              transformOrigin: '50% 24px',
+              animation: 'ai-anchor-working-orbit 1.1s linear infinite reverse',
+              animationDelay: '0.5s',
+            }}
+            aria-hidden
+          />
+        ) : null}
         <AISearchTrigger
           position="anchor"
           variant="circle"
           aria-keyshortcuts="Meta+KeyI Control+KeyI"
           className={cn(
-            'ai-anchor-animated motion-reduce:animate-none',
-            wiggling && 'animate-[ai-anchor-wiggle_0.7s_ease-in-out]',
-            !wiggling &&
-              'animate-[ai-anchor-breathe_var(--ai-breathe-duration)_ease-in-out_infinite,ai-anchor-float_var(--ai-float-duration)_ease-in-out_infinite]',
+            'motion-reduce:animate-none',
+            working && 'ai-anchor-working animate-[ai-anchor-working-pulse_1s_ease-in-out_infinite]',
+            completed && 'ai-anchor-completed animate-[ai-anchor-completed-flash_0.9s_ease-in-out]',
+            !working &&
+              !completed && [
+                'ai-anchor-animated',
+                wiggling && 'animate-[ai-anchor-wiggle_0.7s_ease-in-out]',
+                !wiggling &&
+                  'animate-[ai-anchor-breathe_var(--ai-breathe-duration)_ease-in-out_infinite,ai-anchor-float_var(--ai-float-duration)_ease-in-out_infinite]',
+              ],
             'data-[state=open]:pointer-events-none data-[state=open]:scale-0 data-[state=open]:opacity-0',
           )}
           style={
-            !wiggling
+            !wiggling && !working && !completed
               ? ({
                   animationDelay: '0s, var(--ai-float-delay)',
                 } as CSSProperties)

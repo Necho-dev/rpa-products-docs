@@ -5,8 +5,11 @@ const FONT = 'Noto Sans SC, Inter, sans-serif';
 export const COVER_WIDTH = 640;
 export const COVER_HEIGHT = 360;
 
+const PLACEHOLDER_ICON_SIZE = 56;
+
 export function OgCoverCard(props: OgCoverProps) {
   const { heroImageDataUrl, tags, groupIcon } = props;
+  const placeholderIcon = groupIcon ?? { comp: 'Package', color: '#94A3B8' };
 
   return (
     <div
@@ -37,25 +40,35 @@ export function OgCoverCard(props: OgCoverProps) {
           style={{
             position: 'absolute',
             inset: 0,
-            backgroundImage: 'linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%)',
+            display: 'flex',
+            backgroundImage:
+              'linear-gradient(160deg, #F8FAFC 0%, #EFF6FF 48%, #E2E8F0 100%)',
           }}
         />
       )}
 
-      {!heroImageDataUrl && groupIcon ? (
+      {!heroImageDataUrl ? (
+        // Satori 对 SVG 做 flex 居中不稳定，改用绝对定位 + translate 保证居中
         <div
           style={{
             position: 'absolute',
-            inset: 0,
+            top: '46%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
             display: 'flex',
+            width: 96,
+            height: 96,
             alignItems: 'center',
             justifyContent: 'center',
+            borderRadius: 24,
+            backgroundColor: 'rgba(255, 255, 255, 0.72)',
+            border: '1px solid rgba(148, 163, 184, 0.28)',
           }}
         >
           <OgLucideSvg
-            comp={groupIcon.comp}
-            color={groupIcon.color ?? '#64748B'}
-            size={48}
+            comp={placeholderIcon.comp}
+            color={placeholderIcon.color ?? '#94A3B8'}
+            size={PLACEHOLDER_ICON_SIZE}
           />
         </div>
       ) : null}

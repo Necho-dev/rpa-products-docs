@@ -1,8 +1,7 @@
 import { getDocAccessContext } from '@/lib/docs/access/doc-access';
 import { getEffectiveDocAccess } from '@/lib/docs/access/docs-access-effective';
-import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
 import { docsImageRoute } from '@/lib/core/shared';
-import { source } from '@/lib/docs/source/source';
+import { sourceLite } from '@/lib/docs/source/source-lite';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
@@ -25,7 +24,7 @@ export function isPublicOgDocsPath(pathname: string): boolean {
   if (!slug || slug.length < 1) return false;
   const fileName = slug[slug.length - 1];
   if (!OG_VARIANTS.has(fileName) || fileName === 'quote.png') return false;
-  const page = source.getPage(slug.slice(0, -1));
+  const page = sourceLite.getPage(slug.slice(0, -1));
   if (!page) return false;
   return getEffectiveDocAccess(page) !== 'private';
 }
@@ -33,6 +32,8 @@ export function isPublicOgDocsPath(pathname: string): boolean {
 /**
  * 页级私有文档 OG 门禁(middleware)。公开页放行；私有页 cover/image/poster 需 Cookie/Bearer/SSO。
  * quote.png：middleware 放行，鉴权与 HMAC 验签在 /og/quote 动态路由(rewrite 后执行)。
+ *
+ * 刻意使用 sourceLite（无 icons/fs），避免 proxy NFT 误追踪整个项目。
  */
 export function applyOgDocGate(request: NextRequest): NextResponse | null {
   const { pathname } = request.nextUrl;
@@ -44,13 +45,14 @@ export function applyOgDocGate(request: NextRequest): NextResponse | null {
 
   if (fileName === 'quote.png') return null;
 
-  const page = source.getPage(slug.slice(0, -1));
+  const page = sourceLite.getPage(slug.slice(0, -1));
   if (!page) return new NextResponse(null, { status: 404 });
 
   if (getEffectiveDocAccess(page) !== 'private') return null;
 
+  // 已知为 private：等价于 isDocPageAccessible，但不引入 docs-site-tools → 完整 source
   const access = getDocAccessContext(request);
-  if (!isDocPageAccessible(page, access)) {
+  if (!access.canAccessPrivate) {
     return new NextResponse(null, { status: 404 });
   }
 

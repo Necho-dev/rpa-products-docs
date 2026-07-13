@@ -1,6 +1,6 @@
 'use client';
 
-import { createElement, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Cards } from 'fumadocs-ui/components/card';
 import { cn } from '@/lib/core/cn';
@@ -8,7 +8,7 @@ import type { ModuleGroupData } from '@/lib/docs/source/collect-sibling-modules'
 import type { ModuleGridLayout } from '@/lib/docs/source/module-group-config';
 import type { ModuleGridGroupAnchor } from '@/lib/docs/source/module-grid-toc';
 import { groupKeyFromLocationHash } from '@/lib/docs/source/module-grid-toc';
-import { lookupLucideIcon, renderGroupIcon } from '@/lib/docs/source/lucide-group-icon';
+import { renderGroupIcon, renderModuleIcon } from '@/lib/docs/icons/client';
 import type { ModuleIconConfig } from '@/lib/docs/source/module-icon-config';
 import { ModuleCard } from '@/components/docs/mdx/module-card';
 
@@ -20,13 +20,8 @@ const MODULE_CARDS_GRID_CLASS =
   '![grid-template-columns:repeat(auto-fill,minmax(min(100%,20rem),1fr))] gap-4 md:gap-5';
 
 function ModuleCardIcon({ icon }: { icon: ModuleIconConfig }) {
-  const Icon = lookupLucideIcon(icon.comp);
-  if (!Icon) return null;
-  return createElement(Icon, {
-    className: 'size-4',
-    ...(icon.color ? { style: { color: icon.color } } : {}),
-    'aria-hidden': true,
-  });
+  // size-full：由 ModuleCardTitleIcon 外框约束；位图 / Lucide 统一走 module.icon
+  return renderModuleIcon(icon, 'size-full');
 }
 
 function ModuleCardsGrid({
@@ -46,6 +41,9 @@ function ModuleCardsGrid({
           code={mod.code}
           url={mod.url}
           coverUrl={mod.coverUrl}
+          dataReady={mod.dataReady}
+          estimatedDuration={mod.estimatedDuration}
+          minInterval={mod.minInterval}
           icon={mod.icon ? <ModuleCardIcon icon={mod.icon} /> : undefined}
         />
       ))}
@@ -150,6 +148,18 @@ function ModuleGridStack({ groups }: { groups: ModuleGroupData[] }) {
   );
 }
 
+/** 平铺样式设计: 不显示分类标题/Tab, 按分组顺序把卡片铺成一张网格 */
+function ModuleGridFlat({ groups }: { groups: ModuleGroupData[] }) {
+  const modules = groups.flatMap((group) => group.modules);
+  if (modules.length === 0) return null;
+
+  return (
+    <div className="not-prose w-full">
+      <ModuleCardsGrid modules={modules} />
+    </div>
+  );
+}
+
 export function ModuleGridTabs({
   groups,
   groupAnchors,
@@ -193,6 +203,10 @@ export function ModuleGridTabs({
 
   if (layout === 'stack') {
     return <ModuleGridStack groups={nonEmpty} />;
+  }
+
+  if (layout === 'flat') {
+    return <ModuleGridFlat groups={nonEmpty} />;
   }
 
   if (nonEmpty.length === 1) {

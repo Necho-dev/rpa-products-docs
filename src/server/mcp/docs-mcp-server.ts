@@ -5,9 +5,11 @@ import {
   getMcpServerName,
   getMcpServerVersion,
 } from '@/lib/agent/mcp-config';
+import { getSearchTags } from '@/lib/docs/search/search-tags';
 import { registerDocsMcpTools } from '@/server/mcp/tools';
 
 export function createDocsMcpServer(siteOrigin: string, access: DocAccessContext): McpServer {
+  const searchTags = getSearchTags();
   const server = new McpServer(
     {
       name: getMcpServerName(),
@@ -15,11 +17,11 @@ export function createDocsMcpServer(siteOrigin: string, access: DocAccessContext
     },
     {
       capabilities: { tools: {} },
-      instructions: buildMcpServerInstructions(siteOrigin),
+      instructions: buildMcpServerInstructions(siteOrigin, searchTags),
     },
   );
 
-  registerDocsMcpTools(server, siteOrigin, access);
+  registerDocsMcpTools(server, siteOrigin, access, searchTags);
 
   return server;
 }
