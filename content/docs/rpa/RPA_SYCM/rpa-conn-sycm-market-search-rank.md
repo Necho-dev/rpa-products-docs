@@ -28,7 +28,7 @@ module:
 >
 > **取数链接**：[https://sycm.taobao.com/mc/free/search_rank](https://sycm.taobao.com/mc/free/search_rank)
 
-![生意参谋—市场搜索排行](../../public/images/sycm/market_search_rank_20260713.png)
+![生意参谋—市场搜索排行](../public/images/sycm/market_search_rank_20260713.png)
 
 ### 业务入参
 

@@ -28,7 +28,7 @@ module:
 >
 > **取数链接**：[https://one.alimama.com/index.html#!/account/detail](https://one.alimama.com/index.html#!/account/detail)
 
-![阿里妈妈—万相台优惠券花费明细](../../public/images/alimm/wxt_account_detail_coupon_20260713.png)
+![阿里妈妈—万相台优惠券花费明细](../public/images/alimm/wxt_account_detail_coupon_20260713.png)
 
 ### 业务入参
 
