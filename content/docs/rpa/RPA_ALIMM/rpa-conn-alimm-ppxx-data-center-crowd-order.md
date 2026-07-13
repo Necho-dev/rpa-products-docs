@@ -5,25 +5,30 @@ entry: rpa.conn.alimm.ppxx.data.center.crowd.order
 badge:
   label: 待上线
   color: "#EA580C"
+estimatedDuration:
+  min: 3
+module:
+  group: ppxx
 ---
 
-| 属性             | 值                                                                  |
-| ---------------- | ------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                        |
-| **连接器代码**   | `rpa.conn.alimm.ppxx.data.center.crowd.order`                     |
-| **归属 PyPI 包** | `rpa-conn-alimm-all`                                                |
-| **操作类型**     | 浏览器自动化操作 + XLSX 文件导出                                    |
-| **目标网页**     | `https://ppxk.tmall.com/new/index.htm#!/data-center/crowd/index`    |
-| **适用场景**     | 导出品牌新享数据中心「超级新品孵化」页面的订单明细，支持自定义日期范围；起始/结束日期均缺省时默认昨日单日 |
-| **预估耗时**     | `60s`                                                               |
+| 属性             | 值                                                                                                             |
+| ---------------- | -------------------------------------------------------------------------------------------------------------- |
+| **连接器类型**   | `RPA 连接器`                                                                                                   |
+| **连接器名称**   | `ODS_品牌新享超级新品孵化订单明细(阿里妈妈RPA)`                                                               |
+| **连接器代码**   | `rpa.conn.alimm.ppxx.data.center.crowd.order`                                                                  |
+| **操作类型**     | `文件导出`                                                                                                     |
+| **目标网页**     | `https://ppxk.tmall.com/new/index.htm#!/data-center/crowd/index`                                               |
+| **适用场景**     | 导出品牌新享数据中心「超级新品孵化」页面的订单明细，支持自定义日期范围；起始/结束日期均缺省时默认昨日单日       |
+| **数据表名**     | `ods_rpa_alimm_ppxx_data_center_crowd_order_du`                                                                |
+| **业务表名**     | `ODS_品牌新享超级新品孵化订单明细(阿里妈妈RPA)`                                                               |
 
 ### 目标页面
 
-> **路径**：品牌新享—数据中心—超级新品孵化—订单明细
+> **取数路径**：品牌新享—数据中心—超级新品孵化—订单明细
 >
-> **网址**：[https://ppxk.tmall.com/new/index.htm#!/data-center/crowd/index](https://ppxk.tmall.com/new/index.htm#!/data-center/crowd/index)
+> **取数链接**：[https://ppxk.tmall.com/new/index.htm#!/data-center/crowd/index](https://ppxk.tmall.com/new/index.htm#!/data-center/crowd/index)
 
-![品牌新享—超级新品孵化-订单明细](../../public/images/alimm/ppxx_data_center_crowd_order_20260708.png)
+![品牌新享—超级新品孵化-订单明细](../_public/images/alimm/ppxx_data_center_crowd_order_20260708.png)
 
 ### 业务入参
 
@@ -89,49 +94,34 @@ badge:
 
 ### 数据字段
 
-以下为连接器业务产出字段；完整任务返回还包含 `success`、`object_key` 等运行时字段，对接时可忽略。业务订单明细在 `data[]` 中，每条对应导出文件一行。`bizDate` / `biz_date` 格式为 `YYYYMMDD`。
-
-:::field-tree
-@define 订单明细行
-| `itemName` | 商品名称 | `String` | 是 | `XLSX.0.商品名称` | `利达妮沙滩鞋女夏外穿海边洞洞鞋涉水溯溪游泳防滑防臭户外凉拖鞋` |
-| `parentOrderId` | 父订单 ID | `String` | 是 | `XLSX.0.父订单ID` | `3306185724887049390` |
-| `itemId` | 商品 ID | `String` | 是 | `XLSX.0.商品ID` | `1040899122599` |
+| 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
+| ---- | -------- | -------- | ------ | -------- | ---- |
+| `itemName` | 商品名称 | `String` | 是 | `XLSX.0.商品名称` | `夏季户外凉拖鞋（示例商品）` |
+| `parentOrderId` | 父订单 ID | `String` | 是 | `XLSX.0.父订单ID` | `3306185****7049390` |
+| `itemId` | 商品 ID | `String` | 是 | `XLSX.0.商品ID` | `1040899****2599` |
 | `payAmount` | 支付金额 | `Number / String` | 是 | `XLSX.0.支付金额` | `29.9` |
 | `estimatedBoostCost` | 预估新品加速费用 | `Number / String` | 是 | `XLSX.0.预估新品加速费用` | `2.99` |
 | `statDate` | 统计日期 | `String` | 是 | `XLSX.0.日期` | `20260601` |
-| `taskId` | 任务 ID | `String` | 否 | 附加 | `dev-0-13739446` |
-| `bizDate` | 业务日期 | `String` | 否 | 附加 | `20260708` |
-| `accountId` | 授权 ID | `String` | 否 | 附加 | `138` |
-
-| 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
-| ---- | -------- | -------- | ------ | -------- | ---- |
-| `query_start_date` | 真实查询起始日期 | `String` | 是 | 页面日期选择器 | `2026-06-01` |
-| `query_end_date` | 真实查询结束日期 | `String` | 是 | 页面日期选择器 | `2026-06-07` |
-| `biz_date` | 业务日期 | `String` | 否 | 附加 | `20260708` |
-| `data` @订单明细行 | 订单明细列表 | `List[Dict]` | 否 | XLSX 导出解析 | 见数据样例 |
-:::
+| `taskId` | 任务 ID | `String` | 否 | 附加 | `dev-0-********` |
+| `bizDate` | 业务日期 | `String` | 否 | 附加 |  |
+| `accountId` | 授权 ID | `String` | 否 | 附加 | `***` |
 
 ### 数据样例
 
 ```json
-{
-  "query_start_date": "2026-06-01",
-  "query_end_date": "2026-06-07",
-  "biz_date": "20260708",
-  "data": [
-    {
-      "itemName": "利达妮沙滩鞋女夏外穿海边洞洞鞋涉水溯溪游泳防滑防臭户外凉拖鞋",
-      "parentOrderId": 3306185724887049390,
-      "itemId": 1040899122599,
-      "payAmount": 29.9,
-      "estimatedBoostCost": 2.99,
-      "statDate": 20260601,
-      "bizDate": "20260708",
-      "accountId": "138",
-      "taskId": "dev-0-13739446"
-    }
-  ]
-}
+[
+  {
+    "itemName": "夏季户外凉拖鞋（示例商品）",
+    "parentOrderId": "3306185****7049390",
+    "itemId": "1040899****2599",
+    "payAmount": 29.9,
+    "estimatedBoostCost": 2.99,
+    "statDate": 20260601,
+    "taskId": "dev-0-********",
+    "bizDate": "20260708",
+    "accountId": "***"
+  }
+]
 ```
 
 ---

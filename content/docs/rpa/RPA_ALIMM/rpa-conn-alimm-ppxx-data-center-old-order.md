@@ -5,25 +5,30 @@ entry: rpa.conn.alimm.ppxx.data.center.old.order
 badge:
   label: 待上线
   color: "#EA580C"
+estimatedDuration:
+  min: 3
+module:
+  group: ppxx
 ---
 
-| 属性             | 值                                                                  |
-| ---------------- | ------------------------------------------------------------------- |
-| **连接器类型**   | `RPA 连接器`                                                        |
-| **连接器代码**   | `rpa.conn.alimm.ppxx.data.center.old.order`                       |
-| **归属 PyPI 包** | `rpa-conn-alimm-all`                                                |
-| **操作类型**     | 浏览器自动化操作 + XLSX 文件导出                                    |
-| **目标网页**     | `https://ppxk.tmall.com/new/index.htm#!/data-center/old/index`    |
-| **适用场景**     | 导出品牌新享数据中心「超级老客加速」页面的订单明细，支持自定义日期范围；起始/结束日期均缺省时默认昨日单日 |
-| **预估耗时**     | `300s`                                                              |
+| 属性             | 值                                                                                                             |
+| ---------------- | -------------------------------------------------------------------------------------------------------------- |
+| **连接器类型**   | `RPA 连接器`                                                                                                   |
+| **连接器名称**   | `ODS_品牌新享超级老客加速订单明细(阿里妈妈RPA)`                                                               |
+| **连接器代码**   | `rpa.conn.alimm.ppxx.data.center.old.order`                                                                    |
+| **操作类型**     | `文件导出`                                                                                                     |
+| **目标网页**     | `https://ppxk.tmall.com/new/index.htm#!/data-center/old/index`                                                 |
+| **适用场景**     | 导出品牌新享数据中心「超级老客加速」页面的订单明细，支持自定义日期范围；起始/结束日期均缺省时默认昨日单日       |
+| **数据表名**     | `ods_rpa_alimm_ppxx_data_center_old_order_du`                                                                  |
+| **业务表名**     | `ODS_品牌新享超级老客加速订单明细(阿里妈妈RPA)`                                                               |
 
 ### 目标页面
 
-> **路径**：品牌新享—数据中心—超级老客加速—订单明细
+> **取数路径**：品牌新享—数据中心—超级老客加速—订单明细
 >
-> **网址**：[https://ppxk.tmall.com/new/index.htm#!/data-center/old/index](https://ppxk.tmall.com/new/index.htm#!/data-center/old/index)
+> **取数链接**：[https://ppxk.tmall.com/new/index.htm#!/data-center/old/index](https://ppxk.tmall.com/new/index.htm#!/data-center/old/index)
 
-![品牌新享—超级老客加速-订单明细](../../public/images/alimm/ppxx_data_center_old_order_20260709.png)
+![品牌新享—超级老客加速-订单明细](../_public/images/alimm/ppxx_data_center_old_order_20260709.png)
 
 ### 业务入参
 
@@ -89,49 +94,34 @@ badge:
 
 ### 数据字段
 
-以下为连接器业务产出字段；完整任务返回还包含 `success`、`object_key` 等运行时字段，对接时可忽略。业务订单明细在 `data[]` 中，每条对应导出文件一行。`bizDate` / `biz_date` 格式为 `YYYYMMDD`。
-
-:::field-tree
-@define 订单明细行
-| `itemName` | 商品名称 | `String` | 是 | `XLSX.0.商品名称` | `兔头妈妈儿童牙膏高纯奥拉氟儿童含氟牙膏防蛀牙龋齿3-6-12岁宝宝` |
-| `parentOrderId` | 父订单 ID | `String` | 是 | `XLSX.0.父订单ID` | `2701822442042028182` |
-| `itemId` | 商品 ID | `String` | 是 | `XLSX.0.商品ID` | `678264636662` |
+| 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
+| ---- | -------- | -------- | ------ | -------- | ---- |
+| `itemName` | 商品名称 | `String` | 是 | `XLSX.0.商品名称` | `儿童含氟牙膏（示例商品）` |
+| `parentOrderId` | 父订单 ID | `String` | 是 | `XLSX.0.父订单ID` | `2701822****2028182` |
+| `itemId` | 商品 ID | `String` | 是 | `XLSX.0.商品ID` | `678264****662` |
 | `payAmount` | 支付金额 | `Number / String` | 是 | `XLSX.0.支付金额` | `73.71` |
 | `estimatedBoostCost` | 预估老客加速费用 | `Number / String` | 是 | `XLSX.0.预估老客加速费用` | `3.68` |
 | `statDate` | 统计日期 | `String` | 是 | `XLSX.0.日期` | `20260410` |
-| `taskId` | 任务 ID | `String` | 否 | 附加 | `dev-0-e098e937` |
-| `bizDate` | 业务日期 | `String` | 否 | 附加 | `20260709` |
-| `accountId` | 授权 ID | `String` | 否 | 附加 | `108` |
-
-| 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
-| ---- | -------- | -------- | ------ | -------- | ---- |
-| `query_start_date` | 真实查询起始日期 | `String` | 是 | 页面日期选择器 | `2026-01-15` |
-| `query_end_date` | 真实查询结束日期 | `String` | 是 | 页面日期选择器 | `2026-06-30` |
-| `biz_date` | 业务日期 | `String` | 否 | 附加 | `20260709` |
-| `data` @订单明细行 | 订单明细列表 | `List[Dict]` | 否 | XLSX 导出解析 | 见数据样例 |
-:::
+| `taskId` | 任务 ID | `String` | 否 | 附加 | `dev-0-********` |
+| `bizDate` | 业务日期 | `String` | 否 | 附加 |  |
+| `accountId` | 授权 ID | `String` | 否 | 附加 | `***` |
 
 ### 数据样例
 
 ```json
-{
-  "query_start_date": "2026-01-15",
-  "query_end_date": "2026-06-30",
-  "biz_date": "20260709",
-  "data": [
-    {
-      "itemName": "兔头妈妈儿童牙膏高纯奥拉氟儿童含氟牙膏防蛀牙龋齿3-6-12岁宝宝",
-      "parentOrderId": 2701822442042028182,
-      "itemId": 678264636662,
-      "payAmount": 73.71,
-      "estimatedBoostCost": 3.68,
-      "statDate": 20260410,
-      "bizDate": "20260709",
-      "accountId": "108",
-      "taskId": "dev-0-e098e937"
-    }
-  ]
-}
+[
+  {
+    "itemName": "儿童含氟牙膏（示例商品）",
+    "parentOrderId": "2701822****2028182",
+    "itemId": "678264****662",
+    "payAmount": 73.71,
+    "estimatedBoostCost": 3.68,
+    "statDate": 20260410,
+    "taskId": "dev-0-********",
+    "bizDate": "20260709",
+    "accountId": "***"
+  }
+]
 ```
 
 ---
