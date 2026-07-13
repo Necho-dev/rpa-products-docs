@@ -1,4 +1,5 @@
 import { isPrivateDocAccessConfigured } from '@/lib/docs/access/doc-access';
+import type { SearchTag } from '@/lib/docs/search/search-tags';
 import { docsRoute, getSiteDescription, siteName } from '@/lib/core/shared';
 
 function trimEnv(key: string): string | undefined {
@@ -44,19 +45,37 @@ export function getMcpDisplayName(): string {
   return trimEnv('MCP_DISPLAY_NAME') ?? siteName;
 }
 
-const MCP_TOOLS_BLOCK = `Tools:
+function buildPartitionsBlock(searchTags: SearchTag[]): string {
+  if (searchTags.length === 0) return '';
+  const lines = searchTags.map((t) => `- ${t.value}: ${t.label}`);
+  return `
+
+Documentation partitions (pass as search_docs.tag to narrow scope):
+${lines.join('\n')}`;
+}
+
+function buildToolsBlock(searchTags: SearchTag[]): string {
+  const tagNote =
+    searchTags.length > 0
+      ? ` Supports optional tag filter: ${searchTags.map((t) => t.value).join(' | ')}.`
+      : '';
+  return `Tools:
 - list_docs — catalog all pages (paths, titles, descriptions).
-- search_docs — full-text search when the user does not know an exact path.
+- search_docs — full-text search when the user does not know an exact path.${tagNote}
 - get_docs_meta — title, description, URL, and TOC without full body (saves tokens).
 - get_docs_content — full page content for a known path.
 
 Typical flow: search_docs or list_docs → get_docs_meta (optional) → get_docs_content.`;
+}
 
 /**
  * MCP Server `instructions`（供客户端展示给 Agent）。
- * 若设置 `MCP_INSTRUCTIONS` 则完全覆盖；否则根据站点 env 自动生成。
+ * 若设置 `MCP_INSTRUCTIONS` 则完全覆盖；否则根据站点 env + 分区列表自动生成。
  */
-export function buildMcpServerInstructions(siteOrigin: string): string {
+export function buildMcpServerInstructions(
+  siteOrigin: string,
+  searchTags: SearchTag[] = [],
+): string {
   const override = trimEnv('MCP_INSTRUCTIONS');
   if (override) return override;
 
@@ -69,7 +88,7 @@ export function buildMcpServerInstructions(siteOrigin: string): string {
 ${description}
 
 Site URL: ${siteOrigin.replace(/\/$/, '')}
-Base docs path: ${docsRoute}.${privateNote}
+Base docs path: ${docsRoute}.${privateNote}${buildPartitionsBlock(searchTags)}
 
-${MCP_TOOLS_BLOCK}`;
+${buildToolsBlock(searchTags)}`;
 }

@@ -1,6 +1,7 @@
 import { getDocAccessContext } from '@/lib/docs/access/doc-access';
 import { filterSearchHitsByDocAccess } from '@/lib/docs/docs-site-tools';
 import { getDocsSearchApi } from '@/lib/docs/search/docs-search-server';
+import { filterSearchByScope, parseSearchScope } from '@/lib/docs/search/search-utils';
 
 export const runtime = 'nodejs';
 export async function GET(request: Request) {
@@ -17,10 +18,11 @@ export async function GET(request: Request) {
     locale: url.searchParams.get('locale') ?? null,
     limit: limitN,
   };
+  const scope = parseSearchScope(url.searchParams.get('scope'));
 
   const access = getDocAccessContext(request);
   const raw = await getDocsSearchApi().search(query, readOptions);
-  const filtered = filterSearchHitsByDocAccess(raw, access);
+  const filtered = filterSearchByScope(filterSearchHitsByDocAccess(raw, access), scope, query);
 
   return Response.json(filtered);
 }

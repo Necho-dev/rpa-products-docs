@@ -126,8 +126,8 @@ GET ${origin}/skills/references/docs/{slug}
 \`\`\`
 
 \`slug\` = 文档页面路径去掉 \`/docs/\` 前缀，例如：
-- \`/docs/connectors/index\` → slug = \`connectors/index\`
-- \`/docs/components/auth\` → slug = \`components/auth\`
+- \`/docs/RPA_QIANNIU\` → slug = \`RPA_QIANNIU\`
+- \`/docs/RPA_QIANNIU/rpa-conn-qianniu-item-sellmanage-list\` → slug = \`RPA_QIANNIU/rpa-conn-qianniu-item-sellmanage-list\`
 
 **Step 3 — 如需多页，重复 Step 2 逐页按需加载**
 

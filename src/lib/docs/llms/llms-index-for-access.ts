@@ -7,12 +7,12 @@ import { docsContentRoute, docsRoute } from '@/lib/core/shared';
 const TAB = '  ';
 
 /**
- * 将 HTML 文档路径（/docs/connectors/foo）转换为绝对 Markdown URL。
+ * 将 HTML 文档路径（/docs/RPA_QIANNIU/foo）转换为绝对 Markdown URL。
  * 路径格式：{docsContentRoute}/{slug}.md
  * index 根页（URL 为 /docs）对应 {docsContentRoute}/index.md
  */
 function pageUrlToMarkdownUrl(origin: string, htmlUrl: string): string {
-  // htmlUrl 形如 /docs/connectors/foo 或 /docs（index 根页）
+  // htmlUrl 形如 /docs/RPA_QIANNIU/foo 或 /docs（index 根页）
   const prefix = docsRoute.replace(/\/$/, '');
   const slug = htmlUrl.startsWith(prefix) ? htmlUrl.slice(prefix.length) : htmlUrl;
   // 去掉开头 /，空字符串代表 index 根页

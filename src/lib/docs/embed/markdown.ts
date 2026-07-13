@@ -108,7 +108,7 @@ function replaceRelativeMarkdownImages(
  *
  * @param processedText  `page.data.getText('processed')` 的输出
  * @param rawText        `page.data.getText('raw')` 的输出 (提供原始路径对齐)
- * @param docPath        文档在 `content/docs/` 下的相对路径（`page.path`），如 `connectors/rpa-conn-alimm-all/foo.md`
+ * @param docPath        文档在 `content/docs/` 下的相对路径（`page.path`），如 `RPA_ALIMM/foo.md`
  * @param options        图片重写选项, 包含 `cubeOrigin` 和 `siteOrigin`
  */
 export function rewriteMarkdownImagesForEmbed(

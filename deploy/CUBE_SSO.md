@@ -66,7 +66,7 @@ sequenceDiagram
 
 | 参数 | 必须 | 说明 |
 |------|------|------|
-| `redirect` | 是 | 文档站内路径，以 `/` 开头，如 `/docs/connectors/foo` |
+| `redirect` | 是 | 文档站内路径，以 `/` 开头，如 `/docs/RPA_QIANNIU/foo` |
 
 **不传 `render` 参数**（或 `render` 为空）时走此 SSO 分支。
 
@@ -147,7 +147,7 @@ signedUrl = https://docs.example.com/docs/foo
 
 | 参数 | 必须 | 说明 |
 |------|------|------|
-| `redirect` | 是 | 文档站内路径，如 `/docs/connectors/foo` |
+| `redirect` | 是 | 文档站内路径，如 `/docs/RPA_QIANNIU/foo` |
 | `render` | 是 | `html` 或 `markdown` |
 
 **魔方侧处理（render=html）**：
@@ -192,7 +192,7 @@ sequenceDiagram
 
 | 参数 | 必须 | 说明 |
 |------|------|------|
-| `path` | 是 | 文档站内路径，如 `/docs/connectors/foo` |
+| `path` | 是 | 文档站内路径，如 `/docs/RPA_QIANNIU/foo` |
 | `render` | 是 | `html` 或 `markdown` |
 
 行为与 `docsAuth?render=` 完全相同：
@@ -210,7 +210,7 @@ sequenceDiagram
 
 | 参数 | 必须 | 说明 |
 |------|------|------|
-| `path` | 是 | 相对路径，如 `public/images/qianniu/foo.png`（不含 `/resources/images` 前缀） |
+| `path` | 是 | 相对路径，如 `_public/images/qianniu/foo.png`（不含 `/resources/images` 前缀） |
 
 **魔方侧处理**：
 
@@ -252,8 +252,8 @@ sg = SHA256(METHOD + "\n" + PATH + "\n" + tm + "\n" + App Secret)  ← hex
 
 | 请求类型 | PATH 示例 |
 |---------|----------|
-| 拉文档正文 | `/docs/connectors/foo` |
-| 回源图片 | `/resources/images/public/images/qianniu/foo.png` |
+| 拉文档正文 | `/docs/RPA_QIANNIU/foo` |
+| 回源图片 | `/resources/images/_public/images/qianniu/foo.png` |
 
 **传参方式**（Header 优先，Query 备用）：
 
@@ -355,10 +355,10 @@ python3 scripts/mock-cube-docs-auth.py
 |------|---------|
 | SSO 全页登录 | `http://127.0.0.1:8765/docsAuth?redirect=/docs` |
 | iframe 嵌入测试页 | `http://127.0.0.1:8765/iframe-test` |
-| 嵌入 HTML（方案 A） | `http://127.0.0.1:8765/docsAuth?redirect=/docs/connectors/foo&render=html` |
-| 嵌入 Markdown（方案 A） | `http://127.0.0.1:8765/docsAuth?redirect=/docs/connectors/foo&render=markdown` |
-| 嵌入 HTML（方案 B） | `http://127.0.0.1:8765/docsContent?path=/docs/connectors/foo&render=html` |
-| 图片代理 | `http://127.0.0.1:8765/docsResources?path=public/images/qianniu/foo.png` |
+| 嵌入 HTML（方案 A） | `http://127.0.0.1:8765/docsAuth?redirect=/docs/RPA_QIANNIU/foo&render=html` |
+| 嵌入 Markdown（方案 A） | `http://127.0.0.1:8765/docsAuth?redirect=/docs/RPA_QIANNIU/foo&render=markdown` |
+| 嵌入 HTML（方案 B） | `http://127.0.0.1:8765/docsContent?path=/docs/RPA_QIANNIU/foo&render=html` |
+| 图片代理 | `http://127.0.0.1:8765/docsResources?path=_public/images/qianniu/foo.png` |
 | 链式登出 | `http://127.0.0.1:8765/logout` |
 
 ---
@@ -390,6 +390,8 @@ python3 scripts/mock-cube-docs-auth.py
 
 | 现象 | 可能原因 | 解决 |
 |------|---------|------|
+| SSO callback `unknown secret hash` | `sh` 未登记到 `secrets.json` | `./scripts/manage-secrets.sh add` 登记魔方 App Secret |
+| SSO callback `EACCES` 读 secrets | 宿主机 `secrets.json` 为 root:600，容器 nextjs(1001) 无读权限 | `sudo ./scripts/manage-secrets.sh fix-perms` 后重启容器 |
 | 嵌入返回 401 | `sh` 不一致、时钟偏差 >3 分钟、签名 PATH 错误 | 检查密钥文件；对齐 NTP；确认 PATH 是纯 pathname |
 | iframe 内 JS 报错、页面空白 | `render=html` 用了 BFF 代理 / srcdoc | 改用 `iframe src` 直连文档站签名 URL |
 | 嵌入图片不显示 | 未传 `X-Cube-Origin` 或 pattern 不匹配 | 补全 Header；检查 `DOCS_CUBE_ORIGIN_PATTERN` |

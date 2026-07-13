@@ -186,7 +186,7 @@ function randomId(): string {
   return `sess-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 }
 
-const MAX_SESSIONS = 50;
+export const MAX_SESSIONS = 30;
 
 async function trimOldSessions(): Promise<void> {
   const list = await idbListSessions();
@@ -264,6 +264,7 @@ export function formatChatSessionUpdatedAt(updatedAt: number): string {
   if (diff < 60_000) return '刚刚';
   if (diff < 3600_000) return `${Math.floor(diff / 60_000)} 分钟前`;
   if (diff < 86400_000) return `${Math.floor(diff / 3600_000)} 小时前`;
+  if (diff < 2 * 86400_000) return '昨天';
   if (diff < 7 * 86400_000) return `${Math.floor(diff / 86400_000)} 天前`;
   const sameYear = d.getFullYear() === new Date(now).getFullYear();
   return new Intl.DateTimeFormat('zh-CN', {

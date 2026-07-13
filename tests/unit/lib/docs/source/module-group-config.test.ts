@@ -54,8 +54,21 @@ describe('parseModuleGridDirectiveYaml', () => {
     assert.throws(
       () =>
         parseModuleGridDirectiveYaml({ layout: 'grid' }, 'test.md'),
-      /layout must be "tabs" or "stack"/,
+      /layout must be "tabs", "stack", or "flat"/,
     );
+  });
+
+  it('accepts flat layout', () => {
+    const result = parseModuleGridDirectiveYaml(
+      {
+        layout: 'flat',
+        taobao: { label: '淘宝 / 天猫' },
+      },
+      'test.md',
+    );
+    assert.equal(result.layout, 'flat');
+    assert.equal(result.groups.taobao?.label, '淘宝 / 天猫');
+    assert.equal('layout' in result.groups, false);
   });
 
   it('accepts icon string shorthand and object with color', () => {

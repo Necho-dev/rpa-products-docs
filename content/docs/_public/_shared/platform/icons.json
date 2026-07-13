@@ -1,0 +1,65 @@
+{
+  "updatedAt": "2026-07-11T21:02:16.310Z",
+  "icons": {
+    "ALIMM": {
+      "file": "platform/files/ALIMM.png",
+      "sourceIcon": "https://img.alicdn.com/imgextra/i3/O1CN01Wp37a71mYTZB6acBX_!!6000000004966-2-tps-50-50.png",
+      "origin": "www.alimama.com"
+    },
+    "DEWU": {
+      "file": "platform/files/DEWU.png",
+      "sourceIcon": "https://h5static.dewu.com/stark-web/5.77.4/favicon.ico",
+      "origin": "stark.dewu.com"
+    },
+    "DOUDIAN": {
+      "file": "platform/files/DOUDIAN.ico",
+      "sourceIcon": "https://fxg.jinritemai.com/favicon.ico",
+      "origin": "fxg.jinritemai.com"
+    },
+    "JDSZ": {
+      "file": "platform/files/JDSZ.ico",
+      "sourceIcon": "https://storage.360buyimg.com/sz-resource/szweb/static/img/favicon-29929a73.ico",
+      "origin": "jdsz.jd.com"
+    },
+    "JINGDONG": {
+      "file": "platform/files/JINGDONG.ico",
+      "sourceIcon": "https://storage.360buyimg.com/retail-mall/mall-common-component/favicon.ico",
+      "origin": "www.jd.com"
+    },
+    "JINGMAI": {
+      "file": "platform/files/JINGMAI.png",
+      "sourceIcon": "https://shop.jd.com/jdm/favicon.ico",
+      "origin": "shop.jd.com"
+    },
+    "JULIANG": {
+      "file": "platform/files/JULIANG.png",
+      "sourceIcon": "https://p6-addone.byteimg.com/tos-cn-i-hhc0kcolqq/ad_growth/c3a9bb92ccd571eb305e5c93c5bbc6ec.ico~tplv-hhc0kcolqq-image.image",
+      "origin": "www.oceanengine.com"
+    },
+    "PINDUODUO": {
+      "file": "platform/files/PINDUODUO.ico",
+      "sourceIcon": "https://mms.pinduoduo.com/login/favicon.ico",
+      "origin": "mms.pinduoduo.com"
+    },
+    "QIANNIU": {
+      "file": "platform/files/QIANNIU.png",
+      "sourceIcon": "https://g.alicdn.com/qn/qn-login-page/0.0.18/favicon.png",
+      "origin": "myseller.taobao.com"
+    },
+    "SYCM": {
+      "file": "platform/files/SYCM.ico",
+      "sourceIcon": "https://img.alicdn.com/tps/TB14m1NKFXXXXXMaXXXXXXXXXXX-48-48.ico",
+      "origin": "sycm.taobao.com"
+    },
+    "TAOBAO": {
+      "file": "platform/files/TAOBAO.png",
+      "sourceIcon": "https://img.alicdn.com/tps/i3/T1OjaVFl4dXXa.JOZB-114-114.png",
+      "origin": "www.taobao.com"
+    },
+    "WANGDIANTONG": {
+      "file": "platform/files/WANGDIANTONG.png",
+      "sourceIcon": "https://www.wangdian.cn/favicon.ico",
+      "origin": "www.wangdian.cn"
+    }
+  }
+}

@@ -1,9 +1,11 @@
 /*
- * ModuleGrid TOC 策略（tabs vs stack）：
- * - tabs：remark 注入带 [toc] 的虚拟 heading，React 用 sectionAnchorId 联动 hash。
- * - stack：分组 H3 由 React 渲染，不在 markdown AST；运行时 resolveModuleGridStackToc 补全 TOC。
+ * ModuleGrid TOC 策略:
+ * - tabs: remark 注入带 [toc] 的虚拟 heading, React 用 sectionAnchorId 联动 hash。
+ * - stack: 分组 H3 由 React 渲染, 不在 markdown AST; 运行时 resolveModuleGridStackToc 补全 TOC。
+ * - flat: 不展示分类, 不注入分组 TOC;
  */
-import type { Heading, RootContent } from 'mdast';
+import GithubSlugger from 'github-slugger';
+import type { Heading, PhrasingContent, RootContent } from 'mdast';
 import type { ModuleGroupData } from './collect-sibling-modules';
 
 export function buildModuleGridGroupAnchorId(
@@ -20,9 +22,31 @@ export type PrecedingHeadingInfo = {
 
 type HeadingNode = RootContent & {
   depth: number;
+  children?: PhrasingContent[];
   data?: { hProperties?: { id?: string } };
 };
 
+/** 从 mdast phrasing 节点提取纯文本（与 fumadocs remark-heading 一致） */
+export function extractMdastText(nodes: PhrasingContent[] | undefined): string {
+  if (!nodes?.length) return '';
+  let text = '';
+  for (const node of nodes) {
+    if (node.type === 'text' || node.type === 'inlineCode') {
+      text += node.value;
+      continue;
+    }
+    if ('children' in node && Array.isArray(node.children)) {
+      text += extractMdastText(node.children as PhrasingContent[]);
+    }
+  }
+  return text;
+}
+
+/**
+ * 解析 module-grid 上方最近标题。
+ * remark 阶段 heading 通常尚无 hProperties.id（slug 由后续 remark-heading 生成），
+ * 此时用标题文本经 github-slugger 推导，与 TOC 锚点保持一致。
+ */
 export function findPrecedingHeading(
   siblings: RootContent[],
   beforeIndex: number,
@@ -32,10 +56,16 @@ export function findPrecedingHeading(
     if (node?.type !== 'heading') continue;
 
     const heading = node as HeadingNode;
-    const id = heading.data?.hProperties?.id;
-    if (!id) return null;
+    const existingId = heading.data?.hProperties?.id?.trim();
+    if (existingId) {
+      return { depth: heading.depth, id: existingId };
+    }
 
-    return { depth: heading.depth, id };
+    const text = extractMdastText(heading.children).trim();
+    if (!text) return null;
+
+    const slugger = new GithubSlugger();
+    return { depth: heading.depth, id: slugger.slug(text) };
   }
 
   return null;

@@ -1,0 +1,63 @@
+---
+title: 概览
+icon: LayoutDashboard
+---
+
+import { Search, Server, Sparkles } from 'lucide-react';
+
+👋 **欢迎来到 RPA 连接器知识库！**
+
+这里是面向内部的 **RPA 连接器** 知识库：按平台浏览连接器取数、业务入参、数据字段以及调度信息；不确定路径时，建议先用 **全文搜索(支持AI语义搜索)** 或 **AI 智能助手** 检索。日常在 Cursor、Codex、Claude Code 等工具里写代码时，可配置 **MCP** 服务以快速检索与读取文档。页面改版与修复说明见各连接器文档内的更新记录。
+
+## 按平台浏览
+
+:::module-grid
+layout: tabs
+cover: false
+taobao:
+  label: 淘系
+  icon:
+    comp: TAOBAO
+    color: "#0284c7"
+pinduoduo:
+  label: 拼多多
+  icon:
+    comp: PINDUODUO
+    color: "#e11d48"
+doudian:
+  label: 抖店
+  icon:
+    comp: DOUDIAN
+    color: "#111827"
+jingdong:
+  label: 京东
+  icon:
+    comp: JINGDONG
+    color: "#dc2626"
+dewu:
+  label: 得物
+  icon:
+    comp: DEWU
+    color: "#0f172a"
+:::
+
+## 检索&协作
+
+<Cards className="grid-cols-1 sm:grid-cols-3">
+  <SearchOpenCard
+    icon={<Search className="text-blue-600 dark:text-blue-400" />}
+    title="内容检索"
+    description="通过 ⌘ K / Ctrl K 即可快速打开搜索框；支持全文内容检索（包括标题、内容等）、搜索关键词高亮显示，快速到达目标内容段落。"
+  />
+  <AIChatOpenCard
+    icon={<Sparkles className="text-fuchsia-600 dark:text-fuchsia-400" />}
+    title="Ask AI"
+    description="通过 ⌘ I / Ctrl I 即可打开/关闭 AI 对话，Agengt 将结合当前文档内容，帮助你快速理解文档内容、归纳整理、检索其他文档。"
+  />
+  <Card
+    icon={<Server className="text-cyan-600 dark:text-cyan-400" />}
+    title="MCP 服务"
+    href="/mcp/deeplink"
+    description="根据指引即可在 Cursor、Claude Code 等客户端快速配置 MCP 服务，即可在对话里调用工具，快速检索文档、获取文档内容。"
+  />
+</Cards>

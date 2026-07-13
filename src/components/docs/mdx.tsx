@@ -16,6 +16,8 @@ import { ModuleCard } from '@/components/docs/mdx/module-card';
 import { SearchOpenCard } from '@/components/docs/mdx/search-open-card';
 import { FieldTreeTable } from '@/components/docs/mdx/field-tree-table';
 import { TableWithExport } from '@/components/docs/mdx/table-export';
+import { DocsLink } from '@/components/docs/docs-link';
+import { ChangelogTimeline, ChangelogEntry } from '@/components/docs/mdx/changelog-timeline';
 
 /** Recursively extract plain text from React node tree (handles shiki span nesting) */
 function extractText(node: React.ReactNode): string {
@@ -77,6 +79,7 @@ export function getMDXComponents(components?: MDXComponents) {
 
   return {
     ...defaultMdxComponents,
+    a: DocsLink,
     ...TabsComponents,
     Files,
     Folder,
@@ -89,8 +92,10 @@ export function getMDXComponents(components?: MDXComponents) {
     MetaPanel,
     ModuleGrid,
     FieldTreeTable,
+    ChangelogTimeline,
+    ChangelogEntry,
     table: TableWithExport,
-    img: ({ className, ...props }: React.ComponentProps<'img'>) => {
+    img: ({ className, style, ...props }: React.ComponentProps<'img'>) => {
       const isFirst = mdxInlineImageIndex++ === 0;
       return (
         <ImageZoom
@@ -98,6 +103,9 @@ export function getMDXComponents(components?: MDXComponents) {
           quality={95}
           priority={isFirst}
           sizes="(max-width: 768px) 100vw, (max-width: 1280px) 90vw, min(72vw, 1600px)"
+          // Global CSS sets max-width:100% which changes width; Next/Image requires
+          // the other axis to be auto on the style prop to keep aspect ratio.
+          style={{ width: 'auto', height: 'auto', ...style }}
           className={cn(
             'rounded-xl shadow-md shadow-black/10 dark:shadow-black/30 border border-fd-border/30 [image-rendering:high-quality]',
             className,
