@@ -3,8 +3,8 @@ title: 万相台-账户-优惠券花费明细
 description: 导出阿里妈妈万相台账户明细中的优惠券花费明细，支持按券类型与日期范围筛选
 entry: rpa.conn.alimm.wxt.account.detail.coupon
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 300
 module:

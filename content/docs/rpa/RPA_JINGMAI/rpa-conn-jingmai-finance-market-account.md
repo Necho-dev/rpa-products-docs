@@ -3,8 +3,8 @@ title: 财务-营销对账-明细导出
 description: 在京麦商家后台营销对账页，按订单下单时间范围导出营销对账明细数据
 entry: rpa.conn.jingmai.finance.market.account
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 300
 ---

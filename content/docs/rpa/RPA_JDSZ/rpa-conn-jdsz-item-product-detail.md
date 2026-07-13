@@ -3,8 +3,8 @@ title: 商品-商品明细-SKU数据导出
 description: 在京东商智商品明细页导出 SKU 维度商品数据，支持实时及昨天/近7天/近30天/天/周/月/自定义等多种时间筛选；非实时场景支持汇总下载与分天下载
 entry: rpa.conn.jdsz.item.product.detail
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 300
 ---

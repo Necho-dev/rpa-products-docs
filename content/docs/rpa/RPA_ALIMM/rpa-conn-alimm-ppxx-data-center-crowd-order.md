@@ -3,8 +3,8 @@ title: 品牌新享-超级新品孵化-订单明细
 description: 导出品牌新享数据中心「超级新品孵化」页面的订单明细，支持自定义日期范围；起始/结束日期均缺省时默认昨日单日
 entry: rpa.conn.alimm.ppxx.data.center.crowd.order
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   min: 3
 module:
@@ -14,13 +14,13 @@ module:
 | 属性             | 值                                                                                                             |
 | ---------------- | -------------------------------------------------------------------------------------------------------------- |
 | **连接器类型**   | `RPA 连接器`                                                                                                   |
-| **连接器名称**   | `ODS_品牌新享超级新品孵化订单明细(阿里妈妈RPA)`                                                               |
+| **连接器名称**   | `ODS_品牌新享超级新品孵化订单明细表(阿里妈妈RPA)`                                                               |
 | **连接器代码**   | `rpa.conn.alimm.ppxx.data.center.crowd.order`                                                                  |
 | **操作类型**     | `文件导出`                                                                                                     |
 | **目标网页**     | `https://ppxk.tmall.com/new/index.htm#!/data-center/crowd/index`                                               |
 | **适用场景**     | 导出品牌新享数据中心「超级新品孵化」页面的订单明细，支持自定义日期范围；起始/结束日期均缺省时默认昨日单日       |
 | **数据表名**     | `ods_rpa_alimm_ppxx_data_center_crowd_order_du`                                                                |
-| **业务表名**     | `ODS_品牌新享超级新品孵化订单明细(阿里妈妈RPA)`                                                               |
+| **业务表名**     | `ODS_品牌新享超级新品孵化订单明细表(阿里妈妈RPA)`                                                               |
 
 ### 目标页面
 

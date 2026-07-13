@@ -3,8 +3,8 @@ title: 财务-收支账单-收入明细
 description: 导出千牛收支账单中的收入明细，支持按账单类型、业务大类、业务小类和同月时间范围筛选
 entry: rpa.conn.qianniu.finance.income.bill.detail
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   min: 15
   description: 导出文件预计 15 分钟内完成
@@ -15,13 +15,13 @@ module:
 | 属性             | 值                                                                                                                           |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | **连接器类型**   | `RPA 连接器`                                                                                                                 |
-| **连接器名称**   | `ODS_财务收支账单收入明细(千牛RPA)`                                                                                          |
+| **连接器名称**   | `ODS_财务收支账单收入明细表(千牛RPA)`                                                                                          |
 | **连接器代码**   | `rpa.conn.qianniu.finance.income.bill.detail`                                                                                |
 | **操作类型**     | `文件导出`                                                                                                                   |
 | **目标网页**     | `https://myseller.taobao.com/home.htm/whale-accountant/bill/summary?billDirection=income&billType=detail`                    |
 | **适用场景**     | 导出千牛收支账单中的收入明细，支持按账单类型、业务大类、业务小类和同月时间范围筛选                                           |
 | **数据表名**     | `ods_rpa_qianniu_finance_income_bill_detail_du`                                                                              |
-| **业务表名**     | `ODS_财务收支账单收入明细(千牛RPA)`                                                                                          |
+| **业务表名**     | `ODS_财务收支账单收入明细表(千牛RPA)`                                                                                          |
 
 ### 目标页面
 

@@ -3,8 +3,8 @@ title: 财务-保证金账户-结算资金账单明细
 description: 导出千牛保证金账户「结算资金」账单明细，支持快捷时间范围或自定义起止日期
 entry: rpa.conn.qianniu.finance.bail.account.detail
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 2100
   description: 导出文件通常需要 20～30 分钟生成
@@ -19,13 +19,13 @@ module:
 | 属性             | 值                                                                                                             |
 | ---------------- | -------------------------------------------------------------------------------------------------------------- |
 | **连接器类型**   | `RPA 连接器`                                                                                                   |
-| **连接器名称**   | `ODS_财务保证金账户结算资金账单明细(千牛RPA)`                                                                 |
+| **连接器名称**   | `ODS_财务保证金结算资金账单明细表(千牛RPA)`                                                                 |
 | **连接器代码**   | `rpa.conn.qianniu.finance.bail.account.detail`                                                                 |
 | **操作类型**     | `文件导出`                                                                                                     |
 | **目标网页**     | `https://myseller.taobao.com/home.htm/whale-accountant/bill/account-details`                                   |
 | **适用场景**     | 导出千牛保证金账户「结算资金」账单明细，支持快捷时间范围或自定义起止日期                                       |
 | **数据表名**     | `ods_rpa_qianniu_finance_bail_account_detail_du`                                                               |
-| **业务表名**     | `ODS_财务保证金账户结算资金账单明细(千牛RPA)`                                                                 |
+| **业务表名**     | `ODS_财务保证金结算资金账单明细表(千牛RPA)`                                                                 |
 
 ### 目标页面
 

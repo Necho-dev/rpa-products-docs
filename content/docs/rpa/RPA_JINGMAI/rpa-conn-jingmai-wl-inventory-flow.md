@@ -3,8 +3,8 @@ title: 物流-仓库库存-流水导出
 description: 在京东物流工作台仓库库存流水页，按日期范围导出库存流水明细数据
 entry: rpa.conn.jingmai.wl.inventory.flow
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 300
 ---

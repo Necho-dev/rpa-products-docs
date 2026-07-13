@@ -3,8 +3,8 @@ title: 物流-运单管理-常用信息导出
 description: 在京东物流工作台运单管理页，按下单时间范围导出运单常用信息明细数据
 entry: rpa.conn.jingmai.wl.express.query.waybill
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 300
 module:

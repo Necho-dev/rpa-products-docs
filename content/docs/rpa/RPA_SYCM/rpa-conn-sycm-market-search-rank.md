@@ -3,8 +3,8 @@ title: 市场-搜索排行
 description: 采集生意参谋市场搜索排行列表，支持按搜索词类型、榜单类型与统计时间筛选并翻页取全量
 entry: rpa.conn.sycm.market.search.rank
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 300
 module:
