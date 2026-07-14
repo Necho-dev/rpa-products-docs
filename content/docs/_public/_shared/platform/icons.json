@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-07-11T21:02:16.310Z",
+  "updatedAt": "2026-07-14T09:21:43.275Z",
   "icons": {
     "ALIMM": {
       "file": "platform/files/ALIMM.png",
       "sourceIcon": "https://img.alicdn.com/imgextra/i3/O1CN01Wp37a71mYTZB6acBX_!!6000000004966-2-tps-50-50.png",
       "origin": "www.alimama.com"
+    },
+    "CMA": {
+      "file": "platform/files/CMA.ico",
+      "sourceIcon": "https://www.cma.gov.cn/favicon.ico",
+      "origin": "weather.cma.cn"
     },
     "DEWU": {
       "file": "platform/files/DEWU.png",
@@ -35,6 +40,11 @@
       "file": "platform/files/JULIANG.png",
       "sourceIcon": "https://p6-addone.byteimg.com/tos-cn-i-hhc0kcolqq/ad_growth/c3a9bb92ccd571eb305e5c93c5bbc6ec.ico~tplv-hhc0kcolqq-image.image",
       "origin": "www.oceanengine.com"
+    },
+    "NMC": {
+      "file": "platform/files/NMC.ico",
+      "sourceIcon": "https://image.nmc.cn/assets/favicon.ico",
+      "origin": "www.nmc.cn"
     },
     "PINDUODUO": {
       "file": "platform/files/PINDUODUO.ico",

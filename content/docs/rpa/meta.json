@@ -14,6 +14,7 @@
     "./RPA_JULIANG",
     "./RPA_JINGMAI",
     "./RPA_JDSZ",
-    "./RPA_DEWU"
+    "./RPA_DEWU",
+    "./RPA_UNIVERSAL"
   ]
 }

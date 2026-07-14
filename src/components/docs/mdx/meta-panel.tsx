@@ -147,7 +147,7 @@ export function MetaPanel({
   /** 图标名：platform icon / shared icon / Lucide（与 frontmatter `icon` 相同解析链） */
   icon?: string;
   requireLogin?: boolean;
-  /** 登录方式标签；空或未配置时展示「无」 */
+  /** 登录方式标签；仅 `requireLogin` 为 true 时展示；空或未配置时展示「无」 */
   loginOptions?: MetaPanelLoginOption[];
   /** 授权帮助文档链接；未配置时不展示该行 */
   authHelpUrl?: string;
@@ -248,26 +248,28 @@ export function MetaPanel({
           </div>
         </div>
 
-        <div className={metaRowClassName}>
-          <RowLabel
-            iconWrapperClassName="border-fuchsia-500/20 bg-fuchsia-500/5"
-            icon={<ShieldCheck className="size-3.5 text-fuchsia-800 dark:text-fuchsia-200" />}
-          >
-            登录方式
-          </RowLabel>
-          <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-            {loginOptionList.length === 0 ? (
-              <EmptyValue />
-            ) : (
-              loginOptionList.map((option, index) => (
-                <LoginOptionPill
-                  key={`${option.text}-${option.icon ?? ''}-${index}`}
-                  option={option}
-                />
-              ))
-            )}
+        {requireLogin ? (
+          <div className={metaRowClassName}>
+            <RowLabel
+              iconWrapperClassName="border-fuchsia-500/20 bg-fuchsia-500/5"
+              icon={<ShieldCheck className="size-3.5 text-fuchsia-800 dark:text-fuchsia-200" />}
+            >
+              登录方式
+            </RowLabel>
+            <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+              {loginOptionList.length === 0 ? (
+                <EmptyValue />
+              ) : (
+                loginOptionList.map((option, index) => (
+                  <LoginOptionPill
+                    key={`${option.text}-${option.icon ?? ''}-${index}`}
+                    option={option}
+                  />
+                ))
+              )}
+            </div>
           </div>
-        </div>
+        ) : null}
 
         {showAuthHelp ? (
           <div className={metaRowClassName}>

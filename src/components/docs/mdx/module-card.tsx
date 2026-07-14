@@ -282,29 +282,31 @@ function ModuleCardHeader({
   minInterval?: MinIntervalMeta;
 }) {
   const content = (
-    <div className="flex items-start gap-2">
-      <ModuleCardTitleIcon faviconUrl={faviconUrl} icon={icon} />
-      <div className="min-w-0 flex-1">
-        <div className="flex items-start justify-between gap-2">
-          <h3
-            className="min-w-0 flex-1 truncate text-sm font-bold text-fd-foreground"
-            title={title}
-          >
-            {title}
-          </h3>
-          {badge ? <ModuleCardBadgePill {...badge} /> : null}
+    <div className="min-w-0">
+      <div className="flex items-start gap-2">
+        <ModuleCardTitleIcon faviconUrl={faviconUrl} icon={icon} />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <h3
+              className="min-w-0 flex-1 truncate text-sm font-bold text-fd-foreground"
+              title={title}
+            >
+              {title}
+            </h3>
+            {badge ? <ModuleCardBadgePill {...badge} /> : null}
+          </div>
+          {description ? (
+            <p className="mt-1.5 text-xs leading-relaxed text-fd-muted-foreground line-clamp-2">
+              {description}
+            </p>
+          ) : null}
         </div>
-        {description ? (
-          <p className="mt-1.5 text-xs leading-relaxed text-fd-muted-foreground line-clamp-2">
-            {description}
-          </p>
-        ) : null}
-        <ModuleCardScheduleLine
-          dataReady={dataReady}
-          estimatedDuration={estimatedDuration}
-          minInterval={minInterval}
-        />
       </div>
+      <ModuleCardScheduleLine
+        dataReady={dataReady}
+        estimatedDuration={estimatedDuration}
+        minInterval={minInterval}
+      />
     </div>
   );
 
