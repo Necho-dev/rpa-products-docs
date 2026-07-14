@@ -6,8 +6,8 @@ badge:
   label: 已上线
   color: "#16A34A"
 estimatedDuration:
-  sec: 2100
-  description: 导出文件通常需要 20～30 分钟生成
+  min: 25
+  description: 导出文件通常需要约 20 分钟生成，任务高峰期可能会延长
 module:
   group: finance
 ---
