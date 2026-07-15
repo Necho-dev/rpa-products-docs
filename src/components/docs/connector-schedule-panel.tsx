@@ -123,7 +123,7 @@ export function ConnectorSchedulePanel({
             DEFAULT_SCHEDULE_DESCRIPTIONS.estimatedDuration,
           )}
         >
-          <DurationDisplay sec={durationSec} />
+          <DurationDisplay sec={durationSec} unit={estimatedDuration?.unit} />
         </ScheduleTag>
       ) : null}
 
@@ -138,7 +138,7 @@ export function ConnectorSchedulePanel({
             DEFAULT_SCHEDULE_DESCRIPTIONS.minInterval,
           )}
         >
-          <DurationDisplay sec={intervalSec} />
+          <DurationDisplay sec={intervalSec} unit={minInterval?.unit} />
         </ScheduleTag>
       ) : null}
     </div>
@@ -211,8 +211,14 @@ export function ConnectorScheduleChips({
   const durationSec = resolveDurationSec(estimatedDuration);
   const intervalSec = resolveDurationSec(minInterval);
   const dataReadyValue = dataReady ? formatDataReadyCompactValue(dataReady) : null;
-  const durationLabel = durationSec != null ? getDefaultDurationDisplay(durationSec) : null;
-  const intervalLabel = intervalSec != null ? getDefaultDurationDisplay(intervalSec) : null;
+  const durationLabel =
+    durationSec != null
+      ? getDefaultDurationDisplay(durationSec, estimatedDuration?.unit)
+      : null;
+  const intervalLabel =
+    intervalSec != null
+      ? getDefaultDurationDisplay(intervalSec, minInterval?.unit)
+      : null;
 
   return (
     <div className={cn('flex flex-wrap items-center gap-1.5', className)}>

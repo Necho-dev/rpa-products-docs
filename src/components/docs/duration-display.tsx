@@ -9,15 +9,18 @@ import {
 
 export function DurationDisplay({
   sec,
+  unit,
   className,
 }: {
   sec: number;
+  /** 可选计算单位后缀，如「页」「天」→「1 分钟/页」 */
+  unit?: string;
   className?: string;
 }) {
   const variants = getDurationDisplayVariants(sec);
   const [index, setIndex] = useState(0);
   const current = variants[index % variants.length]!;
-  const label = formatDurationVariant(current);
+  const label = formatDurationVariant(current, unit);
   const canCycle = variants.length > 1;
 
   if (!canCycle) {

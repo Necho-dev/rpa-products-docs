@@ -57,23 +57,28 @@ const dataReadySchema = z
   .refine((v) => v.time != null || v.cycle != null, 'dataReady 至少须配置 time 或 cycle')
   .optional();
 
-/** 时长类指标：sec / min / hour 至少配一个，多个时取换算后的最大值 */
+/**
+ * 时长类指标（estimatedDuration / minInterval 共用）：
+ * - sec / min / hour 至少配一个，多个时取换算后的最大值
+ * - unit 为可选计算单位后缀（如「页」「天」），有值时展示为「1 分钟/页」
+ */
 const durationValueSchema = z
   .object({
     sec: z.coerce.number().int().positive().optional(),
     min: z.coerce.number().int().positive().optional(),
     hour: z.coerce.number().int().positive().optional(),
+    unit: z.string().trim().min(1).max(8).optional(),
     description: scheduleIndicatorDescriptionSchema,
   })
   .refine(
     (v) => v.sec != null || v.min != null || v.hour != null,
-    '至少须配置 sec / min / hour 之一',
+    '至少需要配置 sec / min / hour 其中之一',
   );
 
-/** 预估执行耗时 + 可选说明 */
+/** 预估执行耗时 + 可选计算单位 + 可选说明 */
 const estimatedDurationSchema = durationValueSchema.optional();
 
-/** 最小调度间隔 + 可选说明 */
+/** 最小调度间隔 + 可选计算单位 + 可选说明 */
 const minIntervalSchema = durationValueSchema.optional();
 
 /** 页面：不写 `access` 时继承目录 meta；可写 `public` 强制公开 */

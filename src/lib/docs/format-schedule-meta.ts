@@ -34,14 +34,19 @@ export function getDurationDisplayVariants(sec: number): DurationDisplayVariant[
   ];
 }
 
-export function formatDurationVariant(variant: DurationDisplayVariant): string {
-  return `${variant.value} ${variant.unit}`;
+export function formatDurationVariant(
+  variant: DurationDisplayVariant,
+  unit?: string,
+): string {
+  const base = `${variant.value} ${variant.unit}`;
+  const suffix = unit?.trim();
+  return suffix ? `${base}/${suffix}` : base;
 }
 
 /** 默认档位展示（卡片等不可交互场景） */
-export function getDefaultDurationDisplay(sec: number): string {
+export function getDefaultDurationDisplay(sec: number, unit?: string): string {
   const [first] = getDurationDisplayVariants(sec);
-  return formatDurationVariant(first!);
+  return formatDurationVariant(first!, unit);
 }
 
 const WEEKDAY_LABELS: Record<string, string> = {
@@ -107,10 +112,12 @@ export type DataReadyMeta = {
   description?: string;
 };
 
+/** 时长类指标；`unit` 为可选计算单位后缀（如「页」「天」） */
 export type DurationValueMeta = {
   sec?: number;
   min?: number;
   hour?: number;
+  unit?: string;
   description?: string;
 };
 
