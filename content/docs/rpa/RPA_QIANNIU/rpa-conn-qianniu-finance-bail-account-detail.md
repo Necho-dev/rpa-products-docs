@@ -33,7 +33,7 @@ module:
 >
 > **取数链接**：[https://myseller.taobao.com/home.htm/whale-accountant/bill/account-details](https://myseller.taobao.com/home.htm/whale-accountant/bill/account-details)
 
-![千牛—保证金账户—结算资金账单明细](../_public/images/qianniu/finance_bail_account_detail_20260709.png)
+![千牛—保证金账户—结算资金账单明细](../_public/images/qianniu/finance_bail_account_detail_20260715.png)
 
 ### 业务入参
 

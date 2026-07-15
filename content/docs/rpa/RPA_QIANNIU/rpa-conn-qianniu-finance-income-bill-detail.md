@@ -12,6 +12,10 @@ module:
   group: finance
 ---
 
+:::warning[页面兼容性说明]
+当前连接器目标页面只支持**天猫平台**的店铺，暂不兼容**淘宝C店**，请确认后使用！
+:::
+
 | 属性             | 值                                                                                                                           |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | **连接器类型**   | `RPA 连接器`                                                                                                                 |
@@ -29,7 +33,7 @@ module:
 >
 > **取数链接**：[https://myseller.taobao.com/home.htm/whale-accountant/bill/summary?billDirection=income&billType=detail](https://myseller.taobao.com/home.htm/whale-accountant/bill/summary?billDirection=income&billType=detail)
 
-![财务-收支账单-收入明细](../_public/images/qianniu/finance_income_bill_detail_20260713.png)
+![财务-收支账单-收入明细](../_public/images/qianniu/finance_income_bill_detail_20260715.png)
 
 ### 业务入参
 
