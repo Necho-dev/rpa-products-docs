@@ -6,7 +6,7 @@ badge:
   label: 已上线
   color: "#16A34A"
 estimatedDuration:
-  min: 3
+  min: 2
 module:
   group: ppxx
 ---
@@ -28,7 +28,7 @@ module:
 >
 > **取数链接**：[https://ppxk.tmall.com/new/index.htm#!/data-center/old/index](https://ppxk.tmall.com/new/index.htm#!/data-center/old/index)
 
-![品牌新享—超级老客加速-订单明细](../_public/images/alimm/ppxx_data_center_old_order_20260709.png)
+![品牌新享—超级老客加速-订单明细](../_public/images/alimm/ppxx_data_center_old_order_20260716.png)
 
 ### 业务入参
 
