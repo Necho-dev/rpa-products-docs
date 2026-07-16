@@ -29,7 +29,7 @@ module:
 >
 > **取数链接**：[https://qn.taobao.com/home.htm/starb/tmc-next/sale/seller/homepage.htm?tab=item](https://qn.taobao.com/home.htm/starb/tmc-next/sale/seller/homepage.htm?tab=item)
 
-![千牛后台—营销—活动报名—已报商品列表](../_public/images/qianniu/marketing_tmc_registered_item_list_20260714.png)
+![千牛后台—营销—活动报名—已报商品列表](../_public/images/qianniu/marketing_tmc_registered_item_list_20260716.png)
 
 ### 业务入参
 
@@ -197,11 +197,11 @@ extensions 为空对象 `{}` 或不配置 extensions 均可；连接器按默认
 :::field-tree
 @define 域信息
 | `domainCode` | 域代码 | `String` | 是 | 页面解析 | `item` |
-| `domainId` | 域 ID | `Number` | 否 | 页面解析 | `1002957*******` |
+| `domainId` | 域 ID | `Number` | 否 | 页面解析 | `1002957*******` (已脱敏) |
 | `parentDomainCode` | 父域代码 | `String` | 是 | 页面解析 | `act` |
-| `parentDomainId` | 父域 ID | `Number` | 否 | 页面解析 | `683590******` |
+| `parentDomainId` | 父域 ID | `Number` | 否 | 页面解析 | `683590******` (已脱敏) |
 | `parentIdMap` | 父域 ID 映射 | `Dict` | 是 | 页面解析 | 见数据样例 |
-| `themisTemplateId` | 模板 ID | `Number` | 否 | 页面解析 | `2**` |
+| `themisTemplateId` | 模板 ID | `Number` | 否 | 页面解析 | `2**` (已脱敏) |
 
 @define 活动标签项
 | `color` | 标签颜色 | `String` | 是 | 页面解析 | `gray` |
@@ -209,12 +209,12 @@ extensions 为空对象 `{}` 或不配置 extensions 均可；连接器按默认
 
 @define 操作按钮项
 | `disabled` | 是否禁用 | `Boolean` | 否 | 页面解析 | `false` |
-| `id` | 按钮 ID | `Number` | 否 | 页面解析 | `12**` |
+| `id` | 按钮 ID | `Number` | 否 | 页面解析 | `12**` (已脱敏) |
 | `name` | 按钮名称 | `String` | 否 | 页面解析 | `查看商品` |
 | `simpleName` | 按钮简称 | `String` | 否 | 页面解析 | `查看` |
 | `required` | 是否必选 | `Boolean` | 否 | 页面解析 | `false` |
 | `disableMessage` | 禁用原因 | `String` | 是 | 页面解析 | `当前不允许撤销报名` |
-| `url` | 操作链接 | `String` | 是 | 页面解析 | `/item/json/itemCommonCancel.do?juId=1002957*******` |
+| `url` | 操作链接 | `String` | 是 | 页面解析 | `/item/json/itemCommonCancel.do?juId=1002957*******` (已脱敏) |
 | `meta` | 按钮元数据 | `Dict` | 是 | 页面解析 | 见数据样例 |
 
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
@@ -223,20 +223,20 @@ extensions 为空对象 `{}` 或不配置 extensions 均可；连接器按默认
 | `themisInfo` @域信息 | 域信息 | `Dict` | 是 | 页面解析 | 见数据样例 |
 | `commonActivityTags` @活动标签项 | 活动标签 | `List[Dict]` | 是 | 页面解析 | 见数据样例 |
 | `newItemPicMarkingStatusTips` | 主图打标提示 | `String` | 是 | 页面解析 | `商品主图已使用官方主图模板…` |
-| `signTime` | 报名时间戳 | `Number` | 是 | 页面解析 | `178176*******` |
-| `originalPrice` | 原价/一口价 | `String` | 是 | 页面解析 | `4**` |
-| `onlineStartTime` | 活动开始时间戳 | `Number` | 是 | 页面解析 | `178205*******` |
-| `onlineEndTime` | 活动结束时间戳 | `Number` | 是 | 页面解析 | `178283*******` |
-| `itemLink` | 商品链接 | `String` | 是 | 页面解析 | `//item.taobao.com/item.htm?id=908269******` |
+| `signTime` | 报名时间戳 | `Number` | 是 | 页面解析 | `178176*******` (已脱敏) |
+| `originalPrice` | 原价/一口价 | `String` | 是 | 页面解析 | `4**` (已脱敏) |
+| `onlineStartTime` | 活动开始时间戳 | `Number` | 是 | 页面解析 | `178205*******` (已脱敏) |
+| `onlineEndTime` | 活动结束时间戳 | `Number` | 是 | 页面解析 | `178283*******` (已脱敏) |
+| `itemLink` | 商品链接 | `String` | 是 | 页面解析 | `//item.taobao.com/item.htm?id=908269******` (已脱敏) |
 | `activityName` | 活动名称 | `String` | 是 | 页面解析 | `店播日常闪降招商…` |
 | `buttonList` @操作按钮项 | 操作按钮 | `List[Dict]` | 是 | 页面解析 | 见数据样例 |
-| `itemId` | 商品 ID | `String` | 是 | 页面解析 | `908269******` |
-| `itemName` | 商品名称 | `String` | 是 | 页面解析 | `示例品牌示例短袖T恤` |
+| `itemId` | 商品 ID | `String` | 是 | 页面解析 | `908269******` (已脱敏) |
+| `itemName` | 商品名称 | `String` | 是 | 页面解析 | `示例品牌示例短袖T恤` (已脱敏) |
 | `icStatusName` | 商品状态 | `String` | 是 | 页面解析 | `出售中` |
-| `activityUrl` | 活动详情链接 | `String` | 是 | 页面解析 | `/sale/seller/activity_detail.htm?activityId=683590******` |
+| `activityUrl` | 活动详情链接 | `String` | 是 | 页面解析 | `/sale/seller/activity_detail.htm?activityId=683590******` (已脱敏) |
 | `newItemPicMarkingStatusName` | 主图打标状态 | `String` | 是 | 页面解析 | `已打标` |
-| `itemPic` | 商品主图 | `String` | 是 | 页面解析 | `https://img.alicdn.com/...` |
-| `juId` | 营销 ID | `String` | 是 | 页面解析 | `1002957*******` |
+| `itemPic` | 商品主图 | `String` | 是 | 页面解析 | `https://img.alicdn.com/...` (已脱敏) |
+| `juId` | 营销 ID | `String` | 是 | 页面解析 | `1002957*******` (已脱敏) |
 | `statusName` | 商品报名状态 | `String` | 是 | 页面解析 | `活动结束` |
 | `enableStructErrorMessage` | 结构错误提示开关 | `Boolean` | 是 | 页面解析 | `false` |
 | `icStatus` | 商品状态码 | `Number` | 是 | 页面解析 | `0` |
@@ -296,13 +296,13 @@ extensions 为空对象 `{}` 或不配置 extensions 均可；连接器按默认
 | `playDiscountActiveStatusTips` | 玩法折扣生效提示 | `String` | 是 | 页面解析 | — |
 | `itemLevel` | 商品层级 | `Number` | 是 | 页面解析 | `1` |
 | `bizDate` | 业务日期 | `String` | 否 | 附加 | `20260714` |
-| `accountId` | 授权 ID | `String` | 否 | 附加 | `1**` |
-| `taskId` | 任务 ID | `String` | 否 | 附加 | `dev-0-b1cb****` |
+| `accountId` | 授权 ID | `String` | 否 | 附加 | `1**` (已脱敏) |
+| `taskId` | 任务 ID | `String` | 否 | 附加 | `dev-0-b1cb****` (已脱敏) |
 :::
 
 ### 数据样例
 
-> 以下样例已对商品 ID、营销 ID、账号、时间戳、价格等敏感信息脱敏。**数字类字段保留前半段、后半段以等量 `*` 替换**（如 `123456` → `123***`）；状态码等小枚举值保持原样。样例中部分 `Number` 字段以脱敏字符串展示，实际输出仍为数值类型。
+> 以下样例已对商品 ID、营销 ID、账号、时间戳、价格等敏感信息脱敏。
 
 ```json
 [

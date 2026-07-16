@@ -29,9 +29,9 @@ module:
 >
 > **取数链接**：[https://qn.taobao.com/home.htm/starb/tmc-next/sale/seller/homepage.htm?tab=item](https://qn.taobao.com/home.htm/starb/tmc-next/sale/seller/homepage.htm?tab=item)
 
-![千牛后台—营销—活动报名—已报商品列表](../_public/images/qianniu/marketing_tmc_registered_item_sku_list_overview_20260714.png)
+![千牛后台—营销—活动报名—已报商品列表](../_public/images/qianniu/marketing_tmc_registered_item_sku_list_overview_20260716.png)
 
-![千牛后台—营销—活动报名—商品 SKU 闪降明细](../_public/images/qianniu/marketing_tmc_registered_item_sku_list_drawer_20260714.png)
+![千牛后台—营销—活动报名—商品 SKU 闪降明细](../_public/images/qianniu/marketing_tmc_registered_item_sku_list_drawer_20260716.png)
 
 ### 业务入参
 
@@ -159,7 +159,7 @@ module:
 
 ### 数据样例
 
-> 以下样例取自 2026-07-14 19:17:38 的最新成功运行日志首条记录，商品、营销、账号、任务及规格信息均已脱敏（如 `123456` → `123***`）。
+> 以下样例来自 2026-07-14 的真实运行输出，商品、营销、账号、任务及规格信息均已脱敏（如 `123456` → `123***`）。
 
 ```json
 [
