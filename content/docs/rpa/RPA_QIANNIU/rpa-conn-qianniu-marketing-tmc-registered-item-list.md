@@ -6,7 +6,7 @@ badge:
   label: 待上线
   color: "#EA580C"
 estimatedDuration:
-  sec: 300
+  sec: 180
   description: 页数多、数据量大时执行时间会相应延长（最多翻页 100 页，每页约间隔 2 秒）
 module:
   group: marketing

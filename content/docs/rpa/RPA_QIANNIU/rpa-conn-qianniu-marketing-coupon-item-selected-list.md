@@ -6,7 +6,7 @@ badge:
   label: 待上线
   color: "#EA580C"
 estimatedDuration:
-  sec: 300
+  sec: 180
 module:
   group: marketing
 ---

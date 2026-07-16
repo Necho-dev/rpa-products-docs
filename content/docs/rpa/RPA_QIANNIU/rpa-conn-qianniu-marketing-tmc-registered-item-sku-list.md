@@ -6,7 +6,7 @@ badge:
   label: 待上线
   color: "#EA580C"
 estimatedDuration:
-  sec: 300
+  sec: 180
   description: 商品及 SKU 数量较多时执行时间会相应延长（单次最多采集前 10 个商品）
 module:
   group: marketing
