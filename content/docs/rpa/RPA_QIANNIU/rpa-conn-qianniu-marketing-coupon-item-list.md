@@ -113,20 +113,69 @@ module:
 
 连接器完整保留页面返回的活动记录顶层字段；`feature`、`statusDesc`、`optionList`、`renewalInfoDTO` 等嵌套对象或数组保持原结构，不做扁平化。
 
-原商品券列表的八个业务字段均可由当前原始字段直接读取或派生：
+:::field-tree
+@define 活动扩展特征
+| `applyPlace` | 适用场所 | `String` | 是 | 页面解析 | `0` |
+| `spreadId` | 推广 ID | `String` | 是 | 页面解析 | `147****132` (已脱敏) |
+| `detailId` | 明细 ID | `String` | 是 | 页面解析 | `301****316` (已脱敏) |
+| `e_appName` | 外部应用名 | `String` | 是 | 页面解析 | `passport-web` |
+| `uuid` | 唯一标识 | `String` | 是 | 页面解析 | `b9b****3d4` (已脱敏) |
+| `activityId` | 活动 ID | `String` | 是 | 页面解析 | `138****949` (已脱敏) |
+| `toolId` | 工具 ID | `String` | 是 | 页面解析 | `862****001` (已脱敏) |
+| `memberActStart` | 会员活动开始时间戳 | `String` | 是 | 页面解析 | `1782835200000` |
+| `options` | 选项标识 | `String` | 是 | 页面解析 | `19` |
+| `participateId` | 参与方 ID | `String` | 是 | 页面解析 | `215****896` (已脱敏) |
+| `participateRange` | 参与范围 | `String` | 是 | 页面解析 | `1` |
+| `couponCenterTemplateId` | 券中心模板 ID | `String` | 是 | 页面解析 | `202****171` (已脱敏) |
+| `perLimit` | 每人限领 | `String` | 是 | 页面解析 | `5` |
+| `amount` | 优惠金额（分） | `String` | 是 | 页面解析 | `22000` |
+| `draftId` | 草稿 ID | `String` | 是 | 页面解析 | `168****869` (已脱敏) |
+| `memberActEnd` | 会员活动结束时间戳 | `String` | 是 | 页面解析 | `1785513599000` |
+| `appName` | 应用名 | `String` | 是 | 页面解析 | `mkt-shell` |
+| `memberLevel` | 会员等级 | `String` | 是 | 页面解析 | `1` |
+| `calculateLevel` | 计算层级 | `String` | 是 | 页面解析 | `2` |
+| `rbac` | 是否启用权限控制 | `String` | 是 | 页面解析 | `true` |
+| `mbrPerLimit` | 会员每人限领 | `String` | 是 | 页面解析 | `5` |
+| `perLimitType` | 限领类型 | `String` | 是 | 页面解析 | `0` |
+| `mkt_source_biz` | 营销来源业务标识 | `String` | 是 | 页面解析 | `$|$|$|$` |
+| `couponV2` | 是否券 V2 | `String` | 是 | 页面解析 | `1` |
+| `discountFeeMode` | 优惠金额模式 | `String` | 是 | 页面解析 | `0` |
+| `memberCardTag` | 会员卡标签 | `String` | 是 | 页面解析 | `1` |
+| `tags` | 标签 ID | `String` | 是 | 页面解析 | `942****001` (已脱敏) |
+| `goBuyerGeneralLimit` | 是否走买家通用限领 | `String` | 是 | 页面解析 | `true` |
+| `toolCode` | 工具代码 | `String` | 是 | 页面解析 | `itemCoupon` |
+| `ump_op` | 营销操作标识 | `String` | 是 | 页面解析 | `dec****0` (已脱敏) |
+| `spreadType` | 推广类型 | `String` | 是 | 页面解析 | `1` |
+| `bizSource` | 业务来源 | `String` | 是 | 页面解析 | `` |
+| `regionId` | 区域 ID | `String` | 是 | 页面解析 | `` |
+| `participateType` | 参与类型 | `String` | 是 | 页面解析 | `3` |
+| `startFee` | 使用门槛（分） | `String` | 是 | 页面解析 | `60000` |
+| `siteId` | 站点 ID | `String` | 是 | 页面解析 | `` |
+| `autoRenewal` | 是否自动续期 | `String` | 是 | 页面解析 | `false` |
+| `timeMode` | 时间模式 | `String` | 是 | 页面解析 | `0` |
+| `useAt` | 使用时机 | `String` | 是 | 页面解析 | `0` |
+| `buyerDriveFlag` | 是否买家驱动 | `String` | 是 | 页面解析 | `true` |
 
-| 业务字段 | 原始字段 | 取值说明 |
-| -------- | -------- | -------- |
-| `coupon_id` | `templateCode` | 直接取优惠券模板代码 |
-| `promote_type` | `tagName`、`couponType`、`tagLabel` | 将推广标签名称、优惠券类型中文名和推广标签说明组合为页面展示文案 |
-| `discount_detail` | `threshold` | 直接取优惠门槛说明 |
-| `claimed_count` | `applyCount` | 直接取已领取数量 |
-| `total_count` | `totalCount` | 直接取发放总量 |
-| `claim_status` | `statusDesc.label` | 取状态描述中的中文名称 |
-| `use_time_text` | `startTime`、`endTime` | 将毫秒时间戳格式化为优惠券使用时间范围 |
-| `auto_renewal` | `renewalInfoDTO.autoRenewal`、`renewalInfoDTO.renewalStatus` | 根据续期开关及续期状态映射为自动续期说明 |
+@define 状态描述
+| `value` | 状态代码 | `String` | 否 | 页面解析 | `APPLING` |
+| `label` | 领取状态中文名 | `String` | 否 | 页面解析 | `领取中` |
 
-> 当前连接器输出保留原始字段名和结构，不再额外生成上述 snake_case 业务字段；下游可按对应关系读取或派生。
+@define 可用操作项
+| `text` | 操作文案 | `String` | 否 | 页面解析 | `查看` |
+| `url` | 操作链接 | `String` | 是 | 页面解析 | `null` |
+| `enable` | 是否可用 | `Boolean` | 否 | 页面解析 | `true` |
+| `order` | 排序 | `Number` | 是 | 页面解析 | `null` |
+| `type` | 操作类型 | `String` | 否 | 页面解析 | `view` |
+| `action` | 操作动作 | `String` | 是 | 页面解析 | `null` |
+| `supportStatus` | 支持的状态列表 | `List[String]` | 否 | 页面解析 | `["APPLING","IN_USE"]` |
+
+@define 自动续期信息
+| `autoRenewal` | 续期开关 | `Boolean` | 是 | 页面解析 | `null` |
+| `renewalStatus` | 续期状态 | `String` | 是 | 页面解析 | `UNSUPPORTED_RENEWAL` |
+| `unsupportedReasonMap` | 不支持续期原因映射 | `Dict` | 是 | 页面解析 | 见数据样例 |
+| `canNotSetReasonMap` | 不可设置原因映射 | `Dict` | 是 | 页面解析 | `{}` |
+| `renewalTemplateId` | 续期模板 ID | `String` | 是 | 页面解析 | `null` |
+| `renewalFailReason` | 续期失败原因 | `String` | 是 | 页面解析 | `null` |
 
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
@@ -148,8 +197,8 @@ module:
 | `sceneCode` | 场景代码 | `String` | 是 | 页面解析 | `null` |
 | `name` | 优惠券名称 | `String` | 否 | 页面解析 | `220` |
 | `description` | 优惠券描述 | `String` | 是 | 页面解析 | `null` |
-| `startTime` | 开始时间戳 | `Number` | 否 | 页面解析 | `1782835200000` |
-| `endTime` | 结束时间戳 | `Number` | 否 | 页面解析 | `1785513599000` |
+| `startTime` | 开始时间戳；与 `endTime` 格式化后可得优惠券使用时间范围 | `Number` | 否 | 页面解析 | `1782835200000` |
+| `endTime` | 结束时间戳；与 `startTime` 格式化后可得优惠券使用时间范围 | `Number` | 否 | 页面解析 | `1785513599000` |
 | `warmupStartTime` | 预热开始时间戳 | `Number` | 是 | 页面解析 | `null` |
 | `status` | 状态代码 | `Number` | 否 | 页面解析 | `1` |
 | `rawStatus` | 原始状态 | `String` | 是 | 页面解析 | `null` |
@@ -182,7 +231,7 @@ module:
 | `mktChannel` | 营销渠道 | `String` | 是 | 页面解析 | `null` |
 | `mktJobInstanceVO` | 营销任务实例 | `Dict` | 是 | 页面解析 | `null` |
 | `fromHSF` | 是否来自 HSF | `Boolean` | 否 | 页面解析 | `false` |
-| `feature` | 活动扩展特征 | `Dict` | 否 | 页面解析 | 见数据样例 |
+| `feature` @活动扩展特征 | 活动扩展特征 | `Dict` | 否 | 页面解析 | 见数据样例 |
 | `operationParam` | 操作参数 | `Dict` | 否 | 页面解析 | `{}` |
 | `extra` | 扩展信息 | `Dict` | 否 | 页面解析 | `{}` |
 | `errorType` | 错误类型 | `String` | 是 | 页面解析 | `null` |
@@ -214,8 +263,8 @@ module:
 | `needDealSentinelException` | 是否处理限流异常 | `Boolean` | 否 | 页面解析 | `false` |
 | `timeoutThrowException` | 超时是否抛出异常 | `Boolean` | 否 | 页面解析 | `false` |
 | `uuid` | 唯一标识 | `String` | 否 | 页面解析 | `b9b****3d4` (已脱敏) |
-| `templateCode` | 优惠券模板代码 | `Number` | 否 | 页面解析 | `138****949` (已脱敏) |
-| `couponType` | 优惠券类型 | `Number` | 否 | 页面解析 | `1` |
+| `templateCode` | 优惠券模板代码 / 券 ID | `Number` | 否 | 页面解析 | `138****949` (已脱敏) |
+| `couponType` | 优惠券类型；与 `tagName`、`tagLabel` 组合可得推广方式展示文案 | `Number` | 否 | 页面解析 | `1` |
 | `subType` | 优惠券子类型 | `Number` | 否 | 页面解析 | `0` |
 | `personLimit` | 每人限领数量 | `Number` | 否 | 页面解析 | `5` |
 | `applyCount` | 已领取数量 | `Number` | 否 | 页面解析 | `0` |
@@ -235,13 +284,13 @@ module:
 | `effectiveHour` | 生效小时数 | `Number` | 是 | 页面解析 | `null` |
 | `effectiveDay` | 生效天数 | `Number` | 是 | 页面解析 | `null` |
 | `lowestDiscount` | 最低折扣 | `Number` | 是 | 页面解析 | `null` |
-| `statusDesc` | 状态描述 | `Dict` | 否 | 页面解析 | `{"value":"APPLING","label":"领取中"}` |
+| `statusDesc` @状态描述 | 状态描述；其中 `label` 为领取状态中文名 | `Dict` | 否 | 页面解析 | 见数据样例 |
 | `tagId` | 推广标签 ID | `String` | 否 | 页面解析 | `942****001` (已脱敏) |
-| `tagName` | 推广标签名称 | `String` | 否 | 页面解析 | 店铺会员专享券 |
-| `tagLabel` | 推广标签说明 | `String` | 否 | 页面解析 | 促转化 |
+| `tagName` | 推广标签名称；与 `couponType`、`tagLabel` 组合可得推广方式展示文案 | `String` | 否 | 页面解析 | 店铺会员专享券 |
+| `tagLabel` | 推广标签说明；与 `tagName`、`couponType` 组合可得推广方式展示文案 | `String` | 否 | 页面解析 | 促转化 |
 | `tagColor` | 推广标签颜色 | `String` | 否 | 页面解析 | `#FE8533` |
-| `threshold` | 优惠门槛说明 | `String` | 否 | 页面解析 | 满600减220 |
-| `optionList` | 可用操作列表 | `List[Dict]` | 否 | 页面解析 | 见数据样例 |
+| `threshold` | 优惠门槛说明 / 优惠详情 | `String` | 否 | 页面解析 | 满600减220 |
+| `optionList` @可用操作项 | 可用操作列表 | `List[Dict]` | 否 | 页面解析 | 见数据样例 |
 | `activityUrl` | 活动链接 | `String` | 是 | 页面解析 | `null` |
 | `itemSize` | 商品数量 | `Number` | 是 | 页面解析 | `null` |
 | `unConditional` | 是否无门槛 | `Boolean` | 否 | 页面解析 | `false` |
@@ -254,7 +303,7 @@ module:
 | `couponShareLink` | 优惠券分享链接 | `String` | 是 | 页面解析 | `null` |
 | `couponEncrypted` | 优惠券加密信息 | `String` | 是 | 页面解析 | `null` |
 | `fissionShape` | 裂变形态 | `String` | 是 | 页面解析 | `null` |
-| `renewalInfoDTO` | 自动续期信息 | `Dict` | 否 | 页面解析 | 见数据样例 |
+| `renewalInfoDTO` @自动续期信息 | 自动续期信息；其中 `autoRenewal`、`renewalStatus` 可映射为自动续期说明 | `Dict` | 否 | 页面解析 | 见数据样例 |
 | `promoCode` | 推广代码 | `String` | 是 | 页面解析 | `null` |
 | `smartRateHost` | 是否智能折扣 | `Boolean` | 否 | 页面解析 | `false` |
 | `innerJobRequest` | 是否内部任务请求 | `Boolean` | 否 | 页面解析 | `false` |
@@ -263,6 +312,7 @@ module:
 | `taskId` | 任务 ID | `String` | 否 | 附加 | `dev****296` (已脱敏) |
 | `bizDate` | 业务日期 | `String` | 否 | 附加 | `20260716` |
 | `accountId` | 授权 ID | `String` | 否 | 附加 | `1****6` (已脱敏) |
+:::
 
 ### 数据样例
 
