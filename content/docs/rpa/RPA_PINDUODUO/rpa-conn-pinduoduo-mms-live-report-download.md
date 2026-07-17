@@ -5,6 +5,9 @@ entry: rpa.conn.pinduoduo.promotion.live.report.download
 badge:
   label: 已上线
   color: "#16A34A"
+estimatedDuration:
+  sec: 60
+  description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响；高峰期或数据量较大时可能延长至约 10分钟。
 ---
 
 | 属性             | 值                                                                |

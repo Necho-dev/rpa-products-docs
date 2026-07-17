@@ -7,6 +7,7 @@ badge:
   color: "#16A34A"
 estimatedDuration:
   sec: 300
+  description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响
 ---
 
 | 属性             | 值                                                                                                                                       |

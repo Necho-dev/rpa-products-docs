@@ -9,6 +9,9 @@ dataReady:
   time: "09:00:00"
   cycle: daily
   description: 生意参谋大部分核心数据模块（流量、商品、市场等）昨日数据在上午 9 点前完成更新
+estimatedDuration:
+  sec: 60
+  description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响；高峰期或数据量较大时可能延长至约 10分钟。
 ---
 
 | 属性             | 值                  |
