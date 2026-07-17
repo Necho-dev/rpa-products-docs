@@ -38,8 +38,8 @@ module:
 | `operation_module` | 操作模块 | `String` | 否 | `ALL` | 可选值：`ALL`（全部）、`PROMOTION`（推广）、`CREATIVE`（创意） |
 | `operation_type` | 操作类型 | `String` | 否 | `ALL` | 可选值：`ALL`（全部）、`ADD`（添加）、`UPDATE`（更新）、`DELETE`（删除） |
 | `operator_type` | 操作人类型 | `String` | 否 | `ALL` | 可选值：`ALL`（全部）、`MERCHANT`（商家）、`SYSTEM`（系统） |
-| `custom_start_date` | 查询起始日期 | `String` | 条件必填 | 昨日 | 支持 `YYYYMMDD` 或 `YYYY-MM-DD`；不传日期时使用平台页面默认的昨日，传入时须与 `custom_end_date` 成对，且不能晚于结束日期 |
-| `custom_end_date` | 查询结束日期 | `String` | 条件必填 | 昨日 | 支持 `YYYYMMDD` 或 `YYYY-MM-DD`；不传日期时使用平台页面默认的昨日，传入时须与 `custom_start_date` 成对，且不能早于起始日期 |
+| `custom_start_date` | 查询起始日期 | `String` | 条件必填 | 昨日 | 支持 `YYYYMMDD` 或 `YYYY-MM-DD`；不传日期时使用平台页面默认的昨日，传入时须与 `custom_end_date` 成对，且不能晚于结束日期；仅支持近 30 天（含今天共 30 个自然日，如 6 月 18 日至今天） |
+| `custom_end_date` | 查询结束日期 | `String` | 条件必填 | 昨日 | 支持 `YYYYMMDD` 或 `YYYY-MM-DD`；不传日期时使用平台页面默认的昨日，传入时须与 `custom_start_date` 成对，且不能早于起始日期；不可选择未来日期，且须在近 30 天范围内 |
 
 ### 入参样例
 
@@ -82,12 +82,12 @@ module:
     },
     "custom_start_date": {
       "type": "string",
-      "description": "查询起始日期，支持 YYYYMMDD 或 YYYY-MM-DD；不传日期时使用平台页面默认的昨日，传入时不能晚于结束日期",
+      "description": "查询起始日期，支持 YYYYMMDD 或 YYYY-MM-DD；不传日期时使用平台页面默认的昨日，传入时不能晚于结束日期，且仅支持近 30 天（含今天共 30 个自然日）",
       "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_end_date": {
       "type": "string",
-      "description": "查询结束日期，支持 YYYYMMDD 或 YYYY-MM-DD；不传日期时使用平台页面默认的昨日，传入时不能早于起始日期",
+      "description": "查询结束日期，支持 YYYYMMDD 或 YYYY-MM-DD；不传日期时使用平台页面默认的昨日，传入时不能早于起始日期，不可选择未来日期，且须在近 30 天范围内",
       "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
