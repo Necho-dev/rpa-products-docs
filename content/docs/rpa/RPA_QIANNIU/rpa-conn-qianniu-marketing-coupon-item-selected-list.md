@@ -6,7 +6,7 @@ badge:
   label: 待上线
   color: "#EA580C"
 estimatedDuration:
-  sec: 180
+  min: 2
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响
 module:
   group: marketing
@@ -48,9 +48,38 @@ module:
 
 ### 入参样例
 
+仅传必填券 ID（其余筛选项走默认）：
+
 ```json
 {
-  "coupon_id": "138****949"
+  "coupon_id": "138940200949"
+}
+```
+
+指定推广方式、商品生效范围与可用时间：
+
+```json
+{
+  "coupon_id": "138940200949",
+  "promote_type": "店铺会员专享券",
+  "item_scope": "ITEM_COUPON",
+  "custom_start_date": "20260701",
+  "custom_end_date": "20260731"
+}
+```
+
+叠加券名称、券面额、商品 ID 等文本筛选：
+
+```json
+{
+  "coupon_id": "138940200949",
+  "promote_type": "店铺会员专享券",
+  "item_scope": "ITEM_COUPON",
+  "custom_start_date": "20260701",
+  "custom_end_date": "20260731",
+  "coupon_name": "220",
+  "coupon_amount": "220",
+  "item_id": "1034567890123"
 }
 ```
 
@@ -117,9 +146,6 @@ module:
 
 ### 数据字段
 
-连接器完整保留页面返回的已选商品字段；商品风险信息 `itemRiskDTO` 保持原结构，不做扁平化。
-
-:::field-tree
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
 | `sellerId` | 卖家 ID | `Number` | 否 | 页面解析 | `215****896` (已脱敏) |
@@ -154,7 +180,6 @@ module:
 | `taskId` | 任务 ID | `String` | 否 | 附加 | `dev****466` (已脱敏) |
 | `bizDate` | 业务日期 | `String` | 否 | 附加 | `20260716` |
 | `accountId` | 授权 ID | `String` | 否 | 附加 | `1****6` (已脱敏) |
-:::
 
 ### 数据样例
 

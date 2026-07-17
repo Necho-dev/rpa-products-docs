@@ -6,7 +6,7 @@ badge:
   label: 待上线
   color: "#EA580C"
 estimatedDuration:
-  sec: 180
+  min: 2
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响
 module:
   group: marketing
@@ -46,8 +46,36 @@ module:
 
 ### 入参样例
 
+使用全部默认条件（推广方式默认「店铺会员专享券」、商品生效范围默认商品券、可用时间为当天起未来 30 日）：
+
 ```json
 {}
+```
+
+指定推广方式与可用时间范围：
+
+```json
+{
+  "promote_type": "店铺会员专享券",
+  "item_scope": "ITEM_COUPON",
+  "custom_start_date": "20260701",
+  "custom_end_date": "20260731"
+}
+```
+
+按券 ID、券名称等文本条件精确筛选：
+
+```json
+{
+  "promote_type": "店铺会员专享券",
+  "item_scope": "ITEM_COUPON",
+  "custom_start_date": "20260701",
+  "custom_end_date": "20260731",
+  "coupon_id": "138940200949",
+  "coupon_name": "220",
+  "coupon_amount": "220",
+  "item_id": ""
+}
 ```
 
 ### 入参校验
@@ -110,8 +138,6 @@ module:
 ```
 
 ### 数据字段
-
-连接器完整保留页面返回的活动记录顶层字段；`feature`、`statusDesc`、`optionList`、`renewalInfoDTO` 等嵌套对象或数组保持原结构，不做扁平化。
 
 :::field-tree
 @define 活动扩展特征
