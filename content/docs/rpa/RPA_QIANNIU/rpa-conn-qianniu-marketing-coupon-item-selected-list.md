@@ -1,5 +1,5 @@
 ---
-title: 营销-优惠券-已选商品列表
+title: 营销-优惠券管理-已选商品列表
 description: 按券 ID 定位优惠券并采集券详情中的已选商品列表，适用于核对优惠券适用商品及商品状态
 entry: rpa.conn.qianniu.marketing.coupon.item.selected.list
 badge:
@@ -15,13 +15,13 @@ module:
 | 属性             | 值                                                                                              |
 | ---------------- | ----------------------------------------------------------------------------------------------- |
 | **连接器类型**   | `RPA 连接器`                                                                                    |
-| **连接器名称**   | `ODS_营销优惠券已选商品列表(千牛RPA)`                                                           |
+| **连接器名称**   | `ODS_营销优惠券管理已选商品列表(千牛RPA)`                                                       |
 | **连接器代码**   | `rpa.conn.qianniu.marketing.coupon.item.selected.list`                                          |
 | **操作类型**     | `页面解析`                                                                                      |
 | **目标网页**     | `https://qn.taobao.com/home.htm/coupon?isFirst=true&isNew=true&defaultTab=itemCouponList`        |
 | **适用场景**     | 按券 ID 定位优惠券并采集券详情中的已选商品列表，适用于核对优惠券适用商品及商品状态              |
 | **数据表名**     | `ods_rpa_qianniu_marketing_coupon_item_selected_list_du`                                        |
-| **业务表名**     | `ODS_营销优惠券已选商品列表(千牛RPA)`                                                           |
+| **业务表名**     | `ODS_营销优惠券管理已选商品列表(千牛RPA)`                                                       |
 
 ### 目标页面
 
@@ -88,7 +88,7 @@ module:
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "千牛-营销优惠券已选商品列表 - 查询入参",
+  "title": "千牛-营销优惠券管理已选商品列表 - 查询入参",
   "description": "按券 ID 定位优惠券并采集券详情中的已选商品列表，适用于核对优惠券适用商品及商品状态",
   "type": "object",
   "properties": {
@@ -176,7 +176,7 @@ module:
 | `couponPriceYuan` | 券后价格（元） | `Number` | 是 | 页面解析 | `null` |
 | `lightShopItemUrl` | 轻店商品链接 | `String` | 是 | 页面解析 | `null` |
 | `hasRisk` | 是否存在商品风险 | `Boolean` | 否 | 页面解析 | `false` |
-| `itemRiskDTO` | 商品风险信息 | `Dict` | 是 | 页面解析 | `null` |
+| `itemRiskDTO` | 商品风险信息 | `String` | 是 | 页面解析 | `null` |
 | `taskId` | 任务 ID | `String` | 否 | 附加 | `dev****466` (已脱敏) |
 | `bizDate` | 业务日期 | `String` | 否 | 附加 | `20260716` |
 | `accountId` | 授权 ID | `String` | 否 | 附加 | `1****6` (已脱敏) |
@@ -187,36 +187,36 @@ module:
 [
   {
     "sellerId": "215****896",
-    "itemId": "103****446",
+    "itemId": "744****161",
     "storeId": null,
-    "itemCode": "FD6****054",
-    "title": "飞鸟和****闲上衣",
-    "categoryId": "500****671",
+    "itemCode": "FZ3****013",
+    "title": "示例商品****",
+    "categoryId": "500****898",
     "detailUrl": "//item.taobao.com/****",
-    "showPrice": "429.00",
+    "showPrice": "798.00",
     "itemPictureUrl": "//img.alicdn.com/****",
-    "price": 42900,
-    "priceYuan": 429.0,
-    "quantity": 1,
+    "price": 79800,
+    "priceYuan": 798.0,
+    "quantity": 2,
     "salesIn30Days": 0,
     "selected": true,
     "invalid": null,
     "invalidReason": null,
     "disabled": false,
     "disabledReason": null,
-    "modifiedTime": 1783614609000,
+    "modifiedTime": 1784511072000,
     "status": 0,
     "description": null,
     "mainItemTotalSoldQuantity": null,
-    "starts": 1775051706000,
-    "ends": 1776261306000,
+    "starts": 1781518894000,
+    "ends": 1782728494000,
     "subTitle": null,
     "couponPriceYuan": null,
     "lightShopItemUrl": null,
     "hasRisk": false,
     "itemRiskDTO": null,
-    "taskId": "dev****466",
-    "bizDate": "20260716",
+    "taskId": "dev****871",
+    "bizDate": "20260720",
     "accountId": "1****6"
   }
 ]

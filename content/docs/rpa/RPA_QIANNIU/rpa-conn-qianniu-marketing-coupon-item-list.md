@@ -1,6 +1,6 @@
 ---
-title: 营销-优惠券-商品列表
-description: 按推广方式、商品生效范围、可用时间等条件采集优惠券管理中的商品券列表，完整保留平台返回的活动字段及嵌套结构
+title: 营销-优惠券管理-优惠券列表
+description: 按推广方式、商品生效范围、可用时间等条件采集优惠券管理中的优惠券列表，完整保留平台返回的活动字段及嵌套结构
 entry: rpa.conn.qianniu.marketing.coupon.item.list
 badge:
   label: 待上线
@@ -15,13 +15,13 @@ module:
 | 属性             | 值                                                                                                  |
 | ---------------- | --------------------------------------------------------------------------------------------------- |
 | **连接器类型**   | `RPA 连接器`                                                                                        |
-| **连接器名称**   | `ODS_营销优惠券商品列表(千牛RPA)`                                                                   |
+| **连接器名称**   | `ODS_营销优惠券管理优惠券列表(千牛RPA)`                                                             |
 | **连接器代码**   | `rpa.conn.qianniu.marketing.coupon.item.list`                                                       |
 | **操作类型**     | `页面解析`                                                                                          |
 | **目标网页**     | `https://qn.taobao.com/home.htm/coupon?isFirst=true&isNew=true&defaultTab=itemCouponList`            |
-| **适用场景**     | 按推广方式、商品生效范围、可用时间等条件采集优惠券管理中的商品券列表，完整保留平台返回的活动字段及嵌套结构 |
+| **适用场景**     | 按推广方式、商品生效范围、可用时间等条件采集优惠券管理中的优惠券列表，完整保留平台返回的活动字段及嵌套结构 |
 | **数据表名**     | `ods_rpa_qianniu_marketing_coupon_item_list_du`                                                      |
-| **业务表名**     | `ODS_营销优惠券商品列表(千牛RPA)`                                                                   |
+| **业务表名**     | `ODS_营销优惠券管理优惠券列表(千牛RPA)`                                                             |
 
 ### 目标页面
 
@@ -83,8 +83,8 @@ module:
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "千牛-营销优惠券商品列表 - 查询入参",
-  "description": "按推广方式、商品生效范围、可用时间等条件采集优惠券管理中的商品券列表，完整保留平台返回的活动字段及嵌套结构",
+  "title": "千牛-营销优惠券管理优惠券列表 - 查询入参",
+  "description": "按推广方式、商品生效范围、可用时间等条件采集优惠券管理中的优惠券列表，完整保留平台返回的活动字段及嵌套结构",
   "type": "object",
   "properties": {
     "promote_type": {
@@ -205,8 +205,8 @@ module:
 
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
-| `unionCreateDTOList` | 联合创建信息 | `List[Dict]` | 否 | 页面解析 | `[]` |
-| `processResult` | 处理结果 | `Dict` | 是 | 页面解析 | `null` |
+| `unionCreateDTOList` | 联合创建信息 | `String` | 否 | 页面解析 | `[]` |
+| `processResult` | 处理结果 | `String` | 是 | 页面解析 | `null` |
 | `mainAccountId` | 主账号 ID | `String` | 是 | 页面解析 | `null` |
 | `operatorId` | 操作人 ID | `String` | 是 | 页面解析 | `null` |
 | `enterpriseId` | 企业 ID | `String` | 是 | 页面解析 | `null` |
@@ -234,28 +234,28 @@ module:
 | `actChannel` | 活动渠道 | `String` | 是 | 页面解析 | `null` |
 | `channel` | 渠道 | `String` | 是 | 页面解析 | `null` |
 | `actFlag` | 活动标识 | `String` | 是 | 页面解析 | `null` |
-| `wirelessActInfo` | 无线活动信息 | `Dict` | 是 | 页面解析 | `null` |
+| `wirelessActInfo` | 无线活动信息 | `String` | 是 | 页面解析 | `null` |
 | `createTime` | 创建时间戳 | `Number` | 否 | 页面解析 | `1782638342000` |
 | `modifyTime` | 修改时间戳 | `Number` | 是 | 页面解析 | `null` |
 | `promotionLevel` | 推广层级 | `Number` | 是 | 页面解析 | `null` |
 | `detailUpdateType` | 明细更新类型 | `String` | 是 | 页面解析 | `null` |
 | `crowdId` | 人群 ID | `Number` | 是 | 页面解析 | `null` |
 | `crowdType` | 人群类型 | `String` | 是 | 页面解析 | `null` |
-| `details` | 活动明细 | `List[Dict]` | 是 | 页面解析 | `null` |
-| `processFailDetails` | 处理失败明细 | `List[Dict]` | 是 | 页面解析 | `null` |
-| `activityLimitConfigList` | 活动限制配置 | `List[Dict]` | 是 | 页面解析 | `null` |
-| `itemIds` | 商品 ID 列表 | `List[String]` | 是 | 页面解析 | `null` |
+| `details` | 活动明细 | `String` | 是 | 页面解析 | `null` |
+| `processFailDetails` | 处理失败明细 | `String` | 是 | 页面解析 | `null` |
+| `activityLimitConfigList` | 活动限制配置 | `String` | 是 | 页面解析 | `null` |
+| `itemIds` | 商品 ID 列表 | `String` | 是 | 页面解析 | `null` |
 | `activityType` | 活动类型 | `String` | 是 | 页面解析 | `null` |
-| `preCheck` | 预检查信息 | `Dict` | 是 | 页面解析 | `null` |
-| `mktJob` | 营销任务 | `Dict` | 是 | 页面解析 | `null` |
-| `mktJobConfigDTO` | 营销任务配置 | `Dict` | 是 | 页面解析 | `null` |
+| `preCheck` | 预检查信息 | `String` | 是 | 页面解析 | `null` |
+| `mktJob` | 营销任务 | `String` | 是 | 页面解析 | `null` |
+| `mktJobConfigDTO` | 营销任务配置 | `String` | 是 | 页面解析 | `null` |
 | `operationType` | 操作类型 | `String` | 是 | 页面解析 | `null` |
-| `options` | 活动选项 | `Dict` | 是 | 页面解析 | `null` |
+| `options` | 活动选项 | `String` | 是 | 页面解析 | `null` |
 | `rateHost` | 折扣信息 | `String` | 是 | 页面解析 | `null` |
 | `promotionType` | 推广类型 | `String` | 是 | 页面解析 | `null` |
 | `participateRange` | 参与范围 | `String` | 是 | 页面解析 | `null` |
 | `mktChannel` | 营销渠道 | `String` | 是 | 页面解析 | `null` |
-| `mktJobInstanceVO` | 营销任务实例 | `Dict` | 是 | 页面解析 | `null` |
+| `mktJobInstanceVO` | 营销任务实例 | `String` | 是 | 页面解析 | `null` |
 | `fromHSF` | 是否来自 HSF | `Boolean` | 否 | 页面解析 | `false` |
 | `feature` @活动扩展特征 | 活动扩展特征 | `Dict` | 否 | 页面解析 | 见数据样例 |
 | `operationParam` | 操作参数 | `Dict` | 否 | 页面解析 | `{}` |
@@ -272,7 +272,7 @@ module:
 | `recordFlag` | 记录标识 | `Number` | 否 | 页面解析 | `0` |
 | `allowParticipateRepeat` | 是否允许重复参与 | `Boolean` | 是 | 页面解析 | `null` |
 | `requestFrom` | 请求来源 | `String` | 是 | 页面解析 | `null` |
-| `referParam` | 引用参数 | `Dict` | 是 | 页面解析 | `null` |
+| `referParam` | 引用参数 | `String` | 是 | 页面解析 | `null` |
 | `skipOperationLog` | 是否跳过操作日志 | `Boolean` | 是 | 页面解析 | `null` |
 | `money` | 金额 | `Number` | 是 | 页面解析 | `null` |
 | `count` | 数量 | `Number` | 是 | 页面解析 | `null` |
@@ -280,9 +280,9 @@ module:
 | `forceDelete` | 是否强制删除 | `Boolean` | 是 | 页面解析 | `null` |
 | `preCheckNotInterdict` | 预检查是否不中断 | `Boolean` | 是 | 页面解析 | `null` |
 | `preCheckNotInterdictAndProcessSuccess` | 预检查不中断且处理成功 | `Boolean` | 是 | 页面解析 | `null` |
-| `simplifyCreateResult` | 简化创建结果 | `Dict` | 是 | 页面解析 | `null` |
+| `simplifyCreateResult` | 简化创建结果 | `String` | 是 | 页面解析 | `null` |
 | `totalCount` | 发放总量 | `Number` | 否 | 页面解析 | `100000` |
-| `limit` | 限制信息 | `Dict` | 是 | 页面解析 | `null` |
+| `limit` | 限制信息 | `String` | 是 | 页面解析 | `null` |
 | `mktSource` | 营销来源 | `String` | 是 | 页面解析 | `null` |
 | `immuneRisk` | 是否豁免风险 | `Boolean` | 是 | 页面解析 | `null` |
 | `appLockEnable` | 是否启用应用锁 | `Boolean` | 是 | 页面解析 | `null` |
@@ -320,9 +320,9 @@ module:
 | `activityUrl` | 活动链接 | `String` | 是 | 页面解析 | `null` |
 | `itemSize` | 商品数量 | `Number` | 是 | 页面解析 | `null` |
 | `unConditional` | 是否无门槛 | `Boolean` | 否 | 页面解析 | `false` |
-| `expireRemind` | 到期提醒 | `Dict` | 是 | 页面解析 | `null` |
-| `relActivity` | 关联活动 | `Dict` | 是 | 页面解析 | `null` |
-| `itemInfoList` | 商品信息列表 | `List[Dict]` | 是 | 页面解析 | `null` |
+| `expireRemind` | 到期提醒 | `String` | 是 | 页面解析 | `null` |
+| `relActivity` | 关联活动 | `String` | 是 | 页面解析 | `null` |
+| `itemInfoList` | 商品信息列表 | `String` | 是 | 页面解析 | `null` |
 | `bizTagId` | 业务标签 ID | `String` | 是 | 页面解析 | `null` |
 | `fissionActivityId` | 裂变活动 ID | `String` | 是 | 页面解析 | `null` |
 | `token` | 令牌 | `String` | 是 | 页面解析 | `null` |
