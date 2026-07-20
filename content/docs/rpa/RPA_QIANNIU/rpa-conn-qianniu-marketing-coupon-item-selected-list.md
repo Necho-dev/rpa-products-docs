@@ -1,5 +1,5 @@
 ---
-title: 营销-优惠券管理-已选商品列表
+title: 营销-优惠券详情-已选商品列表
 description: 按券 ID 定位优惠券并采集券详情中的已选商品列表，适用于核对优惠券适用商品及商品状态
 entry: rpa.conn.qianniu.marketing.coupon.item.selected.list
 badge:
@@ -15,13 +15,13 @@ module:
 | 属性             | 值                                                                                              |
 | ---------------- | ----------------------------------------------------------------------------------------------- |
 | **连接器类型**   | `RPA 连接器`                                                                                    |
-| **连接器名称**   | `ODS_营销优惠券管理已选商品列表(千牛RPA)`                                                       |
+| **连接器名称**   | `ODS_营销优惠券已选商品信息表(千牛RPA)`                                                         |
 | **连接器代码**   | `rpa.conn.qianniu.marketing.coupon.item.selected.list`                                          |
 | **操作类型**     | `页面解析`                                                                                      |
 | **目标网页**     | `https://qn.taobao.com/home.htm/coupon?isFirst=true&isNew=true&defaultTab=itemCouponList`        |
 | **适用场景**     | 按券 ID 定位优惠券并采集券详情中的已选商品列表，适用于核对优惠券适用商品及商品状态              |
 | **数据表名**     | `ods_rpa_qianniu_marketing_coupon_item_selected_list_du`                                        |
-| **业务表名**     | `ODS_营销优惠券管理已选商品列表(千牛RPA)`                                                       |
+| **业务表名**     | `ODS_营销优惠券已选商品信息表(千牛RPA)`                                                         |
 
 ### 目标页面
 
