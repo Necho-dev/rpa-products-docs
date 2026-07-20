@@ -197,59 +197,6 @@ module:
 | `icStatus` | 商品状态码 | `Number` | 是 | 页面解析 | `0` |
 | `newItemPicMarkingStatus` | 主图打标状态码 | `Number` | 是 | 页面解析 | `1` |
 | `status` | 报名状态码 | `Number` | 是 | 页面解析 | `9` |
-| `lowestMarketPrice` | 最低市场价 | `String` | 是 | 页面解析 | `null` |
-| `gpSubsidyStatus` | 补贴状态 | `String` | 是 | 页面解析 | `null` |
-| `bybtGatherInfo` | 百亿补贴汇总 | `String` | 是 | 页面解析 | `null` |
-| `gpQztgInfo` | 全站推广信息 | `String` | 是 | 页面解析 | `null` |
-| `itemChannelName` | 渠道名称 | `String` | 是 | 页面解析 | `null` |
-| `activityApplySalePrice` | 报名活动价 | `String` | 是 | 页面解析 | `null` |
-| `hostingApplyTagName` | 托管报名标签 | `String` | 是 | 页面解析 | `null` |
-| `lowestMarketPriceTips` | 最低价提示 | `String` | 是 | 页面解析 | `null` |
-| `soldCount` | 销量 | `Number` | 是 | 页面解析 | `null` |
-| `circulateIcon` | 流转图标 | `String` | 是 | 页面解析 | `null` |
-| `activityPrice` | 活动价 | `String` | 是 | 页面解析 | `null` |
-| `playDiscount` | 玩法折扣 | `String` | 是 | 页面解析 | `null` |
-| `circulateSchedule` | 流转排期 | `String` | 是 | 页面解析 | `null` |
-| `playDiscountInactive` | 玩法折扣未生效 | `String` | 是 | 页面解析 | `null` |
-| `playSignInfo` | 玩法报名信息 | `String` | 是 | 页面解析 | `null` |
-| `xianshiPlayStatus` | 限时玩法状态 | `String` | 是 | 页面解析 | `null` |
-| `supplyPriceName` | 供货价名称 | `String` | 是 | 页面解析 | `null` |
-| `blockInfo` | 阻断信息 | `String` | 是 | 页面解析 | `null` |
-| `hostingApplyTagTips` | 托管标签提示 | `String` | 是 | 页面解析 | `null` |
-| `taxFree` | 免税 | `String` | 是 | 页面解析 | `null` |
-| `materialStatusName` | 素材状态 | `String` | 是 | 页面解析 | `null` |
-| `presaleDiscountPerItem` | 预售单品折扣 | `String` | 是 | 页面解析 | `null` |
-| `gpAdjustExt` | 调价扩展 | `String` | 是 | 页面解析 | `null` |
-| `bybtRiskInfo` | 百亿补贴风险 | `String` | 是 | 页面解析 | `null` |
-| `bybtSupplyPrice` | 百亿补贴供货价 | `String` | 是 | 页面解析 | `null` |
-| `activitySalePrice` | 活动售价 | `String` | 是 | 页面解析 | `null` |
-| `statusPreheat` | 预热状态 | `String` | 是 | 页面解析 | `null` |
-| `secKillSubsidyStatus` | 秒杀补贴状态 | `String` | 是 | 页面解析 | `null` |
-| `deliveryTime` | 发货时间 | `String` | 是 | 页面解析 | `null` |
-| `statusExceptionMessage` | 异常信息 | `String` | 是 | 页面解析 | `null` |
-| `lowestSalePriceWithDiscountTips` | 折后最低价提示 | `String` | 是 | 页面解析 | `null` |
-| `inventory` | 库存 | `Number` | 是 | 页面解析 | `null` |
-| `bybtExcellentItemGuide` | 百亿优品引导 | `String` | 是 | 页面解析 | `null` |
-| `hasHostingApplyTag` | 是否有托管标签 | `Boolean` | 是 | 页面解析 | `null` |
-| `depositPrice` | 定金 | `String` | 是 | 页面解析 | `null` |
-| `playDiscountTip` | 玩法折扣提示 | `String` | 是 | 页面解析 | `null` |
-| `activityPriceName` | 活动价名称 | `String` | 是 | 页面解析 | `null` |
-| `activityApplySalePriceTips` | 报名价提示 | `String` | 是 | 页面解析 | `null` |
-| `supplyPrice` | 供货价 | `String` | 是 | 页面解析 | `null` |
-| `lowestSalePrice` | 最低售价 | `String` | 是 | 页面解析 | `null` |
-| `tmcBasicMaterialStatusName` | 基础素材状态 | `String` | 是 | 页面解析 | `null` |
-| `newItemPicMarkingErrorMessage` | 主图打标错误 | `String` | 是 | 页面解析 | `null` |
-| `activitySalePriceName` | 活动售价名称 | `String` | 是 | 页面解析 | `null` |
-| `mainRecommendStatusName` | 主推状态 | `String` | 是 | 页面解析 | `null` |
-| `gpQztgTodo` | 全站推广待办 | `String` | 是 | 页面解析 | `null` |
-| `gpNotifyAdjustTodo` | 调价通知待办 | `String` | 是 | 页面解析 | `null` |
-| `playReduceMoney` | 玩法立减 | `String` | 是 | 页面解析 | `null` |
-| `taxPrice` | 含税价 | `String` | 是 | 页面解析 | `null` |
-| `circulationNextOnlineTime` | 下次上线时间 | `Number` | 是 | 页面解析 | `null` |
-| `playCompensateSourceTips` | 玩法补偿提示 | `String` | 是 | 页面解析 | `null` |
-| `gpAdjustExpireTime` | 调价过期时间 | `Number` | 是 | 页面解析 | `null` |
-| `playDiscountActiveStatusTips` | 玩法折扣生效提示 | `String` | 是 | 页面解析 | `null` |
-| `itemLevel` | 商品层级 | `Number` | 是 | 页面解析 | `null` |
 | `bizDate` | 业务日期 | `String` | 否 | 附加 | `20260720` |
 | `accountId` | 授权 ID | `String` | 否 | 附加 | `1****6` (已脱敏) |
 | `taskId` | 任务 ID | `String` | 否 | 附加 | `dev****af7` (已脱敏) |
@@ -344,59 +291,6 @@ module:
     "icStatus": 0,
     "newItemPicMarkingStatus": 1.0,
     "status": 9,
-    "lowestMarketPrice": null,
-    "gpSubsidyStatus": null,
-    "bybtGatherInfo": null,
-    "gpQztgInfo": null,
-    "itemChannelName": null,
-    "activityApplySalePrice": null,
-    "hostingApplyTagName": null,
-    "lowestMarketPriceTips": null,
-    "soldCount": null,
-    "circulateIcon": null,
-    "activityPrice": null,
-    "playDiscount": null,
-    "circulateSchedule": null,
-    "playDiscountInactive": null,
-    "playSignInfo": null,
-    "xianshiPlayStatus": null,
-    "supplyPriceName": null,
-    "blockInfo": null,
-    "hostingApplyTagTips": null,
-    "taxFree": null,
-    "materialStatusName": null,
-    "presaleDiscountPerItem": null,
-    "gpAdjustExt": null,
-    "bybtRiskInfo": null,
-    "bybtSupplyPrice": null,
-    "activitySalePrice": null,
-    "statusPreheat": null,
-    "secKillSubsidyStatus": null,
-    "deliveryTime": null,
-    "statusExceptionMessage": null,
-    "lowestSalePriceWithDiscountTips": null,
-    "inventory": null,
-    "bybtExcellentItemGuide": null,
-    "hasHostingApplyTag": null,
-    "depositPrice": null,
-    "playDiscountTip": null,
-    "activityPriceName": null,
-    "activityApplySalePriceTips": null,
-    "supplyPrice": null,
-    "lowestSalePrice": null,
-    "tmcBasicMaterialStatusName": null,
-    "newItemPicMarkingErrorMessage": null,
-    "activitySalePriceName": null,
-    "mainRecommendStatusName": null,
-    "gpQztgTodo": null,
-    "gpNotifyAdjustTodo": null,
-    "playReduceMoney": null,
-    "taxPrice": null,
-    "circulationNextOnlineTime": null,
-    "playCompensateSourceTips": null,
-    "gpAdjustExpireTime": null,
-    "playDiscountActiveStatusTips": null,
-    "itemLevel": null,
     "bizDate": "20260720",
     "accountId": "1****6",
     "taskId": "dev****af7"

@@ -205,87 +205,23 @@ module:
 
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
-| `unionCreateDTOList` | 联合创建信息 | `String` | 否 | 页面解析 | `[]` |
-| `processResult` | 处理结果 | `String` | 是 | 页面解析 | `null` |
-| `mainAccountId` | 主账号 ID | `String` | 是 | 页面解析 | `null` |
-| `operatorId` | 操作人 ID | `String` | 是 | 页面解析 | `null` |
-| `enterpriseId` | 企业 ID | `String` | 是 | 页面解析 | `null` |
-| `activityId` | 活动 ID | `Number` | 是 | 页面解析 | `null` |
-| `detailId` | 活动明细 ID | `Number` | 是 | 页面解析 | `null` |
-| `itemId` | 商品 ID | `Number` | 是 | 页面解析 | `null` |
-| `skuId` | SKU ID | `Number` | 是 | 页面解析 | `null` |
-| `id` | 记录 ID | `Number` | 是 | 页面解析 | `null` |
-| `draftId` | 草稿 ID | `Number` | 是 | 页面解析 | `null` |
 | `useDraft` | 是否使用草稿 | `Boolean` | 否 | 页面解析 | `false` |
-| `templateId` | 模板 ID | `Number` | 是 | 页面解析 | `null` |
 | `writeType` | 写入类型 | `Number` | 否 | 页面解析 | `0` |
-| `bizCode` | 业务代码 | `String` | 是 | 页面解析 | `null` |
-| `sceneCode` | 场景代码 | `String` | 是 | 页面解析 | `null` |
 | `name` | 优惠券名称 | `String` | 否 | 页面解析 | `220` |
-| `description` | 优惠券描述 | `String` | 是 | 页面解析 | `null` |
 | `startTime` | 开始时间戳；与 `endTime` 格式化后可得优惠券使用时间范围 | `Number` | 否 | 页面解析 | `1782835200000` |
 | `endTime` | 结束时间戳；与 `startTime` 格式化后可得优惠券使用时间范围 | `Number` | 否 | 页面解析 | `1785513599000` |
-| `warmupStartTime` | 预热开始时间戳 | `Number` | 是 | 页面解析 | `null` |
 | `status` | 状态代码 | `Number` | 否 | 页面解析 | `1` |
-| `rawStatus` | 原始状态 | `String` | 是 | 页面解析 | `null` |
-| `toolCode` | 工具代码 | `String` | 是 | 页面解析 | `null` |
-| `promotionName` | 推广名称 | `String` | 是 | 页面解析 | `null` |
-| `type` | 类型 | `String` | 是 | 页面解析 | `null` |
-| `actChannel` | 活动渠道 | `String` | 是 | 页面解析 | `null` |
-| `channel` | 渠道 | `String` | 是 | 页面解析 | `null` |
-| `actFlag` | 活动标识 | `String` | 是 | 页面解析 | `null` |
-| `wirelessActInfo` | 无线活动信息 | `String` | 是 | 页面解析 | `null` |
 | `createTime` | 创建时间戳 | `Number` | 否 | 页面解析 | `1782638342000` |
-| `modifyTime` | 修改时间戳 | `Number` | 是 | 页面解析 | `null` |
-| `promotionLevel` | 推广层级 | `Number` | 是 | 页面解析 | `null` |
-| `detailUpdateType` | 明细更新类型 | `String` | 是 | 页面解析 | `null` |
-| `crowdId` | 人群 ID | `Number` | 是 | 页面解析 | `null` |
-| `crowdType` | 人群类型 | `String` | 是 | 页面解析 | `null` |
-| `details` | 活动明细 | `String` | 是 | 页面解析 | `null` |
-| `processFailDetails` | 处理失败明细 | `String` | 是 | 页面解析 | `null` |
-| `activityLimitConfigList` | 活动限制配置 | `String` | 是 | 页面解析 | `null` |
-| `itemIds` | 商品 ID 列表 | `String` | 是 | 页面解析 | `null` |
-| `activityType` | 活动类型 | `String` | 是 | 页面解析 | `null` |
-| `preCheck` | 预检查信息 | `String` | 是 | 页面解析 | `null` |
-| `mktJob` | 营销任务 | `String` | 是 | 页面解析 | `null` |
-| `mktJobConfigDTO` | 营销任务配置 | `String` | 是 | 页面解析 | `null` |
-| `operationType` | 操作类型 | `String` | 是 | 页面解析 | `null` |
-| `options` | 活动选项 | `String` | 是 | 页面解析 | `null` |
-| `rateHost` | 折扣信息 | `String` | 是 | 页面解析 | `null` |
-| `promotionType` | 推广类型 | `String` | 是 | 页面解析 | `null` |
-| `participateRange` | 参与范围 | `String` | 是 | 页面解析 | `null` |
-| `mktChannel` | 营销渠道 | `String` | 是 | 页面解析 | `null` |
-| `mktJobInstanceVO` | 营销任务实例 | `String` | 是 | 页面解析 | `null` |
 | `fromHSF` | 是否来自 HSF | `Boolean` | 否 | 页面解析 | `false` |
 | `feature` @活动扩展特征 | 活动扩展特征 | `Dict` | 否 | 页面解析 | 见数据样例 |
-| `operationParam` | 操作参数 | `Dict` | 否 | 页面解析 | `{}` |
-| `extra` | 扩展信息 | `Dict` | 否 | 页面解析 | `{}` |
-| `errorType` | 错误类型 | `String` | 是 | 页面解析 | `null` |
-| `errorMsg` | 错误消息 | `String` | 是 | 页面解析 | `null` |
 | `outerReq` | 是否外部请求 | `Boolean` | 否 | 页面解析 | `false` |
 | `needFillDetail` | 是否需要补充明细 | `Boolean` | 否 | 页面解析 | `true` |
 | `detailSkipActCheck` | 明细是否跳过活动检查 | `Boolean` | 否 | 页面解析 | `false` |
 | `onlyProcessAllDetails` | 是否仅处理全部明细 | `Boolean` | 否 | 页面解析 | `false` |
 | `skipTagFill` | 是否跳过标签填充 | `Boolean` | 否 | 页面解析 | `false` |
-| `templateFileMark` | 模板文件标识 | `String` | 是 | 页面解析 | `null` |
 | `wireless` | 是否无线活动 | `Boolean` | 否 | 页面解析 | `false` |
 | `recordFlag` | 记录标识 | `Number` | 否 | 页面解析 | `0` |
-| `allowParticipateRepeat` | 是否允许重复参与 | `Boolean` | 是 | 页面解析 | `null` |
-| `requestFrom` | 请求来源 | `String` | 是 | 页面解析 | `null` |
-| `referParam` | 引用参数 | `String` | 是 | 页面解析 | `null` |
-| `skipOperationLog` | 是否跳过操作日志 | `Boolean` | 是 | 页面解析 | `null` |
-| `money` | 金额 | `Number` | 是 | 页面解析 | `null` |
-| `count` | 数量 | `Number` | 是 | 页面解析 | `null` |
-| `actNotSupportModify` | 活动是否不支持修改 | `Boolean` | 是 | 页面解析 | `null` |
-| `forceDelete` | 是否强制删除 | `Boolean` | 是 | 页面解析 | `null` |
-| `preCheckNotInterdict` | 预检查是否不中断 | `Boolean` | 是 | 页面解析 | `null` |
-| `preCheckNotInterdictAndProcessSuccess` | 预检查不中断且处理成功 | `Boolean` | 是 | 页面解析 | `null` |
-| `simplifyCreateResult` | 简化创建结果 | `String` | 是 | 页面解析 | `null` |
 | `totalCount` | 发放总量 | `Number` | 否 | 页面解析 | `100000` |
-| `limit` | 限制信息 | `String` | 是 | 页面解析 | `null` |
-| `mktSource` | 营销来源 | `String` | 是 | 页面解析 | `null` |
-| `immuneRisk` | 是否豁免风险 | `Boolean` | 是 | 页面解析 | `null` |
-| `appLockEnable` | 是否启用应用锁 | `Boolean` | 是 | 页面解析 | `null` |
 | `needDealSentinelException` | 是否处理限流异常 | `Boolean` | 否 | 页面解析 | `false` |
 | `timeoutThrowException` | 超时是否抛出异常 | `Boolean` | 否 | 页面解析 | `false` |
 | `uuid` | 唯一标识 | `String` | 否 | 页面解析 | `b9b****3d4` (已脱敏) |
@@ -294,22 +230,12 @@ module:
 | `subType` | 优惠券子类型 | `Number` | 否 | 页面解析 | `0` |
 | `personLimit` | 每人限领数量 | `Number` | 否 | 页面解析 | `5` |
 | `applyCount` | 已领取数量 | `Number` | 否 | 页面解析 | `0` |
-| `businessUnit` | 业务单元 | `String` | 是 | 页面解析 | `null` |
-| `spreadStartTime` | 推广开始时间戳 | `Number` | 是 | 页面解析 | `null` |
-| `spreadEndTime` | 推广结束时间戳 | `Number` | 是 | 页面解析 | `null` |
-| `displayStartTime` | 展示开始时间戳 | `Number` | 是 | 页面解析 | `null` |
-| `displayEndTime` | 展示结束时间戳 | `Number` | 是 | 页面解析 | `null` |
 | `couponTag` | 优惠券标签 | `String` | 否 | 页面解析 | `942****001` (已脱敏) |
 | `amountYuan` | 优惠金额（元） | `String` | 否 | 页面解析 | `220` |
 | `startFeeYuan` | 使用门槛（元） | `String` | 否 | 页面解析 | `600` |
-| `bizSource` | 业务来源 | `String` | 是 | 页面解析 | `null` |
 | `timeMode` | 时间模式 | `String` | 否 | 页面解析 | `0` |
 | `effectiveTimeMode` | 生效时间模式 | `String` | 否 | 页面解析 | `FIXED_START_END_TIME` |
 | `effectiveInterval` | 生效间隔 | `Number` | 否 | 页面解析 | `0` |
-| `effectiveMin` | 生效分钟数 | `Number` | 是 | 页面解析 | `null` |
-| `effectiveHour` | 生效小时数 | `Number` | 是 | 页面解析 | `null` |
-| `effectiveDay` | 生效天数 | `Number` | 是 | 页面解析 | `null` |
-| `lowestDiscount` | 最低折扣 | `Number` | 是 | 页面解析 | `null` |
 | `statusDesc` @状态描述 | 状态描述；其中 `label` 为领取状态中文名 | `Dict` | 否 | 页面解析 | 见数据样例 |
 | `tagId` | 推广标签 ID | `String` | 否 | 页面解析 | `942****001` (已脱敏) |
 | `tagName` | 推广标签名称；与 `couponType`、`tagLabel` 组合可得推广方式展示文案 | `String` | 否 | 页面解析 | 店铺会员专享券 |
@@ -317,20 +243,8 @@ module:
 | `tagColor` | 推广标签颜色 | `String` | 否 | 页面解析 | `#FE8533` |
 | `threshold` | 优惠门槛说明 / 优惠详情 | `String` | 否 | 页面解析 | 满600减220 |
 | `optionList` @可用操作项 | 可用操作列表 | `List[Dict]` | 否 | 页面解析 | 见数据样例 |
-| `activityUrl` | 活动链接 | `String` | 是 | 页面解析 | `null` |
-| `itemSize` | 商品数量 | `Number` | 是 | 页面解析 | `null` |
 | `unConditional` | 是否无门槛 | `Boolean` | 否 | 页面解析 | `false` |
-| `expireRemind` | 到期提醒 | `String` | 是 | 页面解析 | `null` |
-| `relActivity` | 关联活动 | `String` | 是 | 页面解析 | `null` |
-| `itemInfoList` | 商品信息列表 | `String` | 是 | 页面解析 | `null` |
-| `bizTagId` | 业务标签 ID | `String` | 是 | 页面解析 | `null` |
-| `fissionActivityId` | 裂变活动 ID | `String` | 是 | 页面解析 | `null` |
-| `token` | 令牌 | `String` | 是 | 页面解析 | `null` |
-| `couponShareLink` | 优惠券分享链接 | `String` | 是 | 页面解析 | `null` |
-| `couponEncrypted` | 优惠券加密信息 | `String` | 是 | 页面解析 | `null` |
-| `fissionShape` | 裂变形态 | `String` | 是 | 页面解析 | `null` |
 | `renewalInfoDTO` @自动续期信息 | 自动续期信息；其中 `autoRenewal`、`renewalStatus` 可映射为自动续期说明 | `Dict` | 否 | 页面解析 | 见数据样例 |
-| `promoCode` | 推广代码 | `String` | 是 | 页面解析 | `null` |
 | `smartRateHost` | 是否智能折扣 | `Boolean` | 否 | 页面解析 | `false` |
 | `innerJobRequest` | 是否内部任务请求 | `Boolean` | 否 | 页面解析 | `false` |
 | `batchCreateActivity` | 是否批量创建活动 | `Boolean` | 否 | 页面解析 | `false` |
@@ -345,57 +259,13 @@ module:
 ```json
 [
   {
-    "unionCreateDTOList": [],
-    "processResult": null,
-    "mainAccountId": null,
-    "operatorId": null,
-    "enterpriseId": null,
-    "activityId": null,
-    "detailId": null,
-    "itemId": null,
-    "skuId": null,
-    "id": null,
-    "draftId": null,
     "useDraft": false,
-    "templateId": null,
     "writeType": 0,
-    "bizCode": null,
-    "sceneCode": null,
     "name": "220",
-    "description": null,
     "startTime": 1782835200000,
     "endTime": 1785513599000,
-    "warmupStartTime": null,
     "status": 1,
-    "rawStatus": null,
-    "toolCode": null,
-    "promotionName": null,
-    "type": null,
-    "actChannel": null,
-    "channel": null,
-    "actFlag": null,
-    "wirelessActInfo": null,
     "createTime": 1782638342000,
-    "modifyTime": null,
-    "promotionLevel": null,
-    "detailUpdateType": null,
-    "crowdId": null,
-    "crowdType": null,
-    "details": null,
-    "processFailDetails": null,
-    "activityLimitConfigList": null,
-    "itemIds": null,
-    "activityType": null,
-    "preCheck": null,
-    "mktJob": null,
-    "mktJobConfigDTO": null,
-    "operationType": null,
-    "options": null,
-    "rateHost": null,
-    "promotionType": null,
-    "participateRange": null,
-    "mktChannel": null,
-    "mktJobInstanceVO": null,
     "fromHSF": false,
     "feature": {
       "applyPlace": "0",
@@ -439,34 +309,14 @@ module:
       "useAt": "0",
       "buyerDriveFlag": "true"
     },
-    "operationParam": {},
-    "extra": {},
-    "errorType": null,
-    "errorMsg": null,
     "outerReq": false,
     "needFillDetail": true,
     "detailSkipActCheck": false,
     "onlyProcessAllDetails": false,
     "skipTagFill": false,
-    "templateFileMark": null,
     "wireless": false,
     "recordFlag": 0,
-    "allowParticipateRepeat": null,
-    "requestFrom": null,
-    "referParam": null,
-    "skipOperationLog": null,
-    "money": null,
-    "count": null,
-    "actNotSupportModify": null,
-    "forceDelete": null,
-    "preCheckNotInterdict": null,
-    "preCheckNotInterdictAndProcessSuccess": null,
-    "simplifyCreateResult": null,
     "totalCount": 100000,
-    "limit": null,
-    "mktSource": null,
-    "immuneRisk": null,
-    "appLockEnable": null,
     "needDealSentinelException": false,
     "timeoutThrowException": false,
     "uuid": "b9b****3d4",
@@ -475,22 +325,12 @@ module:
     "subType": 0,
     "personLimit": 5,
     "applyCount": 0,
-    "businessUnit": null,
-    "spreadStartTime": null,
-    "spreadEndTime": null,
-    "displayStartTime": null,
-    "displayEndTime": null,
     "couponTag": "942****001",
     "amountYuan": "220",
     "startFeeYuan": "600",
-    "bizSource": null,
     "timeMode": "0",
     "effectiveTimeMode": "FIXED_START_END_TIME",
     "effectiveInterval": 0,
-    "effectiveMin": null,
-    "effectiveHour": null,
-    "effectiveDay": null,
-    "lowestDiscount": null,
     "statusDesc": {
       "value": "APPLING",
       "label": "领取中"
@@ -609,18 +449,7 @@ module:
         ]
       }
     ],
-    "activityUrl": null,
-    "itemSize": null,
     "unConditional": false,
-    "expireRemind": null,
-    "relActivity": null,
-    "itemInfoList": null,
-    "bizTagId": null,
-    "fissionActivityId": null,
-    "token": null,
-    "couponShareLink": null,
-    "couponEncrypted": null,
-    "fissionShape": null,
     "renewalInfoDTO": {
       "autoRenewal": null,
       "renewalStatus": "UNSUPPORTED_RENEWAL",
@@ -631,7 +460,6 @@ module:
       "renewalTemplateId": null,
       "renewalFailReason": null
     },
-    "promoCode": null,
     "smartRateHost": false,
     "innerJobRequest": false,
     "batchCreateActivity": false,
