@@ -152,11 +152,11 @@ module:
 :::field-tree
 @define 域信息
 | `domainCode` | 域代码 | `String` | 是 | 页面解析 | `item` |
-| `domainId` | 域 ID | `Number` | 否 | 页面解析 | `1002957*******` (已脱敏) |
+| `domainId` | 域 ID | `Number` | 否 | 页面解析 | `100****948` (已脱敏) |
 | `parentDomainCode` | 父域代码 | `String` | 是 | 页面解析 | `act` |
-| `parentDomainId` | 父域 ID | `Number` | 否 | 页面解析 | `683590******` (已脱敏) |
+| `parentDomainId` | 父域 ID | `Number` | 否 | 页面解析 | `686****196` (已脱敏) |
 | `parentIdMap` | 父域 ID 映射 | `Dict` | 是 | 页面解析 | 见数据样例 |
-| `themisTemplateId` | 模板 ID | `Number` | 否 | 页面解析 | `2**` (已脱敏) |
+| `themisTemplateId` | 模板 ID | `Number` | 否 | 页面解析 | `2****2` (已脱敏) |
 
 @define 活动标签项
 | `color` | 标签颜色 | `String` | 是 | 页面解析 | `gray` |
@@ -164,12 +164,12 @@ module:
 
 @define 操作按钮项
 | `disabled` | 是否禁用 | `Boolean` | 否 | 页面解析 | `false` |
-| `id` | 按钮 ID | `Number` | 否 | 页面解析 | `12**` (已脱敏) |
+| `id` | 按钮 ID | `Number` | 否 | 页面解析 | `1****0` (已脱敏) |
 | `name` | 按钮名称 | `String` | 否 | 页面解析 | `查看商品` |
 | `simpleName` | 按钮简称 | `String` | 否 | 页面解析 | `查看` |
 | `required` | 是否必选 | `Boolean` | 否 | 页面解析 | `false` |
 | `disableMessage` | 禁用原因 | `String` | 是 | 页面解析 | `当前不允许撤销报名` |
-| `url` | 操作链接 | `String` | 是 | 页面解析 | `/item/json/itemCommonCancel.do?juId=1002957*******` (已脱敏) |
+| `url` | 操作链接 | `String` | 是 | 页面解析 | `/item/json/****` (已脱敏) |
 | `meta` | 按钮元数据 | `Dict` | 是 | 页面解析 | 见数据样例 |
 
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
@@ -177,87 +177,87 @@ module:
 | `limitNum` | 限购 | `String` | 是 | 页面解析 | `不限购` |
 | `themisInfo` @域信息 | 域信息 | `Dict` | 是 | 页面解析 | 见数据样例 |
 | `commonActivityTags` @活动标签项 | 活动标签 | `List[Dict]` | 是 | 页面解析 | 见数据样例 |
-| `newItemPicMarkingStatusTips` | 主图打标提示 | `String` | 是 | 页面解析 | `商品主图已使用官方主图模板…` |
-| `signTime` | 报名时间戳 | `Number` | 是 | 页面解析 | `178176*******` (已脱敏) |
-| `originalPrice` | 原价/一口价 | `String` | 是 | 页面解析 | `4**` (已脱敏) |
-| `onlineStartTime` | 活动开始时间戳 | `Number` | 是 | 页面解析 | `178205*******` (已脱敏) |
-| `onlineEndTime` | 活动结束时间戳 | `Number` | 是 | 页面解析 | `178283*******` (已脱敏) |
-| `itemLink` | 商品链接 | `String` | 是 | 页面解析 | `//item.taobao.com/item.htm?id=908269******` (已脱敏) |
-| `activityName` | 活动名称 | `String` | 是 | 页面解析 | `店播日常闪降招商…` |
+| `newItemPicMarkingStatusTips` | 主图打标提示 | `String` | 是 | 页面解析 | `商品主图已使用官方主图模板，可点击《编辑主图》进行修改。` |
+| `signTime` | 报名时间戳 | `Number` | 是 | 页面解析 | `1782958919000` |
+| `originalPrice` | 原价/一口价 | `String` | 是 | 页面解析 | `399` |
+| `onlineStartTime` | 活动开始时间戳 | `Number` | 是 | 页面解析 | `1782835200000` |
+| `onlineEndTime` | 活动结束时间戳 | `Number` | 是 | 页面解析 | `1783616400000` |
+| `itemLink` | 商品链接 | `String` | 是 | 页面解析 | `//item.taobao.com/****` (已脱敏) |
+| `activityName` | 活动名称 | `String` | 是 | 页面解析 | `店播日常闪降招商_____2026-7-1至2026-7-10（不锁库存）` |
 | `buttonList` @操作按钮项 | 操作按钮 | `List[Dict]` | 是 | 页面解析 | 见数据样例 |
-| `itemId` | 商品 ID | `String` | 是 | 页面解析 | `908269******` (已脱敏) |
-| `itemName` | 商品名称 | `String` | 是 | 页面解析 | `示例品牌示例短袖T恤` (已脱敏) |
+| `itemId` | 商品 ID | `String` | 是 | 页面解析 | `756****757` (已脱敏) |
+| `itemName` | 商品名称 | `String` | 是 | 页面解析 | `3g连****黑特浓` (已脱敏) |
 | `icStatusName` | 商品状态 | `String` | 是 | 页面解析 | `出售中` |
-| `activityUrl` | 活动详情链接 | `String` | 是 | 页面解析 | `/sale/seller/activity_detail.htm?activityId=683590******` (已脱敏) |
+| `activityUrl` | 活动详情链接 | `String` | 是 | 页面解析 | `/sale/seller/****` (已脱敏) |
 | `newItemPicMarkingStatusName` | 主图打标状态 | `String` | 是 | 页面解析 | `已打标` |
-| `itemPic` | 商品主图 | `String` | 是 | 页面解析 | `https://img.alicdn.com/...` (已脱敏) |
-| `juId` | 营销 ID | `String` | 是 | 页面解析 | `1002957*******` (已脱敏) |
+| `itemPic` | 商品主图 | `String` | 是 | 页面解析 | `https://img.alicdn.com/****` (已脱敏) |
+| `juId` | 营销 ID | `String` | 是 | 页面解析 | `100****948` (已脱敏) |
 | `statusName` | 商品报名状态 | `String` | 是 | 页面解析 | `活动结束` |
 | `enableStructErrorMessage` | 结构错误提示开关 | `Boolean` | 是 | 页面解析 | `false` |
 | `icStatus` | 商品状态码 | `Number` | 是 | 页面解析 | `0` |
-| `newItemPicMarkingStatus` | 主图打标状态码 | `Number` | 是 | 页面解析 | `9` |
-| `status` | 报名状态码 | `Number` | 是 | 页面解析 | `8` |
-| `lowestMarketPrice` | 最低市场价 | `String` | 是 | 页面解析 | — |
-| `gpSubsidyStatus` | 补贴状态 | `String` | 是 | 页面解析 | — |
-| `bybtGatherInfo` | 百亿补贴汇总 | `Dict` | 是 | 页面解析 | — |
-| `gpQztgInfo` | 全站推广信息 | `Dict` | 是 | 页面解析 | — |
-| `itemChannelName` | 渠道名称 | `String` | 是 | 页面解析 | — |
-| `activityApplySalePrice` | 报名活动价 | `String` | 是 | 页面解析 | — |
-| `hostingApplyTagName` | 托管报名标签 | `String` | 是 | 页面解析 | — |
-| `lowestMarketPriceTips` | 最低价提示 | `String` | 是 | 页面解析 | — |
-| `soldCount` | 销量 | `Number` | 是 | 页面解析 | — |
-| `circulateIcon` | 流转图标 | `String` | 是 | 页面解析 | — |
-| `activityPrice` | 活动价 | `String` | 是 | 页面解析 | — |
-| `playDiscount` | 玩法折扣 | `String` | 是 | 页面解析 | — |
-| `circulateSchedule` | 流转排期 | `String` | 是 | 页面解析 | — |
-| `playDiscountInactive` | 玩法折扣未生效 | `String` | 是 | 页面解析 | — |
-| `playSignInfo` | 玩法报名信息 | `Dict` | 是 | 页面解析 | — |
-| `xianshiPlayStatus` | 限时玩法状态 | `String` | 是 | 页面解析 | — |
-| `supplyPriceName` | 供货价名称 | `String` | 是 | 页面解析 | — |
-| `blockInfo` | 阻断信息 | `Dict` | 是 | 页面解析 | — |
-| `hostingApplyTagTips` | 托管标签提示 | `String` | 是 | 页面解析 | — |
-| `taxFree` | 免税 | `String` | 是 | 页面解析 | — |
-| `materialStatusName` | 素材状态 | `String` | 是 | 页面解析 | — |
-| `presaleDiscountPerItem` | 预售单品折扣 | `String` | 是 | 页面解析 | — |
-| `gpAdjustExt` | 调价扩展 | `Dict` | 是 | 页面解析 | — |
-| `bybtRiskInfo` | 百亿补贴风险 | `Dict` | 是 | 页面解析 | — |
-| `bybtSupplyPrice` | 百亿补贴供货价 | `String` | 是 | 页面解析 | — |
-| `activitySalePrice` | 活动售价 | `String` | 是 | 页面解析 | — |
-| `statusPreheat` | 预热状态 | `String` | 是 | 页面解析 | — |
-| `secKillSubsidyStatus` | 秒杀补贴状态 | `String` | 是 | 页面解析 | — |
-| `deliveryTime` | 发货时间 | `String` | 是 | 页面解析 | — |
-| `statusExceptionMessage` | 异常信息 | `String` | 是 | 页面解析 | — |
-| `lowestSalePriceWithDiscountTips` | 折后最低价提示 | `String` | 是 | 页面解析 | — |
-| `inventory` | 库存 | `Number` | 是 | 页面解析 | — |
-| `bybtExcellentItemGuide` | 百亿优品引导 | `String` | 是 | 页面解析 | — |
-| `hasHostingApplyTag` | 是否有托管标签 | `Boolean` | 是 | 页面解析 | — |
-| `depositPrice` | 定金 | `String` | 是 | 页面解析 | — |
-| `playDiscountTip` | 玩法折扣提示 | `String` | 是 | 页面解析 | — |
-| `activityPriceName` | 活动价名称 | `String` | 是 | 页面解析 | — |
-| `activityApplySalePriceTips` | 报名价提示 | `String` | 是 | 页面解析 | — |
-| `supplyPrice` | 供货价 | `String` | 是 | 页面解析 | — |
-| `lowestSalePrice` | 最低售价 | `String` | 是 | 页面解析 | — |
-| `tmcBasicMaterialStatusName` | 基础素材状态 | `String` | 是 | 页面解析 | — |
-| `newItemPicMarkingErrorMessage` | 主图打标错误 | `String` | 是 | 页面解析 | — |
-| `activitySalePriceName` | 活动售价名称 | `String` | 是 | 页面解析 | — |
-| `mainRecommendStatusName` | 主推状态 | `String` | 是 | 页面解析 | — |
-| `gpQztgTodo` | 全站推广待办 | `Dict` | 是 | 页面解析 | — |
-| `gpNotifyAdjustTodo` | 调价通知待办 | `Dict` | 是 | 页面解析 | — |
-| `playReduceMoney` | 玩法立减 | `String` | 是 | 页面解析 | — |
-| `taxPrice` | 含税价 | `String` | 是 | 页面解析 | — |
-| `circulationNextOnlineTime` | 下次上线时间 | `Number` | 是 | 页面解析 | — |
-| `playCompensateSourceTips` | 玩法补偿提示 | `String` | 是 | 页面解析 | — |
-| `gpAdjustExpireTime` | 调价过期时间 | `Number` | 是 | 页面解析 | — |
-| `playDiscountActiveStatusTips` | 玩法折扣生效提示 | `String` | 是 | 页面解析 | — |
-| `itemLevel` | 商品层级 | `Number` | 是 | 页面解析 | `1` |
-| `bizDate` | 业务日期 | `String` | 否 | 附加 | `20260714` |
-| `accountId` | 授权 ID | `String` | 否 | 附加 | `1**` (已脱敏) |
-| `taskId` | 任务 ID | `String` | 否 | 附加 | `dev-0-b1cb****` (已脱敏) |
+| `newItemPicMarkingStatus` | 主图打标状态码 | `Number` | 是 | 页面解析 | `1` |
+| `status` | 报名状态码 | `Number` | 是 | 页面解析 | `9` |
+| `lowestMarketPrice` | 最低市场价 | `String` | 是 | 页面解析 | `null` |
+| `gpSubsidyStatus` | 补贴状态 | `String` | 是 | 页面解析 | `null` |
+| `bybtGatherInfo` | 百亿补贴汇总 | `String` | 是 | 页面解析 | `null` |
+| `gpQztgInfo` | 全站推广信息 | `String` | 是 | 页面解析 | `null` |
+| `itemChannelName` | 渠道名称 | `String` | 是 | 页面解析 | `null` |
+| `activityApplySalePrice` | 报名活动价 | `String` | 是 | 页面解析 | `null` |
+| `hostingApplyTagName` | 托管报名标签 | `String` | 是 | 页面解析 | `null` |
+| `lowestMarketPriceTips` | 最低价提示 | `String` | 是 | 页面解析 | `null` |
+| `soldCount` | 销量 | `Number` | 是 | 页面解析 | `null` |
+| `circulateIcon` | 流转图标 | `String` | 是 | 页面解析 | `null` |
+| `activityPrice` | 活动价 | `String` | 是 | 页面解析 | `null` |
+| `playDiscount` | 玩法折扣 | `String` | 是 | 页面解析 | `null` |
+| `circulateSchedule` | 流转排期 | `String` | 是 | 页面解析 | `null` |
+| `playDiscountInactive` | 玩法折扣未生效 | `String` | 是 | 页面解析 | `null` |
+| `playSignInfo` | 玩法报名信息 | `String` | 是 | 页面解析 | `null` |
+| `xianshiPlayStatus` | 限时玩法状态 | `String` | 是 | 页面解析 | `null` |
+| `supplyPriceName` | 供货价名称 | `String` | 是 | 页面解析 | `null` |
+| `blockInfo` | 阻断信息 | `String` | 是 | 页面解析 | `null` |
+| `hostingApplyTagTips` | 托管标签提示 | `String` | 是 | 页面解析 | `null` |
+| `taxFree` | 免税 | `String` | 是 | 页面解析 | `null` |
+| `materialStatusName` | 素材状态 | `String` | 是 | 页面解析 | `null` |
+| `presaleDiscountPerItem` | 预售单品折扣 | `String` | 是 | 页面解析 | `null` |
+| `gpAdjustExt` | 调价扩展 | `String` | 是 | 页面解析 | `null` |
+| `bybtRiskInfo` | 百亿补贴风险 | `String` | 是 | 页面解析 | `null` |
+| `bybtSupplyPrice` | 百亿补贴供货价 | `String` | 是 | 页面解析 | `null` |
+| `activitySalePrice` | 活动售价 | `String` | 是 | 页面解析 | `null` |
+| `statusPreheat` | 预热状态 | `String` | 是 | 页面解析 | `null` |
+| `secKillSubsidyStatus` | 秒杀补贴状态 | `String` | 是 | 页面解析 | `null` |
+| `deliveryTime` | 发货时间 | `String` | 是 | 页面解析 | `null` |
+| `statusExceptionMessage` | 异常信息 | `String` | 是 | 页面解析 | `null` |
+| `lowestSalePriceWithDiscountTips` | 折后最低价提示 | `String` | 是 | 页面解析 | `null` |
+| `inventory` | 库存 | `Number` | 是 | 页面解析 | `null` |
+| `bybtExcellentItemGuide` | 百亿优品引导 | `String` | 是 | 页面解析 | `null` |
+| `hasHostingApplyTag` | 是否有托管标签 | `Boolean` | 是 | 页面解析 | `null` |
+| `depositPrice` | 定金 | `String` | 是 | 页面解析 | `null` |
+| `playDiscountTip` | 玩法折扣提示 | `String` | 是 | 页面解析 | `null` |
+| `activityPriceName` | 活动价名称 | `String` | 是 | 页面解析 | `null` |
+| `activityApplySalePriceTips` | 报名价提示 | `String` | 是 | 页面解析 | `null` |
+| `supplyPrice` | 供货价 | `String` | 是 | 页面解析 | `null` |
+| `lowestSalePrice` | 最低售价 | `String` | 是 | 页面解析 | `null` |
+| `tmcBasicMaterialStatusName` | 基础素材状态 | `String` | 是 | 页面解析 | `null` |
+| `newItemPicMarkingErrorMessage` | 主图打标错误 | `String` | 是 | 页面解析 | `null` |
+| `activitySalePriceName` | 活动售价名称 | `String` | 是 | 页面解析 | `null` |
+| `mainRecommendStatusName` | 主推状态 | `String` | 是 | 页面解析 | `null` |
+| `gpQztgTodo` | 全站推广待办 | `String` | 是 | 页面解析 | `null` |
+| `gpNotifyAdjustTodo` | 调价通知待办 | `String` | 是 | 页面解析 | `null` |
+| `playReduceMoney` | 玩法立减 | `String` | 是 | 页面解析 | `null` |
+| `taxPrice` | 含税价 | `String` | 是 | 页面解析 | `null` |
+| `circulationNextOnlineTime` | 下次上线时间 | `Number` | 是 | 页面解析 | `null` |
+| `playCompensateSourceTips` | 玩法补偿提示 | `String` | 是 | 页面解析 | `null` |
+| `gpAdjustExpireTime` | 调价过期时间 | `Number` | 是 | 页面解析 | `null` |
+| `playDiscountActiveStatusTips` | 玩法折扣生效提示 | `String` | 是 | 页面解析 | `null` |
+| `itemLevel` | 商品层级 | `Number` | 是 | 页面解析 | `null` |
+| `bizDate` | 业务日期 | `String` | 否 | 附加 | `20260720` |
+| `accountId` | 授权 ID | `String` | 否 | 附加 | `1****6` (已脱敏) |
+| `taskId` | 任务 ID | `String` | 否 | 附加 | `dev****af7` (已脱敏) |
 :::
 
 ### 数据样例
 
-> 以下样例已对商品 ID、营销 ID、账号、时间戳、价格等敏感信息脱敏。
+> 以下样例已对商品 ID、营销 ID、账号、链接、商品名称等敏感信息脱敏；时间戳、金额、状态码等按白名单保留原值。
 
 ```json
 [
@@ -265,14 +265,14 @@ module:
     "limitNum": "不限购",
     "themisInfo": {
       "domainCode": "item",
-      "domainId": "1002957*******",
+      "domainId": "100****948",
       "parentDomainCode": "act",
-      "parentDomainId": "683590******",
+      "parentDomainId": "686****196",
       "parentIdMap": {
-        "act": "683590******",
-        "icItem": "908269******"
+        "act": "686****196",
+        "icItem": "756****757"
       },
-      "themisTemplateId": "2**"
+      "themisTemplateId": "2****2"
     },
     "commonActivityTags": [
       {
@@ -281,20 +281,20 @@ module:
       }
     ],
     "newItemPicMarkingStatusTips": "商品主图已使用官方主图模板，可点击《编辑主图》进行修改。",
-    "signTime": "178176*******",
-    "originalPrice": "4**",
-    "onlineStartTime": "178205*******",
-    "onlineEndTime": "178283*******",
-    "itemLink": "//item.taobao.com/item.htm?id=908269******",
-    "activityName": "店播日常闪降招商5.1*至5.1*（不锁库存）",
+    "signTime": 1782958919000,
+    "originalPrice": "399",
+    "onlineStartTime": 1782835200000,
+    "onlineEndTime": 1783616400000,
+    "itemLink": "//item.taobao.com/****",
+    "activityName": "店播日常闪降招商_____2026-7-1至2026-7-10（不锁库存）",
     "buttonList": [
       {
         "disabled": false,
-        "id": "12**",
+        "id": "1****0",
         "meta": {
-          "itemId": "908269******",
-          "itemName": "示例品牌示例短袖T恤女202*夏新款",
-          "juId": "1002957*******",
+          "itemId": "756****757",
+          "itemName": "3g连****黑特浓",
+          "juId": "100****948",
           "querier": "juItemCompositeQuerier",
           "status": 8
         },
@@ -304,19 +304,19 @@ module:
       },
       {
         "disabled": false,
-        "id": "11**",
+        "id": "1****3",
         "meta": {
           "materialKey": "itemMainPic1",
-          "bizType": "2*",
-          "domainType": "10**",
+          "bizType": "2****2",
+          "domainType": "1****1",
           "dimList": [
             {
-              "dimId": "1002957*******",
+              "dimId": "100****948",
               "dimType": 1
             }
           ],
-          "bizId": "4*",
-          "domainId": "1002957*******"
+          "bizId": "4****6",
+          "domainId": "756****757"
         },
         "name": "编辑主图",
         "required": false,
@@ -325,29 +325,81 @@ module:
       {
         "disableMessage": "当前不允许撤销报名",
         "disabled": true,
-        "id": "11**",
+        "id": "1****2",
         "name": "撤销报名",
         "required": false,
         "simpleName": "撤销",
-        "url": "/item/json/itemCommonCancel.do?juId=1002957*******"
+        "url": "/item/json/****"
       }
     ],
-    "itemId": "908269******",
-    "itemName": "示例品牌示例短袖T恤女202*夏新款",
+    "itemId": "756****757",
+    "itemName": "3g连****黑特浓",
     "icStatusName": "出售中",
-    "activityUrl": "/sale/seller/activity_detail.htm?activityId=683590******",
+    "activityUrl": "/sale/seller/****",
     "newItemPicMarkingStatusName": "已打标",
-    "itemPic": "https://img.alicdn.com/imgextra/i3/2208857269***/O1CN01WqJ8xL1YqJ8xL_!!2208857269545-0-tbb.jpg_80x80.jpg",
-    "juId": "1002957*******",
+    "itemPic": "https://img.alicdn.com/****",
+    "juId": "100****948",
     "statusName": "活动结束",
     "enableStructErrorMessage": false,
     "icStatus": 0,
-    "newItemPicMarkingStatus": 9,
-    "status": 8,
-    "itemLevel": 1,
-    "bizDate": "20260714",
-    "accountId": "1**",
-    "taskId": "dev-0-b1cb****-ec5e-4789-9b44-8f3c2a1d0e9f"
+    "newItemPicMarkingStatus": 1.0,
+    "status": 9,
+    "lowestMarketPrice": null,
+    "gpSubsidyStatus": null,
+    "bybtGatherInfo": null,
+    "gpQztgInfo": null,
+    "itemChannelName": null,
+    "activityApplySalePrice": null,
+    "hostingApplyTagName": null,
+    "lowestMarketPriceTips": null,
+    "soldCount": null,
+    "circulateIcon": null,
+    "activityPrice": null,
+    "playDiscount": null,
+    "circulateSchedule": null,
+    "playDiscountInactive": null,
+    "playSignInfo": null,
+    "xianshiPlayStatus": null,
+    "supplyPriceName": null,
+    "blockInfo": null,
+    "hostingApplyTagTips": null,
+    "taxFree": null,
+    "materialStatusName": null,
+    "presaleDiscountPerItem": null,
+    "gpAdjustExt": null,
+    "bybtRiskInfo": null,
+    "bybtSupplyPrice": null,
+    "activitySalePrice": null,
+    "statusPreheat": null,
+    "secKillSubsidyStatus": null,
+    "deliveryTime": null,
+    "statusExceptionMessage": null,
+    "lowestSalePriceWithDiscountTips": null,
+    "inventory": null,
+    "bybtExcellentItemGuide": null,
+    "hasHostingApplyTag": null,
+    "depositPrice": null,
+    "playDiscountTip": null,
+    "activityPriceName": null,
+    "activityApplySalePriceTips": null,
+    "supplyPrice": null,
+    "lowestSalePrice": null,
+    "tmcBasicMaterialStatusName": null,
+    "newItemPicMarkingErrorMessage": null,
+    "activitySalePriceName": null,
+    "mainRecommendStatusName": null,
+    "gpQztgTodo": null,
+    "gpNotifyAdjustTodo": null,
+    "playReduceMoney": null,
+    "taxPrice": null,
+    "circulationNextOnlineTime": null,
+    "playCompensateSourceTips": null,
+    "gpAdjustExpireTime": null,
+    "playDiscountActiveStatusTips": null,
+    "itemLevel": null,
+    "bizDate": "20260720",
+    "accountId": "1****6",
+    "taskId": "dev****af7"
   }
 ]
 ```
