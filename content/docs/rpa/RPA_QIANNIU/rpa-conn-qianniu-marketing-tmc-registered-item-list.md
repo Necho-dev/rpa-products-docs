@@ -3,8 +3,8 @@ title: 营销-活动报名-已报商品列表
 description: 按筛选条件采集千牛活动报名「已报商品」列表，营销场景固定淘宝直播；支持商品报名状态、完善状态、售卖模式及活动/报名时间等筛选，最多翻页 100 页
 entry: rpa.conn.qianniu.marketing.tmc.registered.item.list
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   min: 2
 module:

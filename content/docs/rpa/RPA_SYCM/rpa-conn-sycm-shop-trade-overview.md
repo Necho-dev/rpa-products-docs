@@ -3,8 +3,8 @@ title: 店铺-交易-交易概况-交易总览
 description: 采集生意参谋交易概况交易总览页的访客、下单、支付等核心交易指标，以及交易波动与转化率解读文案
 entry: rpa.conn.sycm.shop.trade.overview
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 60
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响

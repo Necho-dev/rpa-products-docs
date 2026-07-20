@@ -3,8 +3,8 @@ title: 推广平台-工具-操作记录
 description: 采集拼多多推广平台商品推广操作记录，支持按操作模块、操作类型、操作人和日期范围筛选
 entry: rpa.conn.pinduoduo.promotion.tools.operate.log
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   min: 1
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响

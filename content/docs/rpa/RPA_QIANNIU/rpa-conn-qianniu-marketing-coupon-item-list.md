@@ -3,8 +3,8 @@ title: 营销-优惠券管理-优惠券列表
 description: 按推广方式、商品生效范围、可用时间等条件采集优惠券管理中的优惠券列表，完整保留平台返回的活动字段及嵌套结构
 entry: rpa.conn.qianniu.marketing.coupon.item.list
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   min: 2
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响

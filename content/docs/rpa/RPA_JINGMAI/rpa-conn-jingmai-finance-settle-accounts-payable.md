@@ -3,8 +3,8 @@ title: 财务-结算单-应付账-明细导出
 description: 在京麦供应商协同结算单应付账页，按单据日期与单据状态筛选并导出应付账明细数据
 entry: rpa.conn.jingmai.finance.settle.accounts.payable
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 120
   description: 数据量大时平台以含多个 XLSX 的压缩包形式交付，整体耗时常达约 10 分钟

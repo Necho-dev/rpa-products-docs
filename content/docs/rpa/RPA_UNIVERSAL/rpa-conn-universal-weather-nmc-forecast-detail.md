@@ -3,10 +3,10 @@ title: 天气-中央气象台-城市7天预报
 description: 数据源自中央气象台指定城市未来7天天气预报（昼夜天气、气温、风向风力与降水量）
 entry: rpa.conn.universal.weather.nmc.forecast.detail
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
-  sec: 60
+  sec: 30
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响
 module:
   group: weather

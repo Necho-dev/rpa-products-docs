@@ -3,8 +3,8 @@ title: 营销-活动报名-已报商品SKU闪降明细
 description: 按筛选条件采集千牛活动报名「已报商品」编辑页中的 SKU 闪降明细，单次最多采集商品侧栏前 10 个商品
 entry: rpa.conn.qianniu.marketing.tmc.registered.item.sku.list
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   min: 2
 module:

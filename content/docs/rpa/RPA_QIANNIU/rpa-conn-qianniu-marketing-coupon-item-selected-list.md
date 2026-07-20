@@ -3,8 +3,8 @@ title: 营销-优惠券详情-已选商品列表
 description: 按券 ID 定位优惠券并采集券详情中的已选商品列表，适用于核对优惠券适用商品及商品状态
 entry: rpa.conn.qianniu.marketing.coupon.item.selected.list
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   min: 2
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响

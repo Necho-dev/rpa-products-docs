@@ -3,8 +3,8 @@ title: 商品列表-商品操作记录
 description: 采集拼多多商家后台商品操作记录（上传成功），支持按商品ID、商品编码、商品名称与操作类型筛选，并翻页汇总全部记录
 entry: rpa.conn.pinduoduo.item.goods.success.record
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   min: 1
 module:
