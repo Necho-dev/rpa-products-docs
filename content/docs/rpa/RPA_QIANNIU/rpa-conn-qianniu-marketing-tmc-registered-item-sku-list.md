@@ -14,13 +14,13 @@ module:
 | 属性             | 值                                                                                                            |
 | ---------------- | ------------------------------------------------------------------------------------------------------------- |
 | **连接器类型**   | `RPA 连接器`                                                                                                  |
-| **连接器名称**   | `ODS_营销活动已报商品SKU闪降明细表(千牛RPA)`                                                                  |
+| **连接器名称**   | `ODS_营销活动已报商品SKU闪降明细表(千牛RPA)`|
 | **连接器代码**   | `rpa.conn.qianniu.marketing.tmc.registered.item.sku.list`                                                     |
 | **操作类型**     | `页面解析`                                                                                                    |
 | **目标网页**     | `https://qn.taobao.com/home.htm/starb/tmc-next/sale/seller/homepage.htm?tab=item`                             |
 | **适用场景**     | 按筛选条件采集千牛活动报名「已报商品」编辑页中的 SKU 闪降明细，单次最多采集商品侧栏前 10 个商品               |
 | **数据表名**     | `ods_rpa_qianniu_marketing_tmc_registered_item_sku_list_du`                                                   |
-| **业务表名**     | `ODS_营销活动已报商品SKU闪降明细表(千牛RPA)`                                                                  |
+| **业务表名**     | `ODS_营销活动已报商品SKU闪降明细表(千牛RPA)`|
 
 ### 目标页面
 
