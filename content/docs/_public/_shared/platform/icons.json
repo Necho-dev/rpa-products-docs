@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-14T09:21:43.275Z",
+  "updatedAt": "2026-07-24T07:45:20.000Z",
   "icons": {
     "ALIMM": {
       "file": "platform/files/ALIMM.png",
@@ -70,6 +70,11 @@
       "file": "platform/files/WANGDIANTONG.png",
       "sourceIcon": "https://www.wangdian.cn/favicon.ico",
       "origin": "www.wangdian.cn"
+    },
+    "WEIPINHUI": {
+      "file": "platform/files/WEIPINHUI.png",
+      "sourceIcon": "https://vfs.vip.com/favicon.ico",
+      "origin": "vfs.vip.com"
     }
   }
 }
