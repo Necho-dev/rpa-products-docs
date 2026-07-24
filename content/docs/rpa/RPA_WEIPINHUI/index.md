@@ -1,18 +1,17 @@
 ---
 title: 唯品会
-icon: Store
-description: 覆盖唯品会营销平台财务等场景的连接器
+icon: WEIPINHUI
+description: 覆盖唯品会营销平台财务、供应商结算等场景的连接器
 entry: RPA_WEIPINHUI
 module:
   link: https://e.vip.com
   group: weipinhui
   icon:
-    comp: Store
-    color: "#CE107C"
+    comp: WEIPINHUI
 ---
 
 :::meta-panel
-icon: Store
+icon: WEIPINHUI
 platform: 唯品会
 platformUrl: https://e.vip.com
 requireLogin: true
@@ -32,4 +31,9 @@ finance:
   icon:
     comp: Wallet
     color: '#059669'
+gys:
+  label: 供应商结算/GYS
+  icon:
+    comp: Wallet
+    color: '#c71585'
 :::
