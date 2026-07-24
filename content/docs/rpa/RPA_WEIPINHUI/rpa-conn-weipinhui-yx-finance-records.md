@@ -130,7 +130,7 @@ module:
 
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
-| `accountName` | 账户 | `String` | 是 | `XLSX.0.账户` | `子账号****直达)` (已脱敏) |
+| `accountName` | 账户 | `String` | 是 | `XLSX.0.账户` | `子账****达` (已脱敏) |
 | `recordDate` | 日期 | `String` | 是 | `XLSX.0.日期` | `2026-07-23` |
 | `cashIncome` | 现金收入(元) | `Number` | 是 | `XLSX.0.现金收入(元)` | `0` |
 | `cashExpense` | 现金支出(元) | `Number` | 是 | `XLSX.0.现金支出(元)` | `565.69` |
@@ -146,7 +146,7 @@ module:
 
 ```json
 {
-  "accountName": "子账号****直达)",
+  "accountName": "子账****达",
   "recordDate": "2026-07-23",
   "cashIncome": 0.0,
   "cashExpense": 565.69,
