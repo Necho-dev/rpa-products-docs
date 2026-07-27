@@ -3,8 +3,8 @@ title: 达摩盘-货品洞察-全店单品列表
 description: 导出达摩盘货品洞察全店单品列表（基础版）数据，支持按快捷时间或自定义日期区间筛选
 entry: rpa.conn.alimm.dmp.shop.insight.item.list
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 120
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

@@ -3,8 +3,8 @@ title: 供应商结算-商品结算销售满减-明细
 description: 在唯品会供应商结算平台，按事务发生期间导出商品结算销售满减明细报表数据
 entry: rpa.conn.weipinhui.gys.settle.sales
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 240
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

@@ -3,8 +3,8 @@ title: 财务-记录查询-财务记录
 description: 导出唯品会营销平台财务记录流水，支持按账户渠道与日期范围筛选后下载解析
 entry: rpa.conn.weipinhui.yx.finance.records
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 60
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

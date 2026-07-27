@@ -3,8 +3,8 @@ title: 商品-商品360-详情分析
 description: 按商品关键词搜索进入商品360详情分析页，导出采集商品详情与主图分析的曝光、互动、跳失、加购、支付及转化率等指标
 entry: rpa.conn.sycm.item.detail.analysis
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 dataReady:
   time: "09:00:00"
   cycle: daily
