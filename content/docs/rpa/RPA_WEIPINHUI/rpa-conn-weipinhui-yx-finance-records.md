@@ -29,13 +29,13 @@ module:
 >
 > **取数链接**：[https://e.vip.com/upgrade.html#/finance/records/records](https://e.vip.com/upgrade.html#/finance/records/records)
 
-![唯品会—财务记录](../_public/images/weipinhui/yx_finance_records_20260723.png)
+![唯品会—财务记录](../_public/images/weipinhui/yx_finance_records_20260727.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `biz_channel` | 账户渠道 | `String` | 否 | `WEI_ZHIDA` | 可传英文 code 或页面中文/选项文案；不传默认唯直达。可选值：`MAIN_ACCOUNT`（主账户）/ `TARGET_MAX`（Target-Max）/ `NEW_MAX`（New-Max）/ `WEI_ZHIZHAN`（唯智展）/ `WEI_CHUDIAN`（唯触点）/ `WEI_ZHIDA`（唯直达）/ `TENCENT_ADS`（腾讯广告）/ `OCEAN_ENGINE`（巨量引擎）/ `MOBILE_SELECT`（移动精选）/ `WEI_XIANGKE`（唯享客）/ `OFFLINE_DIRECT`（线下直投） |
+| `biz_channel` | 账户渠道 | `String` | 否 | `WEI_ZHIDA` | 仅接受英文 code（大小写不敏感，入参会转大写）；不传默认唯直达。可选值：`MAIN_ACCOUNT`（主账户）/ `TARGET_MAX`（Target-Max）/ `NEW_MAX`（New-Max）/ `WEI_ZHIZHAN`（唯智展）/ `WEI_CHUDIAN`（唯触点）/ `WEI_ZHIDA`（唯直达）/ `TENCENT_ADS`（腾讯广告）/ `OCEAN_ENGINE`（巨量引擎）/ `MOBILE_SELECT`（移动精选）/ `WEI_XIANGKE`（唯享客）/ `OFFLINE_DIRECT`（线下直投） |
 | `custom_start_date` | 查询起始日期 | `String` | 否 | `2026-05-01` | 仅 `YYYYMMDD` / `YYYY-MM-DD`（月日两位补零，如 `2026-06-02`）；须 ≤ `custom_end_date`；拒绝 `2026-06-2`、`2026/06/02` |
 | `custom_end_date` | 查询结束日期 | `String` | 否 | 今天 | 仅 `YYYYMMDD` / `YYYY-MM-DD`（月日须两位补零）；须 ≥ `custom_start_date` 且 ≤ 今天（允许起止同一天） |
 
@@ -47,7 +47,7 @@ module:
 {
   "biz_channel": "WEI_ZHIDA",
   "custom_start_date": "2026-07-01",
-  "custom_end_date": "2026-07-23"
+  "custom_end_date": "2026-07-27"
 }
 ```
 
@@ -61,13 +61,12 @@ module:
 }
 ```
 
-中文渠道名：
+默认渠道（唯直达）仅改日期：
 
 ```json
 {
-  "biz_channel": "唯直达",
   "custom_start_date": "2026-05-01",
-  "custom_end_date": "2026-07-24"
+  "custom_end_date": "2026-07-27"
 }
 ```
 
@@ -81,7 +80,7 @@ module:
   "type": "object",
   "properties": {
     "biz_channel": {
-      "description": "账户渠道。可传英文 code 或页面中文/选项文案；不传默认 WEI_ZHIDA（唯直达）。可选值：MAIN_ACCOUNT（主账户）/ TARGET_MAX（Target-Max）/ NEW_MAX（New-Max）/ WEI_ZHIZHAN（唯智展）/ WEI_CHUDIAN（唯触点）/ WEI_ZHIDA（唯直达）/ TENCENT_ADS（腾讯广告）/ OCEAN_ENGINE（巨量引擎）/ MOBILE_SELECT（移动精选）/ WEI_XIANGKE（唯享客）/ OFFLINE_DIRECT（线下直投）",
+      "description": "账户渠道。仅接受英文 code（大小写不敏感）；不传默认 WEI_ZHIDA（唯直达）。可选值：MAIN_ACCOUNT（主账户）/ TARGET_MAX（Target-Max）/ NEW_MAX（New-Max）/ WEI_ZHIZHAN（唯智展）/ WEI_CHUDIAN（唯触点）/ WEI_ZHIDA（唯直达）/ TENCENT_ADS（腾讯广告）/ OCEAN_ENGINE（巨量引擎）/ MOBILE_SELECT（移动精选）/ WEI_XIANGKE（唯享客）/ OFFLINE_DIRECT（线下直投）",
       "type": "string",
       "enum": [
         "MAIN_ACCOUNT",
@@ -94,18 +93,7 @@ module:
         "OCEAN_ENGINE",
         "MOBILE_SELECT",
         "WEI_XIANGKE",
-        "OFFLINE_DIRECT",
-        "主账户",
-        "Target-Max",
-        "New-Max",
-        "唯智展",
-        "唯触点",
-        "唯直达",
-        "腾讯广告",
-        "巨量引擎",
-        "移动精选",
-        "唯享客",
-        "线下直投"
+        "OFFLINE_DIRECT"
       ],
       "default": "WEI_ZHIDA"
     },
@@ -130,30 +118,30 @@ module:
 
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
-| `accountName` | 账户 | `String` | 是 | `XLSX.0.账户` | `子账****达` (已脱敏) |
-| `recordDate` | 日期 | `String` | 是 | `XLSX.0.日期` | `2026-07-23` |
+| `accountName` | 账户 | `String` | 是 | `XLSX.0.账户` | `子账号****直达)` (已脱敏) |
+| `recordDate` | 日期 | `String` | 是 | `XLSX.0.日期` | `2026-07-21` |
 | `cashIncome` | 现金收入(元) | `Number` | 是 | `XLSX.0.现金收入(元)` | `0` |
-| `cashExpense` | 现金支出(元) | `Number` | 是 | `XLSX.0.现金支出(元)` | `565.69` |
+| `cashExpense` | 现金支出(元) | `Number` | 是 | `XLSX.0.现金支出(元)` | `310.11` |
 | `rewardIncome` | 奖励收入(元) | `Number` | 是 | `XLSX.0.奖励收入(元)` | `0` |
 | `rewardExpense` | 奖励支出(元) | `Number` | 是 | `XLSX.0.奖励支出(元)` | `0` |
 | `remark` | 备注 | `String` | 是 | `XLSX.0.备注` | `账户扣费` |
-| `bizDate` | 业务日期 | `String` | 否 | 附加 | `20260724` |
+| `bizDate` | 业务日期 | `String` | 否 | 附加 | `20260727` |
 | `accountId` | 授权 ID | `String` | 否 | 附加 | `1****8` (已脱敏) |
 
 ### 数据样例
 
-> 实测样例来自账号 `128`、默认区间至 `2026-07-24`、渠道唯直达，导出成功共 **485** 条；下列为首行脱敏样例。
+> 实测样例来自账号 `128`（任务 `dev-0-5a2d610e`）、默认区间至 `2026-07-27`、渠道唯直达，导出成功共 **485** 条；下列为首行脱敏样例。
 
 ```json
 {
-  "accountName": "子账****达",
-  "recordDate": "2026-07-23",
+  "accountName": "子账号****直达)",
+  "recordDate": "2026-07-21",
   "cashIncome": 0.0,
-  "cashExpense": 565.69,
-  "rewardIncome": 0,
-  "rewardExpense": 0,
+  "cashExpense": 310.11,
+  "rewardIncome": 0.0,
+  "rewardExpense": 0.0,
   "remark": "账户扣费",
-  "bizDate": "20260724",
+  "bizDate": "20260727",
   "accountId": "1****8"
 }
 ```
