@@ -109,6 +109,8 @@ module:
 | `relateCartByrRate` | 关联加购率 | `String` | 否 | `XLS.0.关联加购率` | `6.40%` |
 | `relatePayByrCnt` | 关联支付人数 | `Number` | 否 | `XLS.0.关联支付人数` | `10` |
 | `relatePayByrRate` | 关联购买率 | `String` | 否 | `XLS.0.关联购买率` | `4.41%` |
+| `dateRangeStart` | 实际统计区间起始日 | `String` | 否 | 页面统计时间控件 | `2026-07-21` |
+| `dateRangeEnd` | 实际统计区间结束日 | `String` | 否 | 页面统计时间控件 | `2026-07-27` |
 | `bizDate` | 业务日期 | `String` | 否 | 附加 | `20260728` |
 | `accountId` | 授权 ID | `String` | 否 | 附加 | `1****6` (已脱敏) |
 
@@ -127,6 +129,8 @@ module:
   "relateCartByrRate": "6.40%",
   "relatePayByrCnt": 10,
   "relatePayByrRate": "4.41%",
+  "dateRangeStart": "2026-07-21",
+  "dateRangeEnd": "2026-07-27",
   "bizDate": "20260728",
   "accountId": "1****6"
 }
