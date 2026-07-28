@@ -42,6 +42,8 @@ module:
 | `main_item_type` | 主商品选择 | `String` | 否 | `HOT` | 可选值：`TRAFFIC`（引流款）/ `HOT`（热销款）；未传或空串时默认 `HOT`（热销款） |
 | `relate_type` | 关联方式选择 | `String` | 否 | `PAY` | 可选值：`VISIT`（同时段访问）/ `CART`（同时段加购）/ `PAY`（同时段支付）；未传或空串时默认 `PAY`（同时段支付） |
 
+> 页面「统计时间」**不是入参**，连接器从页面控件只读解析实际区间，写入每行 `dateRangeStart` / `dateRangeEnd`（如 `2026-07-21` ~ `2026-07-27`）。
+
 ### 入参样例
 
 不传参（默认热销款 + 同时段支付）：
@@ -109,8 +111,8 @@ module:
 | `relateCartByrRate` | 关联加购率 | `String` | 否 | `XLS.0.关联加购率` | `6.40%` |
 | `relatePayByrCnt` | 关联支付人数 | `Number` | 否 | `XLS.0.关联支付人数` | `10` |
 | `relatePayByrRate` | 关联购买率 | `String` | 否 | `XLS.0.关联购买率` | `4.41%` |
-| `dateRangeStart` | 实际统计区间起始日 | `String` | 否 | 页面统计时间控件 | `2026-07-21` |
-| `dateRangeEnd` | 实际统计区间结束日 | `String` | 否 | 页面统计时间控件 | `2026-07-27` |
+| `dateRangeStart` | 实际统计区间起始日 | `String` | 否 | `页面解析` | `2026-07-21` |
+| `dateRangeEnd` | 实际统计区间结束日 | `String` | 否 | `页面解析` | `2026-07-27` |
 | `bizDate` | 业务日期 | `String` | 否 | 附加 | `20260728` |
 | `accountId` | 授权 ID | `String` | 否 | 附加 | `1****6` (已脱敏) |
 
