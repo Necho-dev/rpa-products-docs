@@ -41,14 +41,20 @@ module:
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `keyword` | 商品关键词 | `String` | 是 | — | 支持商品 ID、标题、货号或商品 URL；搜索后取第一条命中商品进入详情分析 |
-| `date_type` | 统计时间类型 | `String` | 是 | — | 可选值：`RECENT7`（7天）/ `RECENT30`（30天）/ `DAY`（日）/ `WEEK`（周）/ `MONTH`（月）/ `CUSTOM`（自定义）；非 `CUSTOM` 时点击对应按钮并采用页面默认区间 |
+| `keyword` | 商品关键词 | `String` | 是 | — | 支持商品 ID、标题、货号或商品 URL；搜索后取第一条命中商品进入详情分析；未搜索到商品时报错退出 |
+| `date_type` | 统计时间类型 | `String` | 否 | `RECENT7` | 可选值：`RECENT7`（7天）/ `RECENT30`（30天）/ `DAY`（日）/ `WEEK`（周）/ `MONTH`（月）/ `CUSTOM`（自定义）；未传时默认近 7 天；非 `CUSTOM` 时点击对应按钮并采用页面默认区间 |
 | `custom_start_date` | 自定义起始日 | `String` | 条件必填 | — | `date_type=CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD` |
 | `custom_end_date` | 自定义结束日 | `String` | 条件必填 | — | `date_type=CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与起始日跨度不超过 31 天 |
 
-> 未搜索到相关商品时，任务以 `success=false`、`retryable=false` 软退出，不写入存储。
-
 ### 入参样例
+
+仅传商品关键词（统计时间默认近 7 天）：
+
+```json
+{
+  "keyword": "1051310889905"
+}
+```
 
 按商品 ID 查询近 7 天：
 
@@ -90,13 +96,14 @@ module:
   "properties": {
     "keyword": {
       "type": "string",
-      "description": "商品关键词，支持商品 ID、标题、货号或商品 URL",
+      "description": "商品关键词，支持商品 ID、标题、货号或商品 URL；搜索后取第一条命中商品进入详情分析；未搜索到商品时报错退出",
       "minLength": 1
     },
     "date_type": {
       "type": "string",
-      "description": "统计时间类型。可选值：RECENT7（7天）/ RECENT30（30天）/ DAY（日）/ WEEK（周）/ MONTH（月）/ CUSTOM（自定义）",
-      "enum": ["RECENT7", "RECENT30", "DAY", "WEEK", "MONTH", "CUSTOM"]
+      "description": "统计时间类型，未传时默认 RECENT7（近 7 天）。可选值：RECENT7（7天）/ RECENT30（30天）/ DAY（日）/ WEEK（周）/ MONTH（月）/ CUSTOM（自定义）",
+      "enum": ["RECENT7", "RECENT30", "DAY", "WEEK", "MONTH", "CUSTOM"],
+      "default": "RECENT7"
     },
     "custom_start_date": {
       "type": "string",
@@ -109,7 +116,7 @@ module:
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
-  "required": ["keyword", "date_type"],
+  "required": ["keyword"],
   "allOf": [
     {
       "if": {
