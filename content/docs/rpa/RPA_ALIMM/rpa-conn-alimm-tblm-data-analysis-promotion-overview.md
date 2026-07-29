@@ -148,6 +148,14 @@ module:
 
 ### 数据字段
 
+输出按四种组合（`data_dimension` × `data_content`）字段并集补齐，当前组合无对应列时值为 `null`。专属字段如下：
+
+| 组合条件 | 专属字段 |
+| -------- | -------- |
+| `data_dimension=BY_DAY`（分天） | `statDate` |
+| `data_content=BY_PLAN_TYPE`（按计划/活动类型） | `dataContentLabel` |
+| `data_content=BY_SHOP`（按店铺整体） | `promoteItemCnt`、`couponGetCnt`、`cartAddCnt`、`favoriteItemCnt`、`presaleEstTotalCommission`、`presaleEstTotalCommissionRate`、`presaleDepositCnt`、`presaleDepositAmount`、`presaleEstRestAmount`、`presaleEstTotalAmount`、`payBmktFee`、`settleBmktFee` |
+
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
 | `statDate` | 统计日期 | `String` | 是 | `CSV.0.日期` | `2025-10-31` |
