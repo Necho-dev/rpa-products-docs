@@ -42,25 +42,37 @@ module:
 | `activity_name` | 活动名称 | `String` | 否 | — | 输入活动名称关键字，连接器选择首个匹配项 |
 | `item_id` | 商品 ID | `String` | 否 | — | 精确匹配商品 ID |
 | `item_name` | 商品名称 | `String` | 否 | — | 模糊匹配商品名称 |
-| `custom_activity_start_date` | 活动开始日期 | `String` | 否 | 当日 | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与结束日期均未传时使用默认日期范围 |
-| `custom_activity_end_date` | 活动结束日期 | `String` | 否 | 当日起未来 30 日 | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与开始日期均未传时使用默认日期范围 |
-| `custom_sign_start_date` | 报名开始日期 | `String` | 否 | 当日 | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与结束日期均未传时使用默认日期范围 |
-| `custom_sign_end_date` | 报名结束日期 | `String` | 否 | 当日起未来 30 日 | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与开始日期均未传时使用默认日期范围 |
+| `custom_activity_start_date` | 活动开始日期 | `String` | 否 | 当日 | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与 `custom_activity_end_date` 均未传时默认当日；起止须同时传入 |
+| `custom_activity_end_date` | 活动结束日期 | `String` | 否 | 当日起未来 30 日 | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与 `custom_activity_start_date` 均未传时默认当日起未来 30 日；起止须同时传入 |
+| `custom_sign_start_date` | 报名开始日期 | `String` | 否 | —（不限） | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与 `custom_sign_end_date` 均未传时不填页面筛选；起止须同时传入 |
+| `custom_sign_end_date` | 报名结束日期 | `String` | 否 | —（不限） | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与 `custom_sign_start_date` 均未传时不填页面筛选；起止须同时传入 |
 
 ### 入参样例
 
-使用全部默认条件（活动时间、报名时间默认当日 ~ 未来 30 日）：
+使用默认条件（活动时间默认当日 ~ 未来 30 日；报名时间不限，保持空）：
 
 ```json
 {}
 ```
 
-按报名状态与活动名称筛选：
+按报名状态与活动名称筛选（报名时间仍可不传）：
 
 ```json
 {
   "registration_status": "PUBLISHED",
   "activity_name": "店播日常"
+}
+```
+
+指定活动时间、不传报名时间，并按商品 ID 筛选：
+
+```json
+{
+  "registration_status": "PUBLISHED",
+  "activity_name": "店播日常",
+  "custom_activity_start_date": "20260722",
+  "custom_activity_end_date": "20260820",
+  "item_id": "944218782720"
 }
 ```
 
@@ -130,22 +142,22 @@ module:
     },
     "custom_activity_start_date": {
       "type": "string",
-      "description": "活动开始日期，格式 YYYYMMDD 或 YYYY-MM-DD",
+      "description": "活动开始日期，格式 YYYYMMDD 或 YYYY-MM-DD；与结束日期均未传时默认执行日；须与 custom_activity_end_date 成对传入",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_activity_end_date": {
       "type": "string",
-      "description": "活动结束日期，格式 YYYYMMDD 或 YYYY-MM-DD",
+      "description": "活动结束日期，格式 YYYYMMDD 或 YYYY-MM-DD；与开始日期均未传时默认执行日起未来 30 日；须与 custom_activity_start_date 成对传入",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_sign_start_date": {
       "type": "string",
-      "description": "报名开始日期，格式 YYYYMMDD 或 YYYY-MM-DD",
+      "description": "报名开始日期，格式 YYYYMMDD 或 YYYY-MM-DD；与结束日期均未传时不填页面；须与 custom_sign_end_date 成对传入",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_sign_end_date": {
       "type": "string",
-      "description": "报名结束日期，格式 YYYYMMDD 或 YYYY-MM-DD",
+      "description": "报名结束日期，格式 YYYYMMDD 或 YYYY-MM-DD；与开始日期均未传时不填页面；须与 custom_sign_start_date 成对传入",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
