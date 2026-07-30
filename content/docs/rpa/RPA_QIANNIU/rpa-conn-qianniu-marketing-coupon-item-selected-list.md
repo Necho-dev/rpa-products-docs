@@ -40,15 +40,15 @@ module:
 | `coupon_id` | 券 ID | `String` | 是 | — | 用于搜索并定位目标优惠券，不可为空 |
 | `promote_type` | 推广方式 | `String` | 否 | `SHOP_MEMBER` | 英文 code；可选值：`ALL`（全部）、`AUTO_PROMOTE`（全网自动推广）、`GENERAL_LINK`（通用领券链接）、`LIVE_CHANNEL`（淘宝直播渠道优惠券）、`SHOP_MEMBER`（店铺会员专享券）、`RETURN_CUSTOMER`（回头客券）、`RIGHTS_PLATFORM`（权益营销平台券）、`FOLLOW_SHOP`（关注店铺优惠券）。连接器会映射为页面中文文案后精确匹配；页面无对应选项时失败软退出（`reason=promote_type_not_found`），并通过 `available_promote_types` 返回页面全部可选推广方式 |
 | `item_scope` | 商品生效范围 | `String` | 否 | `ITEM_COUPON` | 可选值：`ITEM_COUPON`（商品券（指定商品可用））、`SHOP_COUPON`（店铺券（全店可用）） |
-| `custom_start_date` | 可用开始日期 | `String` | 否 | 当天 | 格式：`YYYYMMDD` 或 `YYYY-MM-DD` |
-| `custom_end_date` | 可用结束日期 | `String` | 否 | 开始日期后 30 日 | 格式：`YYYYMMDD` 或 `YYYY-MM-DD`；不能早于可用开始日期 |
+| `custom_start_date` | 可用开始日期 | `String` | 否 | —（不限） | 格式：`YYYYMMDD` 或 `YYYY-MM-DD`；与 `custom_end_date` 均未传时不填页面可用时间筛选；起止须同时传入 |
+| `custom_end_date` | 可用结束日期 | `String` | 否 | —（不限） | 格式：`YYYYMMDD` 或 `YYYY-MM-DD`；与 `custom_start_date` 均未传时不填页面可用时间筛选；起止须同时传入；不能早于可用开始日期 |
 | `coupon_name` | 券名称 | `String` | 否 | 空字符串 | 按券名称筛选 |
 | `coupon_amount` | 券面额 | `String` | 否 | 空字符串 | 按券面额筛选 |
 | `item_id` | 商品 ID | `String` | 否 | 空字符串 | 按商品 ID 筛选 |
 
 ### 入参样例
 
-仅传必填券 ID（其余筛选项走默认，推广方式默认 `SHOP_MEMBER`）：
+仅传必填券 ID（其余筛选项走默认；推广方式默认 `SHOP_MEMBER`，可用时间不限）：
 
 ```json
 {
@@ -123,12 +123,12 @@ module:
     },
     "custom_start_date": {
       "type": "string",
-      "description": "可用开始日期，未提供时默认为任务执行当天，格式为 YYYYMMDD 或 YYYY-MM-DD",
+      "description": "可用开始日期，格式 YYYYMMDD 或 YYYY-MM-DD；与结束日期均未传时不填页面；须与 custom_end_date 成对传入",
       "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_end_date": {
       "type": "string",
-      "description": "可用结束日期，未提供时默认为开始日期后 30 日，格式为 YYYYMMDD 或 YYYY-MM-DD，且不能早于开始日期",
+      "description": "可用结束日期，格式 YYYYMMDD 或 YYYY-MM-DD；与开始日期均未传时不填页面；须与 custom_start_date 成对传入，且不能早于开始日期",
       "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "coupon_name": {
