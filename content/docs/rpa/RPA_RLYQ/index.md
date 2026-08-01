@@ -1,17 +1,17 @@
 ---
 title: 热浪引擎
-icon: TAOBAO
+icon: RLYQ
 description: 覆盖热浪引擎（淘宝联盟）推广数据总览等场景的连接器
 entry: RPA_RLYQ
 module:
   link: https://hot.taobao.com
   group: taobao
   icon:
-    comp: TAOBAO
+    comp: RLYQ
 ---
 
 :::meta-panel
-icon: TAOBAO
+icon: RLYQ
 platform: 热浪引擎
 platformUrl: https://hot.taobao.com
 requireLogin: true

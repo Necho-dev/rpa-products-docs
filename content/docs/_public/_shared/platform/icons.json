@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-01T03:42:39.562Z",
+  "updatedAt": "2026-08-01T14:32:54.457Z",
   "icons": {
     "ALI1688": {
       "file": "platform/files/ALI1688.ico",
@@ -60,6 +60,11 @@
       "file": "platform/files/QIANNIU.png",
       "sourceIcon": "https://g.alicdn.com/qn/qn-login-page/0.0.18/favicon.png",
       "origin": "myseller.taobao.com"
+    },
+    "RLYQ": {
+      "file": "platform/files/RLYQ.png",
+      "sourceIcon": "https://img.alicdn.com/imgextra/i2/O1CN019hFYtF1eN0ifa17bJ_!!6000000003858-2-tps-32-32.png",
+      "origin": "hot.taobao.com"
     },
     "SYCM": {
       "file": "platform/files/SYCM.ico",
