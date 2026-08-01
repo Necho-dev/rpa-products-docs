@@ -1,6 +1,11 @@
 {
-  "updatedAt": "2026-07-24T07:45:20.000Z",
+  "updatedAt": "2026-08-01T03:42:39.562Z",
   "icons": {
+    "ALI1688": {
+      "file": "platform/files/ALI1688.ico",
+      "sourceIcon": "https://cbu01.alicdn.com/favicon.ico?_=2024",
+      "origin": "www.1688.com"
+    },
     "ALIMM": {
       "file": "platform/files/ALIMM.png",
       "sourceIcon": "https://img.alicdn.com/imgextra/i3/O1CN01Wp37a71mYTZB6acBX_!!6000000004966-2-tps-50-50.png",
