@@ -10,8 +10,8 @@ dataReady:
   cycle: daily
   description: 生意参谋大部分核心数据模块（流量、商品、市场等）昨日数据在上午 9 点前完成更新
 estimatedDuration:
-  sec: 60
-  description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响
+  sec: 90
+  description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。
 module:
   group: item
 ---
@@ -39,7 +39,7 @@ module:
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `item_id` | 商品 ID | `String` | 是 | — | 仅允许纯数字，长度 1～20 位；含字母/符号或超长均判输入参数错误 |
+| `item_id` | 商品 ID | `String` | 是 | — | 仅允许纯数字，长度 10～20 位；含字母/符号/过短/超长均判输入参数错误 |
 | `biz_date` | 业务日期 | `String` | 否 | 昨天（T-1） | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`（日）或 `YYYYMM` / `YYYY-MM`（月）。日模式硬校验范围：近 400 天且不含今天（T-400～T-1）；日模式有数据窗口为近 90 天（today-90～T-1），窗外软返回「暂无数据」。月模式仅支持当前月之前连续 3 个完整月 |
 
 > 执行前会在商品360搜索框校验 `item_id` 是否可命中；未搜到相关商品时返回空数据（`没有相关商品: <item_id>`）。
@@ -85,9 +85,9 @@ module:
   "properties": {
     "item_id": {
       "type": "string",
-      "description": "商品 ID；仅允许纯数字，长度 1～20 位",
-      "pattern": "^\\d{1,20}$",
-      "minLength": 1,
+      "description": "商品 ID；仅允许纯数字，长度 10～20 位",
+      "pattern": "^\\d{10,20}$",
+      "minLength": 10,
       "maxLength": 20
     },
     "biz_date": {
