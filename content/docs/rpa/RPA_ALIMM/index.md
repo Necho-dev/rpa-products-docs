@@ -52,7 +52,7 @@ dmp:
   icon:
     comp: Target
     color: '#7c3aed'
-ud_zht:
+ud:
   label: UD智汇投/UD
   icon:
     comp: LineChart

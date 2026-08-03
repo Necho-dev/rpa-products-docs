@@ -1,7 +1,7 @@
 ---
 title: UD智汇投-报表-商品营销数据
 description: 导出阿里妈妈 UD智汇投 商品营销数据报表，支持按汇总周期、营销场景、投放媒体及投放商品类目筛选
-entry: rpa.conn.alimm.ud_zht.item.marketing.data
+entry: rpa.conn.alimm.ud.item.marketing.data
 badge:
   label: 待上线
   color: "#EA580C"
@@ -9,18 +9,18 @@ estimatedDuration:
   sec: 90
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。
 module:
-  group: ud_zht
+  group: ud
 ---
 
 | 属性             | 值                                                                 |
 | ---------------- | ------------------------------------------------------------------ |
 | **连接器类型**   | `RPA 连接器`                                                       |
 | **连接器名称**   | `ODS_UD智汇投商品营销数据下载明细表(阿里妈妈RPA)`                  |
-| **连接器代码**   | `rpa.conn.alimm.ud_zht.item.marketing.data`                        |
+| **连接器代码**   | `rpa.conn.alimm.ud.item.marketing.data`                        |
 | **操作类型**     | `文件导出`                                                         |
 | **目标网页**     | `https://ud.alimama.com/index.html#!/report/launchItem?rptType=launchItem` |
 | **适用场景**     | 导出阿里妈妈 UD智汇投 商品营销数据报表，支持按汇总周期、营销场景、投放媒体及投放商品类目筛选 |
-| **数据表名**     | `ods_rpa_alimm_ud_zht_item_marketing_data_du`                      |
+| **数据表名**     | `ods_rpa_alimm_ud_item_marketing_data_du`                      |
 | **业务表名**     | `ODS_UD智汇投商品营销数据下载明细表(阿里妈妈RPA)`                  |
 
 ### 目标页面
@@ -29,7 +29,7 @@ module:
 >
 > **取数链接**：[https://ud.alimama.com/index.html#!/report/launchItem?rptType=launchItem](https://ud.alimama.com/index.html#!/report/launchItem?rptType=launchItem)
 
-![阿里妈妈—UD智汇投商品营销数据](../_public/images/alimm/ud_zht_item_marketing_data_20260801.png)
+![阿里妈妈—UD智汇投商品营销数据](../_public/images/alimm/ud_item_marketing_data_20260801.png)
 
 ### 业务入参
 
