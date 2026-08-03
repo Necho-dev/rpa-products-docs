@@ -3,8 +3,8 @@ title: 数据看板-推广数据总览-明细报表下载
 description: 打开推广数据总览页后校验入参，按统计时间与统计截止日期下载分日/分商品/分主播明细报表
 entry: rpa.conn.rlyq.promotion.data
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 60
   description: 下载表格：根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

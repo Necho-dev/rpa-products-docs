@@ -3,8 +3,8 @@ title: 淘宝联盟-数据分析-推广概览
 description: 按时间范围、数据维度与数据内容导出淘宝联盟推广概览报表，支持分天或汇总、按计划/活动类型或店铺整体维度采集推广效果指标
 entry: rpa.conn.alimm.tblm.data.analysis.promotion.overview
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 90
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

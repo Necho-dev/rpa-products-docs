@@ -3,8 +3,8 @@ title: UD智汇投-报表-商品营销数据
 description: 导出阿里妈妈 UD智汇投 商品营销数据报表，支持按汇总周期、营销场景、投放媒体及投放商品类目筛选
 entry: rpa.conn.alimm.ud.item.marketing.data
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 90
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

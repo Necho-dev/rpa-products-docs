@@ -3,8 +3,8 @@ title: 商品-连带分析-关联洞察
 description: 导出生意参谋商品连带分析「关联洞察」页的主商品与关联商品访问、加购、支付等指标明细
 entry: rpa.conn.sycm.item.relate.analyse
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 dataReady:
   time: "09:00:00"
   cycle: daily

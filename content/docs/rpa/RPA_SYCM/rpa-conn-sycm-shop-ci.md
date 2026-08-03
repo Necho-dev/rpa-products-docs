@@ -3,8 +3,8 @@ title: 市场-竞争-竞店对比
 description: 采集生意参谋竞店对比的销售分析、来源分析与客群分析数据，支持本店与最多 2 个竞店对比
 entry: rpa.conn.sycm.shop.ci
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 dataReady:
   time: "09:00:00"
   cycle: daily

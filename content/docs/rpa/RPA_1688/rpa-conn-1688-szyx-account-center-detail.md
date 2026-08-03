@@ -3,8 +3,8 @@ title: 数字营销-账户中心-账户明细
 description: 导出 1688 数字营销账户中心账户汇总与明细，支持按日期类型与产品类型筛选后下载解析
 entry: rpa.conn.1688.szyx.account.center.detail
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 60
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

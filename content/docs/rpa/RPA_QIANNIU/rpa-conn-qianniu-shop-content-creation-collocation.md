@@ -3,8 +3,8 @@ title: 店铺-内容创作-搭配购列表
 description: 采集千牛内容创作「搭配购」作品列表，支持按商品ID、搭配ID、搭配标题筛选，完整保留平台返回的搭配字段及嵌套商品明细
 entry: rpa.conn.qianniu.shop.content.creation.collocation
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 90
   description: 根据测试运行耗时估算，每翻一页约 5s；实际运行耗时将受到数据量、调度并发、网路波动等情况影响。
