@@ -15,13 +15,13 @@ module:
 | 属性             | 值                                                                                                                                      |
 | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | **连接器类型**   | `RPA 连接器`                                                                                                                            |
-| **连接器名称**   | `ODS_店铺内容创作搭配购列表(千牛RPA)`                                                                                                    |
+| **连接器名称**   | `ODS_店铺内容创作搭配购明细表(千牛RPA)`                                                                                                    |
 | **连接器代码**   | `rpa.conn.qianniu.shop.content.creation.collocation`                                                                                    |
 | **操作类型**     | `页面解析`                                                                                                                              |
 | **目标网页**     | `https://myseller.taobao.com/home.htm/content-center/list?tab=qianniu_dress_collocation%2Fexamine`                                       |
 | **适用场景**     | 采集千牛内容创作「搭配购」作品列表，支持按商品ID、搭配ID、搭配标题筛选，完整保留平台返回的搭配字段及嵌套商品明细                         |
 | **数据表名**     | `ods_rpa_qianniu_shop_content_creation_collocation_du`                                                                                  |
-| **业务表名**     | `ODS_店铺内容创作搭配购列表(千牛RPA)`                                                                                                    |
+| **业务表名**     | `ODS_店铺内容创作搭配购明细表(千牛RPA)`                                                                                                    |
 
 ### 目标页面
 
