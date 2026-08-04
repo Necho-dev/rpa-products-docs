@@ -1,6 +1,6 @@
 ---
 title: 商品-品类360
-description: 采集生意参谋品类360页标准类目、导购类目与自定义类目的访客、加购、下单、支付及转化等指标
+description: 采集生意参谋品类360页「品类排行」下标准类目、导购类目与自定义类目三个 Tab 的访客、加购、下单、支付及转化等指标
 entry: rpa.conn.sycm.item.category.archives
 badge:
   label: 待上线
@@ -23,7 +23,7 @@ module:
 | **连接器代码**   | `rpa.conn.sycm.item.category.archives`                                                   |
 | **操作类型**     | `页面解析` + `文件导出`                                                                  |
 | **目标网页**     | `https://sycm.taobao.com/cc/new_cate_archives`                                           |
-| **适用场景**     | 采集生意参谋品类360页标准类目、导购类目与自定义类目的访客、加购、下单、支付及转化等指标 |
+| **适用场景**     | 采集生意参谋品类360页「品类排行」模块下 **标准类目、导购类目、自定义类目** 三个 Tab 的访客、加购、下单、支付及转化等指标 |
 | **数据表名**     | `ods_rpa_sycm_item_category_archives_du`                                                 |
 | **业务表名**     | `ODS_商品品类360明细表(生意参谋RPA)`                                                     |
 
@@ -33,18 +33,42 @@ module:
 >
 > **取数链接**：[https://sycm.taobao.com/cc/new_cate_archives](https://sycm.taobao.com/cc/new_cate_archives)
 
+**采集 Tab 范围**（仅以下三个，其余 Tab 不采集）：
+
+| Tab | 采集方式 | 说明 |
+| --- | -------- | ---- |
+| 标准类目 | 浏览器下载 xls | 全量导出 |
+| 导购类目 | 浏览器下载 xls | 全量导出 |
+| 自定义类目 | 监听 `/cc/category/tag/list.json` 分页接口 | 翻页采集全量 |
+
+不纳入采集范围：**我关注的类目**、**品类诊断** 及页面其他模块。
+
 ![生意参谋—商品—品类360](../_public/images/sycm/item_category_archives_20260804.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `date_type` | 统计时间类型 | `String` | 否 | `month` | 可选值：`recent7`（7天）/ `recent30`（30天）/ `day`（日）/ `week`（周）/ `month`（月） |
-| `stat_date` | 统计日期 | `String` | 条件必填 | — | `date_type` 为 `day` / `week` / `month` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；统计区间不能晚于最近完整日期（昨天） |
+| `date_type` | 统计时间类型 | `String` | 否 | `recent30` | 可选值：`recent7`（7天）/ `recent30`（30天）/ `day`（日）/ `week`（周）/ `month`（月） |
+| `stat_date` | 统计日期 | `String` | 条件必填 | — | 仅当 `date_type` 为 `day` / `week` / `month` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；统计区间不能晚于最近完整日期（昨天） |
 
 ### 入参样例
 
-默认按月（需传 `stat_date`）：
+默认近 30 天（`date_type`、`stat_date` 均可不传）：
+
+```json
+{}
+```
+
+或显式指定：
+
+```json
+{
+  "date_type": "recent30"
+}
+```
+
+按月（需传 `stat_date`）：
 
 ```json
 {
@@ -76,14 +100,14 @@ module:
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "生意参谋-商品-品类360 - 查询入参",
-  "description": "采集生意参谋品类360页标准类目、导购类目与自定义类目的访客、加购、下单、支付及转化等指标",
+  "description": "采集生意参谋品类360页「品类排行」下标准类目、导购类目与自定义类目三个 Tab 的访客、加购、下单、支付及转化等指标",
   "type": "object",
   "properties": {
     "date_type": {
       "type": "string",
-      "description": "统计时间类型，未传默认 month。可选值：recent7（7天）/ recent30（30天）/ day（日）/ week（周）/ month（月）",
+      "description": "统计时间类型，未传默认 recent30。可选值：recent7（7天）/ recent30（30天）/ day（日）/ week（周）/ month（月）",
       "enum": ["recent7", "recent30", "day", "week", "month"],
-      "default": "month"
+      "default": "recent30"
     },
     "stat_date": {
       "type": "string",
@@ -103,16 +127,6 @@ module:
       "then": {
         "required": ["stat_date"]
       }
-    },
-    {
-      "if": {
-        "not": {
-          "required": ["date_type"]
-        }
-      },
-      "then": {
-        "required": ["stat_date"]
-      }
     }
   ],
   "additionalProperties": false
@@ -121,7 +135,7 @@ module:
 
 ### 数据字段
 
-每条任务按类目行输出多条记录：标准类目 / 导购类目来自导出表格（字段多为字符串指标）；自定义类目来自页面解析（部分指标为对象）。三类记录共用 `categoryType` 区分。
+每条任务按类目行输出多条记录：标准类目 / 导购类目来自导出表格（字段多为字符串指标）；自定义类目来自 `list.json` 接口（部分指标为对象）。三类记录共用 `categoryType` 区分，且仅覆盖 **标准类目 / 导购类目 / 自定义类目** 三个 Tab。
 
 :::field-tree
 @define 指标对象
@@ -134,7 +148,7 @@ module:
 
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
-| `statDate` @统计日期对象 | 统计日期 | `String` / `Dict` | 是 | 标准/导购：`XLS.0.统计日期`；自定义：页面解析 | `2026-06-30` |
+| `statDate` @统计日期对象 | 统计日期 | `String` / `Dict` | 是 | 标准/导购：`XLS.0.统计日期`；自定义：`list.json` | `2026-06-30` |
 | `level1CategoryName` | 一级类目名称 | `String` | 是 | `XLS.0.一级类目名称` | `居家布艺` |
 | `level2CategoryName` | 二级类目名称 | `String` | 是 | `XLS.0.二级类目名称` | `居家鞋/凉拖/棉拖(新)` |
 | `categoryName` | 类目名称 | `String` | 是 | `XLS.0.类目名称` | `居家凉拖/凉鞋` |
@@ -153,7 +167,7 @@ module:
 | `orderConvertRate` | 下单转化率 | `String` | 是 | `XLS.0.下单转化率` | `10.08%` |
 | `payBuyerCnt` | 支付买家数 | `String` | 是 | `XLS.0.支付买家数` | `74,764` |
 | `payQty` | 支付件数 | `String` | 是 | `XLS.0.支付件数` | `96,892` |
-| `payAmt` @指标对象 | 支付金额 | `String` / `Dict` | 是 | 标准/导购：`XLS.0.支付金额`；自定义：页面解析 | `2,355,109.15` |
+| `payAmt` @指标对象 | 支付金额 | `String` / `Dict` | 是 | 标准/导购：`XLS.0.支付金额`；自定义：`list.json` | `2,355,109.15` |
 | `payAmtRatio` | 支付金额占比 | `String` | 是 | `XLS.0.支付金额占比` | `76.49%` |
 | `payRate` | 支付转化率 | `String` | 是 | `XLS.0.支付转化率` | `9.81%` |
 | `monthPayAmt` | 月累计支付金额 | `String` | 是 | `XLS.0.月累计支付金额` | `-` |
@@ -165,9 +179,9 @@ module:
 | `avgPricePerBuyer` | 客单价 | `Number` | 是 | `XLS.0.客单价` | `31.5` |
 | `uvValue` | 访客平均价值 | `Number` | 是 | `XLS.0.访客平均价值` | `3.09` |
 | `sucRefundAmt` | 售中售后成功退款金额 | `String` | 是 | `XLS.0.售中售后成功退款金额` / `XLS.0.成功退款金额` | `378,123.32` |
-| `tag` | 自定义类目标签 | `String` | 是 | 页面解析 | `吴****1` (已脱敏) |
-| `payItmCnt` @指标对象 | 支付件数（自定义类目） | `Dict` | 是 | 页面解析 | 见数据样例 |
-| `ordPqt` @指标对象 | 件单价（自定义类目） | `Dict` | 是 | 页面解析 | 见数据样例 |
+| `tag` | 自定义类目标签 | `String` | 是 | `list.json` | `吴****1` (已脱敏) |
+| `payItmCnt` @指标对象 | 支付件数（自定义类目） | `Dict` | 是 | `list.json` | 见数据样例 |
+| `ordPqt` @指标对象 | 件单价（自定义类目） | `Dict` | 是 | `list.json` | 见数据样例 |
 | `pageNum` | 自定义类目页码 | `Number` | 是 | 根据自定义类目翻页序号派生 | `1` |
 | `categoryType` | 类目类型代码 | `String` | 否 | 经类目 Tab 映射 | `standard` |
 | `categoryTypeName` | 类目类型名称 | `String` | 否 | 经类目 Tab 映射 | `标准类目` |
