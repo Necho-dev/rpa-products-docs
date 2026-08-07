@@ -1,7 +1,7 @@
 ---
 title: 热浪引擎
 icon: RLYQ
-description: 覆盖热浪引擎（淘宝联盟）推广数据总览等场景的连接器
+description: 覆盖热浪引擎（淘宝联盟）推广数据总览、TCP 预估订单报表等场景的连接器
 entry: RPA_RLYQ
 module:
   link: https://hot.taobao.com
