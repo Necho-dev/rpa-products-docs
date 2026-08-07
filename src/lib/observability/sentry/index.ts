@@ -12,7 +12,7 @@
  */
 export { getSentryDsn, getSentryEnvironment, isSentryEnabled } from '@/lib/observability/sentry/env';
 export { parseUserAgent } from '@/lib/observability/sentry/parse-user-agent';
-export { shouldEmitDocsView, fireDocsView } from '@/lib/observability/sentry/docs';
+export { shouldEmitDocsView, formatDocsViewMessage, fireDocsView } from '@/lib/observability/sentry/docs';
 export {
   shouldEmitMcpCall,
   shouldEmitMcpDeny,
@@ -26,6 +26,7 @@ export {
   fireAuthDeny,
   fireSsoGate,
 } from '@/lib/observability/sentry/auth';
+export { setProxyTraceName } from '@/lib/observability/sentry/trace-name';
 
 import type { AccessLogEntry } from '@/lib/observability/access-log';
 import { fireAuthDeny } from '@/lib/observability/sentry/auth';

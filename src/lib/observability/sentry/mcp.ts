@@ -18,12 +18,31 @@ export function shouldEmitMcpDeny(entry: Pick<McpAuditEntry, 'outcome'>): boolea
   return entry.outcome === 'unauthorized';
 }
 
+function paramsSummary(params?: Record<string, string | number | boolean>): string {
+  if (!params || Object.keys(params).length === 0) return '';
+  return Object.entries(params)
+    .map(([k, v]) => `${k}=${String(v)}`)
+    .join(' ');
+}
+
+function mcpCallMessage(entry: McpAuditEntry, tool: string): string {
+  const detail = paramsSummary(entry.params);
+  const base = `[mcp.call] ${tool}`;
+  return detail ? `${base} ${detail} ${entry.status}` : `${base} ${entry.status}`;
+}
+
+function mcpDenyMessage(entry: McpAuditEntry): string {
+  const tool = entry.tool ? ` ${entry.tool}` : '';
+  return `[mcp.deny] ${entry.rpcMethod}${tool} ${entry.outcome} ${entry.status}`;
+}
+
 export function fireMcpCall(entry: McpAuditEntry): void {
   if (!shouldEmitMcpCall(entry)) return;
   const tool = entry.tool!;
 
   fireSentryAudit({
     event: 'mcp.call',
+    message: mcpCallMessage(entry, tool),
     level: entry.outcome === 'error' ? 'error' : 'info',
     userId: entry.accessUser,
     tags: {
@@ -50,6 +69,7 @@ export function fireMcpDeny(entry: McpAuditEntry): void {
 
   fireSentryAudit({
     event: 'mcp.deny',
+    message: mcpDenyMessage(entry),
     level: 'warn',
     userId: entry.accessUser,
     tags: {

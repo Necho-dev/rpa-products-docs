@@ -14,11 +14,18 @@ export function shouldEmitDocsView(entry: Pick<AccessLogEntry, 'path' | 'outcome
   return isDocsViewPath(entry.path);
 }
 
+/** 列表主文案，如 `[docs.view] GET /docs/rpa/foo 200` */
+export function formatDocsViewMessage(entry: Pick<AccessLogEntry, 'method' | 'path' | 'query' | 'status'>): string {
+  const path = entry.query ? `${entry.path}?${entry.query}` : entry.path;
+  return `[docs.view] ${entry.method} ${path} ${entry.status}`;
+}
+
 export function fireDocsView(entry: AccessLogEntry): void {
   if (!shouldEmitDocsView(entry)) return;
 
   fireSentryAudit({
     event: 'docs.view',
+    message: formatDocsViewMessage(entry),
     level: 'info',
     userId: entry.accessUser,
     tags: networkTags(entry),

@@ -6,6 +6,8 @@ export type SentryAuditLevel = 'info' | 'warn' | 'error';
 export type SentryAuditPayload = {
   /** 事件名，如 docs.view / sso.deny */
   event: string;
+  /** 日志消息内容；未设时回退为 event */
+  message: string;
   level?: SentryAuditLevel;
   tags?: Record<string, string>;
   attributes: Record<string, string | number | boolean>;
@@ -64,6 +66,7 @@ export function networkTags(entry: {
 
 /**
  * 向 Sentry Logs 发送一条业务审计事件。未配置 SENTRY_DSN 时 no-op。
+ * message 为日志消息内容；event 走 tag + attribute，便于按类型过滤。
  */
 export async function emitSentryAudit(payload: SentryAuditPayload): Promise<void> {
   if (!isSentryEnabled()) return;
@@ -71,6 +74,7 @@ export async function emitSentryAudit(payload: SentryAuditPayload): Promise<void
   try {
     const Sentry = await import('@sentry/nextjs');
     const level = payload.level ?? 'info';
+    const message = payload.message.trim() || payload.event;
 
     Sentry.withScope((scope) => {
       if (payload.userId) {
@@ -81,13 +85,16 @@ export async function emitSentryAudit(payload: SentryAuditPayload): Promise<void
         ...payload.tags,
       });
 
-      const attrs = payload.attributes;
+      const attrs = {
+        event: payload.event,
+        ...payload.attributes,
+      };
       if (level === 'error') {
-        Sentry.logger.error(payload.event, attrs);
+        Sentry.logger.error(message, attrs);
       } else if (level === 'warn') {
-        Sentry.logger.warn(payload.event, attrs);
+        Sentry.logger.warn(message, attrs);
       } else {
-        Sentry.logger.info(payload.event, attrs);
+        Sentry.logger.info(message, attrs);
       }
     });
   } catch {

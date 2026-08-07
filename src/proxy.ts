@@ -24,6 +24,7 @@ import {
 } from '@/lib/auth/user-agent-gate';
 import { applyOgDocGate, isOgDocsPath, isPublicOgDocsPath } from '@/lib/docs/og/proxy-gate';
 import { finishAccessLog } from '@/lib/observability/access-log';
+import { setProxyTraceName } from '@/lib/observability/sentry';
 import { finishSsoLog, ssoOutcomeFromStatus } from '@/lib/observability/sso-audit-log';
 
 /** 嵌入 HTML 路由前缀（对应 src/app/embed/docs/[[...slug]]） */
@@ -203,6 +204,8 @@ function applyUserAgentGate(request: NextRequest): NextResponse | null {
 
 export function proxy(request: NextRequest) {
   const started = Date.now();
+  // Trace 列表默认显示 middleware GET；改为实际请求路径便于排查
+  setProxyTraceName(request.method, request.nextUrl.pathname);
 
   // 嵌入通道优先 (通道 A): 有 X-Render-Mode 时跳过 SSO Cookie 门禁
   const embedGate = applyEmbedGate(request);

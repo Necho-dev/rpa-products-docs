@@ -28,11 +28,21 @@ function ssoEventName(outcome: SsoLogOutcome): 'sso.redirect' | 'sso.deny' {
   return outcome === 'redirect' ? 'sso.redirect' : 'sso.deny';
 }
 
+function authDenyMessage(entry: AccessLogEntry): string {
+  return `[auth.deny] ${entry.outcome} ${entry.method} ${entry.path} ${entry.status}`;
+}
+
+function ssoGateMessage(entry: SsoLogEntry, event: string): string {
+  const redirect = entry.redirectTo ? ` → ${entry.redirectTo}` : '';
+  return `[${event}] ${entry.method} ${entry.path} ${entry.status}${redirect}`;
+}
+
 export function fireAuthDeny(entry: AccessLogEntry): void {
   if (!shouldEmitAuthDeny(entry)) return;
 
   fireSentryAudit({
     event: 'auth.deny',
+    message: authDenyMessage(entry),
     level: 'warn',
     userId: entry.accessUser,
     tags: {
@@ -60,6 +70,7 @@ export function fireSsoGate(entry: SsoLogEntry): void {
 
   fireSentryAudit({
     event,
+    message: ssoGateMessage(entry, event),
     level: entry.outcome === 'unauthorized' ? 'warn' : 'info',
     userId: entry.accessUser,
     tags: {

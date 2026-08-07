@@ -5,6 +5,7 @@ import {
   isSentryEnabled,
   parseUserAgent,
   shouldEmitAuthDeny,
+  formatDocsViewMessage,
   shouldEmitDocsView,
   shouldEmitMcpCall,
   shouldEmitMcpDeny,
@@ -52,6 +53,17 @@ describe('shouldEmitDocsView', () => {
     assert.equal(shouldEmitDocsView({ path: '/api/search', outcome: 'forward' }), false);
     assert.equal(shouldEmitDocsView({ path: '/', outcome: 'forward' }), false);
     assert.equal(shouldEmitDocsView({ path: '/docs/rpa/foo', outcome: 'ua_denied' }), false);
+  });
+
+  it('formatDocsViewMessage is list-readable', () => {
+    assert.equal(
+      formatDocsViewMessage({
+        method: 'GET',
+        path: '/docs/rpa/RPA_QIANNIU/rpa-conn-qianniu-item-sellmanage-list',
+        status: 200,
+      }),
+      '[docs.view] GET /docs/rpa/RPA_QIANNIU/rpa-conn-qianniu-item-sellmanage-list 200',
+    );
   });
 });
 
