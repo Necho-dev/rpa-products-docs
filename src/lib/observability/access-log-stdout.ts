@@ -12,9 +12,9 @@ const CYAN = '\x1b[36m';
 const BLUE = '\x1b[34m';
 const MAGENTA = '\x1b[35m';
 
-export type ObservabilityLogChannel = 'access' | 'sso' | 'mcp';
+export type ObservabilityLogChannel = 'access' | 'sso' | 'mcp' | 'secrets';
 
-/** stdout 通道标识：[ACCESS] / [SSO] / [MCP] */
+/** stdout 通道标识：[ACCESS] / [SSO] / [MCP] / [SECRETS] */
 export function formatObservabilityChannelTag(
   channel: ObservabilityLogChannel,
   useColors: boolean,
@@ -28,6 +28,8 @@ export function formatObservabilityChannelTag(
       return `${BLUE}${BOLD}${text}${RESET}`;
     case 'mcp':
       return `${MAGENTA}${BOLD}${text}${RESET}`;
+    case 'secrets':
+      return `${CYAN}${BOLD}${text}${RESET}`;
     default:
       return text;
   }

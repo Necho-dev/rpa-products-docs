@@ -46,6 +46,8 @@ const MCP_UNAUTHORIZED_BODY = {
 function isPublicPath(pathname: string): boolean {
   if (pathname.startsWith('/auth/')) return true;
   if (pathname === '/health') return true;
+  /** Sentry tunnel（withSentryConfig tunnelRoute）须公开，避免 SSO 门禁拦截埋点 */
+  if (pathname === '/monitoring' || pathname.startsWith('/monitoring/')) return true;
   if (pathname.startsWith('/_next/')) return true;
   if (pathname.startsWith('/.well-known/')) return true;
   if (pathname.startsWith('/oauth/')) return true;
@@ -270,6 +272,6 @@ export function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     '/og/docs/:path*',
-    '/((?!_next/static|_next/image|favicon.ico|icon.svg|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?)$).*)',
+    '/((?!monitoring|_next/static|_next/image|favicon.ico|icon.svg|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?)$).*)',
   ],
 };

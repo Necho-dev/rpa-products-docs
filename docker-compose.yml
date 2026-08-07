@@ -5,6 +5,12 @@ services:
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-}
+        SENTRY_DSN: ${SENTRY_DSN:-}
+        SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:-dev}
+        SENTRY_AUTH_TOKEN: ${SENTRY_AUTH_TOKEN:-}
+        SENTRY_ORG: ${SENTRY_ORG:-}
+        SENTRY_PROJECT: ${SENTRY_PROJECT:-}
+        SENTRY_URL: ${SENTRY_URL:-}
     image: ${COMPOSE_IMAGE:-yuce-knowledge-docs:local}
     container_name: ${COMPOSE_CONTAINER_NAME:-yuce-knowledge-docs}
     restart: unless-stopped
@@ -12,8 +18,8 @@ services:
       - "${PORT:-3000}:3000"
     volumes:
       # 宿主机只读挂载；密钥由 scripts/manage-secrets.sh 在宿主机维护
-      # secrets 只读挂载：宿主机 ${DOCS_SECRETS_FILE_PATH} → 容器 /opt/secrets/secrets.json
-      - ${DOCS_SECRETS_FILE_PATH:-/opt/secrets/secrets.json}:/opt/secrets/secrets.json:ro
+      # 宿主机 ${DOCS_SECRETS_DIR} → 容器 /opt/secrets；密钥文件名固定 secrets.json
+      - ${DOCS_SECRETS_DIR:-/opt/secrets}:/opt/secrets:ro
       # 可观测 JSONL 落盘：宿主机 ${DOCS_OBSERVABILITY_LOG_PATH:-./logs} → 容器 /app/logs
       - ${DOCS_OBSERVABILITY_LOG_PATH:-./logs}:/app/logs
     env_file:

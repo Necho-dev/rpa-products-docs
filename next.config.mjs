@@ -1,3 +1,4 @@
+import { withSentryConfig } from '@sentry/nextjs';
 import { createMDX } from 'fumadocs-mdx/next';
 
 const withMDX = createMDX();
@@ -22,6 +23,14 @@ function devAllowedOrigins() {
 /** @type {import('next').NextConfig} */
 const config = {
   reactStrictMode: true,
+  /**
+   * 将 SENTRY_* 内联进客户端包，统一只用 SENTRY_DSN（无需 NEXT_PUBLIC_SENTRY_DSN）。
+   * 未设置时为空字符串 → isSentryEnabled() === false。
+   */
+  env: {
+    SENTRY_DSN: process.env.SENTRY_DSN ?? '',
+    SENTRY_ENVIRONMENT: process.env.SENTRY_ENVIRONMENT ?? 'dev',
+  },
   /** Docker 等多阶段部署：产出 `.next/standalone`，运行时镜像只需 Node + 该目录 */
   output: 'standalone',
   /**
@@ -87,4 +96,23 @@ const config = {
   },
 };
 
-export default withMDX(config);
+export default withSentryConfig(withMDX(config), {
+  org: process.env.SENTRY_ORG ?? 'sentry',
+  project: process.env.SENTRY_PROJECT ?? 'knowledge',
+  // 自托管 Sentry（非 sentry.io）
+  sentryUrl: process.env.SENTRY_URL ?? 'https://sentry.yuce-tech.cn',
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+
+  widenClientFileUpload: true,
+
+  // 绕过广告拦截：浏览器经同源 /monitoring 转发事件
+  tunnelRoute: '/monitoring',
+
+  silent: !process.env.CI,
+
+  webpack: {
+    treeshake: {
+      removeDebugLogging: true,
+    },
+  },
+});

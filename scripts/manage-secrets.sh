@@ -11,6 +11,7 @@
 #
 # 路径优先级: --file > 当前目录 .env 的 DOCS_SECRETS_FILE_PATH > /opt/secrets/secrets.json
 # 写入后自动 chown 为容器 nextjs 用户（默认 uid/gid 1001），避免挂载进容器后 EACCES
+# Compose 请用 DOCS_SECRETS_DIR 目录挂载；应用按 mtime 热加载，add/remove 后无需重启
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -22,7 +23,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 usage() {
-  sed -n '2,12p' "$0" | sed 's/^# \?//'
+  sed -n '2,13p' "$0" | sed 's/^# \?//'
   exit "${1:-0}"
 }
 
@@ -286,7 +287,7 @@ PY
 )"
   write_secrets_json "$path" "$new_json"
   echo "已添加 sh ${sh:0:8}… → $path"
-  echo "提示: 容器内应用有 secrets 内存缓存，变更后请重启对应 Docker 实例。"
+  echo "提示: 目录挂载 + ModifiedTime 热加载机制，下次验签将自动读到新密钥（无需重启应用）。"
 }
 
 cmd_remove() {
@@ -313,7 +314,7 @@ PY
 )"
   write_secrets_json "$path" "$new_json"
   echo "已删除 sh ${sh:0:8}…"
-  echo "提示: 请重启对应 Docker 实例使变更生效。"
+  echo "提示: 目录挂载 + ModifiedTime 热加载机制，下次验签将自动失效该密钥（无需重启应用）。"
 }
 
 main() {

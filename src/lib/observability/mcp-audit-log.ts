@@ -19,6 +19,7 @@ import {
   toObservabilityJsonlEntry,
   type ObservabilityAuthFields,
 } from '@/lib/observability/observability-auth';
+import { fireMcpAudit, isSentryEnabled } from '@/lib/observability/sentry';
 
 export type McpAuditOutcome = 'ok' | 'error' | 'unauthorized' | 'invalid';
 
@@ -229,6 +230,7 @@ export function formatMcpAuditPretty(entry: McpAuditEntry, options?: { useColors
   return `${timeLabel} ${channel} ${methodLabel} ${status} in ${duration} ${tail}`;
 }
 
+/** stdout / jsonl（不含 Sentry） */
 export function writeMcpAuditLog(entry: McpAuditEntry): void {
   const useColors = shouldUseStdoutColors();
   console.log(formatMcpAuditPretty(entry, { useColors }));
@@ -244,15 +246,15 @@ export function logMcpAuditEntries(
   status: number,
   startedMs: number,
 ): void {
-  if (!isMcpAuditLogEnabled()) return;
-  if (metas.length === 0) {
-    writeMcpAuditLog(
-      buildMcpAuditEntry({ rpcMethod: 'unknown' }, request, access, status, startedMs),
-    );
-    return;
-  }
-  for (const meta of metas) {
-    writeMcpAuditLog(buildMcpAuditEntry(meta, request, access, status, startedMs));
+  const localOn = isMcpAuditLogEnabled();
+  const sentryOn = isSentryEnabled();
+  if (!localOn && !sentryOn) return;
+
+  const list: McpRpcMeta[] = metas.length > 0 ? metas : [{ rpcMethod: 'unknown' }];
+  for (const meta of list) {
+    const entry = buildMcpAuditEntry(meta, request, access, status, startedMs);
+    if (localOn) writeMcpAuditLog(entry);
+    if (sentryOn) fireMcpAudit(entry);
   }
 }
 

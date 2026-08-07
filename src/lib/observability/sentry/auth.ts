@@ -1,0 +1,82 @@
+import type { AccessLogEntry, AccessLogOutcome } from '@/lib/observability/access-log';
+import type { SsoLogEntry, SsoLogOutcome } from '@/lib/observability/sso-audit-log';
+import { fireSentryAudit, networkAttrs, networkTags, strAttr } from '@/lib/observability/sentry/emit';
+
+const AUTH_DENY_OUTCOMES = new Set<AccessLogOutcome>([
+  'ua_denied',
+  'embed_denied',
+  'embed_block',
+  'og_denied',
+]);
+
+/** Proxy 层鉴权拒绝（UA 门禁 / 嵌入验签 / OG 门禁） */
+export function shouldEmitAuthDeny(entry: Pick<AccessLogEntry, 'outcome'>): boolean {
+  return AUTH_DENY_OUTCOMES.has(entry.outcome);
+}
+
+/**
+ * SSO 门禁：仅上报拦截类结果。
+ * - redirect：未登录被踢去登录页（成功拦截）
+ * - unauthorized：401
+ * pass 不上报（与正常流量重复、噪声大）
+ */
+export function shouldEmitSsoGate(entry: Pick<SsoLogEntry, 'outcome'>): boolean {
+  return entry.outcome === 'redirect' || entry.outcome === 'unauthorized';
+}
+
+function ssoEventName(outcome: SsoLogOutcome): 'sso.redirect' | 'sso.deny' {
+  return outcome === 'redirect' ? 'sso.redirect' : 'sso.deny';
+}
+
+export function fireAuthDeny(entry: AccessLogEntry): void {
+  if (!shouldEmitAuthDeny(entry)) return;
+
+  fireSentryAudit({
+    event: 'auth.deny',
+    level: 'warn',
+    userId: entry.accessUser,
+    tags: {
+      ...networkTags(entry),
+      'auth.reason': entry.outcome,
+      'auth.category': entry.category,
+    },
+    attributes: {
+      path: entry.path,
+      method: entry.method,
+      status: entry.status,
+      duration_ms: entry.durationMs,
+      outcome: entry.outcome,
+      category: entry.category,
+      query: strAttr(entry.query),
+      ...networkAttrs(entry),
+    },
+  });
+}
+
+export function fireSsoGate(entry: SsoLogEntry): void {
+  if (!shouldEmitSsoGate(entry)) return;
+
+  const event = ssoEventName(entry.outcome);
+
+  fireSentryAudit({
+    event,
+    level: entry.outcome === 'unauthorized' ? 'warn' : 'info',
+    userId: entry.accessUser,
+    tags: {
+      ...networkTags(entry),
+      'sso.outcome': entry.outcome,
+      'auth.category': entry.category,
+    },
+    attributes: {
+      path: entry.path,
+      method: entry.method,
+      status: entry.status,
+      duration_ms: entry.durationMs,
+      outcome: entry.outcome,
+      category: entry.category,
+      redirect_to: strAttr(entry.redirectTo),
+      query: strAttr(entry.query),
+      ...networkAttrs(entry),
+    },
+  });
+}

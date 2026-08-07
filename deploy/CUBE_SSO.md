@@ -273,8 +273,10 @@ sg = SHA256(METHOD + "\n" + PATH + "\n" + tm + "\n" + App Secret)  ← hex
 ### 4.3 密钥管理
 
 - `sh = SHA256(App Secret)` 是 App Secret 的哈希，用于文档站识别密钥，不传明文
-- 文档站配置 `DOCS_SECRETS_FILE_PATH`，格式：`{ "sh_hex": "plain_secret" }`
+- 文档站配置 `DOCS_SECRETS_FILE_PATH`（容器内多为 `/opt/secrets/secrets.json`），格式：`{ "sh_hex": "plain_secret" }`
+- Compose 用 `DOCS_SECRETS_DIR` **目录挂载**至 `/opt/secrets`（勿挂单文件）；应用按 mtime 热加载，宿主机 `manage-secrets.sh add/remove` 后无需重启
 - 魔方与文档站约定同一份密钥文件，保持 `sh` 一致
+- 应用加载/重载写可观测日志 `type=secrets`（stdout + `log-YYYYMMDD.jsonl`，不含明文）
 
 ---
 
@@ -332,7 +334,8 @@ flowchart TD
 |------|------|---------|
 | `DOCS_CUBE_SSO_ENABLED` | 启用 SSO + 嵌入鉴权 | `true` |
 | `DOCS_SESSION_SECRET` | Session 加密密钥 | 强随机，必填 |
-| `DOCS_SECRETS_FILE_PATH` | 宿主机 secrets 文件路径（Compose 挂载至容器 `/opt/secrets/secrets.json`） | SSO 实例必填；用 `scripts/manage-secrets.sh` 维护 |
+| `DOCS_SECRETS_FILE_PATH` | secrets JSON 路径（应用读取；容器内固定 `/opt/secrets/secrets.json`） | SSO 实例必填；用 `scripts/manage-secrets.sh` 维护 |
+| `DOCS_SECRETS_DIR` | 宿主机 secrets 目录（Compose 挂载至 `/opt/secrets`） | Docker SSO 实例必填；目录内文件名须为 `secrets.json` |
 | `NEXT_PUBLIC_SITE_URL` | 文档站 canonical URL | 必填，用于 MCP aud 和回源基址 |
 | `DOCS_CUBE_ORIGIN_PATTERN` | 约束 cubeOrigin 合法值（正则） | 如 `^https://cube\.example\.com$` |
 | `DOCS_RESOURCES_REQUIRE_EMBED_SIGN` | 图片资源是否强制验签 | 默认：生产且 SSO 开启时为 `true` |
@@ -390,8 +393,8 @@ python3 scripts/mock-cube-docs-auth.py
 
 | 现象 | 可能原因 | 解决 |
 |------|---------|------|
-| SSO callback `unknown secret hash` | `sh` 未登记到 `secrets.json` | `./scripts/manage-secrets.sh add` 登记魔方 App Secret |
-| SSO callback `EACCES` 读 secrets | 宿主机 `secrets.json` 为 root:600，容器 nextjs(1001) 无读权限 | `sudo ./scripts/manage-secrets.sh fix-perms` 后重启容器 |
+| SSO callback `unknown secret hash` | `sh` 未登记到 `secrets.json` | `./scripts/manage-secrets.sh add` 登记魔方 App Secret（目录挂载下无需重启） |
+| SSO callback `EACCES` 读 secrets | 宿主机 `secrets.json` 为 root:600，容器 nextjs(1001) 无读权限 | `sudo ./scripts/manage-secrets.sh fix-perms`；下次验签即可 |
 | 嵌入返回 401 | `sh` 不一致、时钟偏差 >3 分钟、签名 PATH 错误 | 检查密钥文件；对齐 NTP；确认 PATH 是纯 pathname |
 | iframe 内 JS 报错、页面空白 | `render=html` 用了 BFF 代理 / srcdoc | 改用 `iframe src` 直连文档站签名 URL |
 | 嵌入图片不显示 | 未传 `X-Cube-Origin` 或 pattern 不匹配 | 补全 Header；检查 `DOCS_CUBE_ORIGIN_PATTERN` |

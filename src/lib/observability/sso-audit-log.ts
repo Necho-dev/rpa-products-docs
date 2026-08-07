@@ -26,6 +26,7 @@ import {
   toObservabilityJsonlEntry,
   type ObservabilityAuthFields,
 } from '@/lib/observability/observability-auth';
+import { fireSsoGate, isSentryEnabled } from '@/lib/observability/sentry';
 
 export type SsoLogOutcome = 'redirect' | 'unauthorized' | 'pass';
 
@@ -162,6 +163,7 @@ export function formatSsoLogPretty(entry: SsoLogEntry, options?: { useColors?: b
   return `${timeLabel} ${channel} ${method} ${path} ${status} in ${duration} ${tail}`;
 }
 
+/** stdout / jsonl（不含 Sentry） */
 export function writeSsoLog(entry: SsoLogEntry): void {
   const useColors = shouldUseStdoutColors();
   console.log(formatSsoLogPretty(entry, { useColors }));
@@ -180,16 +182,29 @@ export function logSsoGate(
   writeSsoLog(buildSsoLogEntry(request, response, outcome, startedMs));
 }
 
+/**
+ * 本地 SSO 审计与 Sentry 解耦：prefetch 不上报；
+ * SENTRY_DSN 存在时即使本地可观测关闭也会发 sso.redirect / sso.deny。
+ */
 export function finishSsoLog(
   request: NextRequest,
   response: NextResponse,
   outcome: SsoLogOutcome,
   startedMs: number,
 ): NextResponse {
-  if (shouldLogAccessRequest(request) && isNextPrefetchRequest(request)) {
-    recordPrefetchAccess(request, response, startedMs);
+  if (isNextPrefetchRequest(request)) {
+    if (shouldLogAccessRequest(request)) {
+      recordPrefetchAccess(request, response, startedMs);
+    }
     return response;
   }
-  logSsoGate(request, response, outcome, startedMs);
+
+  const localOn = isSsoAuditLogEnabled() && shouldLogAccessRequest(request);
+  const sentryOn = isSentryEnabled();
+  if (!localOn && !sentryOn) return response;
+
+  const entry = buildSsoLogEntry(request, response, outcome, startedMs);
+  if (localOn) writeSsoLog(entry);
+  if (sentryOn) fireSsoGate(entry);
   return response;
 }

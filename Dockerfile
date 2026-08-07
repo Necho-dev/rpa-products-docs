@@ -30,6 +30,20 @@ RUN --mount=type=cache,target=/root/.npm,sharing=locked \
 RUN mkdir -p public
 ARG NEXT_PUBLIC_SITE_URL
 ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
+# Sentry：build 期内联到客户端；未设置则关闭 Sentry
+ARG SENTRY_DSN
+ENV SENTRY_DSN=${SENTRY_DSN}
+ARG SENTRY_ENVIRONMENT=dev
+ENV SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT}
+# source map 上传（可选；未提供 token 时 withSentryConfig 会跳过）
+ARG SENTRY_AUTH_TOKEN
+ENV SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
+ARG SENTRY_ORG
+ENV SENTRY_ORG=${SENTRY_ORG}
+ARG SENTRY_PROJECT
+ENV SENTRY_PROJECT=${SENTRY_PROJECT}
+ARG SENTRY_URL
+ENV SENTRY_URL=${SENTRY_URL}
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
   npm run build
 

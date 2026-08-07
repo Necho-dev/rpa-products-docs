@@ -11,6 +11,7 @@ import {
   getPageToolDescription,
   GetDocumentationPageInputSchema,
 } from '@/lib/docs/docs-site-tools';
+import { isSentryEnabled } from '@/lib/observability/sentry';
 
 export const runtime = 'nodejs';
 
@@ -122,6 +123,12 @@ ${candidateBlock}
 
   const result = streamText({
     model: getLlmModel(),
+    experimental_telemetry: {
+      isEnabled: isSentryEnabled(),
+      functionId: 'docs-ai-answer',
+      recordInputs: true,
+      recordOutputs: true,
+    },
     system: ANSWER_SYSTEM_PROMPT,
     prompt: userPrompt,
     tools: {

@@ -8,6 +8,7 @@ import {
   toObservabilityJsonlEntry,
   type ObservabilityAuthFields,
 } from '@/lib/observability/observability-auth';
+import { fireAccessAudit, isSentryEnabled } from '@/lib/observability/sentry';
 
 export type { ObservabilityAuthFields, ObservabilityAuthorization } from '@/lib/observability/observability-auth';
 
@@ -160,7 +161,7 @@ export function buildAccessLogEntry(
   );
 }
 
-/** stdout 统一 pretty 可读行（TTY 彩色）；jsonl 落盘始终 JSON */
+/** stdout 统一 pretty 可读行（TTY 彩色）；jsonl 落盘始终 JSON（不含 Sentry） */
 export function writeAccessLog(entry: AccessLogEntry): void {
   console.log(formatAccessLogStdout(entry));
   if (isObservabilityLogFileEnabled()) {
@@ -178,16 +179,30 @@ export function logAccessRequest(
   writeAccessLog(buildAccessLogEntry(request, response, outcome, startedMs));
 }
 
+/**
+ * 本地可观测与 Sentry 审计解耦：
+ * - prefetch：仅本地汇总，不上报 Sentry docs.view
+ * - 其余：本地开关开则写 stdout/jsonl；SENTRY_DSN 存在则走 fireAccessAudit
+ */
 export function finishAccessLog(
   request: NextRequest,
   response: NextResponse,
   outcome: AccessLogOutcome,
   startedMs: number,
 ): NextResponse {
-  if (shouldLogAccessRequest(request) && isNextPrefetchRequest(request)) {
-    recordPrefetchAccess(request, response, startedMs);
+  if (isNextPrefetchRequest(request)) {
+    if (shouldLogAccessRequest(request)) {
+      recordPrefetchAccess(request, response, startedMs);
+    }
     return response;
   }
-  logAccessRequest(request, response, outcome, startedMs);
+
+  const localOn = shouldLogAccessRequest(request);
+  const sentryOn = isSentryEnabled();
+  if (!localOn && !sentryOn) return response;
+
+  const entry = buildAccessLogEntry(request, response, outcome, startedMs);
+  if (localOn) writeAccessLog(entry);
+  if (sentryOn) fireAccessAudit(entry);
   return response;
 }

@@ -1,6 +1,6 @@
-# RPA Hero 文档站
+# HeroKnowledge
 
-基于 [Fumadocs](https://fumadocs.vercel.app/) + Next.js 构建的文档站点，支持本地开发、静态构建与 Docker 部署。
+基于 [Fumadocs](https://fumadocs.vercel.app/) + Next.js 构建的文档站点（HeroKnowledge），支持本地开发、静态构建与 Docker 部署。
 
 ---
 
@@ -105,15 +105,37 @@ cp .env.example .env
 | `COMPOSE_IMAGE` | Docker 镜像 tag；同机多实例须不同，避免 build 互相覆盖 | 同机多实例时建议 |
 | `COMPOSE_CONTAINER_NAME` | 容器名；同机多实例须不同 | 同机多实例时建议 |
 | `COMPOSE_PROJECT_NAME` | Compose 项目名；写在 `.env` 自动生效，隔离 network | 同机多实例时建议 |
-| `DOCS_SECRETS_FILE_PATH` | 宿主机 secrets 文件路径（Compose 挂载至容器 `/opt/secrets/secrets.json`） | SSO 实例必填 |
-| `DOCS_OBSERVABILITY_LOG_ENABLED` | 可观测日志（access / mcp / sso，JSON Lines → stdout + 可选落盘） | 生产默认开启 |
+| `DOCS_SECRETS_FILE_PATH` | secrets JSON 文件路径（应用与 `manage-secrets.sh` 读写）；容器内固定 `/opt/secrets/secrets.json` | SSO 实例必填 |
+| `DOCS_SECRETS_DIR` | **宿主机** secrets 目录（Compose 挂载至容器 `/opt/secrets`）；目录内须有 `secrets.json` | Docker SSO 实例必填 |
+| `DOCS_OBSERVABILITY_LOG_ENABLED` | 可观测日志（access / mcp / sso / secrets，JSON Lines → stdout + 可选落盘） | 生产默认开启 |
 | `DOCS_OBSERVABILITY_LOG_PATH` | 落盘目录（`log-YYYYMMDD.jsonl`）；Compose 宿主机默认 `./logs`，容器内 `/app/logs` | Docker 默认 `./logs` |
+| `SENTRY_DSN` | Sentry DSN；未设置则关闭 Sentry。build 期内联到客户端（改后须重建） | 可选 |
+| `SENTRY_ENVIRONMENT` | Sentry environment，默认 `dev` | 否 |
+| `SENTRY_AUTH_TOKEN` | 构建期上传 source map（自托管 `SENTRY_URL` + `SENTRY_ORG` / `SENTRY_PROJECT`） | 可选 |
 
-> **注意**：`NEXT_PUBLIC_*` 变量在 `next build` 时被内联进静态资源，修改后必须重新构建（`--build`），无法通过热改 `.env` 生效。
+> **注意**：`NEXT_PUBLIC_*` 与经 `next.config` `env` 内联的变量（含 `SENTRY_DSN`）在 `next build` 时写入静态资源，修改后必须重新构建（`--build`），无法通过热改 `.env` 生效。
+
+### Sentry
+
+接入 `@sentry/nextjs`（项目 `knowledge` @ `https://sentry.yuce-tech.cn`）。**未配置 `SENTRY_DSN` 时不初始化 SDK。**
+
+- **Errors**：`global-error.tsx` + `onRequestError`
+- **Tracing**：服务端请求 / 客户端路由导航；生产 `tracesSampleRate=0.2`
+- **Session Replay**：会话 10%、出错会话 100%；同源隧道 `/monitoring`（已从 Proxy SSO matcher 排除）
+- **Logs**：三端 `enableLogs` + `consoleLoggingIntegration`（warn/error）
+- **业务审计（Sentry Logs）**（目录 `src/lib/observability/sentry/`）：与本地 `DOCS_OBSERVABILITY_LOG_*` **解耦**，仅由 `SENTRY_DSN` 开关
+  - `docs.view`：真实文档浏览（`/docs`、`/embed/docs`；排除 prefetch）
+  - `mcp.call`：已鉴权的 MCP `tools/call`
+  - `mcp.deny`：MCP Token / 未登录拒绝（扫描、过期 token）
+  - `sso.redirect` / `sso.deny`：SSO 门禁拦截（踢登录 / 401；`pass` 不上报）
+  - `auth.deny`：UA / 嵌入验签 / OG 等 Proxy 拒绝（`auth.reason`）
+- **AI Monitoring**：`vercelAIIntegration`；chat / ai-answer 在 DSN 存在时开 `experimental_telemetry`
+
+SDK 入口：`src/instrumentation.ts`、`src/instrumentation-client.ts`、`src/sentry.server.config.ts`、`src/sentry.edge.config.ts`。业务审计入口：`src/lib/observability/sentry/`。
 
 ### 可观测日志
 
-统一开关 `DOCS_OBSERVABILITY_LOG_ENABLED`、落盘路径 `DOCS_OBSERVABILITY_LOG_PATH`；jsonl 内以 `type` 区分 **access**（Proxy 请求）、**sso**（SSO 门禁）、**mcp**（JSON-RPC 调用）。
+统一开关 `DOCS_OBSERVABILITY_LOG_ENABLED`、落盘路径 `DOCS_OBSERVABILITY_LOG_PATH`；jsonl 内以 `type` 区分 **access**（Proxy 请求）、**sso**（SSO 门禁）、**mcp**（JSON-RPC 调用）、**secrets**（密钥文件加载 / mtime 热重载）。
 
 #### Access（Proxy 层）
 
@@ -195,6 +217,30 @@ MCP 在 `/mcp` 路由层记录 **JSON-RPC 级**审计（与 Proxy 层 access 互
 
 默认共用 `DOCS_OBSERVABILITY_LOG_*` 开关与落盘路径。
 
+### Secrets 加载 / 热重载审计
+
+应用按 `secrets.json` 的 **mtime** 失效内存缓存；Compose 使用 `DOCS_SECRETS_DIR` **目录挂载**后，宿主机 `manage-secrets.sh add/remove` 无需重启容器。加载与重载写 **`type: "secrets"`**（不含明文密钥）：
+
+**stdout（TTY 彩色）：**
+
+```
+2026-06-30 15:00:00.000 [SECRETS] load count=2 /opt/secrets/secrets.json
+2026-06-30 15:05:00.000 [SECRETS] reload count=2→3 (+1) /opt/secrets/secrets.json
+2026-06-30 15:06:00.000 [SECRETS] reload count=3→1 (-2) /opt/secrets/secrets.json
+```
+
+| 字段 | 说明 |
+|------|------|
+| `type` | 固定为 `secrets` |
+| `outcome` | `load`（首次）/ `reload`（mtime 变更）/ `empty`（文件不存在） |
+| `path` | 容器内 secrets 文件路径 |
+| `secretCount` | 当前密钥条数（加载/重载后） |
+| `previousCount` | 变更前条数（仅 `reload`，或由有密钥变为文件缺失的 `empty`） |
+| `delta` | `secretCount - previousCount`（有 `previousCount` 时） |
+| `mtimeMs` | 文件 mtime（毫秒） |
+
+默认共用 `DOCS_OBSERVABILITY_LOG_*` 开关与落盘路径（stdout + `log-YYYYMMDD.jsonl`）。
+
 **Docker 落盘示例（Compose 已默认挂载 `./logs`）：**
 
 ```bash
@@ -206,6 +252,7 @@ tail -f logs/log-$(date -u +%Y%m%d).jsonl
 grep '"path":"/api/search"' logs/log-*.jsonl
 grep '"type":"mcp"' logs/log-*.jsonl
 grep '"type":"sso"' logs/log-*.jsonl
+grep '"type":"secrets"' logs/log-*.jsonl
 grep '"outcome":"redirect"' logs/log-*.jsonl
 grep '"tool":"search_docs"' logs/log-*.jsonl
 ```
@@ -263,6 +310,7 @@ PORT=3031
 NEXT_PUBLIC_SITE_URL=https://knowledge.yuce-tech.cn
 DOCS_CUBE_SSO_ENABLED=true
 DOCS_SESSION_SECRET=...
+DOCS_SECRETS_DIR=/opt/secrets
 DOCS_SECRETS_FILE_PATH=/opt/secrets/secrets.json
 ```
 
@@ -272,7 +320,7 @@ DOCS_SECRETS_FILE_PATH=/opt/secrets/secrets.json
 
 #### 宿主机 secrets 管理
 
-嵌入验签密钥由宿主机 CLI 维护（只读挂载进容器）：
+嵌入验签密钥由宿主机 CLI 维护（**目录**只读挂载进容器；应用按文件 mtime 热加载，**add/remove 后无需重启**）：
 
 ```bash
 ./scripts/manage-secrets.sh list
@@ -282,9 +330,13 @@ DOCS_SECRETS_FILE_PATH=/opt/secrets/secrets.json
 ./scripts/manage-secrets.sh fix-perms        # 修复已有文件的容器可读权限（nextjs 1001:1001）
 ```
 
-路径默认读项目根 `.env` 的 `DOCS_SECRETS_FILE_PATH`，可用 `--file` 覆盖。`add` / `remove` 写入后会自动 `chown` 为容器用户（默认 `1001:1001`，可用 `DOCS_SECRETS_UID` / `DOCS_SECRETS_GID` 覆盖）。变更后请重启对应 Docker 实例。
+路径默认读项目根 `.env` 的 `DOCS_SECRETS_FILE_PATH`，可用 `--file` 覆盖。`add` / `remove` 写入后会自动 `chown` 为容器用户（默认 `1001:1001`，可用 `DOCS_SECRETS_UID` / `DOCS_SECRETS_GID` 覆盖）。
 
-> 若 SSO callback 报 `EACCES: permission denied, open '/opt/secrets/secrets.json'`，在宿主机执行 `sudo ./scripts/manage-secrets.sh fix-perms` 后重启容器。
+Compose 使用 `DOCS_SECRETS_DIR`（默认 `/opt/secrets`）挂载整个目录到容器 `/opt/secrets`，容器内文件路径固定为 `/opt/secrets/secrets.json`。勿再使用单文件 bind mount，否则宿主机 `mv` 换 inode 后容器可能读不到更新。
+
+应用侧首次加载与 mtime 热重载会写 `type=secrets` 到可观测日志（stdout + `log-YYYYMMDD.jsonl`）。
+
+> 若 SSO callback 报 `EACCES: permission denied, open '/opt/secrets/secrets.json'`，在宿主机执行 `sudo ./scripts/manage-secrets.sh fix-perms`；权限修复后下一次验签即可（无需重启）。
 
 > **注意**：`docker compose restart` 不会重新加载 `env_file`；改 env 后请用 `docker compose up -d`。  
 > `NEXT_PUBLIC_*` 在 `next build` 时内联进客户端 bundle，须 `docker compose up -d --build`；服务端通过 `getSiteName()` 等读取的同名变量在 `up -d` 重建后即可更新。

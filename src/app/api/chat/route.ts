@@ -27,6 +27,7 @@ import { getDocAccessContext } from '@/lib/docs/access/doc-access';
 import { inferSiteOrigin } from '@/lib/core/site-origin';
 import { createLlmProvider } from '@/lib/ai/llm';
 import { getSearchTags } from '@/lib/docs/search/search-tags';
+import { isSentryEnabled } from '@/lib/observability/sentry';
 import { convertToModelMessages, createUIMessageStreamResponse, stepCountIs, streamText, tool } from 'ai';
 import { docsRoute } from '@/lib/core/shared';
 import type { InkeepUIMessage } from '@/lib/ai/chat-types';
@@ -64,6 +65,12 @@ export async function POST(req: Request, _ctx: RouteContext<"/api/chat">) {
 
   const result = streamText({
     model: openai(process.env.LLM_MODEL ?? ''),
+    experimental_telemetry: {
+      isEnabled: isSentryEnabled(),
+      functionId: 'docs-chat',
+      recordInputs: true,
+      recordOutputs: true,
+    },
     system: `You are a helpful assistant for this documentation site. The docs live under ${docsRoute}.
 When the user asks about documentation, topics, connectors, apps, or anything that may be covered in the site docs, you MUST use the documentation tools to read real catalog, search hits, or page content — do not guess paths or invent content.
 When Client Context includes a selection field, prioritize answering about that selected excerpt while using documentation tools if needed for broader context.
