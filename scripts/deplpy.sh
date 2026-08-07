@@ -43,20 +43,87 @@ sentry_dsn_host() {
   return 1
 }
 
+# 将 .env 中构建相关键导出到当前 shell。
+# Compose 插值优先用进程环境；cron/1Panel 若带空的 SENTRY_DSN= 会盖掉 .env。
+export_compose_build_env() {
+  local key value
+  for key in \
+    NEXT_PUBLIC_SITE_URL \
+    SENTRY_DSN SENTRY_ENVIRONMENT SENTRY_AUTH_TOKEN \
+    SENTRY_ORG SENTRY_PROJECT SENTRY_URL \
+    COMPOSE_IMAGE COMPOSE_CONTAINER_NAME PORT DOCS_SECRETS_DIR DOCS_OBSERVABILITY_LOG_PATH
+  do
+    value="$(read_dotenv_value .env "$key" 2>/dev/null || true)"
+    if [ -n "$value" ]; then
+      export "${key}=${value}"
+    fi
+  done
+}
+
+# 从 docker compose config JSON 取 services.docs.build.args.SENTRY_DSN
+compose_build_arg_sentry_dsn_from_json() {
+  local cfg="$1"
+  if command -v python3 >/dev/null 2>&1; then
+    printf '%s' "$cfg" | python3 -c '
+import json, sys
+try:
+    j = json.load(sys.stdin)
+except Exception:
+    sys.exit(1)
+args = (((j.get("services") or {}).get("docs") or {}).get("build") or {}).get("args") or {}
+v = args.get("SENTRY_DSN") or ""
+if v:
+    sys.stdout.write(str(v))
+'
+    return $?
+  fi
+  if command -v jq >/dev/null 2>&1; then
+    printf '%s' "$cfg" | jq -r '.services.docs.build.args.SENTRY_DSN // empty'
+    return $?
+  fi
+  return 1
+}
+
+# YAML 回退：只在 build.args 块内取 SENTRY_DSN（勿在见到 context: 时退出 build）
+compose_build_arg_sentry_dsn_from_yaml() {
+  local yaml="$1"
+  printf '%s\n' "$yaml" | awk '
+    /^[[:space:]]*build:[[:space:]]*$/ { in_build=1; in_args=0; next }
+    in_build && /^[[:space:]]*args:[[:space:]]*$/ { in_args=1; next }
+    in_build && in_args && /^[[:space:]]*SENTRY_DSN:[[:space:]]*/ {
+      sub(/^[[:space:]]*SENTRY_DSN:[[:space:]]*/, "")
+      gsub(/["'\'']/, "")
+      print
+      exit
+    }
+    # args 结束：同级其它 build 字段（context/dockerfile）或更外层键
+    in_args && /^[[:space:]]+[a-z][a-z0-9_]*:/ { in_args=0 }
+    in_build && /^[[:space:]]{0,4}[a-z][a-z0-9_]*:/ && $1 != "build:" {
+      # image:/environment: 等与 build 同级（缩进通常 4 空格）
+      if ($0 ~ /^[[:space:]]{0,4}[a-z]/ && $0 !~ /^[[:space:]]{6,}/) {
+        in_build=0
+        in_args=0
+      }
+    }
+  '
+}
+
 # Compose 插值后的 build.args.SENTRY_DSN
 compose_build_arg_sentry_dsn() {
-  docker compose config 2>/dev/null \
-    | awk '
-      $1 == "build:" { in_build=1; next }
-      in_build && /^[[:space:]]*args:/ { in_args=1; next }
-      in_build && in_args && $1 ~ /^SENTRY_DSN:/ {
-        sub(/^[[:space:]]*SENTRY_DSN:[[:space:]]*/, "")
-        gsub(/"/, "")
-        print
-        exit
-      }
-      in_build && /^[[:space:]]*[a-z]/ { in_build=0; in_args=0 }
-    '
+  local cfg="" dsn=""
+  if ! cfg="$(docker compose config --format json 2>/dev/null)"; then
+    cfg="$(docker compose config 2>/dev/null || true)"
+    compose_build_arg_sentry_dsn_from_yaml "$cfg"
+    return 0
+  fi
+  dsn="$(compose_build_arg_sentry_dsn_from_json "$cfg" 2>/dev/null || true)"
+  if [ -n "$dsn" ]; then
+    printf '%s' "$dsn"
+    return 0
+  fi
+  # json 解析失败或无 python/jq 时回退 YAML
+  cfg="$(docker compose config 2>/dev/null || true)"
+  compose_build_arg_sentry_dsn_from_yaml "$cfg"
 }
 
 # 当前镜像客户端/服务端产物是否已内联 Sentry host
@@ -94,18 +161,24 @@ check_sentry_preflight() {
     return 2
   fi
 
+  # 确保 compose 插值能看到 .env（覆盖 cron 里的空环境变量）
+  export SENTRY_DSN="$dsn"
+  sentry_env="$(read_dotenv_value "$env_file" SENTRY_ENVIRONMENT 2>/dev/null || true)"
+  if [ -n "$sentry_env" ]; then
+    export SENTRY_ENVIRONMENT="$sentry_env"
+  fi
+
   build_dsn="$(compose_build_arg_sentry_dsn || true)"
   if [ -z "$build_dsn" ]; then
-    log_sentry "错误: docker compose config 的 build.args.SENTRY_DSN 为空"
-    log_sentry "确认 .env 存在且含未注释的 SENTRY_DSN=..."
+    log_sentry "错误: docker compose config 的 build.args.SENTRY_DSN 仍为空"
+    log_sentry "请确认 docker-compose.yml 含 build.args.SENTRY_DSN，且本机可执行 docker compose config"
     return 2
   fi
   if [ "$build_dsn" != "$dsn" ]; then
     log_sentry "警告: .env 与 compose build.args 的 SENTRY_DSN 不一致"
   fi
 
-  sentry_env="$(read_dotenv_value "$env_file" SENTRY_ENVIRONMENT 2>/dev/null || true)"
-  log_sentry "预检通过: host=${host} environment=${sentry_env:-dev}（将打入 next build）"
+  log_sentry "预检通过: host=${host} environment=${SENTRY_ENVIRONMENT:-dev}（将打入 next build）"
 
   if image_has_sentry_host "$host"; then
     log_sentry "当前镜像已内联 DSN host，无需因 Sentry 强制重建"
@@ -148,6 +221,9 @@ fi
 git fetch origin "$BRANCH"
 git submodule update --init --recursive
 
+# 先导出 .env，避免 cron 空变量盖掉 Compose build.args 插值
+export_compose_build_env
+
 NEED_UPDATE=0
 MAIN_CHANGED=0
 SENTRY_FORCE=0
@@ -177,6 +253,13 @@ for entry in "${SUBMODULES[@]}"; do
   fi
 done
 
+# 先拉取主仓，避免预检逻辑本身有 bug 时永远 pull 不到修复
+if [ "$MAIN_CHANGED" -eq 1 ]; then
+  log "拉取主仓库 origin/$BRANCH"
+  git pull --ff-only origin "$BRANCH"
+  export_compose_build_env
+fi
+
 log_sentry "构建预检..."
 set +e
 SENTRY_PREFLIGHT="$(check_sentry_preflight)"
@@ -192,9 +275,6 @@ fi
 
 if [ "$NEED_UPDATE" -eq 1 ]; then
   log "开始执行更新流程"
-  if [ "$MAIN_CHANGED" -eq 1 ]; then
-    git pull --ff-only origin "$BRANCH"
-  fi
 
   for entry in "${SUBMODULES[@]}"; do
     path="${entry%%|*}"
