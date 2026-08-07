@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/nextjs';
-import { getSentryDsn, getSentryEnvironment, isSentryEnabled } from '@/lib/observability/sentry';
+import { getSentryDsn, getSentryEnvironment, isSentryEnabled } from '@/lib/observability/sentry/env';
 
 const isDev = process.env.NODE_ENV === 'development';
 
