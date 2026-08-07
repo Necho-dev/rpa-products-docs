@@ -1,6 +1,6 @@
 ---
 title: 万相台-报表-商品报表
-description: 下载阿里妈妈万相台商品报表（商品数据明细）离线文件，解析分天商品推广效果指标
+description: 下载阿里妈妈万相台商品报表（商品数据明细）离线文件，解析分天商品/计划/场景推广效果指标
 entry: rpa.conn.alimm.wxt.report.item.promotion
 badge:
   label: 待上线
@@ -18,8 +18,8 @@ module:
 | **连接器名称**   | `ODS_万相台报表商品报表明细表(阿里妈妈RPA)`                         |
 | **连接器代码**   | `rpa.conn.alimm.wxt.report.item.promotion`                         |
 | **操作类型**     | `文件导出`                                                         |
-| **目标网页**     | `https://one.alimama.com/index.html#!/report/item_promotion?rptType=item_promotion` |
-| **适用场景**     | 下载阿里妈妈万相台商品报表（商品数据明细）离线文件，解析分天商品推广效果指标 |
+| **目标网页**     | `https://one.alimama.com/index.html#!/report/item_promotion?rptType=item_promotion&isRequestedQztDefaultSet=1&queryDomains=%5B%22promotion%22%2C%22date%22%2C%22campaign%22%5D&offset=0&pageSize=20` |
+| **适用场景**     | 下载阿里妈妈万相台商品报表（商品数据明细）离线文件，解析分天商品/计划/场景推广效果指标 |
 | **数据表名**     | `ods_rpa_alimm_wxt_report_item_promotion_du`                       |
 | **业务表名**     | `ODS_万相台报表商品报表明细表(阿里妈妈RPA)`                         |
 
@@ -27,7 +27,9 @@ module:
 
 > **取数路径**：阿里妈妈—万相台—报表—商品报表
 >
-> **取数链接**：[https://one.alimama.com/index.html#!/report/item_promotion?rptType=item_promotion](https://one.alimama.com/index.html#!/report/item_promotion?rptType=item_promotion)
+> **取数链接**：[商品报表（维度全选 URL）](https://one.alimama.com/index.html#!/report/item_promotion?rptType=item_promotion&isRequestedQztDefaultSet=1&queryDomains=%5B%22promotion%22%2C%22date%22%2C%22campaign%22%5D&offset=0&pageSize=20)
+>
+> **维度说明**：导航 URL 固定带 `queryDomains=["promotion","date","campaign"]`（页面展示「商品,时间,计划」），无需再点维度；离线下载任务实际维度含 `scene` / `original_scene`（全选）。
 
 ![阿里妈妈—万相台商品报表](../_public/images/alimm/wxt_report_item_promotion_20260806.png)
 
@@ -68,7 +70,7 @@ module:
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "阿里妈妈-万相台商品报表 - 查询入参",
-  "description": "下载阿里妈妈万相台商品报表（商品数据明细）离线文件，解析分天商品推广效果指标",
+  "description": "下载阿里妈妈万相台商品报表（商品数据明细）离线文件，解析分天商品/计划/场景推广效果指标",
   "type": "object",
   "properties": {
     "custom_start_date": {
@@ -122,9 +124,15 @@ module:
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
 | `theDate` | 日期 | `String` | 否 | `XLSX.0.日期` | `2026-07-31` |
-| `promotionId` | 主体 ID | `Number` | 否 | `XLSX.0.主体ID` | `107****681` (已脱敏) |
+| `sceneId` | 场景 ID | `Number` | 否 | `XLSX.0.场景ID` | `371` |
+| `sceneName` | 场景名字 | `String` | 否 | `XLSX.0.场景名字` | `关键词推广` |
+| `originalSceneId` | 原二级场景 ID | `Number` | 否 | `XLSX.0.原二级场景ID` | `371` |
+| `originalSceneName` | 原二级场景名字 | `String` | 否 | `XLSX.0.原二级场景名字` | `关键词推广` |
+| `campaignId` | 计划 ID | `Number` | 否 | `XLSX.0.计划ID` | `824****093` (已脱敏) |
+| `campaignName` | 计划名字 | `String` | 否 | `XLSX.0.计划名字` | `小衫控成交` |
+| `promotionId` | 主体 ID | `Number` | 否 | `XLSX.0.主体ID` | `106****836` (已脱敏) |
 | `subPromotionTypeName` | 主体类型 | `String` | 否 | `XLSX.0.主体类型` | `商品` |
-| `promotionName` | 主体名称 | `String` | 否 | `XLSX.0.主体名称` | `飞鸟和****上衣女` (已脱敏) |
+| `promotionName` | 主体名称 | `String` | 否 | `XLSX.0.主体名称` | `飞鸟和****上衣` (已脱敏) |
 | `adPv` | 展现量 | `Number` | 否 | `XLSX.0.展现量` | `8225` |
 | `click` | 点击量 | `Number` | 否 | `XLSX.0.点击量` | `274` |
 | `charge` | 花费 | `Number` | 否 | `XLSX.0.花费` | `159.9` |
@@ -212,15 +220,21 @@ module:
 ```json
 {
   "theDate": "2026-07-31",
-  "promotionId": "107****681",
+  "sceneId": 371,
+  "sceneName": "关键词推广",
+  "originalSceneId": 371,
+  "originalSceneName": "关键词推广",
+  "campaignId": "824****093",
+  "campaignName": "小衫控成交",
+  "promotionId": "106****836",
   "subPromotionTypeName": "商品",
-  "promotionName": "飞鸟和****上衣女",
-  "adPv": 8225,
-  "click": 274,
-  "charge": 159.9,
-  "ctr": 0.03331,
-  "ecpc": 0.58,
-  "ecpm": 19.44,
+  "promotionName": "飞鸟和****上衣",
+  "adPv": 110,
+  "click": 15,
+  "charge": 25.85,
+  "ctr": 0.13636,
+  "ecpc": 1.72,
+  "ecpm": 235.0,
   "prepayInshopAmt": 0.0,
   "prepayInshopNum": 0,
   "prepayDirAmt": 0.0,
@@ -228,59 +242,59 @@ module:
   "prepayIndirAmt": 0.0,
   "prepayIndirNum": 0,
   "alipayDirAmt": 0.0,
-  "alipayIndirAmt": 2040.85,
-  "alipayInshopAmt": 2040.85,
-  "alipayInshopNum": 7,
+  "alipayIndirAmt": 0.0,
+  "alipayInshopAmt": 0.0,
+  "alipayInshopNum": 0,
   "alipayDirNum": 0,
-  "alipayIndirNum": 7,
-  "cvr": 0.02555,
-  "roi": 12.76,
-  "alipayPrepayInshopRoi": 12.76,
-  "alipayInshopCost": 22.84,
-  "cartInshopNum": 50,
-  "cartDirNum": 5,
-  "cartIndirNum": 45,
-  "cartRate": 0.18248,
-  "itemColInshopNum": 3,
-  "shopColDirNum": 0,
-  "shopColInshopCost": null,
-  "colCartNum": 53,
-  "colCartCost": 3.02,
-  "itemColCart": 53,
-  "itemColCartCost": 3.02,
-  "colNum": 3,
-  "itemColInshopCost": 53.3,
-  "itemColInshopRate": 0.01095,
-  "cartCost": 3.2,
-  "gmvInshopNum": 7,
-  "gmvInshopAmt": 5542.0,
-  "itemColDirNum": 1,
-  "itemColIndirNum": 2,
-  "couponShopNum": 4,
+  "alipayIndirNum": 0,
+  "cvr": 0,
+  "roi": 0.0,
+  "alipayPrepayInshopRoi": 0.0,
+  "alipayInshopCost": null,
+  "cartInshopNum": 8,
+  "cartDirNum": 0,
+  "cartIndirNum": 8,
+  "cartRate": 0.53333,
+  "itemColInshopNum": 0,
+  "shopColDirNum": 2,
+  "shopColInshopCost": 12.93,
+  "colCartNum": 10,
+  "colCartCost": 2.59,
+  "itemColCart": 8,
+  "itemColCartCost": 3.23,
+  "colNum": 2,
+  "itemColInshopCost": null,
+  "itemColInshopRate": 0,
+  "cartCost": 3.23,
+  "gmvInshopNum": 0,
+  "gmvInshopAmt": 0.0,
+  "itemColDirNum": 0,
+  "itemColIndirNum": 0,
+  "couponShopNum": 0,
   "shoppingNum": 0,
   "shoppingAmt": 0.0,
-  "wwNum": 3,
-  "inshopPv": 1129,
-  "inshopUv": 222,
-  "inshopPotentialUv": 73,
-  "inshopPotentialUvRate": 0.32883,
-  "rhRate": 0.0073,
-  "rhNum": 2,
-  "inshopPvRate": 0.13726,
-  "deepInshopPv": 836,
-  "avgAccessPageNum": 5.0,
+  "wwNum": 0,
+  "inshopPv": 321,
+  "inshopUv": 14,
+  "inshopPotentialUv": 10,
+  "inshopPotentialUvRate": 0.71429,
+  "rhRate": 0,
+  "rhNum": 0,
+  "inshopPvRate": 2.91818,
+  "deepInshopPv": 306,
+  "avgAccessPageNum": 23,
   "newAlipayInshopUv": 0,
-  "newAlipayInshopUvRate": 0.0,
+  "newAlipayInshopUvRate": null,
   "hySgUv": 0,
-  "hyPayAmt": 2040.85,
-  "hyPayNum": 7,
-  "alipayInshopUv": 6,
-  "alipayInshopNumAvg": 1.0,
-  "alipayInshopAmtAvg": 340.14,
-  "naturalPayAmt": 247.9,
-  "orgNaturalPv": 3203,
-  "dsAlipayInshopNum": 7,
-  "dsAlipayInshopAmt": 2040.85,
+  "hyPayAmt": 0.0,
+  "hyPayNum": 0,
+  "alipayInshopUv": 0,
+  "alipayInshopNumAvg": null,
+  "alipayInshopAmtAvg": null,
+  "naturalPayAmt": 6.98,
+  "orgNaturalPv": 106,
+  "dsAlipayInshopNum": 0,
+  "dsAlipayInshopAmt": 0.0,
   "sgAlipayInshopNum": 0,
   "sgAlipayInshopAmt": 0.0,
   "alipayInshopAmtBoost": 0.0,
@@ -294,7 +308,7 @@ module:
   "xxHxNewAlipayAmt": 0.0,
   "xxHxItemNum": 0,
   "xxHxNewAlipayNum": 0,
-  "bizDate": "20260806",
+  "bizDate": "20260807",
   "accountId": "1****6"
 }
 ```
