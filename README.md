@@ -120,7 +120,7 @@ cp .env.example .env
 接入 `@sentry/nextjs`（项目 `knowledge` @ `https://sentry.yuce-tech.cn`）。**未配置 `SENTRY_DSN` 时不初始化 SDK。**
 
 - **Errors**：`global-error.tsx` + `onRequestError`
-- **Tracing**：服务端请求 / 客户端路由导航；生产 `tracesSampleRate=0.2`
+- **Tracing**：服务端请求 / 客户端路由导航；生产 `tracesSampleRate=0.2`。导出前用 `http.target` 把 SDK 默认的 `middleware GET` / `GET /docs/[[...slug]]` 改成真实路径（见 `registerReadableTraceNameHooks`）
 - **Session Replay**：会话 10%、出错会话 100%；同源隧道 `/monitoring`（已从 Proxy SSO matcher 排除）
 - **Logs**：三端 `enableLogs` + `consoleLoggingIntegration`（warn/error）
 - **业务审计（Sentry Logs）**（目录 `src/lib/observability/sentry/`）：与本地 `DOCS_OBSERVABILITY_LOG_*` **解耦**，仅由 `SENTRY_DSN` 开关

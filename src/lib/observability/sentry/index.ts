@@ -26,7 +26,14 @@ export {
   fireAuthDeny,
   fireSsoGate,
 } from '@/lib/observability/sentry/auth';
-export { setProxyTraceName } from '@/lib/observability/sentry/trace-name';
+export {
+  setProxyTraceName,
+  registerReadableTraceNameHooks,
+  resolveReadableTraceName,
+  applyReadableTraceName,
+  isOpaqueTraceName,
+  stripPathQuery,
+} from '@/lib/observability/sentry/trace-name';
 
 import type { AccessLogEntry } from '@/lib/observability/access-log';
 import { fireAuthDeny } from '@/lib/observability/sentry/auth';

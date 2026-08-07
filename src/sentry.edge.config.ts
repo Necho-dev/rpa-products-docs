@@ -1,5 +1,6 @@
 import * as Sentry from '@sentry/nextjs';
 import { getSentryDsn, getSentryEnvironment, isSentryEnabled } from '@/lib/observability/sentry/env';
+import { registerReadableTraceNameHooks } from '@/lib/observability/sentry/trace-name';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -28,4 +29,7 @@ if (isSentryEnabled()) {
       return log;
     },
   });
+
+  // 必须在 init 之后注册，才能覆盖 SDK enhanceMiddlewareRootSpan 的 middleware GET 折叠
+  registerReadableTraceNameHooks();
 }

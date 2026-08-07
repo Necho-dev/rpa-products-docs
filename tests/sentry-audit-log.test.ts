@@ -10,6 +10,10 @@ import {
   shouldEmitMcpCall,
   shouldEmitMcpDeny,
   shouldEmitSsoGate,
+  isOpaqueTraceName,
+  resolveReadableTraceName,
+  stripPathQuery,
+  applyReadableTraceName,
 } from '../src/lib/observability/sentry';
 
 describe('sentry-env', () => {
@@ -115,5 +119,78 @@ describe('parseUserAgent', () => {
 
   it('marks bots', () => {
     assert.equal(parseUserAgent('OAI-SearchBot/1.0')?.browser, 'bot');
+  });
+});
+
+describe('readable trace name', () => {
+  it('strips query and fragment', () => {
+    assert.equal(stripPathQuery('/docs/foo?_rsc=1#x'), '/docs/foo');
+    assert.equal(stripPathQuery(''), '/');
+  });
+
+  it('detects opaque SDK names', () => {
+    assert.equal(isOpaqueTraceName('middleware GET'), true);
+    assert.equal(isOpaqueTraceName('GET /docs/[[...slug]]'), true);
+    assert.equal(isOpaqueTraceName('GET /api/chat'), false);
+  });
+
+  it('rewrites middleware GET via http.target', () => {
+    assert.equal(
+      resolveReadableTraceName(
+        {
+          'http.request.method': 'GET',
+          'http.target': '/docs/rpa/foo?_rsc=abc',
+        },
+        'middleware GET',
+      ),
+      'GET /docs/rpa/foo',
+    );
+  });
+
+  it('rewrites route template via http.target', () => {
+    assert.equal(
+      resolveReadableTraceName(
+        {
+          'http.request.method': 'GET',
+          'http.target': '/docs/rpa/RPA_SYCM/item',
+          'http.route': '/docs/[[...slug]]',
+        },
+        'GET /docs/[[...slug]]',
+      ),
+      'GET /docs/rpa/RPA_SYCM/item',
+    );
+  });
+
+  it('prefers knowledge.trace_name', () => {
+    assert.equal(
+      resolveReadableTraceName(
+        {
+          'knowledge.trace_name': 'POST /mcp',
+          'http.target': '/other',
+        },
+        'middleware POST',
+      ),
+      'POST /mcp',
+    );
+  });
+
+  it('applyReadableTraceName mutates name and source', () => {
+    const attributes: Record<string, unknown> = {
+      'http.request.method': 'GET',
+      'http.target': '/docs/rpa/bar',
+      'sentry.segment.name': 'middleware GET',
+    };
+    let name = 'middleware GET';
+    const ok = applyReadableTraceName({
+      attributes,
+      getName: () => name,
+      setName: (n) => {
+        name = n;
+      },
+    });
+    assert.equal(ok, true);
+    assert.equal(name, 'GET /docs/rpa/bar');
+    assert.equal(attributes['sentry.source'], 'custom');
+    assert.equal(attributes['sentry.segment.name'], 'GET /docs/rpa/bar');
   });
 });
