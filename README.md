@@ -424,6 +424,13 @@ git add content/docs/auth && git commit -m "chore: bump auth submodule"
 
 1Panel 上的 [`scripts/deplpy.sh`](scripts/deplpy.sh) 会跟踪 auth 远程 tip，**即使主仓未 bump gitlink**，auth 有更新也会重建发布。
 
+脚本在构建前后会做 **Sentry DSN 内联检查**：
+
+- `SENTRY_DSN` 必须写在项目根 **`.env`**（只写 `.env.local` 会直接失败并提示）
+- 校验 `docker compose config` 的 `build.args.SENTRY_DSN` 非空
+- 若 `.env` 已配置 DSN 但当前镜像未内联 → **即使代码无变更也会强制 `--build`**
+- `up -d --build` 完成后再次 `grep` 镜像内 `/app/.next/static|server`，失败则部署中止
+
 **Q：1Panel 自动部署如何配置分支？**
 
 [`scripts/deplpy.sh`](scripts/deplpy.sh) 用环境变量覆盖（默认均为 `main`）：
