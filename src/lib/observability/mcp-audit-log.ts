@@ -19,6 +19,10 @@ import {
   toObservabilityJsonlEntry,
   type ObservabilityAuthFields,
 } from '@/lib/observability/observability-auth';
+import {
+  resolveMcpClientIdentity,
+  type McpClientIdentity,
+} from '@/lib/observability/mcp-client-identity';
 import { fireMcpAudit, isSentryEnabled } from '@/lib/observability/sentry';
 
 export type McpAuditOutcome = 'ok' | 'error' | 'unauthorized' | 'invalid';
@@ -40,8 +44,12 @@ export type McpAuditEntry = {
   rpcId?: string | number | null;
   tool?: string;
   params?: Record<string, string | number | boolean>;
+  /** initialize.clientInfo.name 或 UA 推断名 */
   clientName?: string;
   clientVersion?: string;
+  /** 聚合分桶：cursor / claude-code / trae / … */
+  clientFamily?: string;
+  clientSource?: McpClientIdentity['source'];
   status: number;
   outcome: McpAuditOutcome;
   durationMs: number;
@@ -55,6 +63,7 @@ const TOOL_ARG_KEYS = new Set([
   'locale',
   'limit',
   'tag',
+  'scope',
 ]);
 
 function trimEnv(key: string): string | undefined {
@@ -76,6 +85,15 @@ function normalizeUserAgent(ua: string | null): string | undefined {
   if (!ua) return undefined;
   const trimmed = ua.trim();
   return trimmed === '' ? undefined : trimmed;
+}
+
+function clientHeader(request: Request): string | undefined {
+  const headers = ['x-mcp-client', 'mcp-client', 'x-client-name'];
+  for (const key of headers) {
+    const v = request.headers.get(key)?.trim();
+    if (v) return v;
+  }
+  return undefined;
 }
 
 function sanitizeToolArgs(raw: unknown): Record<string, string | number | boolean> | undefined {
@@ -127,14 +145,30 @@ function metaFromMessage(msg: unknown): McpRpcMeta | null {
   return { rpcMethod, rpcId };
 }
 
-/** 解析 MCP POST 请求体（支持 JSON-RPC batch） */
+/**
+ * 解析 MCP POST 请求体（支持 JSON-RPC batch）。
+ * batch 内若先出现 initialize，其后的 tools/call 会继承 clientInfo。
+ */
 export function extractMcpRpcMeta(body: string): McpRpcMeta[] {
   if (!body.trim()) return [{ rpcMethod: 'empty_body' }];
   try {
     const json: unknown = JSON.parse(body);
     const messages = Array.isArray(json) ? json : [json];
     const metas = messages.map(metaFromMessage).filter((m): m is McpRpcMeta => m !== null);
-    return metas.length > 0 ? metas : [{ rpcMethod: 'unknown' }];
+    if (metas.length === 0) return [{ rpcMethod: 'unknown' }];
+
+    let inheritedName: string | undefined;
+    let inheritedVersion: string | undefined;
+    for (const meta of metas) {
+      if (meta.clientName) {
+        inheritedName = meta.clientName;
+        inheritedVersion = meta.clientVersion;
+      } else if (inheritedName) {
+        meta.clientName = inheritedName;
+        meta.clientVersion = inheritedVersion;
+      }
+    }
+    return metas;
   } catch {
     return [{ rpcMethod: 'invalid_json' }];
   }
@@ -164,6 +198,14 @@ export function buildMcpAuditEntry(
   startedMs: number,
 ): McpAuditEntry {
   const now = Date.now();
+  const userAgent = normalizeUserAgent(request.headers.get('user-agent'));
+  const identity = resolveMcpClientIdentity({
+    clientName: meta.clientName,
+    clientVersion: meta.clientVersion,
+    userAgent,
+    clientHeader: clientHeader(request),
+  });
+
   return mergeObservabilityAuth(
     {
       timestamp: now,
@@ -173,13 +215,15 @@ export function buildMcpAuditEntry(
       rpcId: meta.rpcId,
       tool: meta.tool,
       params: meta.params,
-      clientName: meta.clientName,
-      clientVersion: meta.clientVersion,
+      clientName: identity.name ?? meta.clientName,
+      clientVersion: identity.version ?? meta.clientVersion,
+      clientFamily: identity.family,
+      clientSource: identity.source,
       status,
       outcome: mcpAuditOutcome(status, meta.rpcMethod),
       durationMs: Math.max(0, now - startedMs),
       ip: requestIp(request),
-      userAgent: normalizeUserAgent(request.headers.get('user-agent')),
+      userAgent,
     },
     resolveObservabilityLogAuth(request),
   );
@@ -208,10 +252,14 @@ export function formatMcpAuditPretty(entry: McpAuditEntry, options?: { useColors
   const metaParts: string[] = [formatLogMetaLabel(entry.outcome, useColors)];
   const paramsSummary = formatParamsSummary(entry.params);
   if (paramsSummary) metaParts.push(formatLogMetaLabel(paramsSummary, useColors));
-  if (entry.clientName) {
+  if (entry.clientName || entry.clientFamily) {
+    const label =
+      entry.clientFamily && entry.clientName
+        ? `${entry.clientFamily}:${entry.clientName}`
+        : (entry.clientName ?? entry.clientFamily);
     metaParts.push(
       formatLogMetaLabel(
-        entry.clientVersion ? `${entry.clientName}@${entry.clientVersion}` : entry.clientName,
+        entry.clientVersion ? `${label}@${entry.clientVersion}` : label!,
         useColors,
       ),
     );

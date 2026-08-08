@@ -19,6 +19,9 @@ export type TraceContextInput = {
   outcome?: string;
   /** MCP 工具名等 */
   mcpTool?: string;
+  mcpClientFamily?: string;
+  mcpClientName?: string;
+  mcpClientVersion?: string;
 };
 
 /**
@@ -48,6 +51,9 @@ export function buildTraceContextAttributes(
   if (entry.category) attrs['knowledge.category'] = entry.category;
   if (entry.outcome) attrs['knowledge.outcome'] = entry.outcome;
   if (entry.mcpTool) attrs['mcp.tool'] = entry.mcpTool;
+  if (entry.mcpClientFamily) attrs['mcp.client'] = entry.mcpClientFamily;
+  if (entry.mcpClientName) attrs['mcp.client_name'] = entry.mcpClientName;
+  if (entry.mcpClientVersion) attrs['mcp.client_version'] = entry.mcpClientVersion;
 
   return attrs;
 }

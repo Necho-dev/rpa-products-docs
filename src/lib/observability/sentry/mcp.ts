@@ -28,7 +28,9 @@ function paramsSummary(params?: Record<string, string | number | boolean>): stri
 
 function mcpCallMessage(entry: McpAuditEntry, tool: string): string {
   const detail = paramsSummary(entry.params);
-  const base = `[mcp.call] ${tool}`;
+  const via =
+    entry.clientFamily && entry.clientFamily !== 'unknown' ? ` via ${entry.clientFamily}` : '';
+  const base = `[mcp.call] ${tool}${via}`;
   return detail ? `${base} ${detail} ${entry.status}` : `${base} ${entry.status}`;
 }
 
@@ -47,7 +49,19 @@ function attachMcpTrace(entry: McpAuditEntry): void {
     category: 'mcp',
     outcome: entry.outcome,
     mcpTool: entry.tool,
+    mcpClientFamily: entry.clientFamily,
+    mcpClientName: entry.clientName,
+    mcpClientVersion: entry.clientVersion,
   });
+}
+
+function mcpClientTags(entry: McpAuditEntry): Record<string, string> {
+  const tags: Record<string, string> = {};
+  if (entry.clientFamily) tags['mcp.client'] = entry.clientFamily;
+  if (entry.clientName) tags['mcp.client_name'] = entry.clientName;
+  if (entry.clientVersion) tags['mcp.client_version'] = entry.clientVersion;
+  if (entry.clientSource) tags['mcp.client_source'] = entry.clientSource;
+  return tags;
 }
 
 export function fireMcpCall(entry: McpAuditEntry): void {
@@ -61,6 +75,7 @@ export function fireMcpCall(entry: McpAuditEntry): void {
     userId: entry.accessUser,
     tags: {
       ...networkTags(entry),
+      ...mcpClientTags(entry),
       'mcp.tool': tool,
       'mcp.outcome': entry.outcome,
     },
@@ -70,8 +85,10 @@ export function fireMcpCall(entry: McpAuditEntry): void {
       status: entry.status,
       duration_ms: entry.durationMs,
       outcome: entry.outcome,
-      'mcp.client': strAttr(entry.clientName),
+      'mcp.client': strAttr(entry.clientFamily),
+      'mcp.client_name': strAttr(entry.clientName),
       'mcp.client_version': strAttr(entry.clientVersion),
+      'mcp.client_source': strAttr(entry.clientSource),
       ...flattenParams(entry.params),
       ...networkAttrs(entry),
     },
@@ -88,6 +105,7 @@ export function fireMcpDeny(entry: McpAuditEntry): void {
     userId: entry.accessUser,
     tags: {
       ...networkTags(entry),
+      ...mcpClientTags(entry),
       'mcp.outcome': entry.outcome,
       ...(entry.tool ? { 'mcp.tool': entry.tool } : {}),
     },
@@ -97,8 +115,10 @@ export function fireMcpDeny(entry: McpAuditEntry): void {
       status: entry.status,
       duration_ms: entry.durationMs,
       outcome: entry.outcome,
-      'mcp.client': strAttr(entry.clientName),
+      'mcp.client': strAttr(entry.clientFamily),
+      'mcp.client_name': strAttr(entry.clientName),
       'mcp.client_version': strAttr(entry.clientVersion),
+      'mcp.client_source': strAttr(entry.clientSource),
       ...flattenParams(entry.params),
       ...networkAttrs(entry),
     },
