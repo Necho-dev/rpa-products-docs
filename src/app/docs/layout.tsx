@@ -15,6 +15,7 @@ import { ExcerptCollectionDrawer } from '@/components/docs/selection/excerpt-col
 import { ExcerptAiToolsBridge } from '@/components/docs/selection/excerpt-ai-tools-bridge';
 import { DocFeedbackProvider } from '@/components/docs/feedback/doc-feedback-context';
 import { isDocFeedbackEnabled } from '@/lib/docs/feedback/config';
+import { AppUpdateSentinel } from '@/components/observability/app-update-sentinel';
 
 export default async function Layout({ children }: LayoutProps<'/docs'>) {
   const modelDisplayName = process.env.LLM_MODEL?.trim() || undefined;
@@ -60,6 +61,7 @@ export default async function Layout({ children }: LayoutProps<'/docs'>) {
             <ExcerptCollectionDrawer />
             <DocsFloatingAnchors />
             <DocSelectionProvider />
+            <AppUpdateSentinel />
             {children}
           </ExcerptCollectionProvider>
         </DocFeedbackProvider>

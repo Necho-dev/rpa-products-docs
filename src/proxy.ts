@@ -53,7 +53,12 @@ const MCP_UNAUTHORIZED_BODY = {
 function isPublicPath(pathname: string): boolean {
   if (pathname.startsWith('/auth/')) return true;
   if (pathname === '/health') return true;
-  /** Sentry tunnel（withSentryConfig tunnelRoute）须公开，避免 SSO 门禁拦截埋点 */
+  /**
+   * 构建版本探测保持公开: BUILD_ID 非敏感;
+   * 哨兵仅挂在 /docs (已过 SSO), 但会话过期时轮询仍应拿 JSON 而非登录页 HTML
+   */
+  if (pathname === '/api/version') return true;
+  /** Sentry Tunnel (withSentryConfig tunnelRoute) 公开路径, 避免 SSO 门禁拦截埋点 */
   if (pathname === '/monitoring' || pathname.startsWith('/monitoring/')) return true;
   if (pathname.startsWith('/_next/')) return true;
   if (pathname.startsWith('/.well-known/')) return true;
