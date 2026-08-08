@@ -130,6 +130,7 @@ cp .env.example .env
   - `sso.redirect` / `sso.deny`：SSO 门禁拦截（踢登录 / 401；`pass` 不上报）
   - `auth.deny`：UA / 嵌入验签 / OG 等 Proxy 拒绝（`auth.reason`）
 - **AI Monitoring**：`vercelAIIntegration`；chat / ai-answer 在 DSN 存在时开 `experimental_telemetry`
+- **MCP Monitoring**：`wrapMcpServerWithSentry`（`/mcp`）产生 `mcp.server` spans，进入 Insights → AI / MCP；业务审计 Logs 另记 `mcp.call` / `mcp.deny`
 
 SDK 入口：`src/instrumentation.ts`、`src/instrumentation-client.ts`、`src/sentry.server.config.ts`、`src/sentry.edge.config.ts`。业务审计入口：`src/lib/observability/sentry/`。
 
