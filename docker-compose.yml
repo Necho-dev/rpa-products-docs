@@ -11,6 +11,9 @@ services:
         SENTRY_ORG: ${SENTRY_ORG:-}
         SENTRY_PROJECT: ${SENTRY_PROJECT:-}
         SENTRY_URL: ${SENTRY_URL:-}
+        # 由 deplpy 在构建前 export（git rev-parse），非 .env 配置
+        GIT_SHA: ${GIT_SHA:-}
+        SENTRY_RELEASE: ${SENTRY_RELEASE:-}
     image: ${COMPOSE_IMAGE:-yuce-knowledge-docs:local}
     container_name: ${COMPOSE_CONTAINER_NAME:-yuce-knowledge-docs}
     restart: unless-stopped

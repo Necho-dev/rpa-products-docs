@@ -23,6 +23,7 @@ import {
   resolveMcpClientIdentity,
   type McpClientIdentity,
 } from '@/lib/observability/mcp-client-identity';
+import { extractGeoAsn } from '@/lib/observability/request-enrichment';
 import { fireMcpAudit, isSentryEnabled } from '@/lib/observability/sentry';
 
 export type McpAuditOutcome = 'ok' | 'error' | 'unauthorized' | 'invalid';
@@ -55,6 +56,9 @@ export type McpAuditEntry = {
   durationMs: number;
   ip?: string;
   userAgent?: string;
+  geoCountry?: string;
+  geoRegion?: string;
+  asn?: string;
 } & ObservabilityAuthFields;
 
 const TOOL_ARG_KEYS = new Set([
@@ -205,6 +209,7 @@ export function buildMcpAuditEntry(
     userAgent,
     clientHeader: clientHeader(request),
   });
+  const geo = extractGeoAsn(request.headers);
 
   return mergeObservabilityAuth(
     {
@@ -224,6 +229,9 @@ export function buildMcpAuditEntry(
       durationMs: Math.max(0, now - startedMs),
       ip: requestIp(request),
       userAgent,
+      geoCountry: geo.geoCountry,
+      geoRegion: geo.geoRegion,
+      asn: geo.asn,
     },
     resolveObservabilityLogAuth(request),
   );

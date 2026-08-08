@@ -26,6 +26,7 @@ import {
   toObservabilityJsonlEntry,
   type ObservabilityAuthFields,
 } from '@/lib/observability/observability-auth';
+import { extractGeoAsn, isRscRequest } from '@/lib/observability/request-enrichment';
 import { fireSsoGate, isSentryEnabled } from '@/lib/observability/sentry';
 
 export type SsoLogOutcome = 'redirect' | 'unauthorized' | 'pass';
@@ -44,6 +45,10 @@ export type SsoLogEntry = {
   redirectTo?: string;
   ip?: string;
   userAgent?: string;
+  rsc?: boolean;
+  geoCountry?: string;
+  geoRegion?: string;
+  asn?: string;
 } & ObservabilityAuthFields;
 
 export function isSsoAuditLogEnabled(): boolean {
@@ -86,6 +91,8 @@ export function buildSsoLogEntry(
 ): SsoLogEntry {
   const { pathname, search } = request.nextUrl;
   const now = Date.now();
+  const query = sanitizeQuery(search);
+  const geo = extractGeoAsn(request.headers);
   const entry: SsoLogEntry = mergeObservabilityAuth(
     {
       timestamp: now,
@@ -93,13 +100,17 @@ export function buildSsoLogEntry(
       type: 'sso',
       method: request.method,
       path: pathname,
-      query: sanitizeQuery(search),
+      query,
       status: response.status,
       outcome,
       category: pathCategory(pathname),
       durationMs: Math.max(0, now - startedMs),
       ip: clientIp(request),
       userAgent: normalizeUserAgent(request.headers.get('user-agent')),
+      rsc: isRscRequest(query),
+      geoCountry: geo.geoCountry,
+      geoRegion: geo.geoRegion,
+      asn: geo.asn,
     },
     resolveObservabilityLogAuth(request),
   );

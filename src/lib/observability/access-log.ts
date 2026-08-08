@@ -8,6 +8,7 @@ import {
   toObservabilityJsonlEntry,
   type ObservabilityAuthFields,
 } from '@/lib/observability/observability-auth';
+import { extractGeoAsn, isRscRequest } from '@/lib/observability/request-enrichment';
 import { fireAccessAudit, isSentryEnabled } from '@/lib/observability/sentry';
 
 export type { ObservabilityAuthFields, ObservabilityAuthorization } from '@/lib/observability/observability-auth';
@@ -32,6 +33,11 @@ export type AccessLogEntry = {
   prefetchSample?: string[];
   ip?: string;
   userAgent?: string;
+  /** Next RSC / Flight（query `_rsc`） */
+  rsc?: boolean;
+  geoCountry?: string;
+  geoRegion?: string;
+  asn?: string;
 } & ObservabilityAuthFields;
 
 export type AccessLogOutcome =
@@ -142,6 +148,8 @@ export function buildAccessLogEntry(
 ): AccessLogEntry {
   const { pathname, search } = request.nextUrl;
   const now = Date.now();
+  const query = sanitizeQuery(search);
+  const geo = extractGeoAsn(request.headers);
   return mergeObservabilityAuth(
     {
       timestamp: now,
@@ -149,13 +157,17 @@ export function buildAccessLogEntry(
       type: 'access',
       method: request.method,
       path: pathname,
-      query: sanitizeQuery(search),
+      query,
       status: response.status,
       outcome,
       category: pathCategory(pathname),
       durationMs: Math.max(0, Date.now() - startedMs),
       ip: clientIp(request),
       userAgent: normalizeUserAgent(request.headers.get('user-agent')),
+      rsc: isRscRequest(query),
+      geoCountry: geo.geoCountry,
+      geoRegion: geo.geoRegion,
+      asn: geo.asn,
     },
     resolveObservabilityLogAuth(request),
   );

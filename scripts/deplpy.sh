@@ -58,6 +58,21 @@ export_compose_build_env() {
       export "${key}=${value}"
     fi
   done
+
+  # release / git.sha：构建时自动生成，不读 .env（避免手填漂移）
+  if command -v git >/dev/null 2>&1; then
+    GIT_SHA="$(git rev-parse HEAD 2>/dev/null || true)"
+  else
+    GIT_SHA=""
+  fi
+  if [ -n "$GIT_SHA" ]; then
+    export GIT_SHA
+    export SENTRY_RELEASE="$GIT_SHA"
+    log_sentry "构建 release: ${GIT_SHA}"
+  else
+    unset GIT_SHA SENTRY_RELEASE 2>/dev/null || true
+    log_sentry "警告: 无法 git rev-parse HEAD，本构建不会写入 Sentry release"
+  fi
 }
 
 # 从 docker compose config JSON 取 services.docs.build.args.SENTRY_DSN
@@ -178,7 +193,7 @@ check_sentry_preflight() {
     log_sentry "警告: .env 与 compose build.args 的 SENTRY_DSN 不一致"
   fi
 
-  log_sentry "预检通过: host=${host} environment=${SENTRY_ENVIRONMENT:-dev}（将打入 next build）"
+  log_sentry "预检通过: host=${host} environment=${SENTRY_ENVIRONMENT:-dev} release=${SENTRY_RELEASE:-${GIT_SHA:-unset}}（将打入 next build）"
 
   if image_has_sentry_host "$host"; then
     log_sentry "当前镜像已内联 DSN host，无需因 Sentry 强制重建"

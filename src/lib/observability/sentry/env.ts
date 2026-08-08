@@ -32,6 +32,20 @@ export function getSentryEnvironment(): string {
   );
 }
 
+/**
+ * Sentry release / git sha。
+ * 由构建脚本（deplpy）注入 Docker ARG，**不是** `.env` 配置项。
+ * 客户端经 next.config `env` 静态内联。
+ */
+export function getSentryRelease(): string | undefined {
+  return (
+    trimValue(process.env.SENTRY_RELEASE) ??
+    trimValue(process.env.NEXT_PUBLIC_SENTRY_RELEASE) ??
+    trimValue(process.env.GIT_SHA) ??
+    trimValue(process.env.VERCEL_GIT_COMMIT_SHA)
+  );
+}
+
 export function isSentryEnabled(): boolean {
   return getSentryDsn() !== undefined;
 }

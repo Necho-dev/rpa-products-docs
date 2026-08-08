@@ -32,9 +32,19 @@ const config = {
     SENTRY_DSN: process.env.SENTRY_DSN ?? process.env.NEXT_PUBLIC_SENTRY_DSN ?? '',
     SENTRY_ENVIRONMENT:
       process.env.SENTRY_ENVIRONMENT ?? process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT ?? 'dev',
+    SENTRY_RELEASE:
+      process.env.SENTRY_RELEASE ??
+      process.env.NEXT_PUBLIC_SENTRY_RELEASE ??
+      process.env.GIT_SHA ??
+      '',
     NEXT_PUBLIC_SENTRY_DSN: process.env.SENTRY_DSN ?? process.env.NEXT_PUBLIC_SENTRY_DSN ?? '',
     NEXT_PUBLIC_SENTRY_ENVIRONMENT:
       process.env.SENTRY_ENVIRONMENT ?? process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT ?? 'dev',
+    NEXT_PUBLIC_SENTRY_RELEASE:
+      process.env.SENTRY_RELEASE ??
+      process.env.NEXT_PUBLIC_SENTRY_RELEASE ??
+      process.env.GIT_SHA ??
+      '',
   },
   /** Docker 等多阶段部署：产出 `.next/standalone`，运行时镜像只需 Node + 该目录 */
   output: 'standalone',

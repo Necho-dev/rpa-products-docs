@@ -44,6 +44,11 @@ ARG SENTRY_PROJECT
 ENV SENTRY_PROJECT=${SENTRY_PROJECT}
 ARG SENTRY_URL
 ENV SENTRY_URL=${SENTRY_URL}
+# release / git.sha：仅 build 参数（deplpy → compose.args），勿从 .env 手填
+ARG GIT_SHA
+ENV GIT_SHA=${GIT_SHA}
+ARG SENTRY_RELEASE
+ENV SENTRY_RELEASE=${SENTRY_RELEASE}
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
   npm run build
 
@@ -54,6 +59,10 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
+ARG GIT_SHA
+ENV GIT_SHA=${GIT_SHA}
+ARG SENTRY_RELEASE
+ENV SENTRY_RELEASE=${SENTRY_RELEASE}
 
 RUN groupadd -r -g 1001 nodejs && useradd -r -u 1001 -g nodejs -s /usr/sbin/nologin nextjs
 

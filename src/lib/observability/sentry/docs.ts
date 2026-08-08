@@ -1,5 +1,7 @@
 import type { AccessLogEntry, AccessLogOutcome } from '@/lib/observability/access-log';
 import { fireSentryAudit, networkAttrs, networkTags, strAttr } from '@/lib/observability/sentry/emit';
+import { resolveAuthMethod } from '@/lib/observability/request-enrichment';
+import { getSentryRelease } from '@/lib/observability/sentry/env';
 
 const DOCS_VIEW_OUTCOMES = new Set<AccessLogOutcome>(['forward', 'rewrite', 'embed_ok']);
 
@@ -23,12 +25,27 @@ export function formatDocsViewMessage(entry: Pick<AccessLogEntry, 'method' | 'pa
 export function fireDocsView(entry: AccessLogEntry): void {
   if (!shouldEmitDocsView(entry)) return;
 
+  const authMethod = resolveAuthMethod({
+    authorization: entry.authorization,
+    outcome: entry.outcome,
+    path: entry.path,
+  });
+  const release = getSentryRelease();
+  const tags: Record<string, string> = {
+    ...networkTags(entry),
+    'auth.method': authMethod,
+  };
+  if (entry.rsc != null) tags['http.rsc'] = String(entry.rsc);
+  if (entry.geoCountry) tags['geo.country'] = entry.geoCountry;
+  if (entry.asn) tags['geo.asn'] = entry.asn;
+  if (release) tags['git.sha'] = release;
+
   fireSentryAudit({
     event: 'docs.view',
     message: formatDocsViewMessage(entry),
     level: 'info',
     userId: entry.accessUser,
-    tags: networkTags(entry),
+    tags,
     attributes: {
       path: entry.path,
       method: entry.method,
@@ -37,6 +54,12 @@ export function fireDocsView(entry: AccessLogEntry): void {
       outcome: entry.outcome,
       category: entry.category,
       query: strAttr(entry.query),
+      'auth.method': authMethod,
+      'http.rsc': entry.rsc === true,
+      'geo.country': strAttr(entry.geoCountry),
+      'geo.region': strAttr(entry.geoRegion),
+      'geo.asn': strAttr(entry.asn),
+      ...(release ? { 'git.sha': release, release } : {}),
       ...networkAttrs(entry),
     },
   });

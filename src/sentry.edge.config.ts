@@ -1,5 +1,10 @@
 import * as Sentry from '@sentry/nextjs';
-import { getSentryDsn, getSentryEnvironment, isSentryEnabled } from '@/lib/observability/sentry/env';
+import {
+  getSentryDsn,
+  getSentryEnvironment,
+  getSentryRelease,
+  isSentryEnabled,
+} from '@/lib/observability/sentry/env';
 import { registerReadableTraceNameHooks } from '@/lib/observability/sentry/trace-name';
 
 const isDev = process.env.NODE_ENV === 'development';
@@ -8,6 +13,7 @@ if (isSentryEnabled()) {
   Sentry.init({
     dsn: getSentryDsn(),
     environment: getSentryEnvironment(),
+    release: getSentryRelease(),
     enabled: true,
 
     tracesSampleRate: isDev ? 1.0 : 0.2,

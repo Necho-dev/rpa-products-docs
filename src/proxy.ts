@@ -23,9 +23,14 @@ import {
   shouldApplyUserAgentGate,
 } from '@/lib/auth/user-agent-gate';
 import { applyOgDocGate, isOgDocsPath, isPublicOgDocsPath } from '@/lib/docs/og/proxy-gate';
-import { finishAccessLog, clientIp } from '@/lib/observability/access-log';
+import { finishAccessLog, clientIp, sanitizeQuery } from '@/lib/observability/access-log';
 import { setProxyTraceName, attachTraceContext } from '@/lib/observability/sentry';
 import { resolveObservabilityLogAuth } from '@/lib/observability/observability-auth';
+import {
+  extractGeoAsn,
+  isRscRequest,
+  resolveAuthMethod,
+} from '@/lib/observability/request-enrichment';
 import { finishSsoLog, ssoOutcomeFromStatus } from '@/lib/observability/sso-audit-log';
 
 /** 嵌入 HTML 路由前缀（对应 src/app/embed/docs/[[...slug]]） */
@@ -207,15 +212,25 @@ export function proxy(request: NextRequest) {
   const started = Date.now();
   // Trace 列表默认显示 middleware GET；改为实际请求路径便于排查
   setProxyTraceName(request.method, request.nextUrl.pathname);
-  // 尽早挂 identity / IP 到 middleware root span（Finish 日志时会再写 status）
+  // 尽早挂 identity / IP / geo / auth 到 middleware root span（Finish 日志时会再写 status）
   {
     const auth = resolveObservabilityLogAuth(request);
     const ua = request.headers.get('user-agent')?.trim();
+    const query = sanitizeQuery(request.nextUrl.search);
+    const geo = extractGeoAsn(request.headers);
     attachTraceContext({
       accessUser: auth.accessUser,
       accessOrigin: auth.accessOrigin,
       ip: clientIp(request),
       userAgent: ua || undefined,
+      authMethod: resolveAuthMethod({
+        authorization: auth.authorization,
+        path: request.nextUrl.pathname,
+      }),
+      rsc: isRscRequest(query),
+      geoCountry: geo.geoCountry,
+      geoRegion: geo.geoRegion,
+      asn: geo.asn,
     });
   }
 

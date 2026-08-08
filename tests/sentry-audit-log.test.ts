@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
   getSentryEnvironment,
+  getSentryRelease,
   isSentryEnabled,
   parseUserAgent,
   shouldEmitAuthDeny,
@@ -9,12 +10,19 @@ import {
   shouldEmitDocsView,
   shouldEmitMcpCall,
   shouldEmitMcpDeny,
+  shouldEmitMcpRpc,
   shouldEmitSsoGate,
   isOpaqueTraceName,
   resolveReadableTraceName,
   stripPathQuery,
   applyReadableTraceName,
+  buildTraceContextAttributes,
 } from '../src/lib/observability/sentry';
+import {
+  extractGeoAsn,
+  isRscRequest,
+  resolveAuthMethod,
+} from '../src/lib/observability/request-enrichment';
 
 describe('sentry-env', () => {
   it('isSentryEnabled follows SENTRY_DSN', () => {
@@ -44,6 +52,55 @@ describe('sentry-env', () => {
       else process.env.SENTRY_ENVIRONMENT = prev;
     }
   });
+
+  it('getSentryRelease prefers SENTRY_RELEASE then GIT_SHA', () => {
+    const prevRelease = process.env.SENTRY_RELEASE;
+    const prevGit = process.env.GIT_SHA;
+    try {
+      delete process.env.SENTRY_RELEASE;
+      delete process.env.GIT_SHA;
+      assert.equal(getSentryRelease(), undefined);
+      process.env.GIT_SHA = 'abc123';
+      assert.equal(getSentryRelease(), 'abc123');
+      process.env.SENTRY_RELEASE = 'v1.2.3';
+      assert.equal(getSentryRelease(), 'v1.2.3');
+    } finally {
+      if (prevRelease === undefined) delete process.env.SENTRY_RELEASE;
+      else process.env.SENTRY_RELEASE = prevRelease;
+      if (prevGit === undefined) delete process.env.GIT_SHA;
+      else process.env.GIT_SHA = prevGit;
+    }
+  });
+});
+
+describe('request-enrichment', () => {
+  it('resolveAuthMethod buckets', () => {
+    assert.equal(resolveAuthMethod({ path: '/embed/docs/foo' }), 'embed');
+    assert.equal(resolveAuthMethod({ outcome: 'embed_ok' }), 'embed');
+    assert.equal(resolveAuthMethod({ authorization: 'DOCMCPTOKEN' }), 'mcp_token');
+    assert.equal(resolveAuthMethod({ authorization: 'DOCSESSION' }), 'session');
+    assert.equal(resolveAuthMethod({}), 'anonymous');
+  });
+
+  it('isRscRequest detects _rsc query', () => {
+    assert.equal(isRscRequest('_rsc=abc'), true);
+    assert.equal(isRscRequest('x=1&_rsc=abc'), true);
+    assert.equal(isRscRequest('foo=1'), false);
+    assert.equal(isRscRequest(undefined), false);
+  });
+
+  it('extractGeoAsn reads headers', () => {
+    const headers = new Headers({
+      'cf-ipcountry': 'cn',
+      'cf-region': 'ZJ',
+      'cf-ipasn': 'AS4134',
+    });
+    assert.deepEqual(extractGeoAsn(headers), {
+      geoCountry: 'CN',
+      geoRegion: 'ZJ',
+      asn: '4134',
+    });
+  });
 });
 
 describe('shouldEmitDocsView', () => {
@@ -71,7 +128,7 @@ describe('shouldEmitDocsView', () => {
   });
 });
 
-describe('shouldEmitMcpCall / shouldEmitMcpDeny', () => {
+describe('shouldEmitMcpCall / shouldEmitMcpDeny / shouldEmitMcpRpc', () => {
   it('call only when authenticated tools/call', () => {
     assert.equal(
       shouldEmitMcpCall({ rpcMethod: 'tools/call', tool: 'searchDocumentationPages', outcome: 'ok' }),
@@ -91,6 +148,48 @@ describe('shouldEmitMcpCall / shouldEmitMcpDeny', () => {
   it('deny on unauthorized', () => {
     assert.equal(shouldEmitMcpDeny({ outcome: 'unauthorized' }), true);
     assert.equal(shouldEmitMcpDeny({ outcome: 'ok' }), false);
+  });
+
+  it('rpc for initialize/list but not tools/call or empty_body', () => {
+    assert.equal(shouldEmitMcpRpc({ rpcMethod: 'initialize', outcome: 'ok' }), true);
+    assert.equal(shouldEmitMcpRpc({ rpcMethod: 'tools/list', outcome: 'ok' }), true);
+    assert.equal(
+      shouldEmitMcpRpc({ rpcMethod: 'tools/call', tool: 'searchDocumentationPages', outcome: 'ok' }),
+      false,
+    );
+    assert.equal(shouldEmitMcpRpc({ rpcMethod: 'empty_body', outcome: 'invalid' }), false);
+    assert.equal(shouldEmitMcpRpc({ rpcMethod: 'initialize', outcome: 'unauthorized' }), false);
+  });
+});
+
+describe('buildTraceContextAttributes', () => {
+  it('includes auth/rsc/geo/mcp/release', () => {
+    const prev = process.env.SENTRY_RELEASE;
+    try {
+      process.env.SENTRY_RELEASE = 'deadbeef';
+      const attrs = buildTraceContextAttributes({
+        accessOrigin: 'cube',
+        authMethod: 'session',
+        rsc: true,
+        geoCountry: 'CN',
+        asn: '4134',
+        mcpRpcMethod: 'tools/call',
+        mcpParamTag: 'rpa',
+        mcpParamScope: 'docs',
+      });
+      assert.equal(attrs['auth.method'], 'session');
+      assert.equal(attrs['http.rsc'], true);
+      assert.equal(attrs['geo.country'], 'CN');
+      assert.equal(attrs['geo.asn'], '4134');
+      assert.equal(attrs['mcp.rpc_method'], 'tools/call');
+      assert.equal(attrs['mcp.param.tag'], 'rpa');
+      assert.equal(attrs['mcp.param.scope'], 'docs');
+      assert.equal(attrs['git.sha'], 'deadbeef');
+      assert.equal(attrs.release, 'deadbeef');
+    } finally {
+      if (prev === undefined) delete process.env.SENTRY_RELEASE;
+      else process.env.SENTRY_RELEASE = prev;
+    }
   });
 });
 
