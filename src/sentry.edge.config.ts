@@ -14,6 +14,9 @@ if (isSentryEnabled()) {
 
     enableLogs: true,
 
+    // 内部知识库：保留 client IP / user 等 request 侧字段到 Trace
+    sendDefaultPii: true,
+
     integrations: [
       Sentry.vercelAIIntegration(),
       Sentry.consoleLoggingIntegration({ levels: ['warn', 'error'] }),

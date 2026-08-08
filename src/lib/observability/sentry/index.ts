@@ -34,13 +34,27 @@ export {
   isOpaqueTraceName,
   stripPathQuery,
 } from '@/lib/observability/sentry/trace-name';
+export {
+  attachTraceContext,
+  buildTraceContextAttributes,
+} from '@/lib/observability/sentry/trace-context';
 
 import type { AccessLogEntry } from '@/lib/observability/access-log';
 import { fireAuthDeny } from '@/lib/observability/sentry/auth';
 import { fireDocsView } from '@/lib/observability/sentry/docs';
+import { attachTraceContext } from '@/lib/observability/sentry/trace-context';
 
-/** Access 审计：docs.view + auth.deny */
+/** Access 审计：把上下文挂到 Trace + docs.view / auth.deny Logs */
 export function fireAccessAudit(entry: AccessLogEntry): void {
+  attachTraceContext({
+    accessUser: entry.accessUser,
+    accessOrigin: entry.accessOrigin,
+    ip: entry.ip,
+    userAgent: entry.userAgent,
+    status: entry.status,
+    category: entry.category,
+    outcome: entry.outcome,
+  });
   fireDocsView(entry);
   fireAuthDeny(entry);
 }

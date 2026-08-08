@@ -6,6 +6,7 @@ import {
   networkTags,
   strAttr,
 } from '@/lib/observability/sentry/emit';
+import { attachTraceContext } from '@/lib/observability/sentry/trace-context';
 
 /** 已鉴权后的 MCP 工具调用 */
 export function shouldEmitMcpCall(entry: Pick<McpAuditEntry, 'rpcMethod' | 'tool' | 'outcome'>): boolean {
@@ -34,6 +35,19 @@ function mcpCallMessage(entry: McpAuditEntry, tool: string): string {
 function mcpDenyMessage(entry: McpAuditEntry): string {
   const tool = entry.tool ? ` ${entry.tool}` : '';
   return `[mcp.deny] ${entry.rpcMethod}${tool} ${entry.outcome} ${entry.status}`;
+}
+
+function attachMcpTrace(entry: McpAuditEntry): void {
+  attachTraceContext({
+    accessUser: entry.accessUser,
+    accessOrigin: entry.accessOrigin,
+    ip: entry.ip,
+    userAgent: entry.userAgent,
+    status: entry.status,
+    category: 'mcp',
+    outcome: entry.outcome,
+    mcpTool: entry.tool,
+  });
 }
 
 export function fireMcpCall(entry: McpAuditEntry): void {
@@ -91,8 +105,9 @@ export function fireMcpDeny(entry: McpAuditEntry): void {
   });
 }
 
-/** MCP 审计入口：成功 call 或鉴权拒绝 */
+/** MCP 审计入口：挂 Trace 上下文 + 成功 call 或鉴权拒绝 Logs */
 export function fireMcpAudit(entry: McpAuditEntry): void {
+  attachMcpTrace(entry);
   fireMcpCall(entry);
   fireMcpDeny(entry);
 }

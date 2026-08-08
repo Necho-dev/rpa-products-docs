@@ -23,8 +23,9 @@ import {
   shouldApplyUserAgentGate,
 } from '@/lib/auth/user-agent-gate';
 import { applyOgDocGate, isOgDocsPath, isPublicOgDocsPath } from '@/lib/docs/og/proxy-gate';
-import { finishAccessLog } from '@/lib/observability/access-log';
-import { setProxyTraceName } from '@/lib/observability/sentry';
+import { finishAccessLog, clientIp } from '@/lib/observability/access-log';
+import { setProxyTraceName, attachTraceContext } from '@/lib/observability/sentry';
+import { resolveObservabilityLogAuth } from '@/lib/observability/observability-auth';
 import { finishSsoLog, ssoOutcomeFromStatus } from '@/lib/observability/sso-audit-log';
 
 /** 嵌入 HTML 路由前缀（对应 src/app/embed/docs/[[...slug]]） */
@@ -206,6 +207,17 @@ export function proxy(request: NextRequest) {
   const started = Date.now();
   // Trace 列表默认显示 middleware GET；改为实际请求路径便于排查
   setProxyTraceName(request.method, request.nextUrl.pathname);
+  // 尽早挂 identity / IP 到 middleware root span（Finish 日志时会再写 status）
+  {
+    const auth = resolveObservabilityLogAuth(request);
+    const ua = request.headers.get('user-agent')?.trim();
+    attachTraceContext({
+      accessUser: auth.accessUser,
+      accessOrigin: auth.accessOrigin,
+      ip: clientIp(request),
+      userAgent: ua || undefined,
+    });
+  }
 
   // 嵌入通道优先 (通道 A): 有 X-Render-Mode 时跳过 SSO Cookie 门禁
   const embedGate = applyEmbedGate(request);

@@ -1,6 +1,7 @@
 import type { AccessLogEntry, AccessLogOutcome } from '@/lib/observability/access-log';
 import type { SsoLogEntry, SsoLogOutcome } from '@/lib/observability/sso-audit-log';
 import { fireSentryAudit, networkAttrs, networkTags, strAttr } from '@/lib/observability/sentry/emit';
+import { attachTraceContext } from '@/lib/observability/sentry/trace-context';
 
 const AUTH_DENY_OUTCOMES = new Set<AccessLogOutcome>([
   'ua_denied',
@@ -67,6 +68,16 @@ export function fireSsoGate(entry: SsoLogEntry): void {
   if (!shouldEmitSsoGate(entry)) return;
 
   const event = ssoEventName(entry.outcome);
+
+  attachTraceContext({
+    accessUser: entry.accessUser,
+    accessOrigin: entry.accessOrigin,
+    ip: entry.ip,
+    userAgent: entry.userAgent,
+    status: entry.status,
+    category: entry.category,
+    outcome: entry.outcome,
+  });
 
   fireSentryAudit({
     event,
