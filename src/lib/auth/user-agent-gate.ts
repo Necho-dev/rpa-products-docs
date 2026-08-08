@@ -46,6 +46,23 @@ const BLOCKED_UA_SUBSTRINGS = [
   'axios/',
   'node-fetch',
   'undici',
+  // 漏洞扫描器 / 安全探针（如 vuln_scanner/3.1.0 (CVE-2026-4020)）
+  'vuln_scanner',
+  'vuln-scanner',
+  'vulnerability scanner',
+  'nessus',
+  'nikto',
+  'sqlmap',
+  'nuclei',
+  'openvas',
+  'acunetix',
+  'burpsuite',
+  'wpscan',
+  'zgrab',
+  'masscan',
+  'dirbuster',
+  'gobuster',
+  'whatweb',
 ] as const;
 
 /** API / 机器可读导出路由前缀，不做 UA 拦截 */

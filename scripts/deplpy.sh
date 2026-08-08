@@ -126,11 +126,11 @@ compose_build_arg_sentry_dsn() {
   compose_build_arg_sentry_dsn_from_yaml "$cfg"
 }
 
-# 当前镜像客户端/服务端产物是否已内联 Sentry host
+# 当前镜像客户端产物是否已内联 Sentry host（仅查 /app/.next/static，服务端有 DSN 不算）
 image_has_sentry_host() {
   local host="$1"
   docker compose run --rm --no-deps --entrypoint sh docs -c \
-    "grep -rqF '${host}' /app/.next/static /app/.next/server 2>/dev/null" \
+    "grep -rqF '${host}' /app/.next/static 2>/dev/null" \
     >/dev/null 2>&1
 }
 
@@ -199,11 +199,12 @@ verify_sentry_in_image() {
 
   log_sentry "校验镜像是否内联 DSN host=${host}"
   if image_has_sentry_host "$host"; then
-    log_sentry "校验通过：/app/.next/static|server 已包含 ${host}"
+    log_sentry "校验通过：/app/.next/static 已包含 ${host}（客户端 Replay 可上报）"
     return 0
   fi
 
-  log_sentry "错误: 构建后仍未在镜像中找到 ${host}"
+  log_sentry "错误: 构建后仍未在客户端静态资源中找到 ${host}"
+  log_sentry "常见原因: 1) build 时 SENTRY_DSN 为空  2) env.ts 用了动态 process.env[key] 无法内联"
   log_sentry "请检查 Dockerfile build-arg / next.config env，并确认使用了 --build"
   return 1
 }

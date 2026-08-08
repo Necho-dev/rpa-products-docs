@@ -121,7 +121,7 @@ cp .env.example .env
 
 - **Errors**：`global-error.tsx` + `onRequestError`
 - **Tracing**：服务端请求 / 客户端路由导航；生产 `tracesSampleRate=0.2`。导出前用 `http.target` 把 SDK 默认的 `middleware GET` / `GET /docs/[[...slug]]` 改成真实路径（见 `registerReadableTraceNameHooks`）
-- **Session Replay**：会话 10%、出错会话 100%；同源隧道 `/monitoring`（已从 Proxy SSO matcher 排除）
+- **Session Replay**：会话 100%、出错会话 100%；同源隧道 `/monitoring`（已从 Proxy SSO matcher 排除）。**客户端 DSN 须 build 期静态内联**（`process.env.SENTRY_DSN`，禁动态 key）
 - **Logs**：三端 `enableLogs` + `consoleLoggingIntegration`（warn/error）
 - **业务审计（Sentry Logs）**（目录 `src/lib/observability/sentry/`）：与本地 `DOCS_OBSERVABILITY_LOG_*` **解耦**，仅由 `SENTRY_DSN` 开关
   - `docs.view`：真实文档浏览（`/docs`、`/embed/docs`；排除 prefetch）
@@ -431,7 +431,7 @@ git add content/docs/auth && git commit -m "chore: bump auth submodule"
 - 启动时把 `.env` 中的构建相关键 **export** 进当前进程（避免 1Panel/cron 空环境变量盖掉 Compose 插值）
 - 用 `docker compose config --format json` 校验 `build.args.SENTRY_DSN` 非空
 - 若 `.env` 已配置 DSN 但当前镜像未内联 → **即使代码无变更也会强制 `--build`**
-- `up -d --build` 完成后再次 `grep` 镜像内 `/app/.next/static|server`，失败则部署中止
+- `up -d --build` 完成后再次 `grep` 镜像内 **`/app/.next/static`**（客户端包；服务端有 DSN 不算），失败则部署中止
 
 **Q：1Panel 自动部署如何配置分支？**
 

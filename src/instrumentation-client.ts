@@ -11,7 +11,8 @@ if (isSentryEnabled()) {
 
     tracesSampleRate: isDev ? 1.0 : 0.2,
 
-    replaysSessionSampleRate: isDev ? 1.0 : 0.1,
+    // 内部知识库流量有限：会话全量采样，便于 Replay 面板有数据
+    replaysSessionSampleRate: 1.0,
     replaysOnErrorSampleRate: 1.0,
 
     enableLogs: true,
