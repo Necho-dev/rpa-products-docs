@@ -4,8 +4,10 @@ import { RootProvider } from 'fumadocs-ui/provider/next';
 import DocsSearchDialog from '@/components/docs/search/docs-search-dialog';
 import { AiSearchUiProvider } from '@/components/docs/search/ai-search-ui-context';
 import { SearchTagsProvider } from '@/components/docs/search/search-tags-context';
+import { SentryUserContext } from '@/components/observability/sentry-user-context';
 import { isAiSearchAvailable } from '@/lib/docs/search/ai-search';
 import { getSearchTags } from '@/lib/docs/search/search-tags';
+import { resolveClientSentryIdentity } from '@/lib/observability/sentry-client-identity';
 import './global.css';
 import 'katex/dist/katex.css';
 /** 在 Tailwind/typography 与 KaTeX 之后覆盖文档 blockquote，避免层叠被吃掉 */
@@ -14,7 +16,7 @@ import { FD_COLOR_PRESET_DEFAULT, FD_COLOR_PRESET_STORAGE_KEY } from '@/lib/ui/f
 import localFont from 'next/font/local';
 import { cn } from '@/lib/core/cn';
 import { DocumentTitleDefault } from '@/components/docs/document-title-default';
-import { getPublicSiteUrl, getPublicSiteUrlIfSet, getSiteDescription, getSiteName, siteName } from '@/lib/core/shared';
+import { getPublicSiteUrl, getPublicSiteUrlIfSet, getSiteDescription, getSiteName } from '@/lib/core/shared';
 
 /** 拉丁正文（本地 woff2，见 src/fonts） */
 const inter = localFont({
@@ -61,11 +63,11 @@ export function generateMetadata(): Metadata {
   };
 }
 
-export default function Layout({ children }: LayoutProps<'/'>) {
+export default async function Layout({ children }: LayoutProps<'/'>) {
   const siteName = getSiteName();
   const aiSearchUiEnabled = isAiSearchAvailable();
   const searchTags = getSearchTags();
-
+  const sentryIdentity = await resolveClientSentryIdentity();
 
   return (
     <html
@@ -81,6 +83,10 @@ export default function Layout({ children }: LayoutProps<'/'>) {
         />
       </head>
       <body className="flex min-h-screen flex-col font-sans antialiased">
+        <SentryUserContext
+          userId={sentryIdentity.userId}
+          cubeOrigin={sentryIdentity.cubeOrigin}
+        />
         <AiSearchUiProvider enabled={aiSearchUiEnabled}>
           <SearchTagsProvider tags={searchTags}>
           <RootProvider
@@ -103,4 +109,3 @@ export default function Layout({ children }: LayoutProps<'/'>) {
     </html>
   );
 }
-

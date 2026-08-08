@@ -23,6 +23,9 @@ if (isSentryEnabled()) {
 
     enableLogs: true,
 
+    // 允许 Sentry 从上报连接推断 client IP（Replay / Error 列表侧边栏）
+    sendDefaultPii: true,
+
     integrations: [
       // 公共知识库：文档正文可读，不做 mask/block（仍可对敏感 input 使用 data-sentry-mask）
       Sentry.replayIntegration({
