@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-01T14:32:54.457Z",
+  "updatedAt": "2026-08-09T14:23:56.808Z",
   "icons": {
     "ALI1688": {
       "file": "platform/files/ALI1688.ico",
@@ -85,6 +85,31 @@
       "file": "platform/files/WEIPINHUI.png",
       "sourceIcon": "https://vfs.vip.com/favicon.ico",
       "origin": "vfs.vip.com"
+    },
+    "WEIXIN_SPHJR": {
+      "file": "platform/files/WEIXIN_SPHJR.ico",
+      "sourceIcon": "https://res.wx.qq.com/t/wx_fed/finder/helper/finder-helper-web/res/favicon.ico",
+      "origin": "channels.weixin.qq.com"
+    },
+    "WEIXIN_SPHZS": {
+      "file": "platform/files/WEIXIN_SPHZS.png",
+      "sourceIcon": "https://res.wx.qq.com/t/wx_fed/finder/helper/finder-helper-web/res/favicon-v2.ico",
+      "origin": "channels.weixin.qq.com"
+    },
+    "WEIXIN_XD": {
+      "file": "platform/files/WEIXIN_XD.svg",
+      "sourceIcon": "https://mmec.wxqcloud.qq.com.cn/shop/public/2024-10-29/64476828-8db5-4359-a648-c0755c28197e.svg",
+      "origin": "store.weixin.qq.com"
+    },
+    "XIAOHONGSHU": {
+      "file": "platform/files/XIAOHONGSHU.ico",
+      "sourceIcon": "https://fe-video-qc.xhscdn.com/fe-platform/ed8fe781ce9e16c1bfac2cd962f0721edabe2e49.ico",
+      "origin": "www.xiaohongshu.com"
+    },
+    "XIAOHONGSHU_PGY": {
+      "file": "platform/files/XIAOHONGSHU_PGY.png",
+      "sourceIcon": "https://fe-platform.xhscdn.com/platform/104101l031lmak7uolm76agg1088g0000000006f6fub8g.png",
+      "origin": "pgy.xiaohongshu.com"
     }
   }
 }

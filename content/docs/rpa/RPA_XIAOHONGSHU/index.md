@@ -1,19 +1,19 @@
 ---
 title: 小红书
-icon: Heart
+icon: XIAOHONGSHU
 description: 覆盖小红书蒲公英订单报告等场景的连接器
 entry: RPA_XIAOHONGSHU
 module:
-  link: https://pgy.xiaohongshu.com/
+  link: https://www.xiaohongshu.com/
   group: xiaohongshu
   icon:
-    comp: Heart
+    comp: XIAOHONGSHU
 ---
 
 :::meta-panel
-icon: Heart
+icon: XIAOHONGSHU
 platform: 小红书
-platformUrl: https://pgy.xiaohongshu.com/
+platformUrl: https://www.xiaohongshu.com/
 requireLogin: true
 loginOptions:
   - text: 账号+密码
@@ -28,6 +28,6 @@ cover: true
 pgy:
   label: 蒲公英/PGY
   icon:
-    comp: Heart
+    comp: XIAOHONGSHU_PGY
     color: '#ff2442'
 :::
