@@ -37,11 +37,11 @@ module:
 | ---- | -------- | -------- | ---- | ------ | ---- |
 | `order_type` | 订单类型 | `String` | 否 | `ALL` | 可选值：`ALL`（全部订单）、`PENDING_PAY`（待支付）、`HEATING`（加热中）、`COMPLETED`（已完成）、`ENDED`（已结束）、`UNDER_REVIEW`（审核中）、`REVIEW_FAILED`（审核未通过）、`REFUNDING`（退款中）、`SETTLING`（结算中）、`PENDING_HEAT`（待加热）、`PAUSED`（已暂停） |
 | `author` | 作者昵称 | `String` | 否 | `""`（全部作者） | 空串或 `ALL` 表示全部作者；有值须与页面作者下拉选项完全匹配 |
-| `videos` | 视频标题 | `String` / `List[String]` | 否 | `""`（全部视频） | 支持英文逗号分隔字符串或字符串数组；空串 / `ALL` 表示全部视频；建议先指定 `author` 再筛选视频；有值须与页面视频选项标题匹配 |
+| `videos` | 视频标题 | `string` \| `list[string]` | 否 | `""`（全部视频） | 支持英文逗号分隔字符串或字符串数组；空串 / `ALL` 表示全部视频；建议先指定 `author` 再筛选视频；有值须与页面视频选项标题匹配 |
 | `creator` | 创建人昵称 | `String` | 否 | `""`（全部创建人） | 空串或 `ALL` 表示全部创建人；有值须与页面创建人下拉选项完全匹配 |
 | `custom_start_date` | 查询起始日期 | `String` | 条件必填 | 昨日往前共 8 天的首日（与结束日期同时省略时） | 支持 `YYYYMMDD` / `YYYY-MM-DD`；与 `custom_end_date` 须同时传入或同时省略；不得晚于昨日；与结束日期组成闭区间，跨度 ≤ 8 天 |
 | `custom_end_date` | 查询结束日期 | `String` | 条件必填 | 昨日（与起始日期同时省略时） | 支持 `YYYYMMDD` / `YYYY-MM-DD`；与 `custom_start_date` 须同时传入或同时省略；不得晚于昨日；不得早于起始日期；闭区间跨度 ≤ 8 天 |
-| `metric_fields` | 数据明细指标 | `String` / `List[String]` | 否 | 默认 12 项（见说明） | 支持英文逗号分隔或字符串数组；最多 12 项；可选值：`COST`（消耗金额）、`WECOIN_COST`（消耗微信豆金额）、`PLAY`（播放）、`PRODUCT_CLICK`（商品点击数）、`PRODUCT_CTR`（商品点击率）、`PRODUCT_ORDER`（商品成交数）、`PRODUCT_NET_ORDER`（商品净成交数）、`PRODUCT_CVR`（商品成交率）、`PRODUCT_GMV`（商品 GMV）、`PRODUCT_NET_GMV`（商品净成交金额）、`PRODUCT_ROI`（商品 ROI）、`PRODUCT_NET_ROI`（商品净成交ROI）、`HEART_LIKE`（爱心赞数）、`THUMB_LIKE`（拇指赞数）、`COMMENT`（评论数）、`SHARE`（分享）、`FOLLOW`（关注）、`COMPONENT_CLICK`（组件点击）、`PAID_USER`（付费人数）、`LIVE_RESERVE`（直播预约数）。默认：`COST,WECOIN_COST,PLAY,PRODUCT_CLICK,PRODUCT_CTR,PRODUCT_ORDER,PRODUCT_NET_ORDER,PRODUCT_CVR,PRODUCT_GMV,PRODUCT_NET_GMV,PRODUCT_ROI,PRODUCT_NET_ROI` |
+| `metric_fields` | 数据明细指标 | `string` \| `list[string]` | 否 | 默认 12 项（见说明） | 支持英文逗号分隔字符串或字符串数组；最多 12 项；可选值：`COST`（消耗金额）、`WECOIN_COST`（消耗微信豆金额）、`PLAY`（播放）、`PRODUCT_CLICK`（商品点击数）、`PRODUCT_CTR`（商品点击率）、`PRODUCT_ORDER`（商品成交数）、`PRODUCT_NET_ORDER`（商品净成交数）、`PRODUCT_CVR`（商品成交率）、`PRODUCT_GMV`（商品 GMV）、`PRODUCT_NET_GMV`（商品净成交金额）、`PRODUCT_ROI`（商品 ROI）、`PRODUCT_NET_ROI`（商品净成交ROI）、`HEART_LIKE`（爱心赞数）、`THUMB_LIKE`（拇指赞数）、`COMMENT`（评论数）、`SHARE`（分享）、`FOLLOW`（关注）、`COMPONENT_CLICK`（组件点击）、`PAID_USER`（付费人数）、`LIVE_RESERVE`（直播预约数）。默认：`COST,WECOIN_COST,PLAY,PRODUCT_CLICK,PRODUCT_CTR,PRODUCT_ORDER,PRODUCT_NET_ORDER,PRODUCT_CVR,PRODUCT_GMV,PRODUCT_NET_GMV,PRODUCT_ROI,PRODUCT_NET_ROI` |
 
 ### 入参样例
 
@@ -61,7 +61,7 @@ module:
 }
 ```
 
-指定作者与视频，并自定义明细指标（`YYYYMMDD`）：
+指定作者与视频，并自定义明细指标（`YYYYMMDD`；`videos` / `metric_fields` 亦可用英文逗号分隔字符串）：
 
 ```json
 {
@@ -141,37 +141,19 @@ module:
       "default": ""
     },
     "metric_fields": {
-      "description": "数据明细指标，最多12项。可选值见业务入参表；未传时默认 COST/WECOIN_COST/PLAY/PRODUCT_CLICK/PRODUCT_CTR/PRODUCT_ORDER/PRODUCT_NET_ORDER/PRODUCT_CVR/PRODUCT_GMV/PRODUCT_NET_GMV/PRODUCT_ROI/PRODUCT_NET_ROI",
+      "title": "数据明细指标",
+      "description": "数据明细指标，最多12项。支持英文逗号分隔字符串或字符串数组（可选值见业务入参表）；未传时使用 default 的 12 项",
+      "default": "COST,WECOIN_COST,PLAY,PRODUCT_CLICK,PRODUCT_CTR,PRODUCT_ORDER,PRODUCT_NET_ORDER,PRODUCT_CVR,PRODUCT_GMV,PRODUCT_NET_GMV,PRODUCT_ROI,PRODUCT_NET_ROI",
       "oneOf": [
         {
-          "type": "string"
+          "type": "string",
+          "pattern": "^$|^(COST|WECOIN_COST|PLAY|PRODUCT_CLICK|PRODUCT_CTR|PRODUCT_ORDER|PRODUCT_NET_ORDER|PRODUCT_CVR|PRODUCT_GMV|PRODUCT_NET_GMV|PRODUCT_ROI|PRODUCT_NET_ROI|HEART_LIKE|THUMB_LIKE|COMMENT|SHARE|FOLLOW|COMPONENT_CLICK|PAID_USER|LIVE_RESERVE)(,(COST|WECOIN_COST|PLAY|PRODUCT_CLICK|PRODUCT_CTR|PRODUCT_ORDER|PRODUCT_NET_ORDER|PRODUCT_CVR|PRODUCT_GMV|PRODUCT_NET_GMV|PRODUCT_ROI|PRODUCT_NET_ROI|HEART_LIKE|THUMB_LIKE|COMMENT|SHARE|FOLLOW|COMPONENT_CLICK|PAID_USER|LIVE_RESERVE)){0,11}$"
         },
         {
           "type": "array",
           "items": {
             "type": "string",
-            "enum": [
-              "COST",
-              "WECOIN_COST",
-              "PLAY",
-              "PRODUCT_CLICK",
-              "PRODUCT_CTR",
-              "PRODUCT_ORDER",
-              "PRODUCT_NET_ORDER",
-              "PRODUCT_CVR",
-              "PRODUCT_GMV",
-              "PRODUCT_NET_GMV",
-              "PRODUCT_ROI",
-              "PRODUCT_NET_ROI",
-              "HEART_LIKE",
-              "THUMB_LIKE",
-              "COMMENT",
-              "SHARE",
-              "FOLLOW",
-              "COMPONENT_CLICK",
-              "PAID_USER",
-              "LIVE_RESERVE"
-            ]
+            "pattern": "^(COST|WECOIN_COST|PLAY|PRODUCT_CLICK|PRODUCT_CTR|PRODUCT_ORDER|PRODUCT_NET_ORDER|PRODUCT_CVR|PRODUCT_GMV|PRODUCT_NET_GMV|PRODUCT_ROI|PRODUCT_NET_ROI|HEART_LIKE|THUMB_LIKE|COMMENT|SHARE|FOLLOW|COMPONENT_CLICK|PAID_USER|LIVE_RESERVE)$"
           },
           "maxItems": 12,
           "uniqueItems": true
