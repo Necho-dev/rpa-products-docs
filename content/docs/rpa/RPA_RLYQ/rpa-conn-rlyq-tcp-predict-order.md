@@ -1,5 +1,5 @@
 ---
-title: 钱包-TCP预估订单-报表下载
+title: 个人中心-未出账订单-TCP预估订单
 description: 按订单状态、日期类型与自定义时间范围申请并下载 TCP 预估订单（预估佣金）报表
 entry: rpa.conn.rlyq.tcp.predict.order
 badge:
@@ -15,7 +15,7 @@ module:
 | 属性             | 值                                                         |
 | ---------------- | ---------------------------------------------------------- |
 | **连接器类型**   | `RPA 连接器`                                               |
-| **连接器名称**   | `ODS_钱包TCP预估订单报表下载明细表(热浪引擎RPA)`             |
+| **连接器名称**   | `ODS_个人中心未出TCP预估订单明细报表`             |
 | **连接器代码**   | `rpa.conn.rlyq.tcp.predict.order`                          |
 | **操作类型**     | `文件导出`                                                 |
 | **目标网页**     | `https://hot.taobao.com/hw/union/console/wallet/consumer-predict-order` |
