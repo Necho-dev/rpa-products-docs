@@ -6,8 +6,8 @@ badge:
   label: 待上线
   color: "#EA580C"
 estimatedDuration:
-  sec: 30
-  description: 基于稳定性压测结果，通常约 30 秒内完成，若有复杂筛选可能需要 60+ 秒
+  sec: 60
+  description: 基于稳定性压测结果，通常约 60 秒内完成（含复杂筛选缓冲）
 module:
   group: sphjr
 ---
