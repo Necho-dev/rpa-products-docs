@@ -1,11 +1,8 @@
 import { readFile } from 'node:fs/promises';
 import { join, normalize } from 'node:path';
 import { NextResponse } from 'next/server';
-import {
-  resourcesPublicPrefixes,
-  resourcesRequireEmbedSign,
-} from '@/lib/auth/auth-config';
-import { verifyResourceRequest } from '@/lib/auth/sign-resource';
+import { resourcesRequireEmbedSign } from '@/lib/auth/auth-config';
+import { authorizeDocsImageRequest } from '@/lib/auth/resources-auth';
 import {
   isBlockedUserAgent,
   isUserAgentGateEnabled,
@@ -33,6 +30,8 @@ export const runtime = 'nodejs';
  * resolveDocRelativeImagePath 展开后已带项目前缀，直接命中上述规则。
  *
  * 安全限制：只允许访问图片扩展名文件，防止 .md / .json 等文档源码泄露。
+ * 鉴权见 `authorizeDocsImageRequest`
+ *（公开前缀 / 嵌入 HMAC / Session）
  */
 const DOCS_BASE_DIR = join(process.cwd(), 'content', 'docs');
 
@@ -53,15 +52,6 @@ function mimeFromExt(ext: string): string {
     case 'ico': return 'image/x-icon';
     default: return 'application/octet-stream';
   }
-}
-
-function isPublicResourceRelativePath(relative: string): boolean {
-  const prefixes = resourcesPublicPrefixes();
-  if (prefixes.length === 0) return false;
-  const normalized = relative.replace(/^\/+/, '');
-  return prefixes.some(
-    (prefix) => normalized === prefix || normalized.startsWith(`${prefix}/`),
-  );
 }
 
 export async function GET(
@@ -86,13 +76,16 @@ export async function GET(
 
   const relative = path.join('/');
 
-  if (resourcesRequireEmbedSign() && !isPublicResourceRelativePath(relative)) {
-    if (!verifyResourceRequest(req)) {
-      return NextResponse.json(
-        { error: 'unauthorized', message: '访问资源请携带有效的 BFF 签名' },
-        { status: 401, headers: { 'Content-Type': 'application/json; charset=utf-8' } },
-      );
-    }
+  const authz = authorizeDocsImageRequest(req, relative);
+  if (!authz.ok) {
+    return NextResponse.json(
+      {
+        error: 'unauthorized',
+        message:
+          '访问资源需要登录会话或有效的嵌入签名',
+      },
+      { status: 401, headers: { 'Content-Type': 'application/json; charset=utf-8' } },
+    );
   }
 
   // 防路径穿越：规范化后必须仍在 DOCS_BASE_DIR 内

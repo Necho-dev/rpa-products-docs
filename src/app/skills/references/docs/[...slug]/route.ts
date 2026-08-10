@@ -1,6 +1,7 @@
 import { getDocAccessContext } from '@/lib/docs/access/doc-access';
 import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
 import { getLLMText, source } from '@/lib/docs/source/source';
+import { inferSiteOrigin } from '@/lib/core/site-origin';
 import { notFound } from 'next/navigation';
 
 export const runtime = 'nodejs';
@@ -16,7 +17,7 @@ export async function GET(
   if (!page) notFound();
   if (!isDocPageAccessible(page, access)) notFound();
 
-  return new Response(await getLLMText(page), {
+  return new Response(await getLLMText(page, { siteOrigin: inferSiteOrigin(request) }), {
     headers: {
       'Content-Type': 'text/markdown; charset=utf-8',
       'Cache-Control': 'private, no-store',

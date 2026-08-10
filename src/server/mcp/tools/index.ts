@@ -2,6 +2,7 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { DocAccessContext } from '@/lib/docs/access/doc-access';
 import type { SearchTag } from '@/lib/docs/search/search-tags';
 import { registerGetDocsContentTool } from './get-docs-content';
+import { registerGetDocsImageTool } from './get-docs-image';
 import { registerGetDocsMetaTool } from './get-docs-meta';
 import { registerListDocsTool } from './list-docs';
 import { registerSearchDocsTool } from './search-docs';
@@ -17,4 +18,5 @@ export function registerDocsMcpTools(
   registerSearchDocsTool(server, siteOrigin, access, searchTags);
   registerGetDocsMetaTool(server, siteOrigin, access);
   registerGetDocsContentTool(server, siteOrigin, access);
+  registerGetDocsImageTool(server, access);
 }

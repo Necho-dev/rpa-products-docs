@@ -67,7 +67,8 @@ WHEN TO USE: When you know the EXACT docs URL path (e.g. "${docsRoute}/some/page
 
 WHEN NOT TO USE: If you don't know the path, use list_docs or search_docs first. If you only need headings/structure, use get_docs_meta (token-efficient).
 
-Returns title, description, path, url, and content (processed markdown / LLM-oriented text).`;
+Returns title, description, path, url, and content (processed markdown / LLM-oriented text).
+Image src values are content/docs-relative paths (e.g. rpa/_public/images/foo.png), not HTTP URLs.`;
 
 export type DocToolTextResult = { ok: true; text: string } | { ok: false; text: string };
 
@@ -138,7 +139,10 @@ export async function getDocumentationPage(
     };
   }
 
-  const content = await getLLMText(page);
+  const content = await getLLMText(page, {
+    siteOrigin,
+    docsRelativeImagePaths: true,
+  });
   const base = siteOrigin.replace(/\/$/, '');
   const payload = {
     title: page.data.title,

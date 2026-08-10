@@ -82,9 +82,10 @@ function envBool(key: string, defaultValue = false): boolean {
   return raw === '1' || raw.toLowerCase() === 'true' || raw.toLowerCase() === 'yes';
 }
 
-  /**
- * 为 true 时 `/resources/images/**` 须带 BFF HMAC (公开前缀除外)
- * 未显式配置时: 生产环境且 `DOCS_CUBE_SSO_ENABLED` 为 true -> 默认 true
+/**
+ * 为 true 时 `/resources/images/**` 拒绝匿名，须命中任一通道：
+ * 公开前缀 / 嵌入 BFF HMAC / 浏览器 Session。
+ * 未显式配置时: 生产环境且 `DOCS_CUBE_SSO_ENABLED` 为 true -> 默认 true。
  */
 export function resourcesRequireEmbedSign(): boolean {
   const raw = trimEnv('DOCS_RESOURCES_REQUIRE_EMBED_SIGN');

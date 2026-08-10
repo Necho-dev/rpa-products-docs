@@ -4,6 +4,9 @@ import type { DocAccessContext } from '@/lib/docs/access/doc-access';
 import { getDocumentationPage, getPageToolDescription } from '@/lib/docs/docs-site-tools';
 import { docsRoute } from '@/lib/core/shared';
 
+const getDocsContentToolDescription = `${getPageToolDescription}
+Image src values are content/docs-relative paths — use get_docs_image(path, page=this page path) to fetch binaries.`;
+
 export function registerGetDocsContentTool(
   server: McpServer,
   siteOrigin: string,
@@ -12,7 +15,7 @@ export function registerGetDocsContentTool(
   server.registerTool(
     'get_docs_content',
     {
-      description: getPageToolDescription,
+      description: getDocsContentToolDescription,
       inputSchema: {
         path: z
           .string()

@@ -2,6 +2,7 @@ import { getDocAccessContext, getDocAccessContextForEmbed } from '@/lib/docs/acc
 import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
 import { getEmbedMarkdown, getLLMText, source } from '@/lib/docs/source/source';
 import { getEmbedRenderMode, verifyCubeEmbedRequest } from '@/lib/auth/cube-embed';
+import { inferSiteOrigin } from '@/lib/core/site-origin';
 import { notFound } from 'next/navigation';
 
 export const runtime = 'nodejs';
@@ -52,7 +53,7 @@ export async function GET(req: Request, { params }: RouteContext<'/llms.mdx/docs
   if (isEmbedRequest) {
     body = await getEmbedMarkdown(page, embedCubeOrigin);
   } else {
-    body = await getLLMText(page);
+    body = await getLLMText(page, { siteOrigin: inferSiteOrigin(req) });
   }
 
   return new Response(body, {

@@ -1,6 +1,6 @@
 import { docs } from 'collections/server';
 import { loader } from 'fumadocs-core/source';
-import { docsContentRoute, docsImageRoute, docsRoute } from '@/lib/core/shared';
+import { docsContentRoute, docsImageRoute, docsRoute, getPublicSiteUrlIfSet } from '@/lib/core/shared';
 import { docIconsPlugin } from '@/lib/docs/source/doc-icons-plugin';
 import { docsEntryInSidebarPlugin } from '@/lib/docs/source/docs-entry-in-sidebar-plugin';
 import { rewriteMarkdownImagesForEmbed } from '@/lib/docs/embed/markdown';
@@ -52,9 +52,34 @@ export function getPageMarkdownUrl(page: (typeof source)['$inferPage']) {
   };
 }
 
-export async function getLLMText(page: (typeof source)['$inferPage']) {
-  const processed = await page.data.getText('processed');
-  const body = stripTocOnlyHeadings(processed);
+export type GetLLMTextOptions = {
+  /** 站点根 URL；`llms.mdx` 等人类导出把图写成绝对 `/resources/images/...` */
+  siteOrigin?: string | null;
+  /**
+   * MCP 正文：输出 `content/docs` 相对路径作图片标识，读图用 `get_docs_image`。
+   */
+  docsRelativeImagePaths?: boolean;
+};
+
+/**
+ * LLM / MCP / llms.mdx 导出文本。
+ * fumadocs remark-image 会把本地图编成 `src="__imgN"`，此处按 raw 路径还原。
+ */
+export async function getLLMText(
+  page: (typeof source)['$inferPage'],
+  options?: GetLLMTextOptions,
+) {
+  const [processed, raw] = await Promise.all([
+    page.data.getText('processed'),
+    page.data.getText('raw'),
+  ]);
+  const siteOrigin =
+    options?.siteOrigin?.replace(/\/$/, '') || getPublicSiteUrlIfSet() || null;
+  const rewritten = rewriteMarkdownImagesForEmbed(processed, raw, page.path, {
+    siteOrigin,
+    docsRelativePaths: options?.docsRelativeImagePaths,
+  });
+  const body = stripTocOnlyHeadings(rewritten);
 
   return `# ${page.data.title} (${page.url})
 
