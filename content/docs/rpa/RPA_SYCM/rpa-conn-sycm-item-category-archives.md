@@ -1,5 +1,5 @@
 ---
-title: 商品-品类360
+title: 商品-品类360-品类排行
 description: 采集生意参谋品类360页「品类排行」下标准类目、导购类目与自定义类目三个 Tab 的访客、加购、下单、支付及转化等指标
 entry: rpa.conn.sycm.item.category.archives
 badge:
@@ -10,7 +10,7 @@ dataReady:
   cycle: daily
   description: 生意参谋大部分核心数据模块（流量、商品、市场等）昨日数据在上午 9 点前完成更新
 estimatedDuration:
-  sec: 120
+  sec: 60
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。
 module:
   group: item
@@ -19,21 +19,21 @@ module:
 | 属性             | 值                                                                                       |
 | ---------------- | ---------------------------------------------------------------------------------------- |
 | **连接器类型**   | `RPA 连接器`                                                                             |
-| **连接器名称**   | `ODS_商品品类360明细表(生意参谋RPA)`                                                     |
+| **连接器名称**   | `ODS_商品品类360品类排行明细表(生意参谋RPA)`                                             |
 | **连接器代码**   | `rpa.conn.sycm.item.category.archives`                                                   |
 | **操作类型**     | `页面解析` + `文件导出`                                                                  |
 | **目标网页**     | `https://sycm.taobao.com/cc/new_cate_archives`                                           |
-| **适用场景**     | 采集生意参谋品类360页「品类排行」模块下 **标准类目、导购类目、自定义类目** 三个 Tab 的访客、加购、下单、支付及转化等指标 |
+| **适用场景**     | 采集生意参谋品类360页「品类排行」模块下 **标准类目、导购类目、自定义类目** 三个 Tab 的访客、加购、下单、支付及转化等指标；支持按 Tab 选择性采集 |
 | **数据表名**     | `ods_rpa_sycm_item_category_archives_du`                                                 |
-| **业务表名**     | `ODS_商品品类360明细表(生意参谋RPA)`                                                     |
+| **业务表名**     | `ODS_商品品类360品类排行明细表(生意参谋RPA)`                                             |
 
 ### 目标页面
 
-> **取数路径**：生意参谋—商品—品类360
+> **取数路径**：生意参谋—商品—品类360—品类排行
 >
 > **取数链接**：[https://sycm.taobao.com/cc/new_cate_archives](https://sycm.taobao.com/cc/new_cate_archives)
 
-**采集 Tab 范围**（仅以下三个，其余 Tab 不采集）：
+**采集 Tab 范围**（仅以下三个，其余 Tab 不采集；可通过入参 `category_types` 选择性采集）：
 
 | Tab | 采集方式 | 说明 |
 | --- | -------- | ---- |
@@ -43,41 +43,44 @@ module:
 
 不纳入采集范围：**我关注的类目**、**品类诊断** 及页面其他模块。
 
-![生意参谋—商品—品类360](../_public/images/sycm/item_category_archives_20260804.png)
+![生意参谋—商品—品类360—品类排行](../_public/images/sycm/item_category_archives_20260804.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
+| `category_types` | 品类排行子 Tab | `String` / `List[String]` | 否 | 全选 | 可选值：`standard`（标准类目）/ `guide`（导购类目）/ `custom`（自定义类目）；支持逗号分隔或数组；不传/空/`ALL` 表示三个 Tab 全采 |
 | `date_type` | 统计时间类型 | `String` | 否 | `recent30` | 可选值：`recent7`（7天）/ `recent30`（30天）/ `day`（日）/ `week`（周）/ `month`（月） |
 | `stat_date` | 统计日期 | `String` | 条件必填 | — | 仅当 `date_type` 为 `day` / `week` / `month` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；统计区间不能晚于最近完整日期（昨天） |
 
 ### 入参样例
 
-默认近 30 天（`date_type`、`stat_date` 均可不传）：
+默认近 30 天、三 Tab 全采（`category_types`、`date_type`、`stat_date` 均可不传）：
 
 ```json
 {}
 ```
 
-或显式指定：
+仅采标准类目：
 
 ```json
 {
+  "category_types": "standard",
   "date_type": "recent30"
 }
 ```
 
-按月（需传 `stat_date`）：
+采标准 + 导购（数组写法）：
 
 ```json
 {
+  "category_types": ["standard", "guide"],
   "date_type": "month",
   "stat_date": "20260630"
 }
 ```
 
-近 7 天（无需 `stat_date`）：
+近 7 天全采：
 
 ```json
 {
@@ -85,10 +88,11 @@ module:
 }
 ```
 
-指定自然周：
+指定自然周 + 仅自定义类目：
 
 ```json
 {
+  "category_types": "custom",
   "date_type": "week",
   "stat_date": "20260615"
 }
@@ -99,10 +103,27 @@ module:
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "生意参谋-商品-品类360 - 查询入参",
-  "description": "采集生意参谋品类360页「品类排行」下标准类目、导购类目与自定义类目三个 Tab 的访客、加购、下单、支付及转化等指标",
+  "title": "生意参谋-商品-品类360-品类排行 - 查询入参",
+  "description": "采集生意参谋品类360页「品类排行」下标准类目、导购类目与自定义类目三个 Tab 的访客、加购、下单、支付及转化等指标；支持按 Tab 选择性采集",
   "type": "object",
   "properties": {
+    "category_types": {
+      "description": "品类排行子 Tab；不传/空/ALL=全选。可选值：standard（标准类目）/ guide（导购类目）/ custom（自定义类目）",
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["standard", "guide", "custom", "ALL"]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      ]
+    },
     "date_type": {
       "type": "string",
       "description": "统计时间类型，未传默认 recent30。可选值：recent7（7天）/ recent30（30天）/ day（日）/ week（周）/ month（月）",
@@ -135,7 +156,7 @@ module:
 
 ### 数据字段
 
-每条任务按类目行输出多条记录：标准类目 / 导购类目来自导出表格（字段多为字符串指标）；自定义类目来自 `list.json` 接口（部分指标为对象）。三类记录共用 `categoryType` 区分，且仅覆盖 **标准类目 / 导购类目 / 自定义类目** 三个 Tab。
+每条任务按类目行输出多条记录：标准类目 / 导购类目来自导出表格（字段多为字符串指标）；自定义类目来自 `list.json` 接口（部分指标为对象）。三类记录共用 `categoryType` 区分，且仅覆盖 **标准类目 / 导购类目 / 自定义类目** 三个 Tab；未选中的 Tab 不输出对应记录。
 
 :::field-tree
 @define 指标对象
