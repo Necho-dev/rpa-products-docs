@@ -36,22 +36,12 @@ module:
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
 | `order_id` | 订单 ID | `String` | 否 | `""`（不填） | 须为字符串；空串表示不筛选订单 ID；有值须为 15~30 位纯数字（`0-9`），禁止传数字类型 / `null` |
-| `custom_start_date` | 订单创建开始日期 | `String` | 条件必填 | `2026-05-01`（与结束日期同时为空串时） | 须为字符串；支持 `YYYYMMDD` / `YYYY-MM-DD`；与 `custom_end_date` 须同时为空串或同时有值；有值时须 ≤ 结束日期 |
-| `custom_end_date` | 订单创建结束日期 | `String` | 条件必填 | 运行当天（与开始日期同时为空串时） | 须为字符串；支持 `YYYYMMDD` / `YYYY-MM-DD`；与 `custom_start_date` 须同时为空串或同时有值；有值时须 ≥ 开始日期 |
+| `custom_start_date` | 订单创建开始日期 | `String` | 是 | — | 须为字符串；支持 `YYYYMMDD` / `YYYY-MM-DD`；必传，不能为空；须 ≤ `custom_end_date`。未传返回「未输入开始日期」；与结束日期同时未传返回「未输入开始和结束日期」 |
+| `custom_end_date` | 订单创建结束日期 | `String` | 是 | — | 须为字符串；支持 `YYYYMMDD` / `YYYY-MM-DD`；必传，不能为空；须 ≥ `custom_start_date`。未传返回「未输入结束日期」；与开始日期同时未传返回「未输入开始和结束日期」 |
 
 ### 入参样例
 
-默认日期区间（不填订单 ID，两端日期空串 → `2026-05-01`~今天）：
-
-```json
-{
-  "order_id": "",
-  "custom_start_date": "",
-  "custom_end_date": ""
-}
-```
-
-按日期区间导出（`YYYY-MM-DD`）：
+按日期区间导出（`YYYY-MM-DD`，不填订单 ID）：
 
 ```json
 {
@@ -87,64 +77,20 @@ module:
       "default": ""
     },
     "custom_start_date": {
-      "description": "订单创建开始日期。须为字符串；空串表示缺省；有值仅支持 YYYYMMDD 或 YYYY-MM-DD；与 custom_end_date 须同时为空串或同时有值；同时为空串时默认 2026-05-01",
+      "description": "订单创建开始日期。须为字符串且必传；仅支持 YYYYMMDD 或 YYYY-MM-DD；不能晚于 custom_end_date。未传返回「未输入开始日期」；与结束日期同时未传返回「未输入开始和结束日期」",
       "type": "string",
-      "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})?$",
-      "default": ""
+      "minLength": 1,
+      "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_end_date": {
-      "description": "订单创建结束日期。须为字符串；空串表示缺省；有值仅支持 YYYYMMDD 或 YYYY-MM-DD；与 custom_start_date 须同时为空串或同时有值；同时为空串时默认运行当天",
+      "description": "订单创建结束日期。须为字符串且必传；仅支持 YYYYMMDD 或 YYYY-MM-DD；不能早于 custom_start_date。未传返回「未输入结束日期」；与开始日期同时未传返回「未输入开始和结束日期」",
       "type": "string",
-      "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})?$",
-      "default": ""
+      "minLength": 1,
+      "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
-  "required": [],
-  "additionalProperties": false,
-  "allOf": [
-    {
-      "if": {
-        "properties": {
-          "custom_start_date": {
-            "type": "string",
-            "minLength": 1
-          }
-        },
-        "required": ["custom_start_date"]
-      },
-      "then": {
-        "properties": {
-          "custom_end_date": {
-            "type": "string",
-            "minLength": 1,
-            "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
-          }
-        },
-        "required": ["custom_end_date"]
-      }
-    },
-    {
-      "if": {
-        "properties": {
-          "custom_end_date": {
-            "type": "string",
-            "minLength": 1
-          }
-        },
-        "required": ["custom_end_date"]
-      },
-      "then": {
-        "properties": {
-          "custom_start_date": {
-            "type": "string",
-            "minLength": 1,
-            "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
-          }
-        },
-        "required": ["custom_start_date"]
-      }
-    }
-  ]
+  "required": ["custom_start_date", "custom_end_date"],
+  "additionalProperties": false
 }
 ```
 
@@ -216,6 +162,8 @@ module:
 | `experienceCollectionClick` | 体验合集组件点击量 | `Number` | 是 | `XLSX.体验合集组件点击量` | `0` |
 | `experienceCollectionClickUv` | 体验合集组件点击人数 | `Number` | 是 | `XLSX.体验合集组件点击人数` | `0` |
 | `experienceCollectionClickRate` | 体验合集组件点击率 | `Number` | 是 | `XLSX.体验合集组件点击率` | `0` |
+| `custom_start_date` | 订单创建开始日期（入参回写） | `String` | 否 | 附加 | `2025-08-01` |
+| `custom_end_date` | 订单创建结束日期（入参回写） | `String` | 否 | 附加 | `2026-08-07` |
 | `bizDate` | 业务日期 | `String` | 否 | 附加 | `20260807` |
 | `accountId` | 授权 ID | `String` | 否 | 附加 | `1****1` (已脱敏) |
 
@@ -287,6 +235,8 @@ module:
   "experienceCollectionClick": 0,
   "experienceCollectionClickUv": 0,
   "experienceCollectionClickRate": 0,
+  "custom_start_date": "2025-08-01",
+  "custom_end_date": "2026-08-07",
   "bizDate": "20260807",
   "accountId": "1****1"
 }
