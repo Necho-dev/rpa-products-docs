@@ -1,6 +1,6 @@
 ---
 title: 市场-竞争-竞店对比
-description: 采集生意参谋竞店对比的销售分析、来源分析与客群分析数据，支持本店与最多 2 个竞店对比
+description: 采集生意参谋竞店对比的销售/来源/客群分析；支持只采本店，并按 Tab 选择性采集
 entry: rpa.conn.sycm.shop.ci
 badge:
   label: 已上线
@@ -23,7 +23,7 @@ module:
 | **连接器代码**   | `rpa.conn.sycm.shop.ci`                                                                  |
 | **操作类型**     | `页面解析`                                                                               |
 | **目标网页**     | `https://sycm.taobao.com/mc/free/ci_shop`                                                |
-| **适用场景**     | 采集生意参谋竞店对比的销售分析、来源分析与客群分析数据，支持本店与最多 2 个竞店对比     |
+| **适用场景**     | 采集生意参谋竞店对比的销售/来源/客群分析；可不传竞店只采本店，也可按 Tab 选择性采集   |
 | **数据表名**     | `ods_rpa_sycm_shop_ci_du`                                                                |
 | **业务表名**     | `ODS_市场竞店对比信息表(生意参谋RPA)`                                                 |
 
@@ -39,13 +39,36 @@ module:
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `rival_shop_keywords` | 竞店关键字 | `String` / `List[String]` | 是 | — | 支持英文逗号或中文逗号分隔字符串，或字符串数组；最少 1 个、最多 2 个；按关键字在监控列表中搜索点选，任一未命中则任务失败 |
+| `rival_shop_keywords` | 竞店关键字 | `String` / `List[String]` | 否 | — | 不传或空字符串/`[]` 时只采集本店；传值时支持英文/中文逗号分隔或字符串数组，最多 2 个；按关键字在监控列表中搜索点选，任一未命中则任务失败 |
+| `analysis_tabs` | 分析主 Tab | `String` / `List[String]` | 否 | 全选 | 可选值：`sale`（销售分析）/ `flow`（来源分析）/ `customer`（客群分析）；支持逗号分隔或数组；不传/空/`ALL` 表示三个 Tab 全采；未选中的模块输出空结构 |
 | `date_type` | 统计时间类型 | `String` | 否 | `today` | 可选值：`today`（实时）/ `recent7`（近7天）/ `recent30`（近30天）/ `day`（日）/ `week`（周）/ `month`（月）；兼容别名 `实时`→`today`；销售/来源/客群分析共用该时间 |
 | `stat_date` | 统计锚定日 | `String` | 条件必填 | — | `date_type` 为 `day` / `week` / `month` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；日=当日，周=锚定日所在自然周，月=锚定日所在自然月 |
 
 ### 入参样例
 
-近 7 天，对比 2 个竞店：
+只采本店 + 仅销售分析：
+
+```json
+{
+  "rival_shop_keywords": "",
+  "analysis_tabs": "sale",
+  "date_type": "day",
+  "stat_date": "2026-08-09"
+}
+```
+
+只采本店 + 来源与客群（数组写法）：
+
+```json
+{
+  "rival_shop_keywords": "",
+  "analysis_tabs": ["flow", "customer"],
+  "date_type": "day",
+  "stat_date": "2026-08-09"
+}
+```
+
+近 7 天，对比 2 个竞店（不传 `analysis_tabs` = 三 Tab 全采）：
 
 ```json
 {
@@ -54,32 +77,14 @@ module:
 }
 ```
 
-实时，仅对比 1 个竞店：
-
-```json
-{
-  "rival_shop_keywords": ["示例竞店A"],
-  "date_type": "today"
-}
-```
-
-指定自然月：
-
-```json
-{
-  "rival_shop_keywords": "示例竞店A,示例竞店B",
-  "date_type": "month",
-  "stat_date": "2026-06-15"
-}
-```
-
-指定日 / 周：
+指定自然月，带竞店 + 仅销售：
 
 ```json
 {
   "rival_shop_keywords": "示例竞店A",
-  "date_type": "day",
-  "stat_date": "20260729"
+  "analysis_tabs": "sale",
+  "date_type": "month",
+  "stat_date": "2026-06-15"
 }
 ```
 
@@ -89,24 +94,38 @@ module:
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "生意参谋-市场竞店对比 - 查询入参",
-  "description": "采集生意参谋竞店对比的销售分析、来源分析与客群分析数据，支持本店与最多 2 个竞店对比",
+  "description": "采集生意参谋竞店对比的销售/来源/客群分析；支持只采本店，并按 Tab 选择性采集",
   "type": "object",
   "properties": {
     "rival_shop_keywords": {
-      "description": "竞店关键字；字符串（英文/中文逗号分隔）或字符串数组；最少 1 个、最多 2 个",
+      "description": "竞店关键字；不传或空=只采本店；字符串（英文/中文逗号分隔）或字符串数组；最多 2 个",
       "oneOf": [
         {
-          "type": "string",
-          "minLength": 1
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 2
+        }
+      ]
+    },
+    "analysis_tabs": {
+      "description": "分析主 Tab；不传/空/ALL=全选。可选值：sale（销售分析）/ flow（来源分析）/ customer（客群分析）",
+      "oneOf": [
+        {
+          "type": "string"
         },
         {
           "type": "array",
           "items": {
             "type": "string",
-            "minLength": 1
+            "enum": ["sale", "flow", "customer", "ALL"]
           },
           "minItems": 1,
-          "maxItems": 2
+          "uniqueItems": true
         }
       ]
     },
@@ -122,7 +141,7 @@ module:
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
-  "required": ["rival_shop_keywords"],
+  "required": [],
   "allOf": [
     {
       "if": {
@@ -144,7 +163,7 @@ module:
 
 ### 数据字段
 
-每条任务输出 **1 条聚合记录**（`data[0]`），覆盖销售分析、来源分析、客群分析。
+每条任务输出 **1 条聚合记录**（`data[0]`）。未选中的分析 Tab 对应模块为空结构（如未采销售则 `keyMetrics=[]`、`topItems={}`；未采来源则 `searchWords={}` 等）。`dateType` / `dateRangeStart` / `dateRangeEnd` 始终输出（由入参解析；若采了销售分析则以接口 URL 为准）。
 
 :::field-tree
 @define 对比店铺
@@ -340,9 +359,9 @@ module:
 | ---- | -------- | -------- | ------ | -------- | ---- |
 | `bizDate` | 业务日期 | `String` | 否 | 附加 | `20260731` |
 | `accountId` | 授权 ID | `String` | 否 | 附加 | `1****6` (已脱敏) |
-| `dateType` | 实际统计时间类型 | `String` | 否 | 页面解析 | `month` |
-| `dateRangeStart` | 实际统计区间起始日 | `String` | 否 | 页面解析 | `2026-06-01` |
-| `dateRangeEnd` | 实际统计区间结束日 | `String` | 否 | 页面解析 | `2026-06-30` |
+| `dateType` | 实际统计时间类型 | `String` | 否 | 入参解析 / 页面解析 | `month` |
+| `dateRangeStart` | 实际统计区间起始日 | `String` | 否 | 入参解析 / 页面解析 | `2026-06-01` |
+| `dateRangeEnd` | 实际统计区间结束日 | `String` | 否 | 入参解析 / 页面解析 | `2026-06-30` |
 | `compareShops` @对比店铺 | 本店与竞店列表 | `List[Dict]` | 否 | 页面解析 | 见数据样例 |
 | `keyMetrics` @关键指标行 | 关键指标末日汇总 | `List[Dict]` | 是 | 页面解析 | 见数据样例 |
 | `keyMetricTrends` @关键指标趋势 | 关键指标完整趋势 | `Dict` | 是 | 页面解析 | 见数据样例 |
