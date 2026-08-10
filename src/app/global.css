@@ -88,7 +88,7 @@ html > body[data-scroll-locked] {
 
 
 /*
- * 文档区网格（飞书式，见 NotebookLayoutContainer）：
+ * 文档区网格（见 NotebookLayoutContainer）：
  * - 顶栏全宽；两侧 minmax(留白, 1fr) 等分 → 侧栏+正文+TOC 整体居中
  * - 正文最大宽 --fd-docs-content-max = 90rem，TOC 紧贴正文
  */
@@ -126,7 +126,7 @@ html > body[data-scroll-locked] {
 }
 
 /*
- * Notebook 顶栏（飞书式）：
+ * Notebook 顶栏：
  * - 保留极淡的「搜索行 ↔ 分区导航」分隔线
  * - 「分区导航 ↔ 正文」用轻阴影，去掉硬线
  */
@@ -144,7 +144,7 @@ html > body[data-scroll-locked] {
   background-color: var(--color-fd-background);
 }
 
-/* 飞书式轻投影：比硬分割线更弱 */
+/* 轻投影：比硬分割线更弱 */
 #nd-subnav::after {
   content: '';
   position: absolute;
@@ -168,7 +168,7 @@ html.dark #nd-subnav::after {
   );
 }
 
-/* 搜索行分隔线：大幅弱化（飞书接近 #eee） */
+/* 搜索行分隔线：大幅弱化（接近浅灰 #eee） */
 #nd-subnav [data-header-body] {
   border-bottom-color: color-mix(in oklab, var(--color-fd-border) 32%, transparent);
 }
@@ -284,7 +284,7 @@ html.dark #nd-subnav::after {
 }
 
 /*
- * 飞书式双行顶栏（搜索 + 分区）比 Fumadocs 默认 spacing(24)=6rem 更高。
+ * 双行顶栏（搜索 + 分区）比 Fumadocs 默认 spacing(24)=6rem 更高。
  * 若不覆盖，正文 min-h 会按 6rem 计算，实际顶栏更高 → 整页多出一段可滚动空白。
  */
 @media (width >= 64rem) {

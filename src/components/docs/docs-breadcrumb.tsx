@@ -11,7 +11,7 @@ type Crumb = {
 };
 
 /**
- * 飞书式弱化面包屑：只展示祖先（分区 + 中间目录），不展示当前页
+ * 弱化面包屑：只展示祖先（分区 + 中间目录），不展示当前页
  *（当前页已是下方 H1，再写一遍会重复）。
  */
 export function DocsBreadcrumb({ className, ...props }: ComponentProps<'nav'>) {

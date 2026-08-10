@@ -5,7 +5,7 @@ import { useNotebookLayout } from 'fumadocs-ui/layouts/notebook';
 import { cn } from '@/lib/core/cn';
 
 /**
- * 飞书式文档网格：
+ * 文档区网格布局：
  * - 顶栏全宽
  * - 侧栏靠左（左侧仅一点点留白）
  * - 正文 + TOC 在侧栏右侧剩余空间内整体居中（两侧 1fr 等分）

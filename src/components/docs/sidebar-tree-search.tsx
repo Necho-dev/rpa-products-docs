@@ -19,7 +19,7 @@ import { cn } from '@/lib/core/cn';
 
 export type SidebarMatchVariant = 'match' | 'active';
 
-/** 当前定位行：浅橙底 + 细边框（对齐飞书） */
+/** 当前定位行：浅橙底 + 细边框 */
 export const sidebarActiveMatchRowClass =
   'bg-orange-50/90 outline outline-1 -outline-offset-1 outline-orange-300/80 dark:bg-orange-500/10 dark:outline-orange-400/45';
 
@@ -270,7 +270,7 @@ export function highlightSearchMatch(
 
   if (index < 0) return text;
 
-  // 普通命中：亮黄；当前命中：深橙（对齐飞书）
+  // 普通命中：亮黄；当前命中：深橙
   const markClass =
     variant === 'active'
       ? 'rounded-[2px] bg-[#ff9f43] px-0.5 text-inherit dark:bg-orange-500 dark:text-fd-foreground'
