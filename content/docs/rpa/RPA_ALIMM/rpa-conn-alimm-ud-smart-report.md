@@ -38,32 +38,42 @@ module:
 | `delivery_media` | 投放媒体 | `String` | 是 | — | 仅接受英文 code，不接受页面中文。可选值：`BYTEDANCE`（字节）/ `TENCENT`（腾讯）/ `XIAOHONGSHU`（小红书）/ `BILIBILI`（B站）/ `KUAISHOU`（快手）。不含「全部媒体」（页面选全部媒体无报表数据） |
 | `attribution_period` | 归因周期 | `String` | 否 | `HOURS_24` | 仅接受英文 code。可选值：`DAYS_7`（7天累计数据）/ `DAYS_15`（15天累计数据）/ `HOURS_24`（24小时累计数据）。默认 24 小时累计数据 |
 | `attribution_model` | 归因模型 | `String` | 否 | `CLICK` | 仅接受英文 code。可选值：`CLICK`（点击）/ `EFFECTIVE_TOUCH`（有效触点）。默认点击 |
-| `custom_start_date` | 自定义开始日期 | `String` | 否 | 昨日 | 仅 `YYYYMMDD` / `YYYY-MM-DD`（月日须两位补零）；拒绝 `2026-06-2`、`2026/06/02`；最早=今天往前 364 天；与 `custom_end_date` 成对；均空时默认汇总周期=昨日；含首尾跨度 ≤ 90 天；仅历史数据 |
-| `custom_end_date` | 自定义结束日期 | `String` | 否 | 昨日 | 仅 `YYYYMMDD` / `YYYY-MM-DD`（月日须两位补零）；最晚=昨天；与 `custom_start_date` 成对；均空时默认昨日；超过 90 天入参校验失败 |
+| `date_type` | 汇总周期 | `String` | 否 | `YESTERDAY` | 仅接受英文 code，对齐页面「快捷日期」。可选值：`YESTERDAY`（昨日）/ `LAST_7_DAYS`（过去 7 天）/ `LAST_WEEK`（上周）/ `LAST_15_DAYS`（过去 15 天）/ `THIS_MONTH`（本月）/ `LAST_30_DAYS`（过去 30 天）/ `LAST_MONTH`（上月）/ `CUSTOM`（自定义）。未传 `date_type` 但传了起止日时按 `CUSTOM` |
+| `custom_start_date` | 自定义开始日期 | `String` | 条件必填 | — | 仅 `date_type=CUSTOM` 时必填；仅 `YYYYMMDD` / `YYYY-MM-DD`（月日须两位补零）；拒绝 `2026-06-2`、`2026/06/02`；最早=今天往前 364 天；与 `custom_end_date` 成对；含首尾跨度 ≤ 90 天；仅历史数据 |
+| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | — | 仅 `date_type=CUSTOM` 时必填；仅 `YYYYMMDD` / `YYYY-MM-DD`（月日须两位补零）；最晚=昨天；与 `custom_start_date` 成对；超过 90 天入参校验失败 |
 
 ### 入参样例
 
-腾讯媒体 + 24 小时归因 + 有效触点：
+腾讯媒体 + 昨日快捷日期：
 
 ```json
 {
   "delivery_media": "TENCENT",
   "attribution_period": "HOURS_24",
   "attribution_model": "EFFECTIVE_TOUCH",
-  "custom_start_date": "2026-06-01",
-  "custom_end_date": "2026-07-04"
+  "date_type": "YESTERDAY"
 }
 ```
 
-字节媒体 + 7 天点击归因：
+字节媒体 + 过去 7 天：
 
 ```json
 {
   "delivery_media": "BYTEDANCE",
   "attribution_period": "DAYS_7",
   "attribution_model": "CLICK",
-  "custom_start_date": "2026-07-30",
-  "custom_end_date": "2026-08-05"
+  "date_type": "LAST_7_DAYS"
+}
+```
+
+自定义区间：
+
+```json
+{
+  "delivery_media": "TENCENT",
+  "date_type": "CUSTOM",
+  "custom_start_date": "2026-06-01",
+  "custom_end_date": "2026-07-04"
 }
 ```
 
@@ -73,7 +83,7 @@ module:
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "阿里妈妈-UD智汇投UDSmart报表 - 查询入参",
-  "description": "导出阿里妈妈 UD智汇投 UDSmart 报表明细，支持按投放媒体、归因周期、归因模型及自定义日期筛选",
+  "description": "导出阿里妈妈 UD智汇投 UDSmart 报表明细，支持按投放媒体、归因周期、归因模型及汇总周期（快捷日期/自定义）筛选",
   "type": "object",
   "properties": {
     "delivery_media": {
@@ -106,21 +116,56 @@ module:
       ],
       "default": "CLICK"
     },
+    "date_type": {
+      "type": "string",
+      "description": "汇总周期。仅接受英文 code，对齐页面「快捷日期」。可选值：YESTERDAY（昨日）/ LAST_7_DAYS（过去 7 天）/ LAST_WEEK（上周）/ LAST_15_DAYS（过去 15 天）/ THIS_MONTH（本月）/ LAST_30_DAYS（过去 30 天）/ LAST_MONTH（上月）/ CUSTOM（自定义）。默认 YESTERDAY；未传 date_type 但传了起止日时按 CUSTOM",
+      "enum": [
+        "YESTERDAY",
+        "LAST_7_DAYS",
+        "LAST_WEEK",
+        "LAST_15_DAYS",
+        "THIS_MONTH",
+        "LAST_30_DAYS",
+        "LAST_MONTH",
+        "CUSTOM"
+      ],
+      "default": "YESTERDAY"
+    },
     "custom_start_date": {
       "type": "string",
-      "description": "自定义开始日期。仅 YYYYMMDD 或 YYYY-MM-DD（月日须两位补零）；最早=今天往前 364 天；与 custom_end_date 成对；均空时默认昨日；含首尾跨度 ≤ 90 天；仅历史数据",
+      "description": "自定义开始日期。仅 date_type=CUSTOM 时必填；仅 YYYYMMDD 或 YYYY-MM-DD（月日须两位补零）；最早=今天往前 364 天；与 custom_end_date 成对；含首尾跨度 ≤ 90 天；仅历史数据",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_end_date": {
       "type": "string",
-      "description": "自定义结束日期。仅 YYYYMMDD 或 YYYY-MM-DD（月日须两位补零）；最晚=昨天；与 custom_start_date 成对；均空时默认昨日；超过 90 天入参校验失败",
+      "description": "自定义结束日期。仅 date_type=CUSTOM 时必填；仅 YYYYMMDD 或 YYYY-MM-DD（月日须两位补零）；最晚=昨天；与 custom_start_date 成对；超过 90 天入参校验失败",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
   "required": [
     "delivery_media"
   ],
-  "additionalProperties": false
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "date_type": {
+            "const": "CUSTOM"
+          }
+        },
+        "required": [
+          "date_type"
+        ]
+      },
+      "then": {
+        "required": [
+          "custom_start_date",
+          "custom_end_date"
+        ]
+      }
+    }
+  ]
 }
 ```
 
