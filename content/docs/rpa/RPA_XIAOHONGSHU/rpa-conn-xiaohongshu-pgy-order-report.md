@@ -35,7 +35,7 @@ module:
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `order_id` | 订单 ID | `String` | 否 | `""`（不填） | 须为字符串；空串表示不筛选订单 ID；有值须为 15~30 位纯数字（`0-9`），禁止传数字类型 / `null` |
+| `order_id` | 订单 ID | `String` / `null` | 否 | `null`（不填） | `null` 表示不筛选订单 ID；有值须为字符串且为 15~30 位纯数字（`0-9`），禁止传数字类型|
 | `custom_start_date` | 订单创建开始日期 | `String` | 是 | — | 须为字符串；支持 `YYYYMMDD` / `YYYY-MM-DD`；必传，不能为空；须 ≤ `custom_end_date`。未传返回「未输入开始日期」；与结束日期同时未传返回「未输入开始和结束日期」 |
 | `custom_end_date` | 订单创建结束日期 | `String` | 是 | — | 须为字符串；支持 `YYYYMMDD` / `YYYY-MM-DD`；必传，不能为空；须 ≥ `custom_start_date`。未传返回「未输入结束日期」；与开始日期同时未传返回「未输入开始和结束日期」 |
 
@@ -45,7 +45,7 @@ module:
 
 ```json
 {
-  "order_id": "",
+  "order_id": null,
   "custom_start_date": "2026-08-01",
   "custom_end_date": "2026-08-07"
 }
@@ -71,10 +71,10 @@ module:
   "type": "object",
   "properties": {
     "order_id": {
-      "description": "订单 ID。须为字符串；空串表示不筛选；有值须为 15~30 位纯数字，禁止数字类型/null",
-      "type": "string",
-      "pattern": "^(\\d{15,30})?$",
-      "default": ""
+      "description": "订单 ID。缺省或 null 表示不筛选；有值须为字符串且为 15~30 位纯数字，禁止数字类型",
+      "type": ["string", "null"],
+      "pattern": "^\\d{15,30}$",
+      "default": null
     },
     "custom_start_date": {
       "description": "订单创建开始日期。须为字符串且必传；仅支持 YYYYMMDD 或 YYYY-MM-DD；不能晚于 custom_end_date。未传返回「未输入开始日期」；与结束日期同时未传返回「未输入开始和结束日期」",
