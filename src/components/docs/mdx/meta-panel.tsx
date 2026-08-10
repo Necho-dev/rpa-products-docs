@@ -86,22 +86,22 @@ function RowLabel({
   children: ReactNode;
 }) {
   return (
-    <div className="inline-flex w-full max-w-full items-center gap-1.5 text-sm font-semibold text-fd-foreground">
+    <div className="inline-flex max-w-full items-center gap-1.5 text-sm font-semibold text-fd-foreground">
       <span
         className={cn(
-          'inline-flex size-7 shrink-0 items-center justify-center rounded-md border bg-fd-background/50',
+          'inline-flex size-6 shrink-0 items-center justify-center rounded-md border bg-fd-background/50 sm:size-7',
           iconWrapperClassName,
         )}
       >
         {icon}
       </span>
-      <span className="min-w-0 leading-5">{children}</span>
+      <span className="min-w-0 leading-5 whitespace-nowrap">{children}</span>
     </div>
   );
 }
 
 const metaRowClassName =
-  'grid grid-cols-1 gap-y-1.5 sm:grid-cols-[10.5rem_minmax(0,1fr)] sm:items-center sm:gap-x-3';
+  'grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2.5 gap-y-1 sm:grid-cols-[10.5rem_minmax(0,1fr)] sm:gap-x-3';
 
 export type ConnectorBadgeStat = {
   /** 文档 frontmatter 中的 badge.label，任意文案 */
@@ -177,18 +177,16 @@ export function MetaPanel({
   return (
     <div
       className={cn(
-        'not-prose my-4 rounded-xl border border-fd-border/60 bg-fd-card/40 p-3',
+        'not-prose my-4 rounded-xl border border-fd-border/60 bg-fd-card/40 p-2.5 sm:p-3',
         'shadow-sm',
         className,
       )}
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 space-y-1">
-          <div className="text-base font-semibold text-fd-foreground">基础信息</div>
-        </div>
+      <div className="text-sm font-semibold text-fd-foreground sm:text-base">
+        基础信息
       </div>
 
-      <div className="mt-3 grid gap-2 text-sm">
+      <div className="mt-2.5 grid gap-1.5 text-sm sm:mt-3 sm:gap-2">
         <div className={metaRowClassName}>
           <RowLabel
             iconWrapperClassName="border-emerald-500/20 bg-emerald-500/5"
@@ -198,11 +196,11 @@ export function MetaPanel({
           </RowLabel>
           <div className="flex min-w-0 flex-wrap items-center gap-1.5 text-sm text-fd-foreground">
             {platformIconEl ? (
-              <span className="inline-flex shrink-0 items-center [&_svg]:size-[18px]">
+              <span className="inline-flex shrink-0 items-center [&_svg]:size-4.5">
                 {platformIconEl}
               </span>
             ) : null}
-            <span className="font-medium">{platform}</span>
+            <span className="min-w-0 truncate font-medium">{platform}</span>
           </div>
         </div>
 
@@ -216,10 +214,11 @@ export function MetaPanel({
             </RowLabel>
             <div className="min-w-0">
               <DocsLink
-                className="inline-flex max-w-full items-center gap-1.5 break-all font-mono text-[13px] text-sky-700 underline decoration-fd-border/60 underline-offset-2 hover:decoration-sky-700 dark:text-sky-200"
+                className="inline-flex max-w-full items-center gap-1.5 font-mono text-[13px] text-sky-700 underline decoration-fd-border/60 underline-offset-2 hover:decoration-sky-700 dark:text-sky-200"
                 href={platformUrl}
+                title={platformUrl}
               >
-                <span className="min-w-0">{platformUrl}</span>
+                <span className="min-w-0 truncate">{platformUrl}</span>
                 <SquareArrowOutUpRight className="size-3.5 shrink-0 text-fd-muted-foreground" />
               </DocsLink>
             </div>
@@ -284,7 +283,7 @@ export function MetaPanel({
                 className="inline-flex max-w-full items-center gap-1.5 text-sm font-medium text-sky-700 underline decoration-fd-border/60 underline-offset-2 hover:decoration-sky-700 dark:text-sky-200"
                 href={authHelpUrl!.trim()}
               >
-                查看授权帮助文档
+                <span className="min-w-0 truncate">查看授权帮助文档</span>
                 <SquareArrowOutUpRight className="size-3.5 shrink-0 text-fd-muted-foreground" />
               </DocsLink>
             </div>

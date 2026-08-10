@@ -9,7 +9,7 @@ export function baseOptions(): BaseLayoutProps {
   return {
     nav: {
       title: (
-        <span className="inline-flex items-center gap-2.5">
+        <span className="inline-flex min-w-0 max-w-full items-center gap-2.5">
           <Image
             src="/icon.svg"
             alt=""
@@ -19,7 +19,7 @@ export function baseOptions(): BaseLayoutProps {
             aria-hidden
             className="size-5.5 shrink-0 rounded-full"
           />
-          <span>{siteName}</span>
+          <span className="truncate">{siteName}</span>
         </span>
       ),
     },

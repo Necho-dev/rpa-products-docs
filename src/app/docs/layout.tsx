@@ -11,6 +11,7 @@ import { DocsSidebarTreeFolder, DocsSidebarTreeItem } from '@/components/docs/si
 import { SidebarTreeSearchBanner } from '@/components/docs/sidebar-tree-search';
 import type { Folder as PageTreeFolder } from 'fumadocs-core/page-tree';
 import { jsx, jsxs } from 'react/jsx-runtime';
+import { cloneElement, isValidElement, type ReactElement, type ReactNode } from 'react';
 import { HomeIcon } from 'lucide-react';
 import { AISearch, AISearchPanel } from '@/components/ai/search';
 import { DocsFloatingAnchors } from '@/components/docs/floating-anchors';
@@ -29,30 +30,44 @@ export default async function Layout({ children }: LayoutProps<'/docs'>) {
   const feedbackEnabled = isDocFeedbackEnabled();
   const { nav, ...base } = baseOptions();
 
+  /**
+   * 顶栏 LayoutHeaderTabs 只渲染 title，需把 icon 内嵌进 title。
+   * 小屏 SidebarTabsDropdown 另有独立 icon 槽 —— 内嵌节点标 data-tab-inline-icon，
+   * 由 CSS 在侧栏下拉里隐藏，避免双图标。
+   * icon 会同时出现在顶栏与侧栏 DOM 中，须 clone，避免同一 element 实例挂载两处。
+   */
+  const cloneTabIcon = (icon: ReactNode): ReactNode => {
+    if (!isValidElement(icon)) return icon;
+    return cloneElement(icon as ReactElement);
+  };
+
+  const withTabTitleIcon = (title: ReactNode, icon?: ReactNode) =>
+    icon
+      ? jsxs('span', {
+          className: 'inline-flex items-center gap-1.5',
+          children: [
+            jsx('span', {
+              'data-tab-inline-icon': '',
+              className: 'size-3.5 shrink-0 [&_svg]:size-full',
+              'aria-hidden': true,
+              children: cloneTabIcon(icon),
+            }),
+            title,
+          ],
+        })
+      : title;
+
+  const tabIconSlot = (icon: ReactNode) =>
+    jsx('div', {
+      className: 'size-full [&_svg]:size-full',
+      children: cloneTabIcon(icon),
+    });
+
   const partitionTabs = getLayoutTabs(tree, {
     transform: (option, node: PageTreeFolder) => ({
       ...option,
-      // 顶栏 / 移动端下拉共用 icon
-      icon: node.icon
-        ? jsx('div', {
-            className: 'size-full [&_svg]:size-full',
-            children: node.icon,
-          })
-        : undefined,
-      // LayoutHeaderTabs 默认只渲染 title，把 icon 拼进 title
-      title: jsxs('span', {
-        className: 'inline-flex items-center gap-1.5',
-        children: [
-          node.icon
-            ? jsx('span', {
-                className: 'size-3.5 shrink-0 [&_svg]:size-full',
-                'aria-hidden': true,
-                children: node.icon,
-              })
-            : null,
-          option.title,
-        ],
-      }),
+      icon: node.icon ? tabIconSlot(node.icon) : undefined,
+      title: withTabTitleIcon(option.title, node.icon),
     }),
   });
 
@@ -68,16 +83,19 @@ export default async function Layout({ children }: LayoutProps<'/docs'>) {
       tabs={[
         {
           url: '/',
-          title: jsxs('span', {
-            className: 'inline-flex items-center gap-1.5',
-            children: [
-              jsx(HomeIcon, {
-                className: 'size-3.5 shrink-0',
-                'aria-hidden': true,
-              }),
-              '首页',
-            ],
-          }),
+          icon: tabIconSlot(
+            jsx(HomeIcon, {
+              className: 'size-full',
+              'aria-hidden': true,
+            }),
+          ),
+          title: withTabTitleIcon(
+            '首页',
+            jsx(HomeIcon, {
+              className: 'size-full',
+              'aria-hidden': true,
+            }),
+          ),
           // 仅在首页高亮；文档区内不高亮
           urls: new Set(['/']),
         },

@@ -173,6 +173,27 @@ html.dark #nd-subnav::after {
   border-bottom-color: color-mix(in oklab, var(--color-fd-border) 32%, transparent);
 }
 
+/*
+ * 顶栏站点标题：单行省略。
+ * fumadocs 左右两侧都是 flex-1，小屏右侧仅图标却占一半宽度 → 标题过早截断。
+ * 小屏让右侧按内容收缩，剩余空间留给标题。
+ */
+#nd-subnav [data-header-body] > div:first-child {
+  min-width: 0;
+}
+
+#nd-subnav [data-header-body] > div:first-child a {
+  min-width: 0;
+  max-width: 100%;
+}
+
+@media (width < 48rem) {
+  /* 覆盖 fumadocs `flex-1`，避免右侧图标区与标题对半分宽 */
+  #nd-subnav [data-header-body] > div:last-child {
+    flex: 0 0 auto !important;
+  }
+}
+
 /* 正文吃满 main 列（列宽已由 --fd-docs-content-max 约束），TOC 紧贴其右 */
 #nd-page > * {
   max-width: none !important;
@@ -359,6 +380,40 @@ html.dark #nd-subnav::after {
   #nd-sidebar-mobile {
     max-width: min(28rem, 92vw) !important;
   }
+}
+
+/*
+ * 分区切换下拉（SidebarTabsDropdown）：
+ * fumadocs 默认 <md 用 size-9 + 触发器展示 description，与 md+ 紧凑样式不一致。
+ * 全断点对齐侧栏紧凑样式（图1）：图标 size-5、触发器不展示描述。
+ */
+#nd-sidebar .size-9.md\:size-5,
+#nd-sidebar-mobile .size-9.md\:size-5,
+[data-radix-popper-content-wrapper] .size-9.md\:size-5 {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+[data-radix-popper-content-wrapper] .size-9.md\:mb-auto {
+  margin-bottom: auto;
+}
+
+/* 触发器内 description（带 md:hidden）；下拉项 description 无此 class，不受影响 */
+#nd-sidebar-mobile button .md\:hidden {
+  display: none !important;
+}
+
+/*
+ * Tab icon 双通道:
+ * - 顶栏 LayoutHeaderTabs 只渲染 title → 依赖 title 内嵌 [data-tab-inline-icon]
+ * - 侧栏 SidebarTabsDropdown 自带 icon 槽 → 隐藏内嵌 icon, 避免双图标
+ */
+[data-tab-inline-icon] {
+  display: none;
+}
+
+#nd-subnav [data-header-tabs] [data-tab-inline-icon] {
+  display: block;
 }
 
 /* 右侧 AI 锚点动效（随机时长由组件内联 --ai-* 变量控制） */
