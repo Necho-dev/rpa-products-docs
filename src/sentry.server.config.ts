@@ -3,6 +3,7 @@ import {
   getSentryDsn,
   getSentryEnvironment,
   getSentryRelease,
+  getSentryTracesSampleRate,
   isSentryEnabled,
 } from '@/lib/observability/sentry/env';
 import { registerReadableTraceNameHooks } from '@/lib/observability/sentry/trace-name';
@@ -16,7 +17,7 @@ if (isSentryEnabled()) {
     release: getSentryRelease(),
     enabled: true,
 
-    tracesSampleRate: isDev ? 1.0 : 0.2,
+    tracesSampleRate: getSentryTracesSampleRate(),
 
     includeLocalVariables: true,
 

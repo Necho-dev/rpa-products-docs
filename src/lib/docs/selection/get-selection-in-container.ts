@@ -22,7 +22,9 @@ export function findDocsContentRoot(): HTMLElement | null {
   return (
     document.querySelector<HTMLElement>(DOCS_PAGE_SELECTOR)
     ?? document.querySelector<HTMLElement>('#nd-docs-layout article')
+    ?? document.querySelector<HTMLElement>('#nd-notebook-layout article')
     ?? document.querySelector<HTMLElement>('#nd-docs-layout article .prose')
+    ?? document.querySelector<HTMLElement>('#nd-notebook-layout article .prose')
     ?? document.querySelector<HTMLElement>('article .prose')
   );
 }

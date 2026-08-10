@@ -3,6 +3,7 @@ import { describe, it } from 'node:test';
 import {
   getSentryEnvironment,
   getSentryRelease,
+  getSentryTracesSampleRate,
   isSentryEnabled,
   parseUserAgent,
   shouldEmitAuthDeny,
@@ -69,6 +70,21 @@ describe('sentry-env', () => {
       else process.env.SENTRY_RELEASE = prevRelease;
       if (prevGit === undefined) delete process.env.GIT_SHA;
       else process.env.GIT_SHA = prevGit;
+    }
+  });
+
+  it('getSentryTracesSampleRate reads env with default 1', () => {
+    const prev = process.env.SENTRY_TRACES_SAMPLE_RATE;
+    try {
+      delete process.env.SENTRY_TRACES_SAMPLE_RATE;
+      assert.equal(getSentryTracesSampleRate(), 1);
+      process.env.SENTRY_TRACES_SAMPLE_RATE = '0.2';
+      assert.equal(getSentryTracesSampleRate(), 0.2);
+      process.env.SENTRY_TRACES_SAMPLE_RATE = '2';
+      assert.equal(getSentryTracesSampleRate(), 1);
+    } finally {
+      if (prev === undefined) delete process.env.SENTRY_TRACES_SAMPLE_RATE;
+      else process.env.SENTRY_TRACES_SAMPLE_RATE = prev;
     }
   });
 });

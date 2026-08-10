@@ -3,7 +3,7 @@
  * 在 layout 中于 global.css / katex 之后引入，保证层叠靠后、覆盖生效。
  * 见 https://github.com/tailwindlabs/tailwindcss-typography 默认 blockquote 的 quotes、italic、::before/::after
  */
-#nd-docs-layout .prose blockquote,
+:is(#nd-docs-layout, #nd-notebook-layout) .prose blockquote,
 div.prose blockquote {
   font-style: normal !important;
   font-weight: 400 !important;
@@ -13,34 +13,34 @@ div.prose blockquote {
   font-synthesis: none;
 }
 
-#nd-docs-layout .prose blockquote p::before,
-#nd-docs-layout .prose blockquote p::after,
+:is(#nd-docs-layout, #nd-notebook-layout) .prose blockquote p::before,
+:is(#nd-docs-layout, #nd-notebook-layout) .prose blockquote p::after,
 div.prose blockquote p::before,
 div.prose blockquote p::after {
   content: none !important;
   display: none;
 }
 
-#nd-docs-layout .prose blockquote a,
+:is(#nd-docs-layout, #nd-notebook-layout) .prose blockquote a,
 div.prose blockquote a {
   color: var(--color-fd-primary) !important;
   font-style: normal !important;
 }
 
 /* 块内多个 <p> 时，typography 会给每段较大上下 margin；收紧为「两行之间略留一点」 */
-#nd-docs-layout .prose blockquote > p,
+:is(#nd-docs-layout, #nd-notebook-layout) .prose blockquote > p,
 div.prose blockquote > p {
   margin-top: 0 !important;
   margin-bottom: 0 !important;
 }
 
-#nd-docs-layout .prose blockquote > p + p,
+:is(#nd-docs-layout, #nd-notebook-layout) .prose blockquote > p + p,
 div.prose blockquote > p + p {
   margin-top: 0.35em !important;
 }
 
 /* 长 URL、无空格连续英文等：允许在词内/任意处断行，避免整段撑出横向滚动 */
-#nd-docs-layout .prose,
+:is(#nd-docs-layout, #nd-notebook-layout) .prose,
 div.prose {
   overflow-wrap: break-word;
   word-wrap: break-word; /* 旧版 */
@@ -95,7 +95,7 @@ div.prose {
 }
 
 /* 表格：与 typography 的 not-prose 规则一致，避免误伤嵌套在 not-prose 内的表 */
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(
     :where([class~='not-prose'], [class~='not-prose'] *)),
@@ -107,8 +107,8 @@ div.prose :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)
 }
 
 /* 表头/单元格：prose 直连表格保持列内容最小可读宽度 */
-#nd-docs-layout .prose th,
-#nd-docs-layout .prose td,
+:is(#nd-docs-layout, #nd-notebook-layout) .prose th,
+:is(#nd-docs-layout, #nd-notebook-layout) .prose td,
 div.prose th,
 div.prose td {
   min-width: min-content;
@@ -117,8 +117,8 @@ div.prose td {
 }
 
 /* 滚动容器内：允许列收缩换行，默认列宽上限；窄屏由外层横向滚动承接 */
-#nd-docs-layout .docs-table-scroll .docs-table th,
-#nd-docs-layout .docs-table-scroll .docs-table td,
+:is(#nd-docs-layout, #nd-notebook-layout) .docs-table-scroll .docs-table th,
+:is(#nd-docs-layout, #nd-notebook-layout) .docs-table-scroll .docs-table td,
 div.prose .docs-table-scroll .docs-table th,
 div.prose .docs-table-scroll .docs-table td {
   min-width: 0;
@@ -128,13 +128,13 @@ div.prose .docs-table-scroll .docs-table td {
 }
 
 /* 末列 30%：仅针对首行有 ≥4 列 的表（2/3 列对照表、双列表均不套） */
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(
     :where([class~='not-prose'], [class~='not-prose'] *))
 :has(> * > tr:first-child > *:nth-child(4))
   th:last-child,
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(
     :where([class~='not-prose'], [class~='not-prose'] *))
@@ -162,7 +162,7 @@ div.prose
  * - `white-space: nowrap` 让长标识符以内容最小宽度撑开列（勿把 max-content 写进 max()，非法会被整条丢弃）；
  * - 取消滚动表对首列 code 的 break-all；不对 code 强制 nowrap；右列吃满剩余。
  */
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(2):last-child
@@ -171,18 +171,18 @@ div.prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(2):last-child
   ),
-#nd-docs-layout .docs-table-scroll .docs-table:has(> * > tr:first-child > *:nth-child(2):last-child),
+:is(#nd-docs-layout, #nd-notebook-layout) .docs-table-scroll .docs-table:has(> * > tr:first-child > *:nth-child(2):last-child),
 div.prose .docs-table-scroll .docs-table:has(> * > tr:first-child > *:nth-child(2):last-child) {
   table-layout: auto;
 }
 
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(2):last-child
   )
   th:first-child,
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(2):last-child
@@ -198,11 +198,11 @@ div.prose
     > * > tr:first-child > *:nth-child(2):last-child
   )
   td:first-child,
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .docs-table-scroll
   .docs-table:has(> * > tr:first-child > *:nth-child(2):last-child)
   th:first-child,
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .docs-table-scroll
   .docs-table:has(> * > tr:first-child > *:nth-child(2):last-child)
   td:first-child,
@@ -225,12 +225,12 @@ div.prose
 }
 
 /* 两列首列内 code：取消 break-all，继承单元格换行以参与列宽；不单独强制 code nowrap */
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .docs-table-scroll
   .docs-table:has(> * > tr:first-child > *:nth-child(2):last-child)
   th:first-child
   code,
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .docs-table-scroll
   .docs-table:has(> * > tr:first-child > *:nth-child(2):last-child)
   td:first-child
@@ -251,13 +251,13 @@ div.prose
   overflow-wrap: normal;
 }
 
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(2):last-child
   )
   th:last-child,
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(2):last-child
@@ -273,11 +273,11 @@ div.prose
     > * > tr:first-child > *:nth-child(2):last-child
   )
   td:last-child,
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .docs-table-scroll
   .docs-table:has(> * > tr:first-child > *:nth-child(2):last-child)
   th:last-child,
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .docs-table-scroll
   .docs-table:has(> * > tr:first-child > *:nth-child(2):last-child)
   td:last-child,
@@ -297,7 +297,7 @@ div.prose
 }
 
 /* 3 列：首列窄标签 + 后两列「对照/说明」等分，避免中列 1%+nowrap+max 把「改版前」类内容挤成竖条 */
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(3):last-child
@@ -311,13 +311,13 @@ div.prose
   min-width: 100%;
 }
 
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(3):last-child
   )
   th:nth-child(1),
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(3):last-child
@@ -340,13 +340,13 @@ div.prose
   vertical-align: top;
 }
 
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(3):last-child
   )
   th:nth-child(2),
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(3):last-child
@@ -371,13 +371,13 @@ div.prose
   vertical-align: top;
 }
 
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(3):last-child
   )
   th:last-child,
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(3):last-child
@@ -402,8 +402,8 @@ div.prose
   vertical-align: top;
 }
 
-#nd-docs-layout .prose th code,
-#nd-docs-layout .prose td code,
+:is(#nd-docs-layout, #nd-notebook-layout) .prose th code,
+:is(#nd-docs-layout, #nd-notebook-layout) .prose td code,
 div.prose th code,
 div.prose td code {
   white-space: normal;
@@ -411,21 +411,21 @@ div.prose td code {
   overflow-wrap: break-word;
 }
 
-#nd-docs-layout .prose th:last-child code,
-#nd-docs-layout .prose td:last-child code,
+:is(#nd-docs-layout, #nd-notebook-layout) .prose th:last-child code,
+:is(#nd-docs-layout, #nd-notebook-layout) .prose td:last-child code,
 div.prose th:last-child code,
 div.prose td:last-child code {
   word-break: break-all;
 }
 
 /* 3 列末格多为长说明，行内 `code` 保持正常断行，不沿用上条 break-all */
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(3):last-child
   )
   th:last-child code,
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(3):last-child
@@ -446,7 +446,7 @@ div.prose
 }
 
 /* 6 列：`auto` 按内容最小宽分配，覆盖前面的 `fixed` 与全表「末列 30%」 */
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(6):last-child
@@ -461,13 +461,13 @@ div.prose
 }
 
 /* 1–2：字段名 + 中文释义：给第 2 列下限与右留白，减竖向堆行；2 与 3 列之间不贴死 */
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(6):last-child
   )
   th:nth-child(1),
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(6):last-child
@@ -487,13 +487,13 @@ div.prose
   vertical-align: top;
 }
 
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(6):last-child
   )
   th:nth-child(2),
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(6):last-child
@@ -519,13 +519,13 @@ div.prose
 }
 
 /* 3：数据类型（含 `string | list[string]` 等），只保下限、不设过窄的 max/nowrap，避免为凑 fixed 版式硬挤 */
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(6):last-child
   )
   th:nth-child(3),
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(6):last-child
@@ -552,13 +552,13 @@ div.prose
 }
 
 /* 4：数据字段「可为空」与业务入参「必填」同列位：不再 1%+nowrap 强压，否则多行 是/否 与整句条件共列时，长句会被挤成极窄纵条。改为 auto+下限+可换行；表头/表体均左齐 */
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(6):last-child
   )
   th:nth-child(4),
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(6):last-child
@@ -585,13 +585,13 @@ div.prose
 }
 
 /* 5：在「取数路径」与「默认值」等结构间不兼容 nowrap，只限制 min、允许换行，交给 auto 与第 3 列 min 分宽 */
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(6):last-child
   )
   th:nth-child(5),
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(6):last-child
@@ -617,13 +617,13 @@ div.prose
 }
 
 /* 6：末列（取数路径/说明/示例 等长文）取消固定 30%，改 auto + 上沿，长串在格内可断行 */
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(6):last-child
   )
   th:nth-child(6),
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .prose
   :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)):has(
     > * > tr:first-child > *:nth-child(6):last-child
@@ -651,15 +651,15 @@ div.prose
 /*
  * .docs-table-scroll 列宽覆盖：在基线 max-width 之上按列数分层收紧，
  * 避免长文本单行撑破表格；总宽超出视口时由滚动容器承接。
- * 选择器带 #nd-docs-layout / div.prose 前缀，压过同文件内 prose 表格规则。
+ * 选择器带 :is(#nd-docs-layout, #nd-notebook-layout) / div.prose 前缀，压过同文件内 prose 表格规则。
  */
 
 /* ≥4 列通用末列：max-content 下百分比无效，改用固定上限 */
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .docs-table-scroll
   .docs-table:has(> * > tr:first-child > *:nth-child(4))
   th:last-child,
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .docs-table-scroll
   .docs-table:has(> * > tr:first-child > *:nth-child(4))
   td:last-child,
@@ -679,11 +679,11 @@ div.prose
 }
 
 /* 2 列「属性 | 值」：右列换行 + 上限 */
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .docs-table-scroll
   .docs-table:has(> * > tr:first-child > *:nth-child(2):last-child)
   th:last-child,
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .docs-table-scroll
   .docs-table:has(> * > tr:first-child > *:nth-child(2):last-child)
   td:last-child,
@@ -703,11 +703,11 @@ div.prose
 
 /* 6 列：逐列上限与下限 */
 /* 首列字段名：放宽上限，避免长 camelCase 末尾被挤成单字符换行 */
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .docs-table-scroll
   .docs-table:has(> * > tr:first-child > *:nth-child(6):last-child)
   th:nth-child(1),
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .docs-table-scroll
   .docs-table:has(> * > tr:first-child > *:nth-child(6):last-child)
   td:nth-child(1),
@@ -726,12 +726,12 @@ div.prose
 }
 
 /* 6 列首列 code：取消 break-all，优先整词展示；过长时再按词边界折行 */
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .docs-table-scroll
   .docs-table:has(> * > tr:first-child > *:nth-child(6):last-child)
   th:nth-child(1)
   code,
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .docs-table-scroll
   .docs-table:has(> * > tr:first-child > *:nth-child(6):last-child)
   td:nth-child(1)
@@ -752,11 +752,11 @@ div.prose
   overflow-wrap: break-word;
 }
 
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .docs-table-scroll
   .docs-table:has(> * > tr:first-child > *:nth-child(6):last-child)
   th:nth-child(2),
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .docs-table-scroll
   .docs-table:has(> * > tr:first-child > *:nth-child(6):last-child)
   td:nth-child(2),
@@ -771,19 +771,19 @@ div.prose
   max-width: 14rem;
 }
 
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .docs-table-scroll
   .docs-table:has(> * > tr:first-child > *:nth-child(6):last-child)
   th:nth-child(3),
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .docs-table-scroll
   .docs-table:has(> * > tr:first-child > *:nth-child(6):last-child)
   td:nth-child(3),
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .docs-table-scroll
   .docs-table:has(> * > tr:first-child > *:nth-child(6):last-child)
   th:nth-child(4),
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .docs-table-scroll
   .docs-table:has(> * > tr:first-child > *:nth-child(6):last-child)
   td:nth-child(4),
@@ -806,11 +806,11 @@ div.prose
   max-width: 12rem;
 }
 
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .docs-table-scroll
   .docs-table:has(> * > tr:first-child > *:nth-child(6):last-child)
   th:nth-child(5),
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .docs-table-scroll
   .docs-table:has(> * > tr:first-child > *:nth-child(6):last-child)
   td:nth-child(5),
@@ -826,11 +826,11 @@ div.prose
   max-width: 20rem;
 }
 
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .docs-table-scroll
   .docs-table:has(> * > tr:first-child > *:nth-child(6):last-child)
   th:nth-child(6),
-#nd-docs-layout
+:is(#nd-docs-layout, #nd-notebook-layout)
   .docs-table-scroll
   .docs-table:has(> * > tr:first-child > *:nth-child(6):last-child)
   td:nth-child(6),
@@ -847,8 +847,8 @@ div.prose
 }
 
 /* 滚动表格内行内 code：长 URL / 标识符在格内断行 */
-#nd-docs-layout .docs-table-scroll .docs-table th code,
-#nd-docs-layout .docs-table-scroll .docs-table td code,
+:is(#nd-docs-layout, #nd-notebook-layout) .docs-table-scroll .docs-table th code,
+:is(#nd-docs-layout, #nd-notebook-layout) .docs-table-scroll .docs-table td code,
 div.prose .docs-table-scroll .docs-table th code,
 div.prose .docs-table-scroll .docs-table td code {
   max-width: 100%;
@@ -883,7 +883,7 @@ html.dark {
 }
 
 #nd-page .doc-highlight-mark,
-#nd-docs-layout .prose .doc-highlight-mark,
+:is(#nd-docs-layout, #nd-notebook-layout) .prose .doc-highlight-mark,
 div.prose .doc-highlight-mark {
   --doc-highlight-bg: var(--doc-highlight-bg-yellow);
   --doc-highlight-bg-hover: var(--doc-highlight-bg-yellow-hover);
@@ -928,7 +928,7 @@ div.prose .doc-highlight-mark {
 }
 
 #nd-page .doc-highlight-mark:hover,
-#nd-docs-layout .prose .doc-highlight-mark:hover,
+:is(#nd-docs-layout, #nd-notebook-layout) .prose .doc-highlight-mark:hover,
 div.prose .doc-highlight-mark:hover {
   background-image: linear-gradient(
     to bottom,
@@ -944,21 +944,21 @@ div.prose .doc-highlight-mark:hover {
 }
 
 html.dark #nd-page .doc-highlight-mark,
-html.dark #nd-docs-layout .prose .doc-highlight-mark,
+html.dark :is(#nd-docs-layout, #nd-notebook-layout) .prose .doc-highlight-mark,
 html.dark div.prose .doc-highlight-mark {
   text-decoration-thickness: 2px;
   text-underline-offset: 3px;
 }
 
 html.dark #nd-page .doc-highlight-mark:hover,
-html.dark #nd-docs-layout .prose .doc-highlight-mark:hover,
+html.dark :is(#nd-docs-layout, #nd-notebook-layout) .prose .doc-highlight-mark:hover,
 html.dark div.prose .doc-highlight-mark:hover {
   text-decoration-thickness: 2.5px;
   text-underline-offset: 4px;
 }
 
 #nd-page .doc-highlight-mark[data-highlight-color='green'],
-#nd-docs-layout .prose .doc-highlight-mark[data-highlight-color='green'],
+:is(#nd-docs-layout, #nd-notebook-layout) .prose .doc-highlight-mark[data-highlight-color='green'],
 div.prose .doc-highlight-mark[data-highlight-color='green'] {
   --doc-highlight-bg: var(--doc-highlight-bg-green);
   --doc-highlight-bg-hover: var(--doc-highlight-bg-green-hover);
@@ -966,7 +966,7 @@ div.prose .doc-highlight-mark[data-highlight-color='green'] {
 }
 
 #nd-page .doc-highlight-mark[data-highlight-color='blue'],
-#nd-docs-layout .prose .doc-highlight-mark[data-highlight-color='blue'],
+:is(#nd-docs-layout, #nd-notebook-layout) .prose .doc-highlight-mark[data-highlight-color='blue'],
 div.prose .doc-highlight-mark[data-highlight-color='blue'] {
   --doc-highlight-bg: var(--doc-highlight-bg-blue);
   --doc-highlight-bg-hover: var(--doc-highlight-bg-blue-hover);
@@ -987,14 +987,14 @@ div.prose .doc-highlight-mark[data-highlight-color='blue'] {
 }
 
 #nd-page .doc-highlight-mark.doc-highlight-flash,
-#nd-docs-layout .prose .doc-highlight-mark.doc-highlight-flash,
+:is(#nd-docs-layout, #nd-notebook-layout) .prose .doc-highlight-mark.doc-highlight-flash,
 div.prose .doc-highlight-mark.doc-highlight-flash {
   animation: doc-highlight-flash 1.5s ease-in-out;
 }
 
 @media (prefers-reduced-motion: reduce) {
   #nd-page .doc-highlight-mark.doc-highlight-flash,
-  #nd-docs-layout .prose .doc-highlight-mark.doc-highlight-flash,
+  :is(#nd-docs-layout, #nd-notebook-layout) .prose .doc-highlight-mark.doc-highlight-flash,
   div.prose .doc-highlight-mark.doc-highlight-flash {
     animation: none;
     box-shadow: 0 0 0 2px color-mix(in srgb, var(--doc-highlight-line) 45%, transparent);

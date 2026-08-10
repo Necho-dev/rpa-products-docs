@@ -1,12 +1,17 @@
 import { getDocAccessContextFromRequest } from '@/lib/docs/access/doc-access-react';
 import { filterPageTreeForAccess } from '@/lib/docs/access/docs-page-tree-access';
 import { source } from '@/lib/docs/source/source';
-import { DocsLayout } from 'fumadocs-ui/layouts/docs';
+import { DocsLayout } from 'fumadocs-ui/layouts/notebook';
+import { getLayoutTabs } from 'fumadocs-ui/layouts/shared';
 import { baseOptions } from '@/lib/ui/layout.shared';
 import { DocsThemeToolbar } from '@/components/docs/theme-toolbar';
+import { DocsNotebookContainer } from '@/components/docs/docs-notebook-container';
+import { SidebarCollapseRail } from '@/components/docs/sidebar-collapse-rail';
 import { DocsSidebarTreeFolder, DocsSidebarTreeItem } from '@/components/docs/sidebar-tree';
+import { SidebarTreeSearchBanner } from '@/components/docs/sidebar-tree-search';
 import type { Folder as PageTreeFolder } from 'fumadocs-core/page-tree';
-import { jsx } from 'react/jsx-runtime';
+import { jsx, jsxs } from 'react/jsx-runtime';
+import { HomeIcon } from 'lucide-react';
 import { AISearch, AISearchPanel } from '@/components/ai/search';
 import { DocsFloatingAnchors } from '@/components/docs/floating-anchors';
 import { DocSelectionProvider } from '@/components/docs/selection/selection-provider';
@@ -22,31 +27,70 @@ export default async function Layout({ children }: LayoutProps<'/docs'>) {
   const access = await getDocAccessContextFromRequest();
   const tree = filterPageTreeForAccess(source.getPageTree(), access);
   const feedbackEnabled = isDocFeedbackEnabled();
+  const { nav, ...base } = baseOptions();
+
+  const partitionTabs = getLayoutTabs(tree, {
+    transform: (option, node: PageTreeFolder) => ({
+      ...option,
+      // 顶栏 / 移动端下拉共用 icon
+      icon: node.icon
+        ? jsx('div', {
+            className: 'size-full [&_svg]:size-full',
+            children: node.icon,
+          })
+        : undefined,
+      // LayoutHeaderTabs 默认只渲染 title，把 icon 拼进 title
+      title: jsxs('span', {
+        className: 'inline-flex items-center gap-1.5',
+        children: [
+          node.icon
+            ? jsx('span', {
+                className: 'size-3.5 shrink-0 [&_svg]:size-full',
+                'aria-hidden': true,
+                children: node.icon,
+              })
+            : null,
+          option.title,
+        ],
+      }),
+    }),
+  });
 
   return (
     <DocsLayout
+      {...base}
       tree={tree}
-      tabMode="auto"
-      {...baseOptions()}
+      tabMode="navbar"
+      nav={{
+        ...nav,
+        mode: 'top',
+      }}
+      tabs={[
+        {
+          url: '/',
+          title: jsxs('span', {
+            className: 'inline-flex items-center gap-1.5',
+            children: [
+              jsx(HomeIcon, {
+                className: 'size-3.5 shrink-0',
+                'aria-hidden': true,
+              }),
+              '首页',
+            ],
+          }),
+          // 仅在首页高亮；文档区内不高亮
+          urls: new Set(['/']),
+        },
+        ...partitionTabs,
+      ]}
       slots={{
+        container: DocsNotebookContainer,
         themeSwitch: DocsThemeToolbar,
       }}
       sidebar={{
-        tabs: {
-          transform: (option, node: PageTreeFolder) => ({
-            ...option,
-            // 与 defaultTransform 保持一致的包裹 div，让 SVG 尺寸受容器约束
-            icon: node.icon
-              ? jsx('div', {
-                  className:
-                    'size-full [&_svg]:size-full max-md:p-1.5 max-md:rounded-md max-md:border max-md:bg-fd-secondary',
-                  children: node.icon,
-                })
-              : undefined,
-          }),
-        },
-        /* 无 meta.json 时节点无 defaultOpen; 用层级常量让所有文件夹默认展开;与此前 meta 里 defaultOpen: true 一致 */
+        /* 无 meta.json 时节点无 defaultOpen; 用层级常量让所有文件夹默认展开 */
         defaultOpenLevel: 99,
+        banner: SidebarTreeSearchBanner,
         components: {
           Item: DocsSidebarTreeItem,
           Folder: DocsSidebarTreeFolder,
@@ -59,6 +103,7 @@ export default async function Layout({ children }: LayoutProps<'/docs'>) {
             <ExcerptAiToolsBridge />
             <AISearchPanel />
             <ExcerptCollectionDrawer />
+            <SidebarCollapseRail />
             <DocsFloatingAnchors />
             <DocSelectionProvider />
             <AppUpdateSentinel />

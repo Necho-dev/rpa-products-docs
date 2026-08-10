@@ -17,7 +17,7 @@ export function baseOptions(): BaseLayoutProps {
             height={22}
             unoptimized
             aria-hidden
-            className="size-[22px] shrink-0 rounded-full"
+            className="size-5.5 shrink-0 rounded-full"
           />
           <span>{siteName}</span>
         </span>

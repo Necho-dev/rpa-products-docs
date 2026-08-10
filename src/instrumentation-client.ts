@@ -3,6 +3,7 @@ import {
   getSentryDsn,
   getSentryEnvironment,
   getSentryRelease,
+  getSentryTracesSampleRate,
   isSentryEnabled,
 } from '@/lib/observability/sentry/env';
 
@@ -15,7 +16,7 @@ if (isSentryEnabled()) {
     release: getSentryRelease(),
     enabled: true,
 
-    tracesSampleRate: isDev ? 1.0 : 0.2,
+    tracesSampleRate: getSentryTracesSampleRate(),
 
     // 内部知识库流量有限：会话全量采样，便于 Replay 面板有数据
     replaysSessionSampleRate: 1.0,

@@ -15,6 +15,7 @@ export {
   getSentryDsn,
   getSentryEnvironment,
   getSentryRelease,
+  getSentryTracesSampleRate,
   isSentryEnabled,
 } from '@/lib/observability/sentry/env';
 export { parseUserAgent } from '@/lib/observability/sentry/parse-user-agent';

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Script from 'next/script';
+import { cookies } from 'next/headers';
 import { RootProvider } from 'fumadocs-ui/provider/next';
 import DocsSearchDialog from '@/components/docs/search/docs-search-dialog';
 import { AiSearchUiProvider } from '@/components/docs/search/ai-search-ui-context';
@@ -12,7 +12,11 @@ import './global.css';
 import 'katex/dist/katex.css';
 /** 在 Tailwind/typography 与 KaTeX 之后覆盖文档 blockquote，避免层叠被吃掉 */
 import './docs-prose-override.css';
-import { FD_COLOR_PRESET_DEFAULT, FD_COLOR_PRESET_STORAGE_KEY } from '@/lib/ui/fd-color-preset';
+import {
+  FD_COLOR_PRESET_STORAGE_KEY,
+  fdColorPresetHtmlAttribute,
+  parseFdColorPresetId,
+} from '@/lib/ui/fd-color-preset';
 import localFont from 'next/font/local';
 import { cn } from '@/lib/core/cn';
 import { DocumentTitleDefault } from '@/components/docs/document-title-default';
@@ -33,8 +37,6 @@ const jetBrainsMono = localFont({
   display: 'swap',
   weight: '100 900',
 });
-
-const fdColorPresetInitScript = `(function(){try{var k=${JSON.stringify(FD_COLOR_PRESET_STORAGE_KEY)};var d=${JSON.stringify(FD_COLOR_PRESET_DEFAULT)};var v=localStorage.getItem(k)||d;if(v==="neutral")document.documentElement.removeAttribute("data-fd-color-preset");else document.documentElement.setAttribute("data-fd-color-preset",v);}catch(e){document.documentElement.setAttribute("data-fd-color-preset",${JSON.stringify(FD_COLOR_PRESET_DEFAULT)});}})();`;
 
 if (process.env.NODE_ENV === 'production' && !getPublicSiteUrlIfSet()) {
   console.warn(
@@ -68,20 +70,19 @@ export default async function Layout({ children }: LayoutProps<'/'>) {
   const aiSearchUiEnabled = isAiSearchAvailable();
   const searchTags = getSearchTags();
   const sentryIdentity = await resolveClientSentryIdentity();
+  const cookieStore = await cookies();
+  const colorPreset = parseFdColorPresetId(
+    cookieStore.get(FD_COLOR_PRESET_STORAGE_KEY)?.value,
+  );
+  const colorPresetAttr = fdColorPresetHtmlAttribute(colorPreset);
 
   return (
     <html
       lang="zh-CN"
       className={cn(inter.variable, jetBrainsMono.variable)}
+      data-fd-color-preset={colorPresetAttr}
       suppressHydrationWarning
     >
-      <head>
-        <Script
-          id="fd-color-preset-init"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{ __html: fdColorPresetInitScript }}
-        />
-      </head>
       <body className="flex min-h-screen flex-col font-sans antialiased">
         <SentryUserContext
           userId={sentryIdentity.userId}
@@ -94,8 +95,8 @@ export default async function Layout({ children }: LayoutProps<'/'>) {
             i18n={{
               locale: 'zh-CN',
               translations: {
-                search: '搜索',
-                toc: '页面导航',
+                search: '搜索文档内容…',
+                toc: '目录',
                 lastUpdate: '最后更新于',
               },
             }}

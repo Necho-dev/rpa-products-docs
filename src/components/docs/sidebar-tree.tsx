@@ -1,6 +1,10 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  type ReactNode,
+} from 'react';
 import type { Folder, Item } from 'fumadocs-core/page-tree';
 import { usePathname } from 'fumadocs-core/framework';
 import { useTreePath } from 'fumadocs-ui/contexts/tree';
@@ -14,6 +18,14 @@ import {
 } from 'fumadocs-ui/components/sidebar/base';
 import { cn } from '@/lib/core/cn';
 import type { SidebarFolderWithBadge, SidebarItemWithBadge } from '@/lib/docs/source/docs-entry-in-sidebar-plugin';
+import {
+  folderHasMatch,
+  getSidebarMatchId,
+  highlightSearchMatch,
+  nodeMatchesQuery,
+  sidebarActiveMatchRowClass,
+  useSidebarTreeSearch,
+} from '@/components/docs/sidebar-tree-search';
 
 /** 与 `fumadocs-ui/layouts/docs/slots/sidebar` 中 itemVariants 一致；双行时顶对齐图标与标题行 */
 const rowBase =
@@ -29,6 +41,13 @@ const buttonRest =
 
 const highlight =
   "data-[active=true]:before:content-[''] data-[active=true]:before:bg-fd-primary data-[active=true]:before:absolute data-[active=true]:before:w-px data-[active=true]:before:inset-y-2.5 data-[active=true]:before:inset-s-2.5";
+
+/** 祖先文件夹标题/entry 命中时，强制展示整棵子树 */
+const ForceShowChildrenContext = createContext(false);
+
+function useForceShowChildren() {
+  return useContext(ForceShowChildrenContext);
+}
 
 function normalizePath(url: string) {
   if (url.length > 1 && url.endsWith('/')) return url.slice(0, -1);
@@ -76,7 +95,7 @@ function TruncatedLabel({ children, depth, className }: { children: ReactNode; d
 
 function PageTreeSubline({ children }: { children: ReactNode }) {
   return (
-    <span className="w-full min-w-0 max-w-full truncate font-mono text-[12px] leading-tight text-fd-muted-foreground/80">
+    <span className="w-full min-w-0 max-w-full truncate font-mono text-[12px] leading-tight text-fd-muted-foreground/80 [&_mark]:font-mono">
       {children}
     </span>
   );
@@ -97,43 +116,82 @@ function DocBadge({ label, color }: { label: string; color?: string }) {
 export function DocsSidebarTreeItem({ item }: { item: Item }) {
   const pathname = usePathname();
   const depth = useFolderDepth();
+  const { normalizedQuery, isFiltering, isActiveMatch } = useSidebarTreeSearch();
+  const forceShow = useForceShowChildren();
+  const selfMatches = Boolean(normalizedQuery && nodeMatchesQuery(item, normalizedQuery));
+
+  // 有命中时才过滤；0 命中保留完整目录树
+  if (isFiltering && !forceShow && !selfMatches) {
+    return null;
+  }
+
   const hasSub = item.description != null && item.description !== '';
   const badge = (item as SidebarItemWithBadge).badge;
+  const matchId = getSidebarMatchId(item);
+  const variant = selfMatches && isActiveMatch(matchId) ? 'active' : 'match';
+  const nameNode = highlightSearchMatch(item.name, normalizedQuery, variant);
+  const descNode = hasSub
+    ? highlightSearchMatch(item.description, normalizedQuery, variant)
+    : null;
+
   return (
     <SidebarItem
       href={item.url}
       external={item.external}
       active={isActiveUrl(item.url, pathname)}
       icon={item.icon}
+      data-sidebar-match-id={selfMatches ? matchId : undefined}
       className={cn(
         rowBase,
         linkRest,
         depth >= 1 && highlight,
         'group min-w-0 w-full',
         hasSub && rowWithSubline,
+        variant === 'active' && sidebarActiveMatchRowClass,
       )}
       style={{ paddingInlineStart: getItemOffset(depth) }}
     >
       <div className="flex min-w-0 min-h-0 flex-1 flex-col gap-0.5">
         <div className="flex min-w-0 flex-1 flex-row items-center gap-1.5">
           <TruncatedLabel depth={depth} className="min-h-0 min-w-0 flex-1">
-            {item.name}
+            {nameNode}
           </TruncatedLabel>
           {badge ? <DocBadge label={badge.label} color={badge.color} /> : null}
         </div>
-        {hasSub ? <PageTreeSubline>{item.description}</PageTreeSubline> : null}
+        {hasSub ? <PageTreeSubline>{descNode}</PageTreeSubline> : null}
       </div>
     </SidebarItem>
   );
 }
 
-function FolderLabelRow({ item, pathname }: { item: Folder; pathname: string }) {
+function FolderLabelRow({
+  item,
+  pathname,
+  normalizedQuery,
+  matchId,
+  selfMatches,
+  isActive,
+}: {
+  item: Folder;
+  pathname: string;
+  normalizedQuery: string;
+  matchId: string;
+  selfMatches: boolean;
+  isActive: boolean;
+}) {
   const depth = useFolderDepth();
   /** 与 `getItemOffset(depth - 1)` 一致：文件夹标题与「同缩进档位」的叶子共用同一套字阶 */
   const labelDepth = Math.max(0, depth - 1);
   const pad = getItemOffset(labelDepth);
   const hasSub = item.description != null && item.description !== '';
   const badge = (item as SidebarFolderWithBadge).badge;
+  const variant = selfMatches && isActive ? 'active' : 'match';
+  const nameNode = highlightSearchMatch(item.name, normalizedQuery, variant);
+  const descNode = hasSub
+    ? highlightSearchMatch(item.description, normalizedQuery, variant)
+    : null;
+  const matchAttr = selfMatches ? matchId : undefined;
+  const activeRow = variant === 'active' ? sidebarActiveMatchRowClass : undefined;
 
   if (item.index) {
     return (
@@ -141,12 +199,14 @@ function FolderLabelRow({ item, pathname }: { item: Folder; pathname: string }) 
         href={item.index.url}
         active={isActiveUrl(item.index.url, pathname)}
         external={item.index.external}
+        data-sidebar-match-id={matchAttr}
         className={cn(
           rowBase,
           linkRest,
           depth > 1 && highlight,
           'group w-full min-w-0',
           hasSub && rowWithSubline,
+          activeRow,
         )}
         style={{ paddingInlineStart: pad }}
       >
@@ -154,11 +214,11 @@ function FolderLabelRow({ item, pathname }: { item: Folder; pathname: string }) 
         <div className="flex min-w-0 min-h-0 flex-1 flex-col gap-0.5">
           <div className="flex min-w-0 flex-1 flex-row items-center gap-1.5">
             <TruncatedLabel depth={labelDepth} className="min-h-0 min-w-0 flex-1">
-              {item.name}
+              {nameNode}
             </TruncatedLabel>
             {badge ? <DocBadge label={badge.label} color={badge.color} /> : null}
           </div>
-          {hasSub ? <PageTreeSubline>{item.description}</PageTreeSubline> : null}
+          {hasSub ? <PageTreeSubline>{descNode}</PageTreeSubline> : null}
         </div>
       </SidebarFolderLink>
     );
@@ -166,18 +226,25 @@ function FolderLabelRow({ item, pathname }: { item: Folder; pathname: string }) 
 
   return (
     <SidebarFolderTrigger
-      className={cn(rowBase, buttonRest, 'group w-full min-w-0', hasSub && rowWithSubline)}
+      data-sidebar-match-id={matchAttr}
+      className={cn(
+        rowBase,
+        buttonRest,
+        'group w-full min-w-0',
+        hasSub && rowWithSubline,
+        activeRow,
+      )}
       style={{ paddingInlineStart: pad }}
     >
       {item.icon}
       <div className="flex min-w-0 min-h-0 flex-1 flex-col gap-0.5">
         <div className="flex min-w-0 flex-1 flex-row items-center gap-1.5">
           <TruncatedLabel depth={labelDepth} className="min-h-0 min-w-0 flex-1">
-            {item.name}
+            {nameNode}
           </TruncatedLabel>
           {badge ? <DocBadge label={badge.label} color={badge.color} /> : null}
         </div>
-        {hasSub ? <PageTreeSubline>{item.description}</PageTreeSubline> : null}
+        {hasSub ? <PageTreeSubline>{descNode}</PageTreeSubline> : null}
       </div>
     </SidebarFolderTrigger>
   );
@@ -193,15 +260,46 @@ export function DocsSidebarTreeFolder({
 }) {
   const path = useTreePath();
   const pathname = usePathname();
+  const { normalizedQuery, isFiltering, isActiveMatch } = useSidebarTreeSearch();
+  const parentForceShow = useForceShowChildren();
+  const folderMatches = nodeMatchesQuery(item, normalizedQuery);
+  const hasDescendantMatch = Boolean(
+    isFiltering && folderHasMatch(item, normalizedQuery),
+  );
+
+  // 有命中时才过滤；0 命中保留完整目录树
+  if (isFiltering && !parentForceShow && !hasDescendantMatch) {
+    return null;
+  }
+
+  // 本文件夹命中（或祖先已强制）→ 子树全部展示
+  const forceShowChildren =
+    parentForceShow || Boolean(isFiltering && folderMatches);
+
+  const matchId = getSidebarMatchId(item);
+  const selfMatches = Boolean(isFiltering && folderMatches);
+
+  // 筛选时强制展开含命中的文件夹；清除后勿传 false，否则会盖掉 defaultOpenLevel 导致整树折叠
+  const defaultOpen =
+    isFiltering && hasDescendantMatch ? true : item.defaultOpen;
 
   return (
     <SidebarFolder
       collapsible={item.collapsible}
       active={path.includes(item)}
-      defaultOpen={item.defaultOpen}
+      defaultOpen={defaultOpen}
     >
-      <FolderLabelRow item={item} pathname={pathname} />
-      <SidebarFolderContent>{children}</SidebarFolderContent>
+      <FolderLabelRow
+        item={item}
+        pathname={pathname}
+        normalizedQuery={normalizedQuery}
+        matchId={matchId}
+        selfMatches={selfMatches}
+        isActive={selfMatches && isActiveMatch(matchId)}
+      />
+      <ForceShowChildrenContext.Provider value={forceShowChildren}>
+        <SidebarFolderContent>{children}</SidebarFolderContent>
+      </ForceShowChildrenContext.Provider>
     </SidebarFolder>
   );
 }

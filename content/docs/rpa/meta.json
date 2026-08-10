@@ -2,7 +2,7 @@
   "root": true,
   "title": "RPA 连接器",
   "description": "自动化操作实现数据采集",
-  "icon": "Bot",
+  "icon": "BotMessageSquare",
   "color": "#0060ca",
   "pages": [
     "index",

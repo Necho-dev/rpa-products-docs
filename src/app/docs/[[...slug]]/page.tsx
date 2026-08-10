@@ -10,7 +10,8 @@ import {
   DocsPage,
   DocsTitle,
   PageLastUpdate,
-} from 'fumadocs-ui/layouts/docs/page';
+} from 'fumadocs-ui/layouts/notebook/page';
+import { DocsBreadcrumb } from '@/components/docs/docs-breadcrumb';
 import { MarkdownActionsButton } from '@/components/docs/markdown-copy-button';
 import { notFound, redirect } from 'next/navigation';
 import { getMDXComponents } from '@/components/docs/mdx';
@@ -28,11 +29,12 @@ import { inferSiteOrigin } from '@/lib/core/site-origin';
 export const dynamic = 'force-dynamic';
 
 /**
- * 去掉默认 max-w-[900px]，在 grid 主栏内拉满；略减横向 padding 换可读宽度。
+ * 正文列宽由 NotebookLayoutContainer 的 --fd-docs-content-max 控制；
+ * *:max-w-none 清掉 Notebook 默认 900px，内容吃满 main 列，右侧 TOC 紧贴跟随。
  * min-h 对齐文档布局视口高度，配合 DocsBody 的 flex-1，把「最后更新」顶到页面底部。
  */
 const docsPageArticleClassName =
-  'flex max-w-none w-full min-h-[calc(var(--fd-docs-height,100dvh)-var(--fd-docs-row-3,0px))] flex-col gap-4 px-4 py-6 md:px-5 md:pt-8 xl:px-6 xl:pt-12 xl:layout:[--fd-toc-width:13.5rem]';
+  'flex max-w-none w-full *:max-w-none min-h-[calc(var(--fd-docs-height,100dvh)-var(--fd-docs-row-3,0px))] flex-col gap-4 px-4 py-6 md:px-5 md:pt-8 xl:px-6 xl:pt-10 xl:layout:[--fd-toc-width:12.5rem]';
 
 export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
   const params = await props.params;
@@ -70,7 +72,13 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
   const showSchedulePanel = hasScheduleMeta(scheduleMeta);
 
   return (
-    <DocsPage toc={toc} full={page.data.full} className={docsPageArticleClassName}>
+    <DocsPage
+      toc={toc}
+      full={page.data.full}
+      className={docsPageArticleClassName}
+      breadcrumb={{ enabled: true }}
+      slots={{ breadcrumb: DocsBreadcrumb }}
+    >
       <div className="flex flex-col gap-1.5">
         <DocsTitle className="mb-0">{page.data.title}</DocsTitle>
         {showSchedulePanel ? (

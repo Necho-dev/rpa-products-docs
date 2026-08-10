@@ -88,30 +88,269 @@ html > body[data-scroll-locked] {
 
 
 /*
- * 文档区网格（见 fumadocs #nd-docs-layout）：主栏宽度 ≈
- *   minmax(0, var(--fd-layout-width) - var(--fd-sidebar-width) - var(--fd-toc-width))
- * 略缩侧栏 / TOC、略抬总宽，让中间正文更宽；小屏仍用默认（侧栏抽屉、TOC 为 popover）。
+ * 文档区网格（飞书式，见 NotebookLayoutContainer）：
+ * - 顶栏全宽；两侧 minmax(留白, 1fr) 等分 → 侧栏+正文+TOC 整体居中
+ * - 正文最大宽 --fd-docs-content-max = 90rem，TOC 紧贴正文
  */
+#nd-notebook-layout {
+  --fd-docs-inline-start: 0px;
+  --fd-docs-content-max: 100%;
+}
+
 @media (width >= 48rem) and (width < 64rem) {
-  #nd-docs-layout {
-    --fd-sidebar-width: 15rem !important;
-    --fd-layout-width: 114rem !important;
+  #nd-docs-layout,
+  #nd-notebook-layout {
+    --fd-sidebar-width: 19rem !important;
+    --fd-docs-inline-start: 0.75rem;
+    --fd-docs-content-max: 90rem;
   }
 }
 
 @media (width >= 64rem) and (width < 80rem) {
-  #nd-docs-layout {
-    --fd-sidebar-width: 18rem !important;
-    --fd-layout-width: 120rem !important;
+  #nd-docs-layout,
+  #nd-notebook-layout {
+    --fd-sidebar-width: 22rem !important;
+    --fd-docs-inline-start: 0.875rem;
+    --fd-docs-content-max: 90rem;
   }
 }
 
 @media (width >= 80rem) {
-  #nd-docs-layout {
+  #nd-docs-layout,
+  #nd-notebook-layout {
     --fd-sidebar-width: 24rem !important;
-    --fd-layout-width: 134rem !important;
-    /* 默认 TOC 268px，收窄后把像素还给主栏 */
-    --fd-toc-width: 13.5rem !important;
+    --fd-docs-inline-start: 1rem;
+    --fd-docs-content-max: 96rem;
+    --fd-toc-width: 12.5rem !important;
+  }
+}
+
+/*
+ * Notebook 顶栏（飞书式）：
+ * - 保留极淡的「搜索行 ↔ 分区导航」分隔线
+ * - 「分区导航 ↔ 正文」用轻阴影，去掉硬线
+ */
+#nd-subnav {
+  position: sticky;
+  /* 高于侧栏，避免侧栏分割线透出/叠进顶栏 */
+  z-index: 40;
+  background-color: var(--color-fd-background);
+  border-bottom-width: 0 !important;
+  box-shadow: none;
+}
+
+#nd-subnav[data-transparent='true'] {
+  /* 保持不透明，防止侧栏竖线从半透明顶栏透出 */
+  background-color: var(--color-fd-background);
+}
+
+/* 飞书式轻投影：比硬分割线更弱 */
+#nd-subnav::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -8px;
+  height: 8px;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(15, 23, 42, 0.035),
+    transparent
+  );
+}
+
+html.dark #nd-subnav::after {
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.22),
+    transparent
+  );
+}
+
+/* 搜索行分隔线：大幅弱化（飞书接近 #eee） */
+#nd-subnav [data-header-body] {
+  border-bottom-color: color-mix(in oklab, var(--color-fd-border) 32%, transparent);
+}
+
+/* 正文吃满 main 列（列宽已由 --fd-docs-content-max 约束），TOC 紧贴其右 */
+#nd-page > * {
+  max-width: none !important;
+  width: 100%;
+}
+
+/* 侧栏与正文分割线画在 placeholder 上（网格行在顶栏下方），避免竖线叠进导航 */
+@media (width >= 48rem) {
+  #nd-notebook-layout [data-sidebar-placeholder] {
+    z-index: 20;
+  }
+
+  /* 收起后侧栏会绝对定位叠到正文上，抬高以免右缘按钮被正文抢走 hover */
+  #nd-notebook-layout[data-sidebar-collapsed='true'] [data-sidebar-placeholder] {
+    z-index: 30;
+  }
+
+  /*
+   * 收起 hover 热区：钉在视口最左侧并收窄（默认 w-4 且跟着 placeholder，
+   * 加大 inset 时会落到正文上导致过于灵敏）。
+   */
+  #nd-notebook-layout[data-sidebar-collapsed='true']
+    [data-sidebar-placeholder]
+    > div:first-child {
+    position: fixed;
+    inset-inline-start: 0;
+    top: var(--fd-docs-row-2);
+    bottom: 0;
+    width: 0.375rem;
+    z-index: 25;
+  }
+
+  #nd-notebook-layout [data-sidebar-placeholder]::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    inset-inline-end: 0;
+    width: 1px;
+    background: color-mix(in oklab, var(--color-fd-border) 40%, transparent);
+    pointer-events: none;
+  }
+
+  /* 收起态（含 hover 滑出）不显示分割线 */
+  #nd-notebook-layout[data-sidebar-collapsed='true']
+    [data-sidebar-placeholder]::after {
+    opacity: 0;
+  }
+
+  #nd-notebook-layout #nd-sidebar {
+    border-inline-end: none;
+    /*
+     * 与 Tailwind v4 的 translate 对齐（勿用 transform，否则盖掉过渡）。
+     * 收起 / hover 滑出 / 展开共用同一过渡。
+     */
+    transition:
+      translate 280ms cubic-bezier(0.32, 0.72, 0, 1),
+      width 280ms cubic-bezier(0.32, 0.72, 0, 1),
+      inset 280ms cubic-bezier(0.32, 0.72, 0, 1),
+      border-radius 280ms ease,
+      background-color 280ms ease,
+      box-shadow 280ms ease,
+      border-color 280ms ease;
+  }
+
+  /*
+   * 收起未 hover：多挪出左侧 gutter，避免侧栏右边仍露一截。
+   * Fumadocs 默认只 -translateX(sidebar-width)，未计入 --fd-docs-inline-start。
+   */
+  #nd-notebook-layout #nd-sidebar[data-collapsed='true']:not([data-hovered='true']) {
+    translate: calc(
+        -1 * (var(--fd-sidebar-width) + var(--fd-docs-inline-start, 0px) + 0.5rem)
+      )
+      0 !important;
+  }
+
+  /*
+   * 收起全程（含 hover 进/出过渡）：去掉 Fumadocs 浮层卡片描边与圆角。
+   * 仅设 border-color:transparent 时，退出 hover 的 280ms 过渡里仍会闪出圆角框线。
+   */
+  #nd-notebook-layout #nd-sidebar[data-collapsed='true'] {
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    inset-block: 0 !important;
+    background: var(--color-fd-background) !important;
+  }
+
+  /* 收起 + hover：贴回展开位置 */
+  #nd-notebook-layout #nd-sidebar[data-collapsed='true'][data-hovered='true'] {
+    translate: 0 !important;
+  }
+}
+
+/* 收起按钮改放到分割线后，隐藏顶栏右上角原按钮 */
+#nd-subnav [data-header-body] button[aria-label='Collapse Sidebar'] {
+  display: none;
+}
+
+/* 分区 Tab 行：去掉 border-b，阴影由 #nd-subnav 承担 */
+#nd-subnav [data-header-tabs] {
+  align-items: center;
+  gap: 0.5rem;
+  /* 与搜索行 3.5rem 合计 6.5rem，对齐下方 --fd-header-height */
+  height: 3rem;
+  min-height: 3rem;
+  padding-block: 0.375rem;
+  border-bottom-width: 0 !important;
+}
+
+/*
+ * 飞书式双行顶栏（搜索 + 分区）比 Fumadocs 默认 spacing(24)=6rem 更高。
+ * 若不覆盖，正文 min-h 会按 6rem 计算，实际顶栏更高 → 整页多出一段可滚动空白。
+ */
+@media (width >= 64rem) {
+  #nd-notebook-layout:has(#nd-subnav [data-header-tabs]) {
+    --fd-header-height: 6.5rem !important; /* 3.5rem 搜索 + 3rem 分区 */
+  }
+}
+
+#nd-subnav [data-header-tabs] a {
+  border-bottom-width: 0 !important;
+  /* 圆角矩形（非胶囊） */
+  border-radius: 0.5rem;
+  padding: 0.375rem 0.75rem !important;
+  background: color-mix(in oklab, var(--color-fd-secondary) 80%, transparent);
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+}
+
+#nd-subnav [data-header-tabs] a:hover {
+  background: color-mix(in oklab, var(--color-fd-accent) 80%, transparent);
+}
+
+#nd-subnav [data-header-tabs] a.text-fd-primary {
+  background: color-mix(in oklab, var(--color-fd-primary) 12%, transparent);
+}
+
+/*
+ * 顶栏左内边距与侧栏目录树对齐：
+ * 网格 inset(--fd-docs-inline-start) + 侧栏 p-4(1rem)
+ */
+#nd-subnav [data-header-body],
+#nd-subnav [data-header-tabs] {
+  padding-inline-start: calc(var(--fd-docs-inline-start, 0px) + 1rem) !important;
+  padding-inline-end: 1rem !important;
+}
+
+/* 顶栏搜索：随窗口变宽放大，窄屏收窄 */
+#nd-subnav [data-header-body] .max-w-sm {
+  max-width: min(20rem, 42vw);
+}
+
+@media (width >= 64rem) {
+  #nd-subnav [data-header-body] .max-w-sm {
+    max-width: min(28rem, 36vw);
+  }
+
+  #nd-subnav [data-header-body],
+  #nd-subnav [data-header-tabs] {
+    padding-inline-end: 1.25rem !important;
+  }
+}
+
+@media (width >= 80rem) {
+  #nd-subnav [data-header-body] .max-w-sm {
+    max-width: min(36rem, 40vw);
+  }
+
+  #nd-subnav [data-header-body],
+  #nd-subnav [data-header-tabs] {
+    padding-inline-end: 1.5rem !important;
+  }
+}
+
+@media (width >= 96rem) {
+  #nd-subnav [data-header-body] .max-w-sm {
+    max-width: min(42rem, 38vw);
   }
 }
 

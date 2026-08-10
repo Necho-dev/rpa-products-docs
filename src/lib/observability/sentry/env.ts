@@ -49,3 +49,18 @@ export function getSentryRelease(): string | undefined {
 export function isSentryEnabled(): boolean {
   return getSentryDsn() !== undefined;
 }
+
+function parseSampleRate(raw: string | undefined, fallback: number): number {
+  if (raw === undefined) return fallback;
+  const n = Number(raw);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.min(1, Math.max(0, n));
+}
+
+/**
+ * Sentry Trace 采样率(SENTRY_TRACES_SAMPLE_RATE)
+ * 未配置默认值 1: 站内流量有限, 且 MCP Insights 依赖 Trace 不被抽稀
+ */
+export function getSentryTracesSampleRate(): number {
+  return parseSampleRate(trimValue(process.env.SENTRY_TRACES_SAMPLE_RATE), 1);
+}

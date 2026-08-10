@@ -1,9 +1,8 @@
 'use client';
 
 import { useEffect, useLayoutEffect, useState } from 'react';
-import { CheckIcon, ChevronDownIcon, Monitor, Moon, Palette, Sun } from 'lucide-react';
+import { CheckIcon, ChevronDownIcon, Monitor, Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import { buttonVariants } from 'fumadocs-ui/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from 'fumadocs-ui/components/ui/popover';
 import { cn } from '@/lib/core/cn';
 import {
@@ -11,17 +10,33 @@ import {
   FD_COLOR_PRESETS,
   FD_COLOR_PRESET_DEFAULT,
   FD_COLOR_PRESET_STORAGE_KEY,
+  FD_COLOR_PRESET_SWATCH,
+  isFdColorPresetId,
   type FdColorPresetId,
 } from '@/lib/ui/fd-color-preset';
+
+function readCookiePreset(): string | null {
+  if (typeof document === 'undefined') return null;
+  const prefix = `${FD_COLOR_PRESET_STORAGE_KEY}=`;
+  const hit = document.cookie.split('; ').find((part) => part.startsWith(prefix));
+  if (!hit) return null;
+  try {
+    return decodeURIComponent(hit.slice(prefix.length));
+  } catch {
+    return hit.slice(prefix.length);
+  }
+}
 
 function readStoredPreset(): FdColorPresetId {
   if (typeof window === 'undefined') return FD_COLOR_PRESET_DEFAULT;
   try {
-    const v = localStorage.getItem(FD_COLOR_PRESET_STORAGE_KEY);
-    if (v && FD_COLOR_PRESETS.some((p) => p.id === v)) return v as FdColorPresetId;
+    const fromStorage = localStorage.getItem(FD_COLOR_PRESET_STORAGE_KEY);
+    if (isFdColorPresetId(fromStorage)) return fromStorage;
   } catch {
     /* ignore */
   }
+  const fromCookie = readCookiePreset();
+  if (isFdColorPresetId(fromCookie)) return fromCookie;
   return FD_COLOR_PRESET_DEFAULT;
 }
 
@@ -29,16 +44,37 @@ const MODE_ITEMS = [
   ['light', Sun, '浅色'] as const,
   ['dark', Moon, '深色'] as const,
   ['system', Monitor, '跟随系统'] as const,
-];
+] as const;
+
+function PresetSwatch({
+  presetId,
+  className,
+}: {
+  presetId: FdColorPresetId;
+  className?: string;
+}) {
+  return (
+    <span
+      className={cn(
+        'size-2.5 shrink-0 rounded-full ring-1 ring-black/10 dark:ring-white/20',
+        className,
+      )}
+      style={{ backgroundColor: FD_COLOR_PRESET_SWATCH[presetId] }}
+      aria-hidden
+    />
+  );
+}
 
 /**
- * 明暗三钮常驻底栏（一键切换）；配色预设仍在「主题」Popover 内（与 MCP 下拉一致）。
+ * 顶栏主题控件：明暗三钮 + 配色下拉，共用同一描边圆角壳，避免胶囊/实心按钮混搭。
  */
 export function DocsThemeToolbar({ className }: { className?: string }) {
   const [open, setOpen] = useState(false);
   const [preset, setPreset] = useState<FdColorPresetId>(readStoredPreset);
   const { setTheme, theme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const activePresetLabel =
+    FD_COLOR_PRESETS.find((p) => p.id === preset)?.label ?? '主题';
 
   useLayoutEffect(() => {
     applyFdColorPresetToDocument(preset);
@@ -49,11 +85,14 @@ export function DocsThemeToolbar({ className }: { className?: string }) {
   }, []);
 
   return (
-    <div className={cn('inline-flex shrink-0 items-center gap-1.5', className)}>
-      <div
-        className="inline-flex h-8 items-center rounded-full border border-fd-border bg-fd-background p-0.5"
-        data-theme-toggle=""
-      >
+    <div
+      className={cn(
+        'inline-flex h-8 shrink-0 items-center rounded-lg border border-fd-border/80 bg-fd-background/80 p-0.5',
+        className,
+      )}
+      data-theme-toggle=""
+    >
+      <div className="inline-flex items-center">
         {MODE_ITEMS.map(([key, Icon, label]) => {
           const value = mounted ? theme : null;
           const active = value === key;
@@ -64,74 +103,87 @@ export function DocsThemeToolbar({ className }: { className?: string }) {
               aria-label={label}
               aria-pressed={active}
               className={cn(
-                'flex size-7 items-center justify-center rounded-full text-fd-muted-foreground transition-colors',
-                'hover:bg-fd-accent hover:text-fd-accent-foreground',
-                active && 'bg-fd-accent text-fd-accent-foreground',
+                'flex size-7 items-center justify-center rounded-md text-fd-muted-foreground transition-colors',
+                'hover:bg-fd-accent/70 hover:text-fd-accent-foreground',
+                active && 'bg-fd-accent text-fd-accent-foreground shadow-sm',
               )}
               onClick={() => setTheme(key)}
             >
-              <Icon className="size-3.5" fill="currentColor" />
+              <Icon className="size-3.5" fill="currentColor" strokeWidth={1.75} />
             </button>
           );
         })}
       </div>
 
+      <div className="mx-1.5 h-4 w-px shrink-0 bg-fd-border/80" aria-hidden />
+
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger
           className={cn(
-            buttonVariants({ color: 'secondary', size: 'sm' }),
-            'h-8 shrink-0 gap-2 data-[state=open]:bg-fd-accent data-[state=open]:text-fd-accent-foreground',
-            'rounded-lg',
+            'inline-flex h-7 shrink-0 items-center gap-1.5 rounded-md px-1.5',
+            'text-[12px] font-medium tracking-wide text-fd-muted-foreground transition-colors',
+            'hover:bg-fd-accent/70 hover:text-fd-accent-foreground',
+            'data-[state=open]:bg-fd-accent data-[state=open]:text-fd-accent-foreground',
           )}
-          aria-label="配色预设"
+          aria-label={`配色预设：${activePresetLabel}`}
         >
-          <Palette className="size-3.5 text-fd-muted-foreground" />
-          <span className="max-lg:sr-only">主题</span>
-          <ChevronDownIcon className="size-3.5 text-fd-muted-foreground" />
+          <PresetSwatch presetId={preset} />
+          <span className="max-lg:sr-only w-10 truncate text-left">
+            {activePresetLabel}
+          </span>
+          <ChevronDownIcon
+            className={cn(
+              'size-3 shrink-0 opacity-70 transition-transform',
+              open && 'rotate-180',
+            )}
+          />
         </PopoverTrigger>
         <PopoverContent
           align="end"
-          side="top"
-          sideOffset={6}
+          side="bottom"
+          sideOffset={8}
           className={cn(
-            'flex min-w-0 w-44 max-w-[calc(100vw-1rem)] flex-col gap-0 p-0.5',
-            /* min-w-0 覆盖 Fumadocs Popover 默认 min-w-[240px]，与固定 w-44 组合收窄 */
+            'w-44 min-w-0 max-w-[calc(100vw-1rem)] overflow-hidden rounded-lg border border-fd-border/80 p-1 shadow-md',
+            'bg-fd-popover text-fd-popover-foreground',
           )}
         >
-          <p className="px-1.5 pb-0.5 pt-0.5 text-[10px] font-medium leading-tight text-fd-muted-foreground">
-            配色
-          </p>
           <div
             className={cn(
-              'flex max-h-[min(42vh,13.5rem)] flex-col gap-0 overflow-y-auto',
-              '[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden',
+              'flex max-h-[min(50vh,16rem)] flex-col gap-0.5 overflow-y-auto',
+              '[scrollbar-width:thin]',
             )}
           >
-            {FD_COLOR_PRESETS.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => {
-                  setPreset(p.id);
-                  applyFdColorPresetToDocument(p.id);
-                  setOpen(false);
-                }}
-                className={cn(
-                  'inline-flex w-full items-center gap-1.5 rounded-md px-1.5 py-1 text-left text-xs leading-snug',
-                  'hover:bg-fd-accent hover:text-fd-accent-foreground',
-                  preset === p.id && 'bg-fd-accent/60 text-fd-accent-foreground',
-                )}
-              >
-                <CheckIcon
+            {FD_COLOR_PRESETS.map((p) => {
+              const active = preset === p.id;
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => {
+                    setPreset(p.id);
+                    applyFdColorPresetToDocument(p.id);
+                    setOpen(false);
+                  }}
                   className={cn(
-                    'size-3.5 shrink-0',
-                    preset === p.id ? 'text-fd-primary' : 'opacity-0',
+                    'inline-flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[12px] leading-none tracking-wide',
+                    'text-fd-muted-foreground transition-colors',
+                    'hover:bg-fd-accent/70 hover:text-fd-accent-foreground',
+                    active && 'bg-fd-accent text-fd-accent-foreground',
                   )}
-                  aria-hidden={preset !== p.id}
-                />
-                <span className="min-w-0 flex-1 truncate">{p.label}</span>
-              </button>
-            ))}
+                >
+                  <PresetSwatch presetId={p.id} />
+                  <span className="min-w-0 flex-1 truncate">{p.label}</span>
+                  <CheckIcon
+                    className={cn(
+                      'size-3.5 shrink-0 text-fd-primary',
+                      active ? 'opacity-100' : 'opacity-0',
+                    )}
+                    strokeWidth={2}
+                    aria-hidden={!active}
+                  />
+                </button>
+              );
+            })}
           </div>
         </PopoverContent>
       </Popover>
