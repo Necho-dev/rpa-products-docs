@@ -18,7 +18,7 @@ module:
 | **连接器名称**   | `ODS_万相台报表商品报表明细表(阿里妈妈RPA)`                         |
 | **连接器代码**   | `rpa.conn.alimm.wxt.report.item.promotion`                         |
 | **操作类型**     | `文件导出`                                                         |
-| **目标网页**     | `https://one.alimama.com/index.html#!/report/item_promotion?rptType=item_promotion&isRequestedQztDefaultSet=1&queryDomains=%5B%22promotion%22%2C%22date%22%2C%22campaign%22%5D&offset=0&pageSize=20` |
+| **目标网页**     | `https://one.alimama.com/index.html#!/report/item_promotion?rptType=item_promotion&effectEqual=15&splitType=day&isRequestedQztDefaultSet=1&queryDomains=%5B%22promotion%22%2C%22date%22%2C%22campaign%22%5D&offset=0&pageSize=20` |
 | **适用场景**     | 下载阿里妈妈万相台商品报表（商品数据明细）离线文件，解析分天商品/计划/场景推广效果指标 |
 | **数据表名**     | `ods_rpa_alimm_wxt_report_item_promotion_du`                       |
 | **业务表名**     | `ODS_万相台报表商品报表明细表(阿里妈妈RPA)`                         |
@@ -27,9 +27,7 @@ module:
 
 > **取数路径**：阿里妈妈—万相台—报表—商品报表
 >
-> **取数链接**：[商品报表（维度全选 URL）](https://one.alimama.com/index.html#!/report/item_promotion?rptType=item_promotion&isRequestedQztDefaultSet=1&queryDomains=%5B%22promotion%22%2C%22date%22%2C%22campaign%22%5D&offset=0&pageSize=20)
->
-> **维度说明**：导航 URL 固定带 `queryDomains=["promotion","date","campaign"]`（页面展示「商品,时间,计划」），无需再点维度；离线下载任务实际维度含 `scene` / `original_scene`（全选）。
+> **取数链接**：[https://one.alimama.com/index.html#!/report/item_promotion?rptType=item_promotion&effectEqual=15&splitType=day&isRequestedQztDefaultSet=1&queryDomains=%5B%22promotion%22%2C%22date%22%2C%22campaign%22%5D&offset=0&pageSize=20](https://one.alimama.com/index.html#!/report/item_promotion?rptType=item_promotion&effectEqual=15&splitType=day&isRequestedQztDefaultSet=1&queryDomains=%5B%22promotion%22%2C%22date%22%2C%22campaign%22%5D&offset=0&pageSize=20)
 
 ![阿里妈妈—万相台商品报表](../_public/images/alimm/wxt_report_item_promotion_20260806.png)
 
@@ -37,30 +35,33 @@ module:
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `custom_start_date` | 自定义开始日期 | `String` | 条件必填 | — | 与 `custom_end_date` 须同时填写或同时为空；空则页面默认过去 7 天；支持格式：`YYYYMMDD`、`YYYY-MM-DD`（月日须两位补零）；须落在最近半年内（约 182 天） |
-| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | — | 与 `custom_start_date` 须同时填写或同时为空；支持格式：`YYYYMMDD`、`YYYY-MM-DD`（月日须两位补零）；不能晚于今天；含首尾跨度 ≤ 90 天；须落在最近半年内 |
+| `date_type` | 数据汇总周期 | `String` | 否 | `LAST_7_DAYS` | 快捷日期英文 code。允许值：`YESTERDAY`(昨日) / `LAST_7_DAYS`(过去 7 天) / `LAST_WEEK`(上周) / `LAST_15_DAYS`(过去 15 天) / `THIS_MONTH`(本月) / `LAST_30_DAYS`(过去 30 天) / `LAST_MONTH`(上月) / `CUSTOM`(自定义)。`LAST_7_DAYS` 不拼 `startTime`/`endTime`，吃页面默认；真实起止以页面「数据范围为」为准写入返回 |
+| `effect_equal` | 转化统计周期 | `String` | 否 | `15` | URL `effectEqual`。允许值：`1`(1天累计数据) / `3`(3天累计数据) / `7`(7天累计数据) / `15`(15天累计数据) / `30`(30天累计数据) |
+| `split_type` | 时间粒度 | `String` | 否 | `day` | URL `splitType`。允许值：`sum`(汇总) / `day`(分天) / `week`(分周) / `month`(分月) |
+| `custom_start_date` | 自定义开始日期 | `String` | 条件必填 | — | 仅 `date_type=CUSTOM` 时必填；支持格式：`YYYYMMDD`、`YYYY-MM-DD`（月日须两位补零）；须落在最近半年内（约 182 天） |
+| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | — | 仅 `date_type=CUSTOM` 时必填；支持格式：`YYYYMMDD`、`YYYY-MM-DD`；不能晚于今天；含首尾跨度 ≤ 90 天 |
 
 ### 入参样例
 
-不传日期（页面默认过去 7 天）：
-
-```json
-{}
-```
-
-自定义日期范围：
+默认（过去 7 天 + 15 天累计 + 分天）：
 
 ```json
 {
-  "custom_start_date": "2026-07-01",
-  "custom_end_date": "2026-07-31"
+  "date_type": "LAST_7_DAYS",
+  "effect_equal": "15",
+  "split_type": "day"
 }
 ```
 
+自定义日期：
+
 ```json
 {
-  "custom_start_date": "20260701",
-  "custom_end_date": "20260731"
+  "date_type": "CUSTOM",
+  "effect_equal": "15",
+  "split_type": "day",
+  "custom_start_date": "2026-07-01",
+  "custom_end_date": "2026-07-31"
 }
 ```
 
@@ -73,14 +74,41 @@ module:
   "description": "下载阿里妈妈万相台商品报表（商品数据明细）离线文件，解析分天商品/计划/场景推广效果指标",
   "type": "object",
   "properties": {
+    "date_type": {
+      "type": "string",
+      "description": "数据汇总周期快捷日期英文 code；LAST_7_DAYS 吃页面默认；CUSTOM 时须传自定义起止",
+      "enum": [
+        "YESTERDAY",
+        "LAST_7_DAYS",
+        "LAST_WEEK",
+        "LAST_15_DAYS",
+        "THIS_MONTH",
+        "LAST_30_DAYS",
+        "LAST_MONTH",
+        "CUSTOM"
+      ],
+      "default": "LAST_7_DAYS"
+    },
+    "effect_equal": {
+      "type": "string",
+      "description": "转化统计周期，对应 URL effectEqual",
+      "enum": ["1", "3", "7", "15", "30"],
+      "default": "15"
+    },
+    "split_type": {
+      "type": "string",
+      "description": "时间粒度，对应 URL splitType",
+      "enum": ["sum", "day", "week", "month"],
+      "default": "day"
+    },
     "custom_start_date": {
       "type": "string",
-      "description": "自定义开始日期，与 custom_end_date 须同时填写或同时为空；空则页面默认过去 7 天。支持格式：YYYYMMDD、YYYY-MM-DD（月日须两位补零）；须落在最近半年内（约 182 天）",
+      "description": "自定义开始日期，仅 date_type=CUSTOM 时必填。支持格式：YYYYMMDD、YYYY-MM-DD",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_end_date": {
       "type": "string",
-      "description": "自定义结束日期，与 custom_start_date 须同时填写或同时为空。支持格式：YYYYMMDD、YYYY-MM-DD（月日须两位补零）；不能晚于今天；含首尾跨度 ≤ 90 天；须落在最近半年内",
+      "description": "自定义结束日期，仅 date_type=CUSTOM 时必填。支持格式：YYYYMMDD、YYYY-MM-DD；含首尾跨度 ≤ 90 天",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
@@ -88,30 +116,13 @@ module:
   "allOf": [
     {
       "if": {
-        "required": ["custom_start_date"],
         "properties": {
-          "custom_start_date": {
-            "type": "string",
-            "minLength": 1
-          }
-        }
+          "date_type": { "const": "CUSTOM" }
+        },
+        "required": ["date_type"]
       },
       "then": {
-        "required": ["custom_end_date"]
-      }
-    },
-    {
-      "if": {
-        "required": ["custom_end_date"],
-        "properties": {
-          "custom_end_date": {
-            "type": "string",
-            "minLength": 1
-          }
-        }
-      },
-      "then": {
-        "required": ["custom_start_date"]
+        "required": ["custom_start_date", "custom_end_date"]
       }
     }
   ],
@@ -212,6 +223,8 @@ module:
 | `xxHxNewAlipayAmt` | 补贴引导成交金额 | `Number` | 否 | `XLSX.0.补贴引导成交金额` | `0.0` |
 | `xxHxItemNum` | 发券补贴商品个数 | `Number` | 否 | `XLSX.0.发券补贴商品个数` | `0` |
 | `xxHxNewAlipayNum` | 补贴引导成交人数 | `Number` | 否 | `XLSX.0.补贴引导成交人数` | `0` |
+| `startDate` | 数据范围开始日期 | `String` | 否 | 页面「数据范围为」 | `2026-08-01` |
+| `endDate` | 数据范围结束日期 | `String` | 否 | 页面「数据范围为」 | `2026-08-09` |
 | `bizDate` | 业务日期 | `String` | 否 | 附加 | `20260806` |
 | `accountId` | 授权 ID | `String` | 否 | 附加 | `1****6` (已脱敏) |
 
@@ -308,6 +321,8 @@ module:
   "xxHxNewAlipayAmt": 0.0,
   "xxHxItemNum": 0,
   "xxHxNewAlipayNum": 0,
+  "startDate": "2026-08-01",
+  "endDate": "2026-08-07",
   "bizDate": "20260807",
   "accountId": "1****6"
 }
