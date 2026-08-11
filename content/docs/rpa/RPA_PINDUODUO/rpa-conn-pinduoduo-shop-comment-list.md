@@ -34,8 +34,8 @@ estimatedDuration:
 | 字段                 | 中文释义       | 数据类型         | 必填 | 默认值   | 说明 |
 | -------------------- | -------------- | ---------------- | ---- | -------- | ---- |
 | `time_range`         | 评价时间范围   | `string`         | 否   | `90d`    | `30d` / `90d` / `180d` / `custom` |
-| `custom_start_date`  | 自定义开始日期 | `string`         | `time_range = custom` 时必填 | —     | 格式： `YYYYMMDD`，如 `20260101` |
-| `custom_end_date`    | 自定义结束日期 | `string`         | `time_range = custom` 时必填 | —      | 格式： `YYYYMMDD`，如 `20260420` |
+| `custom_start_date`  | 自定义开始日期 | `string`         | `time_range = custom` 时必填 | —     | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；最早近 24 个自然月，不可晚于 `custom_end_date` |
+| `custom_end_date`    | 自定义结束日期 | `string`         | `time_range = custom` 时必填 | —      | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；不可晚于今天；不可早于 `custom_start_date` |
 | `user_scores`        | 用户评分列表   | `List[int]`      | 否   | `[]`     | 可选项：`1`(1星)、`2`(2星)、`3`(3星)、`4`(4星)、`5`(5星) |
 | `content_types`      | 评价内容筛选   | `List[str]`   | 否   | `[]`     | 可选项：`有图片`、`有视频`、`主评有文字`、`有追加评价`、`已举报` |
 | `reply_status`       | 商家回复筛选   | `List[str]`   | 否   | `[]`     | 可选项：`已回复`、`未回复` |
@@ -46,20 +46,37 @@ estimatedDuration:
 
 ### 入参样例
 
+近 30 天 + 评分筛选：
+
 ```json
-// 30 天内，用户评分为 1、2、3 的评价，评价内容包含有文字的评价
 {
-    "time_range": "30d",
-    "user_scores": [1, 2, 3],
-    "content_types": ["主评有文字"]
+  "time_range": "30d",
+  "user_scores": [1, 2, 3],
+  "content_types": ["主评有文字"]
 }
-// 自定义评价时间范围，用户评分为 1、2、3 的评价，有追加评价的评价
+```
+
+自定义区间（`YYYYMMDD`）：
+
+```json
 {
-    "time_range": "custom",
-    "custom_start_date": "20260101",
-    "custom_end_date": "20260420",
-    "user_scores": [1, 2, 3],
-    "content_types": ["有追加评价"]
+  "time_range": "custom",
+  "custom_start_date": "20260101",
+  "custom_end_date": "20260420",
+  "user_scores": [1, 2, 3],
+  "content_types": ["有追加评价"]
+}
+```
+
+自定义区间（`YYYY-MM-DD`）：
+
+```json
+{
+  "time_range": "custom",
+  "custom_start_date": "2026-01-01",
+  "custom_end_date": "2026-04-20",
+  "user_scores": [1, 2, 3],
+  "content_types": ["有追加评价"]
 }
 ```
 
@@ -85,13 +102,13 @@ estimatedDuration:
     },
     "custom_start_date": {
       "type": "string",
-      "description": "自定义开始日期，time_range = custom 时必填。格式：YYYYMMDD",
-      "pattern": "^\\d{8}$"
+      "description": "自定义开始日期，time_range = custom 时必填。支持格式：YYYYMMDD 或 YYYY-MM-DD；最早近 24 个自然月",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_end_date": {
       "type": "string",
-      "description": "自定义结束日期，time_range = custom 时必填。格式：YYYYMMDD",
-      "pattern": "^\\d{8}$"
+      "description": "自定义结束日期，time_range = custom 时必填。支持格式：YYYYMMDD 或 YYYY-MM-DD；不可晚于今天",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "user_scores": {
       "type": "array",
