@@ -3,8 +3,8 @@ title: 视频号加热-数据分析-短视频数据
 description: 导出视频号加热平台「数据分析-短视频数据」明细 CSV，支持按订单类型、作者、视频、创建人、日期与明细指标筛选
 entry: rpa.conn.weixin.sphjr.short.video.promote.statistic
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 60
   description: 基于稳定性压测结果，通常约 60 秒内完成（含复杂筛选缓冲）

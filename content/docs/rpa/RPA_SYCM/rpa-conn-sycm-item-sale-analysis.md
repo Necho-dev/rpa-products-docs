@@ -3,8 +3,8 @@ title: 商品-商品360-销售分析
 description: 按商品 ID 与统计周期采集生意参谋商品360「销售分析」页的核心概况、SKU 销售详情与属性分析指标
 entry: rpa.conn.sycm.item.sale.analysis
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 dataReady:
   time: "09:00:00"
   cycle: daily

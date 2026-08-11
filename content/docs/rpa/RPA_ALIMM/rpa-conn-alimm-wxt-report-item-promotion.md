@@ -3,8 +3,8 @@ title: 万相台-报表-商品报表
 description: 下载阿里妈妈万相台商品报表（商品数据明细）离线文件，解析分天商品/计划/场景推广效果指标
 entry: rpa.conn.alimm.wxt.report.item.promotion
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 60
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

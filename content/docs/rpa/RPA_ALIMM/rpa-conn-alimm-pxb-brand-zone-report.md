@@ -3,8 +3,8 @@ title: 品销宝-品牌专区-报表下载
 description: 下载品销宝品牌专区报表 XLSX，解析账户/推广计划/推广单元/创意/品牌流量包/定向人群六个维度数据并合并返回
 entry: rpa.conn.alimm.pxb.brand.zone.report
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 60
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响

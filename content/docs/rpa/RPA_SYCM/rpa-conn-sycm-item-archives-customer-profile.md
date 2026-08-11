@@ -3,8 +3,8 @@ title: 商品-商品360-客群画像
 description: 按商品 ID 与业务日期采集生意参谋商品360客群洞察中的客群画像（访问人群 / 支付人群）
 entry: rpa.conn.sycm.item.archives.customer.profile
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 dataReady:
   time: "09:00:00"
   cycle: daily

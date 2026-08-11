@@ -3,8 +3,8 @@ title: 商品-品类360-标准类目
 description: 采集生意参谋品类360页「品类排行」下标准类目 Tab 的访客、加购、下单、支付及转化等指标
 entry: rpa.conn.sycm.item.category.archives.standard
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 dataReady:
   time: "09:00:00"
   cycle: daily

@@ -3,8 +3,8 @@ title: 个人中心-未出账订单-TCP预估订单
 description: 按订单状态、日期类型与自定义时间范围申请并下载 TCP 预估订单（预估佣金）报表
 entry: rpa.conn.rlyq.tcp.predict.order
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 90
   description: 下载表格：根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

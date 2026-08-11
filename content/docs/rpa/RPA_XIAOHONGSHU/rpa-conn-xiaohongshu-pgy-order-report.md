@@ -3,8 +3,8 @@ title: 蒲公英-我的数据-订单报告
 description: 导出小红书蒲公英「我的数据-订单报告」xlsx，支持按订单ID与订单创建日期筛选
 entry: rpa.conn.xiaohongshu.pgy.order.report
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 60
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。
