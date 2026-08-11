@@ -84,7 +84,7 @@ module:
   "type": "object",
   "properties": {
     "date_type": {
-      "description": "日期类型英文 code。与非空自定义起止互斥。可选值：YESTERDAY（昨天）/ LAST_7_DAYS（最近7天）/ LAST_15_DAYS（最近15天）/ LAST_1_MONTH（最近1个月）/ LAST_3_MONTHS（最近3个月）/ CUSTOM（自定义）。不传且起止皆空时使用页面当前区间",
+      "description": "日期类型英文 code,可选值：YESTERDAY（昨天）/ LAST_7_DAYS（最近7天）/ LAST_15_DAYS（最近15天）/ LAST_1_MONTH（最近1个月）/ LAST_3_MONTHS（最近3个月）/ CUSTOM（自定义）。不传且起止皆空时使用页面当前区间",
       "type": "string",
       "enum": [
         "YESTERDAY",
@@ -160,49 +160,49 @@ module:
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
 | `statDate` | 日期 | `String` | 是 | `XLSX.日期` | `2026-08-10` |
-| `leaderName` | 所属团长 | `String` | 是 | `XLSX.所属团长` | — |
-| `detailUv` | 商详UV数 | `Number` | 是 | `XLSX.商详UV数` | `0` |
-| `addCartCount` | 加购数 | `Number` | 是 | `XLSX.加购数` | `0` |
-| `dealCustomerCount` | 成交客户数 | `Number` | 是 | `XLSX.成交客户数` | `0` |
-| `conversionRate` | 转化率 | `String` | 是 | `XLSX.转化率` | — |
-| `brandNewCustomerCount` | 品牌成交新客数 | `Number` | 是 | `XLSX.品牌成交新客数` | `0` |
-| `dealOrderCount` | 成交订单数 | `Number` | 是 | `XLSX.成交订单数` | `0` |
-| `estimatedTotalSalesAmount` | 预估总销售金额（元） | `Number` | 是 | `XLSX.预估总销售金额（元）` | `0` |
-| `estimatedTotalPromotionFee` | 预估总推广费（元） | `Number` | 是 | `XLSX.预估总推广费（元）` | `0` |
-| `estimatedTotalServiceFee` | 预估总服务费（元） | `Number` | 是 | `XLSX.预估总服务费（元）` | `0` |
-| `estimatedRoi` | 预估ROI | `Number` | 是 | `XLSX.预估ROI` | `0` |
+| `leaderName` | 所属团长 | `String` | 是 | `XLSX.所属团长` | `null` |
+| `detailUv` | 商详UV数 | `Number` | 是 | `XLSX.商详UV数` | `13` |
+| `addCartCount` | 加购数 | `Number` | 是 | `XLSX.加购数` | `4` |
+| `dealCustomerCount` | 成交客户数 | `Number` | 是 | `XLSX.成交客户数` | `2` |
+| `conversionRate` | 转化率 | `String` | 是 | `XLSX.转化率` | `15.38%` |
+| `brandNewCustomerCount` | 品牌成交新客数 | `Number` | 是 | `XLSX.品牌成交新客数` | `1` |
+| `dealOrderCount` | 成交订单数 | `Number` | 是 | `XLSX.成交订单数` | `2` |
+| `estimatedTotalSalesAmount` | 预估总销售金额（元） | `Number` | 是 | `XLSX.预估总销售金额（元）` | `165.5` |
+| `estimatedTotalPromotionFee` | 预估总推广费（元） | `Number` | 是 | `XLSX.预估总推广费（元）` | `11.96` |
+| `estimatedTotalServiceFee` | 预估总服务费（元） | `Number` | 是 | `XLSX.预估总服务费（元）` | `0.0` |
+| `estimatedRoi` | 预估ROI | `Number` | 是 | `XLSX.预估ROI` | `13.84` |
 | `pageStartDate` | 页面开始日期 | `String` | 是 | 页面日期框回读 | `2026-08-10` |
 | `pageEndDate` | 页面结束日期 | `String` | 是 | 页面日期框回读 | `2026-08-10` |
 | `bizDate` | 业务日期 | `String` | 否 | 附加 | `20260811` |
-| `accountId` | 授权 ID | `String` | 否 | 附加 | — |
+| `accountId` | 授权 ID | `String` | 否 | 附加 | `1****2` (已脱敏) |
 
 > 导出文件为「唯享客推广商品数据」XLSX（sheet=`推广计划`）。无数据行时仍含完整表头；任务返回 `success=true`、`message=暂无数据`、`data=[]`。
 
 ### 数据样例
 
+> 样例来自真实运行（账号窗口实测，`date_type=YESTERDAY`，`message=导出成功，共 1 条`）。
+
 ```json
 [
   {
     "statDate": "2026-08-10",
-    "leaderName": "示例团长",
-    "detailUv": 100,
-    "addCartCount": 10,
-    "dealCustomerCount": 5,
-    "conversionRate": "5%",
-    "brandNewCustomerCount": 2,
-    "dealOrderCount": 6,
-    "estimatedTotalSalesAmount": 1200.5,
-    "estimatedTotalPromotionFee": 36.0,
-    "estimatedTotalServiceFee": 12.0,
-    "estimatedRoi": 25.0,
+    "leaderName": null,
+    "detailUv": 13,
+    "addCartCount": 4,
+    "dealCustomerCount": 2,
+    "conversionRate": "15.38%",
+    "brandNewCustomerCount": 1,
+    "dealOrderCount": 2,
+    "estimatedTotalSalesAmount": 165.5,
+    "estimatedTotalPromotionFee": 11.96,
+    "estimatedTotalServiceFee": 0.0,
+    "estimatedRoi": 13.84,
     "pageStartDate": "2026-08-10",
     "pageEndDate": "2026-08-10",
     "bizDate": "20260811",
-    "accountId": "135"
+    "accountId": "1****2"
   }
 ]
 ```
-
-> 上表为字段结构样例；当前实测账号区间多为空数据（`data=[]`）。
 
 ---
