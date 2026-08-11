@@ -34,14 +34,26 @@ estimatedDuration:
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
 | `date_range` | 日期范围 | `string` | 否 | `"7d"` | 可选值：`today`(今日) / `yesterday`(昨日) / `7d`(近7日) / `30d`(近30日) / `90d`(近90日) / `custom`(自定义) |
-| `custom_start_date` | 自定义开始日期 | `string` | 否 | — | 格式 YYYYMMDD，`date_range="custom"` 时必填 |
-| `custom_end_date` | 自定义结束日期 | `string` | 否 | — | 格式 YYYYMMDD，`date_range="custom"` 时必填 |
+| `custom_start_date` | 自定义开始日期 | `string` | 否 | — | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；`date_range="custom"` 时必填；须落在平台可选最近 90 天内 |
+| `custom_end_date` | 自定义结束日期 | `string` | 否 | — | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；`date_range="custom"` 时必填；不可晚于今天 |
 
 ### 入参样例
 
+近 7 日：
+
 ```json
 {
-    "date_range": "7d"
+  "date_range": "7d"
+}
+```
+
+自定义区间（`YYYY-MM-DD`）：
+
+```json
+{
+  "date_range": "custom",
+  "custom_start_date": "2026-07-01",
+  "custom_end_date": "2026-07-07"
 }
 ```
 

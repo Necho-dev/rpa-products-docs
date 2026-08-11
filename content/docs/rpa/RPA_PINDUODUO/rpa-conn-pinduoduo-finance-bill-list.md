@@ -33,23 +33,91 @@ estimatedDuration:
 
 | 字段          | 中文释义     | 数据类型  | 必填 | 默认值 | 说明                                                                                             |
 | ------------- | ------------ | --------- | ---- | ------ | ------------------------------------------------------------------------------------------------ |
-| `bizDate`     | 单日账单日期 | `string`  | 否   | 昨天   | 格式：`YYYYMMDD`；与 `beginDate`/`endDate` 不能同时传                                            |
-| `beginDate`   | 区间开始日期 | `string`  | 否   | —      | 格式：`YYYYMMDD`；须与 `endDate` 同时传，且 `beginDate ≤ endDate`，含首尾跨度不超过 31 天          |
-| `endDate`     | 区间结束日期 | `string`  | 否   | —      | 格式：`YYYYMMDD`；须与 `beginDate` 同时传，且 `beginDate ≤ endDate`，含首尾跨度不超过 31 天          |
+| `bizDate`     | 单日账单日期 | `string`  | 否   | 昨天   | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；与 `beginDate`/`endDate` 不能同时传；须落在最近 12 个自然月内且不可晚于今天 |
+| `beginDate`   | 区间开始日期 | `string`  | 否   | —      | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；须与 `endDate` 同时传，且 `beginDate ≤ endDate`，含首尾跨度不超过 31 天；须落在最近 12 个自然月内且不可晚于今天 |
+| `endDate`     | 区间结束日期 | `string`  | 否   | —      | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；须与 `beginDate` 同时传，且 `beginDate ≤ endDate`，含首尾跨度不超过 31 天；须落在最近 12 个自然月内且不可晚于今天 |
 
 ### 入参样例
 
-```json
-// 单日账单
-{ "bizDate": "20260417" }
+单日账单（`YYYYMMDD`）：
 
-// 区间账单（7 天）
-{ "beginDate": "20260411", "endDate": "20260417" }
+```json
+{ "bizDate": "20260417" }
+```
+
+单日账单（`YYYY-MM-DD`）：
+
+```json
+{ "bizDate": "2026-04-17" }
+```
+
+区间账单（7 天）：
+
+```json
+{ "beginDate": "2026-04-11", "endDate": "2026-04-17" }
+```
+
+### 入参校验
+
+```json-schema collapsed
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "拼多多-对账中心-账单明细 - 查询入参",
+  "description": "按日期区间从拼多多对账中心导出并下载账单明细；bizDate 与 beginDate/endDate 互斥",
+  "type": "object",
+  "properties": {
+    "bizDate": {
+      "type": "string",
+      "description": "单日账单日期；支持 YYYYMMDD 或 YYYY-MM-DD；默认昨天；与 beginDate/endDate 互斥；最近 12 个自然月内且不可晚于今天",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    },
+    "beginDate": {
+      "type": "string",
+      "description": "区间开始日期；支持 YYYYMMDD 或 YYYY-MM-DD；须与 endDate 同时传入；含首尾跨度 ≤ 31 天",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    },
+    "endDate": {
+      "type": "string",
+      "description": "区间结束日期；支持 YYYYMMDD 或 YYYY-MM-DD；须与 beginDate 同时传入；含首尾跨度 ≤ 31 天",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    }
+  },
+  "required": [],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "not": {
+        "required": ["bizDate", "beginDate"]
+      }
+    },
+    {
+      "not": {
+        "required": ["bizDate", "endDate"]
+      }
+    },
+    {
+      "if": {
+        "required": ["beginDate"]
+      },
+      "then": {
+        "required": ["endDate"]
+      }
+    },
+    {
+      "if": {
+        "required": ["endDate"]
+      },
+      "then": {
+        "required": ["beginDate"]
+      }
+    }
+  ]
+}
 ```
 
 ### 数据字段
 
-`bizDate` 格式为 `YYYYMMDD`。
+输出字段 `bizDate` 统一为 `YYYYMMDD`。
 
 | 字段               | 中文释义           | 数据类型         | 可为空 | 取数路径                | 示例                          |
 | ------------------ | ------------------ | ---------------- | ------ | ----------------------- | ----------------------------- |
