@@ -40,7 +40,8 @@ module:
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
 | `item_id` | 商品 ID | `String` | 是 | — | 仅允许纯数字，长度 10～20 位；含字母/符号/过短/超长均判输入参数错误 |
-| `biz_date` | 业务日期 | `String` | 否 | 昨天（T-1） | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`（日）或 `YYYYMM` / `YYYY-MM`（月）。日模式硬校验范围：近 400 天且不含今天（T-400～T-1）；日模式有数据窗口为近 90 天（today-90～T-1），窗外软返回「暂无数据」。月模式仅支持当前月之前连续 3 个完整月 |
+| `date_type` | 统计粒度 | `String` | 否 | `DAY` | 允许值：`DAY`(日) / `MONTH`(月)。决定页面点选「日」或「月」 |
+| `biz_date` | 业务日期 | `String` | 否 | `DAY` 时为昨天（T-1）；`MONTH` 时为上一完整月首日 | 仅支持 `YYYYMMDD` / `YYYY-MM-DD`。`DAY`：点选到日；硬校验近 400 天且不含今天（T-400～T-1）；有数据窗口近 90 天（today-90～T-1），窗外软返回「暂无数据」。`MONTH`：只取入参年月点选月；仅支持当前月之前连续 3 个完整月 |
 
 > 执行前会在商品360搜索框校验 `item_id` 是否可命中；未搜到相关商品时返回空数据（`没有相关商品: <item_id>`）。
 >
@@ -53,20 +54,22 @@ module:
 ```json
 {
   "item_id": "934****931",
+  "date_type": "DAY",
   "biz_date": "20260715"
 }
 ```
 
-月模式：
+月模式（`biz_date` 仍传年月日，只取年月）：
 
 ```json
 {
   "item_id": "934****931",
-  "biz_date": "202605"
+  "date_type": "MONTH",
+  "biz_date": "20260515"
 }
 ```
 
-未传业务日期（默认昨天）：
+未传 `date_type` / `biz_date`（默认 `DAY` + 昨天）：
 
 ```json
 {
@@ -90,10 +93,16 @@ module:
       "minLength": 10,
       "maxLength": 20
     },
+    "date_type": {
+      "type": "string",
+      "description": "统计粒度；允许值 DAY(日) / MONTH(月)；未传默认 DAY",
+      "enum": ["DAY", "MONTH"],
+      "default": "DAY"
+    },
     "biz_date": {
       "type": "string",
-      "description": "业务日期；日：YYYYMMDD / YYYY-MM-DD；月：YYYYMM / YYYY-MM；未传默认昨天（T-1）。日模式硬范围 T-400～T-1，有数据窗口近 90 天窗外软空；月模式为当前月之前连续 3 个完整月",
-      "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2}|\\d{6}|\\d{4}-\\d{2})$"
+      "description": "业务日期；仅 YYYYMMDD / YYYY-MM-DD。DAY 未填默认 T-1；MONTH 未填默认上一完整月首日。DAY 硬范围 T-400～T-1、有数据窗口近 90 天窗外软空；MONTH 只取年月且为当前月之前连续 3 个完整月",
+      "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
   "required": ["item_id"],
@@ -126,8 +135,8 @@ module:
 | `itemTitle` | 商品标题 | `String` | 否 | 页面解析（头图区） | `利达妮****拖户外` (已脱敏) |
 | `itemId` | 主商品 ID | `String` | 否 | 页面解析（头图区「主商品ID」） | `934****931` (已脱敏) |
 | `articleNumber` | 货号 | `String` | 是 | 页面解析（头图区「货号」；无则空串） | `LDN****T65` (已脱敏) |
-| `queryDate` | 查询入参日期 | `String` | 否 | 来自入参 `biz_date`（未传则为默认 T-1） | `202605` |
-| `dateType` | 日期粒度 | `String` | 否 | 由入参解析：`day` / `month` | `month` |
+| `queryDate` | 查询入参日期 | `String` | 否 | 来自入参 `biz_date`（日格式；未传则按 `date_type` 默认） | `20260515` |
+| `dateType` | 日期粒度 | `String` | 否 | 由入参 `date_type` 映射：`DAY`→`day` / `MONTH`→`month` | `month` |
 | `statisticsTime` | 页面实际统计时间 | `String` | 否 | 页面解析；单日为 `YYYY-MM-DD`，月区间为 `YYYY-MM-DD ~ YYYY-MM-DD` | `2026-05-01 ~ 2026-05-31` |
 | `bizDate` | 业务日期 | `String` | 否 | 附加（任务执行当天，`YYYYMMDD`） | `20260731` |
 | `accountId` | 授权 ID | `String` | 否 | 附加 | `1****7` (已脱敏) |
@@ -154,7 +163,7 @@ module:
     "itemTitle": "利达妮****拖户外",
     "itemId": "934****931",
     "articleNumber": "LDN****T65",
-    "queryDate": "202605",
+    "queryDate": "20260515",
     "dateType": "month",
     "statisticsTime": "2026-05-01 ~ 2026-05-31",
     "bizDate": "20260731",
