@@ -38,20 +38,34 @@ estimatedDuration:
 | `activity_id`      | 活动ID         | `string`  | 否   | `""`       | —                                                                                          |
 | `promotion_status` | 状态           | `string`  | 否   | `"全部"`   | 可选值：`全部` / `推广成功` / `推广失败` / `进行中`                                         |
 | `time_range`       | 快速时间选择   | `string`  | 否   | `"过去7天"` | 可选值：`今天` / `昨天` / `过去7天` / `过去30天` / `过去60天` / `过去90天`；与自定义日期互斥 |
-| `start_date`       | 自定义开始日期 | `string`  | 否   | `""`       | 格式：`YYYY-MM-DD`；须与 `end_date` 同时传，不能早于近 90 天前                              |
-| `end_date`         | 自定义结束日期 | `string`  | 否   | `""`       | 格式：`YYYY-MM-DD`；须与 `start_date` 同时传，不能晚于今天                                  |
+| `start_date`       | 自定义开始日期 | `string`  | 否   | `""`       | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；须与 `end_date` 同时传，不能早于近 90 天前 |
+| `end_date`         | 自定义结束日期 | `string`  | 否   | `""`       | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；须与 `start_date` 同时传，不能晚于今天 |
 
 ### 入参样例
 
-```json
-// 使用快速时间选择（默认过去7天）
-{}
+快速时间选择（默认过去 7 天）：
 
-// 指定推广类型 + 自定义日期
+```json
+{}
+```
+
+自定义日期（`YYYY-MM-DD`）：
+
+```json
 {
-    "cps_type": "全店推广",
-    "start_date": "2026-04-01",
-    "end_date": "2026-04-30"
+  "cps_type": "全店推广",
+  "start_date": "2026-04-01",
+  "end_date": "2026-04-30"
+}
+```
+
+自定义日期（`YYYYMMDD`）：
+
+```json
+{
+  "cps_type": "全店推广",
+  "start_date": "20260401",
+  "end_date": "20260430"
 }
 ```
 

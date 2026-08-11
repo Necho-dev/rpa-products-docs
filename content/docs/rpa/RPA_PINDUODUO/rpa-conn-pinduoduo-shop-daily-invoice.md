@@ -33,8 +33,8 @@ estimatedDuration:
 
 | 字段                | 中文释义     | 数据类型 | 必填 | 默认值 | 说明                                                                 |
 | ------------------- | ------------ | -------- | ---- | ------ | -------------------------------------------------------------------- |
-| `custom_start_date` | 开始日期     | `string` | 否   | 页面默认（T-29） | 格式：`YYYYMMDD`；需与 `custom_end_date` 同时传入，不能早于前推 6 个月；不传则使用页面默认日期（T-29，起止同一天） |
-| `custom_end_date`   | 结束日期     | `string` | 否   | 页面默认（T-29） | 格式：`YYYYMMDD`；需与 `custom_start_date` 同时传入，不能晚于当天     |
+| `custom_start_date` | 开始日期     | `string` | 否   | 页面默认（T-29） | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；需与 `custom_end_date` 同时传入，不能早于前推 6 个月；不传则使用页面默认日期（T-29，起止同一天） |
+| `custom_end_date`   | 结束日期     | `string` | 否   | 页面默认（T-29） | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；需与 `custom_start_date` 同时传入，不能晚于当天 |
 | `fund_type`         | 资金类型     | `string` | 否   | —      | 可选值：`CASH`（现金）/ `RED_PACKET`（红包）/ `VIRTUAL_GOLD`（虚拟金）/ `SUBSIDY`（津贴） |
 | `flow_type`         | 流水类型     | `string` | 否   | —      | 可选值：`INCOME`（收入）/ `EXPENSE`（支出）                          |
 | `min_amount`        | 最小交易金额 | `string` | 否   | —      | 有效数字，不能大于 `max_amount`                                      |
@@ -42,12 +42,25 @@ estimatedDuration:
 
 ### 入参样例
 
+`YYYYMMDD`：
+
 ```json
 {
-    "custom_start_date": "20260501",
-    "custom_end_date": "20260531",
-    "fund_type": "CASH",
-    "flow_type": "EXPENSE"
+  "custom_start_date": "20260501",
+  "custom_end_date": "20260531",
+  "fund_type": "CASH",
+  "flow_type": "EXPENSE"
+}
+```
+
+`YYYY-MM-DD`：
+
+```json
+{
+  "custom_start_date": "2026-05-01",
+  "custom_end_date": "2026-05-31",
+  "fund_type": "CASH",
+  "flow_type": "EXPENSE"
 }
 ```
 
