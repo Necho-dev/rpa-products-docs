@@ -1,7 +1,7 @@
 ---
 title: 唯品会
 icon: WEIPINHUI
-description: 覆盖唯品会营销平台财务、供应商结算等场景的连接器
+description: 覆盖唯品会营销平台财务、推广联盟、供应商结算等场景的连接器
 entry: RPA_WEIPINHUI
 module:
   link: https://e.vip.com
@@ -26,6 +26,11 @@ loginOptions:
 :::module-grid
 layout: tabs
 cover: true
+yx:
+  label: 营销推广/YX
+  icon:
+    comp: Megaphone
+    color: '#ea580c'
 finance:
   label: 财务/Finance
   icon:
