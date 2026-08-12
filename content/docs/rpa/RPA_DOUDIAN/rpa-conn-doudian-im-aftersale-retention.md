@@ -33,13 +33,43 @@ estimatedDuration:
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `biz_date` | 查询日期 | `string` | 否 | 昨天 | 格式：`YYYY-MM-DD`，不能晚于当天 |
+| `biz_date` | 查询日期 | `string` | 否 | 昨天 | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；不能晚于当天 |
 
 ### 入参样例
+
+`YYYYMMDD`：
+
+```json
+{
+    "biz_date": "20260424"
+}
+```
+
+`YYYY-MM-DD`：
 
 ```json
 {
     "biz_date": "2026-04-24"
+}
+```
+
+### 入参校验
+
+```json-schema collapsed
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "飞鸽-售后挽单-数据采集 - 查询入参",
+  "description": "采集飞鸽客服系统售后挽单面板的消息数据，支持按日期查询与自动翻页",
+  "type": "object",
+  "properties": {
+    "biz_date": {
+      "type": "string",
+      "description": "查询日期，支持 YYYYMMDD 或 YYYY-MM-DD；不能晚于当天；缺省时查询昨天",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    }
+  },
+  "required": [],
+  "additionalProperties": false
 }
 ```
 

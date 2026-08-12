@@ -37,13 +37,23 @@ estimatedDuration:
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `biz_date` | 统计日期 | `string` | 是 | — | 格式 `YYYYMMDD`，不能晚于昨天 |
+| `biz_date` | 统计日期 | `string` | 是 | — | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；不能晚于昨天 |
 
 ### 入参样例
 
+`YYYYMMDD`：
+
 ```json
 {
-    "biz_date": "20260408"
+  "biz_date": "20260408"
+}
+```
+
+`YYYY-MM-DD`：
+
+```json
+{
+  "biz_date": "2026-04-08"
 }
 ```
 

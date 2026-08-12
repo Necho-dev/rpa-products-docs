@@ -33,15 +33,55 @@ estimatedDuration:
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `custom_start_date` | 起始日期 | `string` | 是 | — | 格式 `YYYYMMDD` |
-| `custom_end_date` | 结束日期 | `string` | 是 | — | 格式 `YYYYMMDD`，不能超过今天 |
+| `custom_start_date` | 起始日期 | `string` | 否 | 昨天 | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；须与 `custom_end_date` 同时提供或同时缺省 |
+| `custom_end_date` | 结束日期 | `string` | 否 | 昨天 | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；须与 `custom_start_date` 同时提供或同时缺省；不能超过今天 |
 
 ### 入参样例
+
+`YYYYMMDD`：
 
 ```json
 {
     "custom_start_date": "20260501",
     "custom_end_date": "20260510"
+}
+```
+
+`YYYY-MM-DD`：
+
+```json
+{
+    "custom_start_date": "2026-05-01",
+    "custom_end_date": "2026-05-10"
+}
+```
+
+### 入参校验
+
+```json-schema collapsed
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "品牌新享-超级新客加速-数据导出 - 查询入参",
+  "description": "采集阿里妈妈品牌新享数据中心「超级新客加速」模块的新客数据指标",
+  "type": "object",
+  "properties": {
+    "custom_start_date": {
+      "type": "string",
+      "description": "起始日期，支持 YYYYMMDD 或 YYYY-MM-DD；与结束日期同时缺省时默认昨天",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    },
+    "custom_end_date": {
+      "type": "string",
+      "description": "结束日期，支持 YYYYMMDD 或 YYYY-MM-DD；不能早于起始日期或晚于今天；与起始日期同时缺省时默认昨天",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    }
+  },
+  "required": [],
+  "dependentRequired": {
+    "custom_start_date": ["custom_end_date"],
+    "custom_end_date": ["custom_start_date"]
+  },
+  "additionalProperties": false
 }
 ```
 
