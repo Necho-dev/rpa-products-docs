@@ -1,7 +1,7 @@
 ---
 title: 小红书
 icon: XIAOHONGSHU
-description: 覆盖小红书蒲公英订单报告等场景的连接器
+description: 覆盖小红书千帆、蒲公英等场景的连接器
 entry: RPA_XIAOHONGSHU
 module:
   link: https://www.xiaohongshu.com/
@@ -29,5 +29,10 @@ pgy:
   label: 蒲公英/PGY
   icon:
     comp: XIAOHONGSHU_PGY
+    color: '#ff2442'
+qf:
+  label: 千帆/QF
+  icon:
+    comp: XIAOHONGSHU
     color: '#ff2442'
 :::
