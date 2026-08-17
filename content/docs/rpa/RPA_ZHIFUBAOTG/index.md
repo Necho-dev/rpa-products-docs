@@ -1,7 +1,7 @@
 ---
 title: 支付宝数字推广平台
 icon: Megaphone
-description: 覆盖支付宝数字推广平台全域智投等场景的连接器
+description: 覆盖支付宝数字推广平台全域智投、商品分析等场景的连接器
 entry: RPA_ZHIFUBAOTG
 module:
   link: https://adops.alipay.com
