@@ -29,7 +29,7 @@ module:
 >
 > **取数链接**：[https://pgy.xiaohongshu.com/solar/post-trade/content-manage/order](https://pgy.xiaohongshu.com/solar/post-trade/content-manage/order)
 
-![小红书—蒲公英订单报告](../_public/images/xiaohongshu/pgy_order_report_20260807.png)
+![小红书—蒲公英订单报告](../_public/images/xiaohongshu/pgy_order_report_20260817.png)
 
 ### 业务入参
 

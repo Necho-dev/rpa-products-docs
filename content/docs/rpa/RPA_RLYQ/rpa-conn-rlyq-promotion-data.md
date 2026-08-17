@@ -109,61 +109,41 @@ estimatedDuration:
 
 ### 数据字段
 
-> **按 `detail_type` 区分**：三种明细共用同一套指标列（下表「共用指标列」）；**维度列**与部分指标是否出现因类型不同（见「出现条件」）。成功导出且 `data` 非空时，每条明细含维度列 + 共用指标列 + 附加字段；任务成功但「无数据」时 `data=[]`，不附加 `statEndDate`。
+> 三种明细共用同一套指标列；维度列与部分指标是否出现因 `detail_type` 而异（见取数路径中的出现条件）。成功导出且 `data` 非空时，每条明细含对应维度列 + 指标列 + 附加字段；任务成功但「无数据」时 `data=[]`，不附加 `statEndDate`。
 
-#### 维度列（随 `detail_type` 变化，每次任务仅一类）
-
-| 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 出现条件 | 示例 |
-| ---- | -------- | -------- | ------ | -------- | -------- | ---- |
-| `statDate` | 统计日期 | `String` | 是 | `XLS.0.时间` | `detail_type=DAILY` | 20260727 |
-| `itemName` | 商品名称 | `String` | 是 | `XLS.0.商品名称` | `detail_type=ITEM` | 示例****称 (已脱敏) |
-| `itemId` | 商品 ID | `String` | 是 | `XLS.0.商品ID` | `detail_type=ITEM` | 752****302 (已脱敏) |
-| `anchorName` | 主播名称 | `String` | 是 | `XLS.0.主播名称` | `detail_type=ANCHOR` | 示例****称 (已脱敏) |
-| `anchorId` | 主播 ID | `String` | 是 | `XLS.0.主播ID` | `detail_type=ANCHOR` | 123****789 (已脱敏) |
-
-#### 共用指标列
-
-| 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 出现条件 | 示例 |
-| ---- | -------- | -------- | ------ | -------- | -------- | ---- |
-| `payCommissionAmount` | 付款佣金支出(元) | `Number` | 是 | `XLS.0.付款佣金支出(元)` | 三种明细均有 | 193.25 |
-| `payCommissionRate` | 付款佣金率 | `String` | 是 | `XLS.0.付款佣金率` | 三种明细均有 | 5.17% |
-| `confirmCommissionAmount` | 确认收货佣金支出(元) | `Number` | 是 | `XLS.0.确认收货佣金支出(元)` | 三种明细均有 | 111.13 |
-| `confirmCommissionRate` | 确认收货佣金率 | `String` | 是 | `XLS.0.确认收货佣金率` | 三种明细均有 | 6.63% |
-| `itemClickCount` | 商品点击次数 | `Number` | 是 | `XLS.0.商品点击次数` | 三种明细均有 | 856 |
-| `itemClickUserCount` | 商品点击人数 | `Number` | 是 | `XLS.0.商品点击人数` | 三种明细均有 | 677 |
-| `promoteAnchorCount` | 推广主播数 | `Number` | 是 | `XLS.0.推广主播数` | `DAILY`、`ITEM`（`ANCHOR` 明细无此列） | 30 |
-| `promoteItemCount` | 推广商品数 | `Number` | 是 | `XLS.0.推广商品数` | `DAILY`、`ANCHOR`（`ITEM` 明细无此列） | 36 |
-| `payUserCount` | 付款人数 | `Number` | 是 | `XLS.0.付款人数` | 三种明细均有 | 127 |
-| `payOrderCount` | 付款笔数 | `Number` | 是 | `XLS.0.付款笔数` | 三种明细均有 | 150 |
-| `payAmount` | 付款金额(元) | `String` | 是 | `XLS.0.付款金额(元)` | 三种明细均有 | 3,740.97 |
-| `payConversionRate` | 付款转化率 | `String` | 是 | `XLS.0.付款转化率` | 三种明细均有 | - |
-| `confirmUserCount` | 确认收货人数 | `Number` | 是 | `XLS.0.确认收货人数` | 三种明细均有 | 73 |
-| `confirmOrderCount` | 确认收货笔数 | `Number` | 是 | `XLS.0.确认收货笔数` | 三种明细均有 | 75 |
-| `confirmAmount` | 确认收货金额(元) | `String` | 是 | `XLS.0.确认收货金额(元)` | 三种明细均有 | 1,676.63 |
-| `estimatePresaleCommission` | 预估预售整单佣金 | `String` | 是 | `XLS.0.预估预售整单佣金` | 三种明细均有 | - |
-| `estimatePresaleCommissionRate` | 预估预售整单佣金率 | `String` | 是 | `XLS.0.预估预售整单佣金率` | 三种明细均有 | - |
-| `presaleDepositCount` | 预售定金笔数 | `String` | 是 | `XLS.0.预售定金笔数` | 三种明细均有 | - |
-| `presaleDepositAmount` | 预售定金金额(元) | `String` | 是 | `XLS.0.预售定金金额(元)` | 三种明细均有 | - |
-| `estimatePresaleBalanceAmount` | 预估预售尾款金额(元) | `String` | 是 | `XLS.0.预估预售尾款金额(元)` | 三种明细均有 | - |
-| `estimatePresaleOrderAmount` | 预估预售整单金额(元) | `String` | 是 | `XLS.0.预估预售整单金额(元)` | 三种明细均有 | - |
-| `payServiceFee` | 付款服务费支出 | `String` | 是 | `XLS.0.付款服务费支出` | 三种明细均有 | - |
-| `confirmServiceFee` | 确认收货服务费支出 | `String` | 是 | `XLS.0.确认收货服务费支出` | 三种明细均有 | - |
-
-#### 附加字段
-
-| 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 出现条件 | 示例 |
-| ---- | -------- | -------- | ------ | -------- | -------- | ---- |
-| `statEndDate` | 统计截止日期 | `String` | 否 | 附加（入参规范化值或未传时默认补齐的可选上限日） | 成功导出且有明细行 | 20260729 |
-| `bizDate` | 业务日期 | `String` | 否 | 附加（任务执行当日 `YYYYMMDD`） | 成功导出且有明细行 | 20260729 |
-| `accountId` | 授权 ID | `String` | 否 | 附加 | 成功导出且有明细行 | 127****7 (已脱敏) |
-
-#### 各 `detail_type` 首行字段一览（实测）
-
-| `detail_type` | 首行字段数 | 维度列 | 相对其它类型的差异 |
-| ------------- | ---------- | ------ | ------------------ |
-| `DAILY` | 26 + `statEndDate` 时 27 | `statDate` | 含 `promoteAnchorCount`、`promoteItemCount` |
-| `ITEM` | 26 + `statEndDate` 时 27 | `itemName`、`itemId` | 无 `promoteItemCount`；含 `promoteAnchorCount` |
-| `ANCHOR` | 26 + `statEndDate` 时 27 | `anchorName`、`anchorId` | 无 `promoteAnchorCount`；含 `promoteItemCount` |
+| 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
+| ---- | -------- | -------- | ------ | -------- | ---- |
+| `statDate` | 统计日期 | `String` | 是 | `XLS.0.时间`（`detail_type=DAILY` 时有值） | 20260727 |
+| `itemName` | 商品名称 | `String` | 是 | `XLS.0.商品名称`（`detail_type=ITEM` 时有值） | 示例****称 (已脱敏) |
+| `itemId` | 商品 ID | `String` | 是 | `XLS.0.商品ID`（`detail_type=ITEM` 时有值） | 752****302 (已脱敏) |
+| `anchorName` | 主播名称 | `String` | 是 | `XLS.0.主播名称`（`detail_type=ANCHOR` 时有值） | 示例****称 (已脱敏) |
+| `anchorId` | 主播 ID | `String` | 是 | `XLS.0.主播ID`（`detail_type=ANCHOR` 时有值） | 123****789 (已脱敏) |
+| `payCommissionAmount` | 付款佣金支出(元) | `Number` | 是 | `XLS.0.付款佣金支出(元)` | 193.25 |
+| `payCommissionRate` | 付款佣金率 | `String` | 是 | `XLS.0.付款佣金率` | 5.17% |
+| `confirmCommissionAmount` | 确认收货佣金支出(元) | `Number` | 是 | `XLS.0.确认收货佣金支出(元)` | 111.13 |
+| `confirmCommissionRate` | 确认收货佣金率 | `String` | 是 | `XLS.0.确认收货佣金率` | 6.63% |
+| `itemClickCount` | 商品点击次数 | `Number` | 是 | `XLS.0.商品点击次数` | 856 |
+| `itemClickUserCount` | 商品点击人数 | `Number` | 是 | `XLS.0.商品点击人数` | 677 |
+| `promoteAnchorCount` | 推广主播数 | `Number` | 是 | `XLS.0.推广主播数`（`detail_type=DAILY`、`ITEM` 时有值） | 30 |
+| `promoteItemCount` | 推广商品数 | `Number` | 是 | `XLS.0.推广商品数`（`detail_type=DAILY`、`ANCHOR` 时有值） | 36 |
+| `payUserCount` | 付款人数 | `Number` | 是 | `XLS.0.付款人数` | 127 |
+| `payOrderCount` | 付款笔数 | `Number` | 是 | `XLS.0.付款笔数` | 150 |
+| `payAmount` | 付款金额(元) | `String` | 是 | `XLS.0.付款金额(元)` | 3,740.97 |
+| `payConversionRate` | 付款转化率 | `String` | 是 | `XLS.0.付款转化率` | - |
+| `confirmUserCount` | 确认收货人数 | `Number` | 是 | `XLS.0.确认收货人数` | 73 |
+| `confirmOrderCount` | 确认收货笔数 | `Number` | 是 | `XLS.0.确认收货笔数` | 75 |
+| `confirmAmount` | 确认收货金额(元) | `String` | 是 | `XLS.0.确认收货金额(元)` | 1,676.63 |
+| `estimatePresaleCommission` | 预估预售整单佣金 | `String` | 是 | `XLS.0.预估预售整单佣金` | - |
+| `estimatePresaleCommissionRate` | 预估预售整单佣金率 | `String` | 是 | `XLS.0.预估预售整单佣金率` | - |
+| `presaleDepositCount` | 预售定金笔数 | `String` | 是 | `XLS.0.预售定金笔数` | - |
+| `presaleDepositAmount` | 预售定金金额(元) | `String` | 是 | `XLS.0.预售定金金额(元)` | - |
+| `estimatePresaleBalanceAmount` | 预估预售尾款金额(元) | `String` | 是 | `XLS.0.预估预售尾款金额(元)` | - |
+| `estimatePresaleOrderAmount` | 预估预售整单金额(元) | `String` | 是 | `XLS.0.预估预售整单金额(元)` | - |
+| `payServiceFee` | 付款服务费支出 | `String` | 是 | `XLS.0.付款服务费支出` | - |
+| `confirmServiceFee` | 确认收货服务费支出 | `String` | 是 | `XLS.0.确认收货服务费支出` | - |
+| `statEndDate` | 统计截止日期 | `String` | 否 | 附加（入参规范化值或未传时默认补齐的可选上限日） | 20260729 |
+| `bizDate` | 业务日期 | `String` | 否 | 附加 | 20260729 |
+| `accountId` | 授权 ID | `String` | 否 | 附加 | 127****7 (已脱敏) |
 
 ### 数据样例
 
