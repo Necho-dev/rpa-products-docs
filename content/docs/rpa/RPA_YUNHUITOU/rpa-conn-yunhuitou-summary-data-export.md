@@ -3,8 +3,8 @@ title: 报表-汇总报表-数据导出
 description: 登录云汇投后进入汇总报表页，按可选筛选项下载并解析汇总报表 xlsx
 entry: rpa.conn.yunhuitou.summary.data.export
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 60
   description: 下载表格：根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

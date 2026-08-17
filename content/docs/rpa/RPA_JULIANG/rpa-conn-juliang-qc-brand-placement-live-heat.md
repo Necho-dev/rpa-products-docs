@@ -3,8 +3,8 @@ title: 千川-品牌投放-直播加热汇总
 description: 采集巨量千川品牌投放「直播加热」页的计划总数与消耗、展示、点击、成交等汇总指标
 entry: rpa.conn.juliang.qc.brand.placement.live.heat
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 60
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响

@@ -3,8 +3,8 @@ title: 商品分析-实物商品-实体明细导出
 description: 登录支付宝数字推广平台后进入实物商品分析页，按必选营销目标与时间单位、可选归因与时间范围经任务中心导出实体明细 CSV
 entry: rpa.conn.zhifubaotg.tfpt.item.entity.export
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 90
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

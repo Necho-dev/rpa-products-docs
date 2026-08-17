@@ -3,8 +3,8 @@ title: 全域智投-单元-分天明细导出
 description: 登录支付宝数字推广平台后进入全域智投报表，按可选时间范围经任务中心导出单元分天明细 CSV；明细区暂无数据时直接返回空结果
 entry: rpa.conn.zhifubaotg.tfpt.domain.unit.detail.export
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 60
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

@@ -3,8 +3,8 @@ title: 千帆-买手数据-订单明细
 description: 导出小红书千帆买手数据页的订单明细报表，支持下载近 1 年数据
 entry: rpa.conn.xiaohongshu.qf.buyer.data.order
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 60
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。
