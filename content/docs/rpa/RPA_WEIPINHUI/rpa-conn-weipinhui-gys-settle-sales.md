@@ -85,7 +85,7 @@ module:
 
 ### 数据字段
 
-每条记录对应导出 XLSX 中的一行商品结算销售满减明细。
+每条记录对应导出 XLSX 中的一行商品结算销售满减明细。仅输出映射表字段：Excel 中未映射的列（如空表头）不会出现在结果中；映射表有但 Excel 没有的字段仍会输出，值为空。
 
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
@@ -153,7 +153,6 @@ module:
 | `specialCategoryPurchaseScheduleId` | 特殊分类对应的采购档期 ID | `String` | 是 | `XLSX.0.特殊分类对应的采购档期ID` | — |
 | `specialCategoryRelatedOrderNo` | 特殊分类关联订单号 | `String` | 是 | `XLSX.0.特殊分类关联订单号` | — |
 | `orderFlag` | 订单标识 | `String` | 是 | `XLSX.0.订单标识` | — |
-| `Unnamed: 64` | 未命名列（导出多余列） | `String` | 是 | `XLSX.0` | `N` |
 | `bizDate` | 业务日期 | `String` | 否 | 附加 | `20260724` |
 | `accountId` | 授权 ID | `String` | 否 | 附加 | `1****5` (已脱敏) |
 
@@ -225,7 +224,6 @@ module:
   "specialCategoryPurchaseScheduleId": null,
   "specialCategoryRelatedOrderNo": null,
   "orderFlag": null,
-  "Unnamed: 64": "N",
   "bizDate": "20260724",
   "accountId": "1****5"
 }
