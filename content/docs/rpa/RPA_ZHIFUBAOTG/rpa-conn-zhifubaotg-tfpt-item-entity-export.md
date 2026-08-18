@@ -195,91 +195,178 @@ module:
 
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
-| `date` | 日期 | `String` | 是 | `CSV.0.日期` | — |
-| `itemNo` | 商品No | `String` | 是 | `CSV.0.商品No` | — |
-| `itemName` | 商品名称 | `String` | 是 | `CSV.0.商品名称` | — |
-| `marketingGoalCode` | 营销目标code | `String` | 是 | `CSV.0.营销目标code` | — |
-| `marketingGoalName` | 营销目标名称 | `String` | 是 | `CSV.0.营销目标名称` | — |
-| `planId` | 计划ID | `Number` | 是 | `CSV.0.计划ID` | — |
-| `planName` | 计划名称 | `String` | 是 | `CSV.0.计划名称` | — |
-| `unitId` | 单元ID | `Number` | 是 | `CSV.0.单元ID` | — |
-| `unitName` | 单元名称 | `String` | 是 | `CSV.0.单元名称` | — |
-| `creativeId` | 创意ID | `Number` | 是 | `CSV.0.创意ID` | — |
-| `creativeName` | 创意名称 | `String` | 是 | `CSV.0.创意名称` | — |
-| `itemLibraryId` | 商品库ID | `Number` | 是 | `CSV.0.商品库ID` | — |
-| `itemLibraryName` | 商品库名称 | `String` | 是 | `CSV.0.商品库名称` | — |
-| `cost` | 消耗(元) | `Number` | 是 | `CSV.0.消耗(元)` | — |
-| `impression` | 展现量 | `Number` | 是 | `CSV.0.展现量` | — |
-| `cpm` | CPM(元) | `Number` | 是 | `CSV.0.CPM(元)` | — |
-| `click` | 点击量 | `Number` | 是 | `CSV.0.点击量` | — |
-| `ctr` | 点击率 | `String` | 是 | `CSV.0.点击率` | — |
-| `avgClickCost` | 平均点击成本(元) | `Number` | 是 | `CSV.0.平均点击成本(元)` | — |
-| `convert` | 转化量 | `Number` | 是 | `CSV.0.转化量` | — |
-| `cvr` | 转化率 | `String` | 是 | `CSV.0.转化率` | — |
-| `avgConvertCost` | 平均转化成本(元) | `Number` | 是 | `CSV.0.平均转化成本(元)` | — |
-| `tradeAmountPid` | 交易金额-收款账号PID | `Number` | 是 | `CSV.0.交易金额-收款账号PID` | — |
-| `roiPid` | ROI-收款账号PID | `Number` | 是 | `CSV.0.ROI-收款账号PID` | — |
-| `taobaoShopJoin` | 淘系店铺入会 | `Number` | 是 | `CSV.0.淘系店铺入会` | — |
-| `appOrderApi15d` | APP内下单(API回传)(15天) | `Number` | 是 | `CSV.0.APP内下单(API回传)(15天)` | — |
-| `appOrderAmountAp15d` | APP内下单金额(AP回传)(15天) | `Number` | 是 | `CSV.0.APP内下单金额(AP回传)(15天)` | — |
-| `appRefundApi15d` | APP内退款(API回传)(15天) | `Number` | 是 | `CSV.0.APP内退款(API回传)(15天)` | — |
-| `appRefundAmountApi15d` | APP内退款金额(API回传)(15天) | `Number` | 是 | `CSV.0.APP内退款金额(API回传)(15天)` | — |
-| `dailyGrabMiniPayRoi` | 每日必抢小程序内支付交易ROI | `Number` | 是 | `CSV.0.每日必抢小程序内支付交易ROI` | — |
-| `appPayApi15d` | APP内支付(API回传)(15天) | `Number` | 是 | `CSV.0.APP内支付(API回传)(15天)` | — |
-| `tradeRoiAggregateSlotId` | 交易ROI-聚合页展位ID | `Number` | 是 | `CSV.0.交易ROI-聚合页展位ID` | — |
-| `appWakeSuccess` | APP唤端成功（客户端事件回传） | `Number` | 是 | `CSV.0.APP唤端成功（客户端事件回传）` | — |
-| `tradeAmountPid3d` | 交易金额-收款账号PID(3天) | `Number` | 是 | `CSV.0.交易金额-收款账号PID(3天)` | — |
-| `tradeAmountPid7d` | 交易金额-收款账号PID(7天) | `Number` | 是 | `CSV.0.交易金额-收款账号PID(7天)` | — |
-| `tradeAmountPid15d` | 交易金额-收款账号PID(15天) | `Number` | 是 | `CSV.0.交易金额-收款账号PID(15天)` | — |
-| `tradeAmountPid30d` | 交易金额-收款账号PID(30天) | `Number` | 是 | `CSV.0.交易金额-收款账号PID(30天)` | — |
-| `tradeCountPid` | 交易笔数-收款账号PID | `Number` | 是 | `CSV.0.交易笔数-收款账号PID` | — |
-| `tradeCountPid3d` | 交易笔数-收款账号PID(3天) | `Number` | 是 | `CSV.0.交易笔数-收款账号PID(3天)` | — |
-| `tradeCountPid7d` | 交易笔数-收款账号PID(7天) | `Number` | 是 | `CSV.0.交易笔数-收款账号PID(7天)` | — |
-| `tradeCountPid15d` | 交易笔数-收款账号PID(15天) | `Number` | 是 | `CSV.0.交易笔数-收款账号PID(15天)` | — |
-| `tradeCountPid30d` | 交易笔数-收款账号PID(30天) | `Number` | 是 | `CSV.0.交易笔数-收款账号PID(30天)` | — |
-| `roiPid3d` | ROI(3天)-收款账号PID | `Number` | 是 | `CSV.0.ROI(3天)-收款账号PID` | — |
-| `roiPid7d` | ROI(7天)-收款账号PID | `Number` | 是 | `CSV.0.ROI(7天)-收款账号PID` | — |
-| `roiPid15d` | ROI(15天)-收款账号PID | `Number` | 是 | `CSV.0.ROI(15天)-收款账号PID` | — |
-| `tradeAmountPidExcludeLow` | 交易金额-收款账号PID(排除低客单) | `Number` | 是 | `CSV.0.交易金额-收款账号PID(排除低客单)` | — |
-| `tradeAmountPidExcludeLow7d` | 交易金额-收款账号PID(排除低客单)(7天) | `Number` | 是 | `CSV.0.交易金额-收款账号PID(排除低客单)(7天)` | — |
-| `tradeAmountPidExcludeLow15d` | 交易金额-收款账号PID(排除低客单)(15天) | `Number` | 是 | `CSV.0.交易金额-收款账号PID(排除低客单)(15天)` | — |
-| `tradeCountPidExcludeLow` | 交易笔数-收款账号PID(排除低客单) | `Number` | 是 | `CSV.0.交易笔数-收款账号PID(排除低客单)` | — |
-| `tradeCountPidExcludeLow7d` | 交易笔数-收款账号PID(排除低客单)(7 天) | `Number` | 是 | `CSV.0.交易笔数-收款账号PID(排除低客单)(7 天)` | — |
-| `tradeCountPidExcludeLow15d` | 交易笔数-收款账号PID(排除低客单)(15天) | `Number` | 是 | `CSV.0.交易笔数-收款账号PID(排除低客单)(15天)` | — |
-| `roiPidExcludeLow` | ROI-收款账号PID(排除低客单) | `Number` | 是 | `CSV.0.ROI-收款账号PID(排除低客单)` | — |
-| `roiPidExcludeLow7d` | ROI(7天)-收款账号PID(排除低客单) | `Number` | 是 | `CSV.0.ROI(7天)-收款账号PID(排除低客单)` | — |
-| `roiPidExcludeLow15d` | ROI(15天)-收款账号PID(排除低客单) | `Number` | 是 | `CSV.0.ROI(15天)-收款账号PID(排除低客单)` | — |
-| `tradeAmountPidExpo` | 交易金额-收款账号PID(曝光归因) | `Number` | 是 | `CSV.0.交易金额-收款账号PID(曝光归因)` | — |
-| `tradeAmountPidExpo3d` | 交易金额(3天)-收款账号PID(曝光归因) | `Number` | 是 | `CSV.0.交易金额(3天)-收款账号PID(曝光归因)` | — |
-| `tradeAmountPidExpo7d` | 交易金额(7天)-收款账号PID(曝光归因) | `Number` | 是 | `CSV.0.交易金额(7天)-收款账号PID(曝光归因)` | — |
-| `tradeAmountPidExpo15d` | 交易金额(15天)-收款账号PID(曝光归因) | `Number` | 是 | `CSV.0.交易金额(15天)-收款账号PID(曝光归因)` | — |
-| `tradeCountPidExpo` | 交易笔数-收款账号PID(曝光归因) | `Number` | 是 | `CSV.0.交易笔数-收款账号PID(曝光归因)` | — |
-| `tradeCountPidExpo3d` | 交易笔数(3天)-收款账号PID(曝光归因) | `Number` | 是 | `CSV.0.交易笔数(3天)-收款账号PID(曝光归因)` | — |
-| `tradeCountPidExpo7d` | 交易笔数(7天)-收款账号PID(曝光归因) | `Number` | 是 | `CSV.0.交易笔数(7天)-收款账号PID(曝光归因)` | — |
-| `tradeCountPidExpo15d` | 交易笔数(15天)-收款账号PID(曝光归因) | `Number` | 是 | `CSV.0.交易笔数(15天)-收款账号PID(曝光归因)` | — |
-| `roiPidExpo` | ROI-收款账号PID(曝光归因) | `Number` | 是 | `CSV.0.ROI-收款账号PID(曝光归因)` | — |
-| `roiPidExpo3d` | ROI(3天)-收款账号PID(曝光归因) | `Number` | 是 | `CSV.0.ROI(3天)-收款账号PID(曝光归因)` | — |
-| `roiPidExpo7d` | ROI(7天)-收款账号PID(曝光归因) | `Number` | 是 | `CSV.0.ROI(7天)-收款账号PID(曝光归因)` | — |
-| `roiPidExpo15d` | ROI(15天)-收款账号PID(曝光归因) | `Number` | 是 | `CSV.0.ROI(15天)-收款账号PID(曝光归因)` | — |
-| `tradeAmountAlipayOrder15d` | 交易金额(15天)-支付宝账号收款订单 | `Number` | 是 | `CSV.0.交易金额(15天)-支付宝账号收款订单` | — |
-| `alipayOrderTradeCount15d` | 支付宝账号收款订单 - 交易笔数(15天) | `Number` | 是 | `CSV.0.支付宝账号收款订单 - 交易笔数(15天)` | — |
-| `roiAlipayOrder` | ROI-支付宝收款订单 | `Number` | 是 | `CSV.0.ROI-支付宝收款订单` | — |
-| `roiAlipayOrder3d` | ROI(3天)-支付宝收款订单 | `Number` | 是 | `CSV.0.ROI(3天)-支付宝收款订单` | — |
-| `roiAlipayOrder7d` | ROI(7天)-支付宝收款订单 | `Number` | 是 | `CSV.0.ROI(7天)-支付宝收款订单` | — |
-| `tmallMiniPayAmount15d` | 天猫小程序内支付金额(15天) | `Number` | 是 | `CSV.0.天猫小程序内支付金额(15天)` | — |
-| `tmallMiniPayCount15d` | 天猫小程序内支付笔数(15天) | `Number` | 是 | `CSV.0.天猫小程序内支付笔数(15天)` | — |
-| `tmallMiniPayRoi` | 天猫小程序内支付交易ROI | `Number` | 是 | `CSV.0.天猫小程序内支付交易ROI` | — |
-| `tmallMiniPayRoi7d` | 天猫小程序内支付交易ROI(7天) | `Number` | 是 | `CSV.0.天猫小程序内支付交易ROI(7天)` | — |
-| `tmallMiniPayRoi15d` | 天猫小程序内支付交易ROI(15天) | `Number` | 是 | `CSV.0.天猫小程序内支付交易ROI(15天)` | — |
-| `leadPromote` | 留资推广 | `Number` | 是 | `CSV.0.留资推广` | — |
-| `tradeCountApi15d` | 交易笔数(API回传)(15天) | `Number` | 是 | `CSV.0.交易笔数(API回传)(15天)` | — |
-| `customStartDate` | 页面起始日期 | `String` | 否 | 页面筛选项回读 | 2026-08-11 |
-| `customEndDate` | 页面结束日期 | `String` | 否 | 页面筛选项回读 | 2026-08-17 |
-| `bizDate` | 业务日期 | `String` | 否 | 附加 | 20260817 |
+| `date` | 日期 | `String` | 是 | `CSV.0.日期` | 2026-08-18 |
+| `itemNo` | 商品No | `String` | 是 | `CSV.0.商品No` | `619****683` (已脱敏) |
+| `itemName` | 商品名称 | `String` | 是 | `CSV.0.商品名称` | `万益蓝****菌粉` (已脱敏) |
+| `marketingGoalCode` | 营销目标code | `String` | 是 | `CSV.0.营销目标code` | tag901200 |
+| `marketingGoalName` | 营销目标名称 | `String` | 是 | `CSV.0.营销目标名称` | 电商店铺商品推广 |
+| `planId` | 计划ID | `Number` | 是 | `CSV.0.计划ID` | `236****387` (已脱敏) |
+| `planName` | 计划名称 | `String` | 是 | `CSV.0.计划名称` | `8月新****蓝瓶` (已脱敏) |
+| `unitId` | 单元ID | `Number` | 是 | `CSV.0.单元ID` | `284****236` (已脱敏) |
+| `unitName` | 单元名称 | `String` | 是 | `CSV.0.单元名称` | `8月新****瓶-1` (已脱敏) |
+| `creativeId` | 创意ID | `Number` | 是 | `CSV.0.创意ID` | `419****683` (已脱敏) |
+| `creativeName` | 创意名称 | `String` | 是 | `CSV.0.创意名称` | `817****-20` (已脱敏) |
+| `itemLibraryId` | 商品库ID | `String` | 是 | `CSV.0.商品库ID` | APPXP_TMALL_GOODS |
+| `itemLibraryName` | 商品库名称 | `String` | 是 | `CSV.0.商品库名称` | **商品 |
+| `cost` | 消耗(元) | `Number` | 是 | `CSV.0.消耗(元)` | 8.50 |
+| `impression` | 展现量 | `Number` | 是 | `CSV.0.展现量` | 6549 |
+| `cpm` | CPM(元) | `Number` | 是 | `CSV.0.CPM(元)` | 1.30 |
+| `click` | 点击量 | `Number` | 是 | `CSV.0.点击量` | 5 |
+| `ctr` | 点击率 | `String` | 是 | `CSV.0.点击率` | 0.08% |
+| `avgClickCost` | 平均点击成本(元) | `Number` | 是 | `CSV.0.平均点击成本(元)` | 1.70 |
+| `convert` | 转化量 | `Number` | 是 | `CSV.0.转化量` | 0 |
+| `cvr` | 转化率 | `String` | 是 | `CSV.0.转化率` | 0.00% |
+| `avgConvertCost` | 平均转化成本(元) | `Number` | 是 | `CSV.0.平均转化成本(元)` | 0.00 |
+| `tradeAmountPid` | 交易金额-收款账号PID | `Number` | 是 | `CSV.0.交易金额-收款账号PID` | 0.00 |
+| `roiPid` | ROI-收款账号PID | `Number` | 是 | `CSV.0.ROI-收款账号PID` | 0.00 |
+| `taobaoShopJoin` | 淘系店铺入会 | `Number` | 是 | `CSV.0.淘系店铺入会` | 0 |
+| `appOrderApi15d` | APP内下单(API回传)(15天) | `Number` | 是 | `CSV.0.APP内下单(API回传)(15天)` | 0 |
+| `appOrderAmountAp15d` | APP内下单金额(AP回传)(15天) | `Number` | 是 | `CSV.0.APP内下单金额(AP回传)(15天)` | 0.00 |
+| `appRefundApi15d` | APP内退款(API回传)(15天) | `Number` | 是 | `CSV.0.APP内退款(API回传)(15天)` | 0 |
+| `appRefundAmountApi15d` | APP内退款金额(API回传)(15天) | `Number` | 是 | `CSV.0.APP内退款金额(API回传)(15天)` | 0.00 |
+| `dailyGrabMiniPayRoi` | 每日必抢小程序内支付交易ROI | `Number` | 是 | `CSV.0.每日必抢小程序内支付交易ROI` | 0 |
+| `appPayApi15d` | APP内支付(API回传)(15天) | `Number` | 是 | `CSV.0.APP内支付(API回传)(15天)` | 0 |
+| `tradeRoiAggregateSlotId` | 交易ROI-聚合页展位ID | `Number` | 是 | `CSV.0.交易ROI-聚合页展位ID` | 0.0000 |
+| `appWakeSuccess` | APP唤端成功（客户端事件回传） | `Number` | 是 | `CSV.0.APP唤端成功（客户端事件回传）` | 0 |
+| `tradeAmountPid3d` | 交易金额-收款账号PID(3天) | `Number` | 是 | `CSV.0.交易金额-收款账号PID(3天)` | 0.00 |
+| `tradeAmountPid7d` | 交易金额-收款账号PID(7天) | `Number` | 是 | `CSV.0.交易金额-收款账号PID(7天)` | 0.00 |
+| `tradeAmountPid15d` | 交易金额-收款账号PID(15天) | `Number` | 是 | `CSV.0.交易金额-收款账号PID(15天)` | 0.00 |
+| `tradeAmountPid30d` | 交易金额-收款账号PID(30天) | `Number` | 是 | `CSV.0.交易金额-收款账号PID(30天)` | 0.00 |
+| `tradeCountPid` | 交易笔数-收款账号PID | `Number` | 是 | `CSV.0.交易笔数-收款账号PID` | 0 |
+| `tradeCountPid3d` | 交易笔数-收款账号PID(3天) | `Number` | 是 | `CSV.0.交易笔数-收款账号PID(3天)` | 0 |
+| `tradeCountPid7d` | 交易笔数-收款账号PID(7天) | `Number` | 是 | `CSV.0.交易笔数-收款账号PID(7天)` | 0 |
+| `tradeCountPid15d` | 交易笔数-收款账号PID(15天) | `Number` | 是 | `CSV.0.交易笔数-收款账号PID(15天)` | 0 |
+| `tradeCountPid30d` | 交易笔数-收款账号PID(30天) | `Number` | 是 | `CSV.0.交易笔数-收款账号PID(30天)` | 0 |
+| `roiPid3d` | ROI(3天)-收款账号PID | `Number` | 是 | `CSV.0.ROI(3天)-收款账号PID` | 0 |
+| `roiPid7d` | ROI(7天)-收款账号PID | `Number` | 是 | `CSV.0.ROI(7天)-收款账号PID` | - |
+| `roiPid15d` | ROI(15天)-收款账号PID | `Number` | 是 | `CSV.0.ROI(15天)-收款账号PID` | 0.0000 |
+| `tradeAmountPidExcludeLow` | 交易金额-收款账号PID(排除低客单) | `Number` | 是 | `CSV.0.交易金额-收款账号PID(排除低客单)` | 0.00 |
+| `tradeAmountPidExcludeLow7d` | 交易金额-收款账号PID(排除低客单)(7天) | `Number` | 是 | `CSV.0.交易金额-收款账号PID(排除低客单)(7天)` | 0.00 |
+| `tradeAmountPidExcludeLow15d` | 交易金额-收款账号PID(排除低客单)(15天) | `Number` | 是 | `CSV.0.交易金额-收款账号PID(排除低客单)(15天)` | 0.00 |
+| `tradeCountPidExcludeLow` | 交易笔数-收款账号PID(排除低客单) | `Number` | 是 | `CSV.0.交易笔数-收款账号PID(排除低客单)` | 0 |
+| `tradeCountPidExcludeLow7d` | 交易笔数-收款账号PID(排除低客单)(7 天) | `Number` | 是 | `CSV.0.交易笔数-收款账号PID(排除低客单)(7 天)` | 0 |
+| `tradeCountPidExcludeLow15d` | 交易笔数-收款账号PID(排除低客单)(15天) | `Number` | 是 | `CSV.0.交易笔数-收款账号PID(排除低客单)(15天)` | 0 |
+| `roiPidExcludeLow` | ROI-收款账号PID(排除低客单) | `Number` | 是 | `CSV.0.ROI-收款账号PID(排除低客单)` | 0.0000 |
+| `roiPidExcludeLow7d` | ROI(7天)-收款账号PID(排除低客单) | `Number` | 是 | `CSV.0.ROI(7天)-收款账号PID(排除低客单)` | 0.0000 |
+| `roiPidExcludeLow15d` | ROI(15天)-收款账号PID(排除低客单) | `Number` | 是 | `CSV.0.ROI(15天)-收款账号PID(排除低客单)` | 0.0000 |
+| `tradeAmountPidExpo` | 交易金额-收款账号PID(曝光归因) | `Number` | 是 | `CSV.0.交易金额-收款账号PID(曝光归因)` | 0.00 |
+| `tradeAmountPidExpo3d` | 交易金额(3天)-收款账号PID(曝光归因) | `Number` | 是 | `CSV.0.交易金额(3天)-收款账号PID(曝光归因)` | 0.00 |
+| `tradeAmountPidExpo7d` | 交易金额(7天)-收款账号PID(曝光归因) | `Number` | 是 | `CSV.0.交易金额(7天)-收款账号PID(曝光归因)` | 0.00 |
+| `tradeAmountPidExpo15d` | 交易金额(15天)-收款账号PID(曝光归因) | `Number` | 是 | `CSV.0.交易金额(15天)-收款账号PID(曝光归因)` | 0.00 |
+| `tradeCountPidExpo` | 交易笔数-收款账号PID(曝光归因) | `Number` | 是 | `CSV.0.交易笔数-收款账号PID(曝光归因)` | 0 |
+| `tradeCountPidExpo3d` | 交易笔数(3天)-收款账号PID(曝光归因) | `Number` | 是 | `CSV.0.交易笔数(3天)-收款账号PID(曝光归因)` | 0 |
+| `tradeCountPidExpo7d` | 交易笔数(7天)-收款账号PID(曝光归因) | `Number` | 是 | `CSV.0.交易笔数(7天)-收款账号PID(曝光归因)` | 0 |
+| `tradeCountPidExpo15d` | 交易笔数(15天)-收款账号PID(曝光归因) | `Number` | 是 | `CSV.0.交易笔数(15天)-收款账号PID(曝光归因)` | 0 |
+| `roiPidExpo` | ROI-收款账号PID(曝光归因) | `Number` | 是 | `CSV.0.ROI-收款账号PID(曝光归因)` | 0.00 |
+| `roiPidExpo3d` | ROI(3天)-收款账号PID(曝光归因) | `Number` | 是 | `CSV.0.ROI(3天)-收款账号PID(曝光归因)` | 0.00 |
+| `roiPidExpo7d` | ROI(7天)-收款账号PID(曝光归因) | `Number` | 是 | `CSV.0.ROI(7天)-收款账号PID(曝光归因)` | 0.00 |
+| `roiPidExpo15d` | ROI(15天)-收款账号PID(曝光归因) | `Number` | 是 | `CSV.0.ROI(15天)-收款账号PID(曝光归因)` | 0.00 |
+| `tradeAmountAlipayOrder15d` | 交易金额(15天)-支付宝账号收款订单 | `Number` | 是 | `CSV.0.交易金额(15天)-支付宝账号收款订单` | 0.00 |
+| `alipayOrderTradeCount15d` | 支付宝账号收款订单 - 交易笔数(15天) | `Number` | 是 | `CSV.0.支付宝账号收款订单 - 交易笔数(15天)` | 0 |
+| `roiAlipayOrder` | ROI-支付宝收款订单 | `Number` | 是 | `CSV.0.ROI-支付宝收款订单` | 0.00 |
+| `roiAlipayOrder3d` | ROI(3天)-支付宝收款订单 | `Number` | 是 | `CSV.0.ROI(3天)-支付宝收款订单` | 0.00 |
+| `roiAlipayOrder7d` | ROI(7天)-支付宝收款订单 | `Number` | 是 | `CSV.0.ROI(7天)-支付宝收款订单` | 0.00 |
+| `tmallMiniPayAmount15d` | **小程序内支付金额(15天) | `Number` | 是 | `CSV.0.**小程序内支付金额(15天)` | null |
+| `tmallMiniPayCount15d` | **小程序内支付笔数(15天) | `Number` | 是 | `CSV.0.**小程序内支付笔数(15天)` | null |
+| `tmallMiniPayRoi` | **小程序内支付交易ROI | `Number` | 是 | `CSV.0.**小程序内支付交易ROI` | null |
+| `tmallMiniPayRoi7d` | **小程序内支付交易ROI(7天) | `Number` | 是 | `CSV.0.**小程序内支付交易ROI(7天)` | null |
+| `tmallMiniPayRoi15d` | **小程序内支付交易ROI(15天) | `Number` | 是 | `CSV.0.**小程序内支付交易ROI(15天)` | null |
+| `leadPromote` | 留资推广 | `Number` | 是 | `CSV.0.留资推广` | 0 |
+| `tradeCountApi15d` | 交易笔数(API回传)(15天) | `Number` | 是 | `CSV.0.交易笔数(API回传)(15天)` | 0 |
+| `customStartDate` | 页面起始日期 | `String` | 否 | 页面筛选项回读 | 2026-08-12 |
+| `customEndDate` | 页面结束日期 | `String` | 否 | 页面筛选项回读 | 2026-08-18 |
+| `bizDate` | 业务日期 | `String` | 否 | 附加 | 20260818 |
 | `accountId` | 授权 ID | `String` | 否 | 附加 | `1****4` (已脱敏) |
 
 ### 数据样例
 
-{/* TODO: 数据样例待补充。本次运行输出仅含 82 项字段名（共 3688 行），未提供逐行记录；补充一行真实数据后可回填示例列与本段 JSON */}
+```json
+[
+  {
+    "date": "2026-08-18",
+    "itemNo": "619****683",
+    "itemName": "*******菌粉",
+    "marketingGoalCode": "tag901200",
+    "marketingGoalName": "电商店铺商品推广",
+    "planId": "236****387",
+    "planName": "8月新****蓝瓶",
+    "unitId": "284****236",
+    "unitName": "8月新****瓶-1",
+    "creativeId": "419****683",
+    "creativeName": "817****-20",
+    "itemLibraryId": "APPXP_TMALL_GOODS",
+    "itemLibraryName": "**商品",
+    "cost": 8.50,
+    "impression": 6549,
+    "cpm": 1.30,
+    "click": 5,
+    "ctr": "0.08%",
+    "avgClickCost": 1.70,
+    "convert": 0,
+    "cvr": "0.00%",
+    "avgConvertCost": 0.00,
+    "tradeAmountPid": 0.00,
+    "roiPid": 0.00,
+    "taobaoShopJoin": 0,
+    "appOrderApi15d": 0,
+    "appOrderAmountAp15d": 0.00,
+    "appRefundApi15d": 0,
+    "appRefundAmountApi15d": 0.00,
+    "dailyGrabMiniPayRoi": 0,
+    "appPayApi15d": 0,
+    "tradeRoiAggregateSlotId": 0.0000,
+    "appWakeSuccess": 0,
+    "tradeAmountPid3d": 0.00,
+    "tradeAmountPid7d": 0.00,
+    "tradeAmountPid15d": 0.00,
+    "tradeAmountPid30d": 0.00,
+    "tradeCountPid": 0,
+    "tradeCountPid3d": 0,
+    "tradeCountPid7d": 0,
+    "tradeCountPid15d": 0,
+    "tradeCountPid30d": 0,
+    "roiPid3d": 0,
+    "roiPid7d": "-",
+    "roiPid15d": 0.0000,
+    "tradeAmountPidExcludeLow": 0.00,
+    "tradeAmountPidExcludeLow7d": 0.00,
+    "tradeAmountPidExcludeLow15d": 0.00,
+    "tradeCountPidExcludeLow": 0,
+    "tradeCountPidExcludeLow7d": 0,
+    "tradeCountPidExcludeLow15d": 0,
+    "roiPidExcludeLow": 0.0000,
+    "roiPidExcludeLow7d": 0.0000,
+    "roiPidExcludeLow15d": 0.0000,
+    "tradeAmountPidExpo": 0.00,
+    "tradeAmountPidExpo3d": 0.00,
+    "tradeAmountPidExpo7d": 0.00,
+    "tradeAmountPidExpo15d": 0.00,
+    "tradeCountPidExpo": 0,
+    "tradeCountPidExpo3d": 0,
+    "tradeCountPidExpo7d": 0,
+    "tradeCountPidExpo15d": 0,
+    "roiPidExpo": 0.00,
+    "roiPidExpo3d": 0.00,
+    "roiPidExpo7d": 0.00,
+    "roiPidExpo15d": 0.00,
+    "tradeAmountAlipayOrder15d": 0.00,
+    "alipayOrderTradeCount15d": 0,
+    "roiAlipayOrder": 0.00,
+    "roiAlipayOrder3d": 0.00,
+    "roiAlipayOrder7d": 0.00,
+    "tmallMiniPayAmount15d": null,
+    "tmallMiniPayCount15d": null,
+    "tmallMiniPayRoi": null,
+    "tmallMiniPayRoi7d": null,
+    "tmallMiniPayRoi15d": null,
+    "leadPromote": 0,
+    "tradeCountApi15d": 0,
+    "customStartDate": "2026-08-12",
+    "customEndDate": "2026-08-18",
+    "bizDate": "20260818",
+    "accountId": "1****4"
+  }
+]
+```
 
 ---
