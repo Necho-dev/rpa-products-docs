@@ -145,6 +145,9 @@ estimatedDuration:
 | `creative` | 创意 | `date`、`campaignName`、`adgroupName`、`creativeName` | `visitorReachRate`、`keywordPackageName`、`targetAudienceName` |
 | `brand_package` | 品牌流量包 | `date`、`campaignName`、`adgroupName`、`keywordPackageName` | `visitorReachRate`、`creativeName`、`targetAudienceName` |
 | `target_audience` | 定向人群 | `date`、`campaignName`、`adgroupName`、`creativeName`、`targetAudienceName` | `visitorReachRate`、`keywordPackageName` |
+
+#### 完整字段列表
+
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
 | `reportType` | 报表维度类型 | `String` | 否 | 附加 | `account` |
