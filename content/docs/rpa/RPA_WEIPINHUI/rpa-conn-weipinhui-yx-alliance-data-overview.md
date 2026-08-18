@@ -29,7 +29,7 @@ module:
 >
 > **取数链接**：[https://e.vip.com/upgrade.html#/promotion/alliances/wxk](https://e.vip.com/upgrade.html#/promotion/alliances/wxk)
 
-![唯品会—唯品联盟数据总览](../_public/images/weipinhui/yx_alliance_data_overview_20260811.png)
+![唯品会—唯品联盟数据总览](../_public/images/weipinhui/yx_alliance_data_overview_20260818.png)
 
 ### 业务入参
 
