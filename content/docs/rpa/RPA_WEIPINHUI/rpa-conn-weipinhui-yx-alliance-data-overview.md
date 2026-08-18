@@ -35,9 +35,9 @@ module:
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `date_type` | 日期类型 | `String` | 否 | `—` | 英文 code；与非空自定义起止互斥（同时传入则参数冲突）。可选值：`YESTERDAY`（昨天）/ `LAST_7_DAYS`（最近7天）/ `LAST_15_DAYS`（最近15天）/ `LAST_1_MONTH`（最近1个月）/ `LAST_3_MONTHS`（最近3个月）/ `CUSTOM`（自定义）。不传且起止皆空时，不点选日期，使用页面当前区间 |
-| `custom_start_date` | 自定义起始日期 | `String` | 条件必填 | `—` | 仅 `YYYYMMDD` / `YYYY-MM-DD`；须与 `custom_end_date` 成对；`CUSTOM` 或仅传起止时生效；须 ≥ 三年前 1 月 1 日；空串视为未传 |
-| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `—` | 仅 `YYYYMMDD` / `YYYY-MM-DD`；须与 `custom_start_date` 成对；须 ≤ 昨天；起止跨度须严格小于三个自然月；空串视为未传 |
+| `date_type` | 日期类型 | `String` | 否 | `LAST_7_DAYS` | 英文 code。快捷优先于自定义：与自定义同时传入时按快捷、忽略自定义。走自定义必须传 `CUSTOM`。不传且起止皆空时按默认 `LAST_7_DAYS` 点选后再回读比对。可选值：`YESTERDAY`（昨天）/ `LAST_7_DAYS`（最近7天）/ `LAST_15_DAYS`（最近15天）/ `LAST_1_MONTH`（最近1个月）/ `LAST_3_MONTHS`（最近3个月）/ `CUSTOM`（自定义） |
+| `custom_start_date` | 自定义起始日期 | `String` | 条件必填 | `None` | 仅 `YYYYMMDD` / `YYYY-MM-DD`；须与 `custom_end_date` 成对；**仅** `date_type=CUSTOM` 时生效；须 ≥ 三年前 1 月 1 日；空串视为未传 |
+| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `None` | 仅 `YYYYMMDD` / `YYYY-MM-DD`；须与 `custom_start_date` 成对；**仅** `date_type=CUSTOM` 时生效；须 ≤ 昨天；起止跨度须严格小于三个自然月；空串视为未传 |
 
 ### 入参样例
 
@@ -59,16 +59,17 @@ module:
 }
 ```
 
-仅起止（等价自定义）：
+快捷优先（同时传自定义会被忽略）：
 
 ```json
 {
+  "date_type": "LAST_7_DAYS",
   "custom_start_date": "20260701",
   "custom_end_date": "20260731"
 }
 ```
 
-无有效时间（使用页面当前区间）：
+都不传（按默认最近7天点选）：
 
 ```json
 {}
@@ -84,7 +85,7 @@ module:
   "type": "object",
   "properties": {
     "date_type": {
-      "description": "日期类型英文 code,可选值：YESTERDAY（昨天）/ LAST_7_DAYS（最近7天）/ LAST_15_DAYS（最近15天）/ LAST_1_MONTH（最近1个月）/ LAST_3_MONTHS（最近3个月）/ CUSTOM（自定义）。不传且起止皆空时使用页面当前区间",
+      "description": "日期类型英文 code，默认 LAST_7_DAYS（最近7天）。可选值：YESTERDAY（昨天）/ LAST_7_DAYS（最近7天）/ LAST_15_DAYS（最近15天）/ LAST_1_MONTH（最近1个月）/ LAST_3_MONTHS（最近3个月）/ CUSTOM（自定义）。与自定义同时传入时按快捷忽略自定义；走自定义必须传 CUSTOM；不传且起止皆空时按 LAST_7_DAYS 点选后回读比对",
       "type": "string",
       "enum": [
         "YESTERDAY",
@@ -96,7 +97,7 @@ module:
       ]
     },
     "custom_start_date": {
-      "description": "自定义起始日期，仅 YYYYMMDD 或 YYYY-MM-DD；须与 custom_end_date 成对；CUSTOM 或仅传起止时生效；须 ≥ 三年前1月1日；空串视为未传",
+      "description": "自定义起始日期，仅 YYYYMMDD 或 YYYY-MM-DD；须与 custom_end_date 成对；仅 date_type=CUSTOM 时生效；须 ≥ 三年前1月1日；空串视为未传",
       "type": "string",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
@@ -111,44 +112,26 @@ module:
   "allOf": [
     {
       "if": {
-        "properties": {
-          "date_type": {
-            "enum": [
-              "YESTERDAY",
-              "LAST_7_DAYS",
-              "LAST_15_DAYS",
-              "LAST_1_MONTH",
-              "LAST_3_MONTHS"
-            ]
-          }
-        },
-        "required": ["date_type"]
+        "anyOf": [
+          { "required": ["custom_start_date"] },
+          { "required": ["custom_end_date"] }
+        ],
+        "not": { "required": ["date_type"] }
       },
       "then": {
-        "not": {
-          "anyOf": [
-            { "required": ["custom_start_date"] },
-            { "required": ["custom_end_date"] }
-          ]
+        "required": ["date_type"],
+        "properties": {
+          "date_type": { "const": "CUSTOM" }
         }
       }
     },
     {
       "if": {
-        "required": ["custom_start_date"],
-        "not": { "required": ["custom_end_date"] }
+        "properties": { "date_type": { "const": "CUSTOM" } },
+        "required": ["date_type"]
       },
       "then": {
-        "required": ["custom_end_date"]
-      }
-    },
-    {
-      "if": {
-        "required": ["custom_end_date"],
-        "not": { "required": ["custom_start_date"] }
-      },
-      "then": {
-        "required": ["custom_start_date"]
+        "required": ["custom_start_date", "custom_end_date"]
       }
     }
   ]
