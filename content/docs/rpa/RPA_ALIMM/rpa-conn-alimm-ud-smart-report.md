@@ -29,7 +29,7 @@ module:
 >
 > **取数链接**：[https://ud.alimama.com/index.html#!/report/ud_smart?rptType=udSmart&bizCode=udSmart](https://ud.alimama.com/index.html#!/report/ud_smart?rptType=udSmart&bizCode=udSmart)
 
-![阿里妈妈—UD智汇投—报表—UDSmart](../_public/images/alimm/ud_smart_report_20260810.png)
+![阿里妈妈—UD智汇投—报表—UDSmart](../_public/images/alimm/ud_smart_report_20260818.png)
 
 ### 业务入参
 

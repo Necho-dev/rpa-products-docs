@@ -29,7 +29,7 @@ module:
 >
 > **取数链接**：[https://vfs.vip.com/v3/#/home](https://vfs.vip.com/v3/#/home)
 
-![唯品会—商品结算销售满减明细报表](../_public/images/weipinhui/gys_settle_sales_20260724.png)
+![唯品会—商品结算销售满减明细报表](../_public/images/weipinhui/gys_settle_sales_20260818.png)
 
 ### 业务入参
 
