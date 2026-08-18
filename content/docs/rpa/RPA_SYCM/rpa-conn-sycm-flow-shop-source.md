@@ -1,6 +1,6 @@
 ---
 title: 流量-店铺来源-明细下载
-description: 拼接「全店流量来源」与「分载体流量来源」两个 Sheet 数据，获得流量载体与多级流量来源构成指标
+description: 按 7天/30天/日/周/月 拼接「全店流量来源」与「分载体流量来源」两个 Sheet，获得流量载体与多级流量来源构成指标
 entry: rpa.conn.sycm.flow.shop.source
 badge:
   label: 已上线
@@ -35,15 +35,94 @@ estimatedDuration:
 
 ### 业务入参
 
-| 字段        | 中文释义 | 数据类型  | 必填 | 默认值   | 说明 |
-| ----------- | -------- | --------- | ---- | -------- | ---- |
-| `biz_date`  | 业务日期 | `string`  | 否   | 昨日 T-1 | 格式：`YYYYMMDD` |
+| 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
+| ---- | -------- | -------- | ---- | ------ | ---- |
+| `date_type` | 统计时间类型 | `String` | 否 | `day` | 可选值：`recent7`（7天）/ `recent30`（30天）/ `day`（日）/ `week`（周）/ `month`（月）。页面有自定义，不开放 |
+| `biz_date` | 业务日期 | `String` | 条件必填 | `day` 都空则昨日 T-1 | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`。`week`/`month` 必填；`recent7`/`recent30` 忽略本参数。日不可选今日及以后；周只接受已结束的完整周；月只接受已结束的完整月 |
 
 ### 入参样例
 
+按日（默认昨天）：
+
 ```json
 {
-    "biz_date": "20260419"
+  "date_type": "day"
+}
+```
+
+指定自然日：
+
+```json
+{
+  "date_type": "day",
+  "biz_date": "2026-08-05"
+}
+```
+
+近 7 天：
+
+```json
+{
+  "date_type": "recent7"
+}
+```
+
+按周：
+
+```json
+{
+  "date_type": "week",
+  "biz_date": "2025-11-05"
+}
+```
+
+按月：
+
+```json
+{
+  "date_type": "month",
+  "biz_date": "2025-06-15"
+}
+```
+
+### 入参校验
+
+```json-schema collapsed
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "生意参谋-店铺来源 - 查询入参",
+  "description": "按 7天/30天/日/周/月 导出店铺流量来源构成",
+  "type": "object",
+  "properties": {
+    "date_type": {
+      "type": "string",
+      "description": "统计时间类型，未传默认 day。可选值：recent7 / recent30 / day / week / month。不开放实时、自定义",
+      "enum": ["recent7", "recent30", "day", "week", "month"],
+      "default": "day"
+    },
+    "biz_date": {
+      "type": "string",
+      "description": "业务日期；week/month 时必填；day 都空则昨日 T-1；recent7/recent30 时忽略。格式 YYYYMMDD 或 YYYY-MM-DD",
+      "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    }
+  },
+  "required": [],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "date_type": {
+            "enum": ["week", "month"]
+          }
+        },
+        "required": ["date_type"]
+      },
+      "then": {
+        "required": ["biz_date"]
+      }
+    }
+  ]
 }
 ```
 
@@ -90,7 +169,10 @@ estimatedDuration:
 | `orderAmtRatio`               | 下单金额环比     | `string`              | 是     | `XLS.全店流量来源.下单金额环比` | — |
 | `orderConversionRatio`        | 下单转化率       | `string`              | 否     | `XLS.全店流量来源.下单转化率`  | 0.00% |
 | `orderConversionRatioRatio`   | 下单转化率环比   | `string`              | 是     | `XLS.全店流量来源.下单转化率环比` | — |
-| `bizDate`                     | 业务日期     | `string`              | 否     | | |
+| `dateType`                    | 统计时间类型 | `String`              | 否     | 附加，来自入参 `date_type` | `day` |
+| `dateRangeStart`              | 统计区间起始日 | `String`            | 否     | 附加 | `2026-08-05` |
+| `dateRangeEnd`                | 统计区间结束日 | `String`            | 否     | 附加 | `2026-08-05` |
+| `bizDate`                     | 业务日期     | `string`              | 否     | 附加，取区间结束日 `YYYYMMDD` | |
 | `accountId`                   | 授权 ID     | `string`              | 否     | | |
 
 ### 数据样例
@@ -137,6 +219,9 @@ estimatedDuration:
     "orderAmtRatio": "-",
     "orderConversionRatio": "0.00%",
     "orderConversionRatioRatio": "-",
+    "dateType": "day",
+    "dateRangeStart": "2026-04-14",
+    "dateRangeEnd": "2026-04-14",
     "bizDate": "20260414",
     "accountId": "101"
   }
