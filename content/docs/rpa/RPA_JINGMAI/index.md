@@ -1,7 +1,7 @@
 ---
 title: 京麦商家后台
 icon: JINGMAI
-description: 覆盖京麦平台财务、物流等场景的连接器
+description: 覆盖京麦平台财务、物流、京慧等场景的连接器
 entry: RPA_JINGMAI
 module:
   link: https://shop.jd.com/
@@ -36,4 +36,9 @@ wl:
   icon:
     comp: Truck
     color: '#2563eb'
+jh:
+  label: 京慧/Jinghui
+  icon:
+    comp: BarChart3
+    color: '#dc2626'
 :::
