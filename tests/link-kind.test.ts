@@ -93,11 +93,19 @@ describe('shouldRenderPeekFromCookie', () => {
     return { get: (name: string) => map[name] ?? null };
   }
 
-  it('renders peek only on RSC refresh, not full load or prefetch', () => {
-    assert.equal(shouldRenderPeekFromCookie(headers({})), false);
+  it('renders peek on refresh-like requests, not full document loads or prefetch', () => {
+    assert.equal(shouldRenderPeekFromCookie(headers({})), true);
     assert.equal(shouldRenderPeekFromCookie(headers({ rsc: '1' })), true);
     assert.equal(
-      shouldRenderPeekFromCookie(headers({ rsc: '1', 'next-router-prefetch': '1' })),
+      shouldRenderPeekFromCookie(headers({ 'sec-fetch-dest': 'empty' })),
+      true,
+    );
+    assert.equal(
+      shouldRenderPeekFromCookie(headers({ 'sec-fetch-dest': 'document' })),
+      false,
+    );
+    assert.equal(
+      shouldRenderPeekFromCookie(headers({ 'next-router-prefetch': '1' })),
       false,
     );
   });

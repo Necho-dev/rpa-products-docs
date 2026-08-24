@@ -1306,6 +1306,17 @@ html.dark .shared-quote-prompt-btn-default {
   line-height: 1.35;
 }
 
+/* 双栏时左栏 TOC 叠在正文上（兄弟节点），滚轮无法冒泡到 #nd-page；
+ * 目录列表区拉满高度，条目过多时在 TOCScrollArea 内滚动。 */
+[data-doc-peek-open] #nd-toc {
+  overflow: hidden;
+}
+
+[data-doc-peek-open] #nd-toc > div {
+  flex: 1 1 0%;
+  min-height: 0;
+}
+
 /* 文档滚动条：单栏 html / 双栏栏内 / TOC 同一套细条 */
 html,
 #nd-toc,

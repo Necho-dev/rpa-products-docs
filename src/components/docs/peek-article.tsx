@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { DocsBody } from 'fumadocs-ui/layouts/notebook/page';
+import { DocsBody, PageLastUpdate } from 'fumadocs-ui/layouts/notebook/page';
 import { createRelativeLink } from 'fumadocs-ui/mdx';
 import type { TOCItemType } from 'fumadocs-core/toc';
 import { PeekToc } from '@/components/docs/peek-toc';
@@ -7,11 +7,16 @@ import { isCubeSsoEnabled } from '@/lib/auth/auth-config';
 import { getMDXComponents } from '@/components/docs/mdx';
 import { DocsLink } from '@/components/docs/docs-link';
 import { DocsBreadcrumb } from '@/components/docs/docs-breadcrumb';
+import { MarkdownActionsButton } from '@/components/docs/markdown-copy-button';
+import { AddMcpButton } from '@/components/docs/add-mcp-button';
+import { DocShareButton } from '@/components/docs/doc-share-dialog';
 import { ConnectorSchedulePanel } from '@/components/docs/connector-schedule-panel';
 import { hasScheduleMeta } from '@/lib/docs/format-schedule-meta';
 import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
-import { source } from '@/lib/docs/source/source';
+import { getPageMarkdownUrl, getPageSharePoster, source } from '@/lib/docs/source/source';
 import { docsRoute } from '@/lib/core/shared';
+import { inferSiteOrigin } from '@/lib/core/site-origin';
+import { headers } from 'next/headers';
 import type { DocAccessContext } from '@/lib/docs/access/doc-access';
 
 function PeekArticleDenied({ path }: { path: string }) {
@@ -63,10 +68,17 @@ export async function PeekArticle({
   };
   const showSchedule = hasScheduleMeta(scheduleMeta);
   const toc = (page.data.toc ?? []) as TOCItemType[];
+  const markdownUrl = getPageMarkdownUrl(page).url;
+  const hdrs = await headers();
+  const origin = inferSiteOrigin(
+    new Request(`http://${hdrs.get('host') ?? 'localhost'}/`, { headers: Object.fromEntries(hdrs.entries()) }),
+  );
+  const mcpUrl = `${origin}/mcp`;
+  const lastModified = page.data.lastModified;
 
   return (
     <div data-doc-peek="true" data-doc-path={page.url} className="flex min-h-full">
-      <article className="min-w-0 flex-1 px-4 py-6 md:px-5 md:pt-8 xl:px-6 xl:pt-10">
+      <article className="flex min-h-full min-w-0 flex-1 flex-col px-4 py-6 md:px-5 md:pt-8 xl:px-6 xl:pt-10">
         <DocsBreadcrumb pageUrl={page.url} className="mb-2" />
         <h1 className="text-[1.5em] font-semibold">{page.data.title}</h1>
         {showSchedule ? (
@@ -94,13 +106,26 @@ export async function PeekArticle({
             ))}
           </div>
         ) : null}
-        <DocsBody className="mt-5">
+        <div className="not-prose mt-4 flex flex-row flex-wrap items-center gap-2 border-b pb-5" data-no-select>
+          <MarkdownActionsButton markdownUrl={markdownUrl} />
+          <AddMcpButton mcpUrl={mcpUrl} />
+          <DocShareButton
+            title={page.data.title}
+            description={page.data.description}
+            pageUrl={`${origin}${page.url}`}
+            posterUrl={`${origin}${getPageSharePoster(page).url}`}
+          />
+        </div>
+        <DocsBody className="mt-5 flex-1">
           <MDX
             components={getMDXComponents({
               a: createRelativeLink(source, page, DocsLink),
             })}
           />
         </DocsBody>
+        {lastModified ? (
+          <PageLastUpdate date={lastModified} className="mt-auto pt-2" />
+        ) : null}
       </article>
       <PeekToc items={toc} />
     </div>

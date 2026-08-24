@@ -61,12 +61,14 @@ export function isSameDocsPage(href: string, pageUrl: string, currentPathname: s
   }
 }
 
-/** RSC 刷新才用 cookie 渲染右栏，刷新浏览器不恢复双栏 */
+/* 是否用 cookie 在服务端渲染右栏，用于 RSC 刷新 */
 export function shouldRenderPeekFromCookie(headerList: {
   get(name: string): string | null;
 }): boolean {
   if (headerList.get('next-router-prefetch') === '1') return false;
-  return headerList.get('rsc') === '1';
+  const dest = (headerList.get('sec-fetch-dest') ?? '').toLowerCase();
+  if (dest === 'document' || dest === 'iframe') return false;
+  return true;
 }
 
 export { docsRoute };

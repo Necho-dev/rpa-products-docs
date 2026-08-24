@@ -52,8 +52,12 @@ export type DocPeekContextValue = {
   target: DocPeekTarget | null;
   peekRatio: number;
   setPeekRatio: (ratio: number) => void;
+  splitDragging: boolean;
+  setSplitDragging: (dragging: boolean) => void;
   canPeekBack: boolean;
   canPeekForward: boolean;
+  pinned: boolean;
+  togglePeekPin: () => void;
   openPeek: (href: string, from?: DocPeekSurface) => void;
   closePeek: () => void;
   refreshPeek: () => void;
@@ -75,9 +79,12 @@ export function DocPeekProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname() ?? '/';
   const desktop = useSyncExternalStore(subscribeXl, getXlSnapshot, getXlServerSnapshot);
   const [peekRatio, setPeekRatio] = useState(0.5);
+  const [splitDragging, setSplitDragging] = useState(false);
   const [stack, setStack] = useState<StackState>({ entries: [], index: -1 });
+  const [pinned, setPinned] = useState(false);
   const [pending, startTransition] = useTransition();
   const pathnameRef = useRef(pathname);
+  const pinnedRef = useRef(false);
   const leftScrollRef = useRef(0);
   const sidebar = useSidebar();
   const setCollapsed = sidebar.setCollapsed;
@@ -93,12 +100,17 @@ export function DocPeekProvider({ children }: { children: ReactNode }) {
   }, [collapsed]);
 
   useEffect(() => {
+    pinnedRef.current = pinned;
+  }, [pinned]);
+
+  useEffect(() => {
     const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
     if (nav?.type === 'reload') writePeekCookie(null);
   }, []);
 
   useEffect(() => {
     const onNavClick = (e: MouseEvent) => {
+      if (pinnedRef.current) return;
       const el = e.target;
       if (!(el instanceof Element)) return;
       if (!el.closest('#nd-sidebar a, #nd-subnav a')) return;
@@ -112,6 +124,7 @@ export function DocPeekProvider({ children }: { children: ReactNode }) {
     const prev = pathnameRef.current;
     if (prev === pathname) return;
     pathnameRef.current = pathname;
+    if (pinnedRef.current) return;
     writePeekCookie(null);
     setStack({ entries: [], index: -1 });
   }, [pathname]);
@@ -205,7 +218,12 @@ export function DocPeekProvider({ children }: { children: ReactNode }) {
     [applyTarget, pathname, router, stack],
   );
 
+  const togglePeekPin = useCallback(() => {
+    setPinned((prev) => !prev);
+  }, []);
+
   const closePeek = useCallback(() => {
+    setPinned(false);
     applyTarget(null, { entries: [], index: -1 });
   }, [applyTarget]);
 
@@ -236,8 +254,12 @@ export function DocPeekProvider({ children }: { children: ReactNode }) {
       target,
       peekRatio,
       setPeekRatio,
+      splitDragging,
+      setSplitDragging,
       canPeekBack: stack.index > 0,
       canPeekForward: stack.index >= 0 && stack.index < stack.entries.length - 1,
+      pinned,
+      togglePeekPin,
       openPeek,
       closePeek,
       refreshPeek,
@@ -254,7 +276,11 @@ export function DocPeekProvider({ children }: { children: ReactNode }) {
       peekForward,
       peekRatio,
       pending,
+      pinned,
       refreshPeek,
+      splitDragging,
+      togglePeekPin,
+      togglePeekPin,
       target,
       stack.index,
       stack.entries.length,

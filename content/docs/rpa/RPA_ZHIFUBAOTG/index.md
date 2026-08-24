@@ -1,17 +1,17 @@
 ---
 title: 支付宝数字推广平台
-icon: Megaphone
+icon: ZHIFUBAOTG
 description: 覆盖支付宝数字推广平台全域智投、商品分析等场景的连接器
 entry: RPA_ZHIFUBAOTG
 module:
   link: https://adops.alipay.com
   group: taobao
   icon:
-    comp: Megaphone
+    comp: ZHIFUBAOTG
 ---
 
 :::meta-panel
-icon: Megaphone
+icon: ZHIFUBAOTG
 platform: 支付宝数字推广平台
 platformUrl: https://adops.alipay.com
 requireLogin: true
@@ -28,6 +28,5 @@ cover: true
 tfpt:
   label: 投放平台/TFPT
   icon:
-    comp: Megaphone
-    color: '#1677ff'
+    comp: ZHIFUBAOTG
 :::

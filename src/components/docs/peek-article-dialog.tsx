@@ -2,17 +2,23 @@
 
 import {
   useState,
+  type MouseEvent,
   type ReactNode,
 } from 'react';
 import * as RadixDialog from '@radix-ui/react-dialog';
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
+  CheckIcon,
+  CopyIcon,
+  PinIcon,
   SquareArrowOutUpRightIcon,
   XIcon,
 } from 'lucide-react';
+import { useCopyButton } from 'fumadocs-ui/utils/use-copy-button';
 import { cn } from '@/lib/core/cn';
 import { canonicalDocsHref } from '@/lib/docs/doc-peek';
+import { safeWriteClipboard } from '@/lib/ui/code-block-utils';
 import { DocPeekSurfaceProvider, useDocPeek } from '@/components/docs/doc-peek-context';
 import { PeekFloatingAnchors } from '@/components/docs/floating-anchors';
 import { PeekArticleSkeleton, PeekLoadingHint } from '@/components/docs/peek-loading';
@@ -21,11 +27,13 @@ function SheetIconButton({
   label,
   onClick,
   disabled,
+  pressed,
   children,
 }: {
   label: string;
-  onClick: () => void;
+  onClick: (e: MouseEvent<HTMLButtonElement>) => void;
   disabled?: boolean;
+  pressed?: boolean;
   children: ReactNode;
 }) {
   return (
@@ -33,6 +41,7 @@ function SheetIconButton({
       type="button"
       title={label}
       aria-label={label}
+      aria-pressed={pressed}
       disabled={disabled}
       onClick={onClick}
       className={cn(
@@ -40,6 +49,7 @@ function SheetIconButton({
         'text-fd-muted-foreground transition-colors',
         'hover:bg-fd-muted hover:text-fd-foreground',
         'disabled:pointer-events-none disabled:opacity-30',
+        pressed && 'bg-fd-muted text-fd-primary hover:text-fd-primary',
       )}
     >
       {children}
@@ -56,6 +66,15 @@ export function PeekArticleDialog({
 }) {
   const peek = useDocPeek();
   const [scrollEl, setScrollEl] = useState<HTMLElement | null>(null);
+  const [copied, onCopy] = useCopyButton(() => {
+    const target = peek?.target;
+    if (!target) return;
+    const href =
+      typeof window === 'undefined'
+        ? canonicalDocsHref(target.path, target.hash)
+        : `${window.location.origin}${canonicalDocsHref(target.path, target.hash)}`;
+    void safeWriteClipboard(href);
+  });
   if (!peek?.target || peek.desktop) return null;
 
   const copyHref =
@@ -98,6 +117,22 @@ export function PeekArticleDialog({
               onClick={() => peek.peekForward()}
             >
               <ArrowRightIcon className="size-4.5" />
+            </SheetIconButton>
+            <SheetIconButton
+              label={copied ? '已复制' : '复制链接'}
+              onClick={onCopy}
+            >
+              {copied ? <CheckIcon className="size-4.5" /> : <CopyIcon className="size-4.5" />}
+            </SheetIconButton>
+            <SheetIconButton
+              label={peek.pinned ? '取消固定' : '固定右栏'}
+              pressed={peek.pinned}
+              onClick={() => peek.togglePeekPin()}
+            >
+              <PinIcon
+                className="size-4.5"
+                fill={peek.pinned ? 'currentColor' : 'none'}
+              />
             </SheetIconButton>
             <SheetIconButton
               label="新标签打开"

@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-08-09T14:23:56.808Z",
+  "updatedAt": "2026-08-24T15:17:26.099Z",
   "icons": {
     "ALI1688": {
       "file": "platform/files/ALI1688.ico",
       "sourceIcon": "https://cbu01.alicdn.com/favicon.ico?_=2024",
       "origin": "www.1688.com"
+    },
+    "ALIJIANKANG": {
+      "file": "platform/files/ALIJIANKANG.png",
+      "sourceIcon": "https://img.alicdn.com/imgextra/i4/O1CN0117NCM01Di5UobJfqG_!!6000000000249-2-tps-100-100.png",
+      "origin": "yt.taobao.com"
     },
     "ALIMM": {
       "file": "platform/files/ALIMM.png",
@@ -110,6 +115,15 @@
       "file": "platform/files/XIAOHONGSHU_PGY.png",
       "sourceIcon": "https://fe-platform.xhscdn.com/platform/104101l031lmak7uolm76agg1088g0000000006f6fub8g.png",
       "origin": "pgy.xiaohongshu.com"
+    },
+    "YUNHUITOU": {
+      "file": "platform/files/YUNHUITOU.png",
+      "origin": "yun-ma.tmallalipayuc.com"
+    },
+    "ZHIFUBAOTG": {
+      "file": "platform/files/ZHIFUBAOTG.ico",
+      "sourceIcon": "https://gw.alipayobjects.com/zos/bmw-prod/9243fded-00c5-45bd-8e37-b12b806550c3.ico",
+      "origin": "adops.alipay.com"
     }
   }
 }

@@ -1,17 +1,17 @@
 ---
 title: 云汇投
-icon: Megaphone
+icon: YUNHUITOU
 description: 覆盖云汇投汇总报表等场景的连接器
 entry: RPA_YUNHUITOU
 module:
   link: https://yun-ma.tmallalipayuc.com
   group: taobao
   icon:
-    comp: Megaphone
+    comp: YUNHUITOU
 ---
 
 :::meta-panel
-icon: Megaphone
+icon: YUNHUITOU
 platform: 云汇投
 platformUrl: https://yun-ma.tmallalipayuc.com
 requireLogin: true
