@@ -171,132 +171,157 @@ module:
 
 ### 数据字段
 
+导出列为「全部数据指标」。下表为字节 / 腾讯 / 小红书 / 快手 / B 站五份真实 CSV 表头的**并集**；某一投放媒体没有的列在该次导出中不会出现对应英文字段。
+
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
-| `reportDate` | 日期 | `String` | 是 | `CSV.0.日期` | `2026-07-04` |
-| `accountIdRaw` | 账户 ID | `Number` | 是 | `CSV.0.账户ID` | `672****688` (已脱敏) |
-| `accountName` | 账户名称 | `String` | 是 | `CSV.0.账户名称` | `滴露-****-05` (已脱敏) |
-| `campaignId` | 项目 ID | `Number` | 是 | `CSV.0.项目ID` | — |
-| `adgroupId` | 广告 ID | `Number` | 是 | `CSV.0.广告ID` | `111****223` (已脱敏) |
-| `creativeId` | 创意 ID | `Number` | 是 | `CSV.0.创意ID` | `104****566` (已脱敏) |
-| `creativeName` | 创意名称 | `String` | 是 | `CSV.0.创意名称` | — |
-| `cost` | 花费 | `Number` | 是 | `CSV.0.花费` | `0.0` |
-| `impression` | 展现量 | `Number` | 是 | `CSV.0.展现量` | `0` |
-| `cpm` | 千次展现花费 | `Number` | 是 | `CSV.0.千次展现花费` | `0.0` |
-| `click` | 点击量 | `Number` | 是 | `CSV.0.点击量` | `0` |
-| `ctr` | 点击率 | `Number` | 是 | `CSV.0.点击率` | `0.0` |
-| `cpc` | 平均点击花费 | `Number` | 是 | `CSV.0.平均点击花费` | `0.0` |
-| `play` | 播放数 | `Number` | 是 | `CSV.0.播放数` | `0` |
-| `validPlay` | 有效播放数 | `Number` | 是 | `CSV.0.有效播放数` | `0` |
-| `validPlayRate` | 有效播放率 | `Number` | 是 | `CSV.0.有效播放率` | `0.0` |
+| `reportDate` | 日期 | `String` | 是 | `CSV.0.日期` | `2026-08-23` |
+| `accountIdRaw` | 账户 ID | `String` | 是 | `CSV.0.账户ID` | `186****691` (已脱敏) |
+| `accountName` | 账户名称 | `String` | 是 | `CSV.0.账户名称` | `****` (已脱敏) |
+| `campaignId` | 项目 ID | `String` | 是 | `CSV.0.项目ID` | `767****098` (已脱敏) |
+| `planId` | 计划 ID | `String` | 是 | `CSV.0.计划ID` | `185****458` (已脱敏) |
+| `adgroupId` | 广告 ID | `String` | 是 | `CSV.0.广告ID` | `767****406` (已脱敏) |
+| `adGroupId` | 广告组 ID | `String` | 是 | `CSV.0.广告组ID` | — |
+| `unitId` | 单元 ID | `String` | 是 | `CSV.0.单元ID` | `584****384` (已脱敏) |
+| `creativeId` | 创意 ID | `String` | 是 | `CSV.0.创意ID` | `432****268` (已脱敏) |
+| `creativeName` | 创意名称 | `String` | 是 | `CSV.0.创意名称` | `****` (已脱敏) |
+| `cost` | 花费 | `Number` | 是 | `CSV.0.花费` | `10.11` |
+| `impression` | 展现量 | `Number` | 是 | `CSV.0.展现量` | `130` |
+| `cpm` | 千次展现花费 | `Number` | 是 | `CSV.0.千次展现花费` | `77.77` |
+| `click` | 点击量 | `Number` | 是 | `CSV.0.点击量` | `2` |
+| `ctr` | 点击率 | `Number` | 是 | `CSV.0.点击率` | `0.0154` |
+| `cpc` | 平均点击花费 | `Number` | 是 | `CSV.0.平均点击花费` | `5.06` |
+| `play` | 播放数 | `Number` | 是 | `CSV.0.播放数` | `126` |
+| `validPlay` | 有效播放数 | `Number` | 是 | `CSV.0.有效播放数` | `20` |
+| `validPlayRate` | 有效播放率 | `Number` | 是 | `CSV.0.有效播放率` | `0.1587` |
 | `playFinish` | 播完数 | `Number` | 是 | `CSV.0.播完数` | `0` |
-| `playFinishRate` | 播完率 | `Number` | 是 | `CSV.0.播完率` | `0.0` |
+| `playFinishRate` | 播完率 | `Number` | 是 | `CSV.0.播完率` | `0.0000` |
 | `convertCnt` | 转化数 | `Number` | 是 | `CSV.0.转化数` | `0` |
-| `convertAmt` | 转化金额 | `Number` | 是 | `CSV.0.转化金额` | `0.0` |
-| `convertRoi` | 转化 ROI | `Number` | 是 | `CSV.0.转化ROI` | `0.0` |
-| `convertRate` | 转化率 | `Number` | 是 | `CSV.0.转化率` | `0.0` |
-| `convertCost` | 转化成本 | `Number` | 是 | `CSV.0.转化成本` | `0.0` |
+| `convertAmt` | 转化金额 | `Number` | 是 | `CSV.0.转化金额` | `0.00` |
+| `convertRoi` | 转化 ROI | `Number` | 是 | `CSV.0.转化ROI` | `0.00` |
+| `convertRate` | 转化率 | `Number` | 是 | `CSV.0.转化率` | `0.0000` |
+| `convertCost` | 转化成本 | `Number` | 是 | `CSV.0.转化成本` | `0.00` |
 | `totalPresaleDealCnt` | 总预售成交笔数 | `Number` | 是 | `CSV.0.总预售成交笔数` | `0` |
-| `totalPresaleDealAmt` | 总预售成交金额 | `Number` | 是 | `CSV.0.总预售成交金额` | `0.0` |
-| `totalPresaleRoi` | 总预售投入产出比 | `Number` | 是 | `CSV.0.总预售投入产出比` | `0.0` |
+| `totalPresaleDealAmt` | 总预售成交金额 | `Number` | 是 | `CSV.0.总预售成交金额` | `0.00` |
+| `totalPresaleRoi` | 总预售投入产出比 | `Number` | 是 | `CSV.0.总预售投入产出比` | `0.00` |
 | `totalOrderCnt` | 总拍下订单笔数 | `Number` | 是 | `CSV.0.总拍下订单笔数` | `0` |
-| `totalOrderAmt` | 总拍下订单金额 | `Number` | 是 | `CSV.0.总拍下订单金额` | `0.0` |
+| `totalOrderAmt` | 总拍下订单金额 | `Number` | 是 | `CSV.0.总拍下订单金额` | `0.00` |
 | `directPresaleDealCnt` | 直接预售成交笔数 | `Number` | 是 | `CSV.0.直接预售成交笔数` | `0` |
-| `directPresaleDealAmt` | 直接预售成交金额 | `Number` | 是 | `CSV.0.直接预售成交金额` | `0.0` |
-| `directPresaleRoi` | 直接预售投入产出比 | `Number` | 是 | `CSV.0.直接预售投入产出比` | `0.0` |
+| `directPresaleDealAmt` | 直接预售成交金额 | `Number` | 是 | `CSV.0.直接预售成交金额` | `0.00` |
+| `directPresaleRoi` | 直接预售投入产出比 | `Number` | 是 | `CSV.0.直接预售投入产出比` | `0.00` |
 | `directOrderCnt` | 直接拍下订单笔数 | `Number` | 是 | `CSV.0.直接拍下订单笔数` | `0` |
-| `directOrderAmt` | 直接拍下订单金额 | `Number` | 是 | `CSV.0.直接拍下订单金额` | `0.0` |
+| `directOrderAmt` | 直接拍下订单金额 | `Number` | 是 | `CSV.0.直接拍下订单金额` | `0.00` |
 | `totalDealCnt` | 总成交笔数 | `Number` | 是 | `CSV.0.总成交笔数` | `0` |
-| `totalDealAmt` | 总成交金额 | `Number` | 是 | `CSV.0.总成交金额` | `0.0` |
-| `roi` | 投入产出比 | `Number` | 是 | `CSV.0.投入产出比` | `0.0` |
-| `totalDealCost` | 总成交成本 | `Number` | 是 | `CSV.0.总成交成本` | `0.0` |
+| `totalDealAmt` | 总成交金额 | `Number` | 是 | `CSV.0.总成交金额` | `0.00` |
+| `roi` | 投入产出比 | `Number` | 是 | `CSV.0.投入产出比` | `0.00` |
+| `totalDealCost` | 总成交成本 | `Number` | 是 | `CSV.0.总成交成本` | `0.00` |
 | `directDealCnt` | 直接成交笔数 | `Number` | 是 | `CSV.0.直接成交笔数` | `0` |
-| `directDealAmt` | 直接成交金额 | `Number` | 是 | `CSV.0.直接成交金额` | `0.0` |
-| `directDealRoi` | 直接成交投入产出比 | `Number` | 是 | `CSV.0.直接成交投入产出比` | `0.0` |
-| `directDealCost` | 直接成交订单成本 | `Number` | 是 | `CSV.0.直接成交订单成本` | `0.0` |
+| `directDealAmt` | 直接成交金额 | `Number` | 是 | `CSV.0.直接成交金额` | `0.00` |
+| `directDealRoi` | 直接成交投入产出比 | `Number` | 是 | `CSV.0.直接成交投入产出比` | `0.00` |
+| `directDealCost` | 直接成交订单成本 | `Number` | 是 | `CSV.0.直接成交订单成本` | `0.00` |
 | `totalRefundOrderCnt` | 总退款订单数 | `Number` | 是 | `CSV.0.总退款订单数` | `0` |
-| `totalRefundAmt` | 总退款金额 | `Number` | 是 | `CSV.0.总退款金额` | `0.0` |
-| `totalRefundRate` | 总退款率 | `Number` | 是 | `CSV.0.总退款率` | `0.0` |
+| `totalRefundAmt` | 总退款金额 | `Number` | 是 | `CSV.0.总退款金额` | `0.00` |
+| `totalRefundRate` | 总退款率 | `Number` | 是 | `CSV.0.总退款率` | `0.0000` |
 | `totalDealCntExRefund` | 总成交笔数(剔除退款) | `Number` | 是 | `CSV.0.总成交笔数(剔除退款)` | `0` |
-| `totalDealAmtExRefund` | 总成交金额(剔除退款) | `Number` | 是 | `CSV.0.总成交金额(剔除退款)` | `0.0` |
-| `roiExRefund` | 投入产出比(剔除退款) | `Number` | 是 | `CSV.0.投入产出比(剔除退款)` | `0.0` |
+| `totalDealAmtExRefund` | 总成交金额(剔除退款) | `Number` | 是 | `CSV.0.总成交金额(剔除退款)` | `0.00` |
+| `roiExRefund` | 投入产出比(剔除退款) | `Number` | 是 | `CSV.0.投入产出比(剔除退款)` | `0.00` |
 | `directRefundOrderCnt` | 直接退款订单数 | `Number` | 是 | `CSV.0.直接退款订单数` | `0` |
-| `directRefundAmt` | 直接退款金额 | `Number` | 是 | `CSV.0.直接退款金额` | `0.0` |
-| `directReturnRate` | 直接退货率 | `Number` | 是 | `CSV.0.直接退货率` | `0.0` |
+| `directRefundAmt` | 直接退款金额 | `Number` | 是 | `CSV.0.直接退款金额` | `0.00` |
+| `directReturnRate` | 直接退货率 | `Number` | 是 | `CSV.0.直接退货率` | `0.0000` |
 | `directDealCntExRefund` | 直接成交笔数(剔除退款) | `Number` | 是 | `CSV.0.直接成交笔数(剔除退款)` | `0` |
-| `directDealAmtExRefund` | 直接成交金额(剔除退款) | `Number` | 是 | `CSV.0.直接成交金额(剔除退款)` | `0.0` |
-| `directRoiExRefund` | 直接投入产出比(剔除退款) | `Number` | 是 | `CSV.0.直接投入产出比(剔除退款)` | `0.0` |
+| `directDealAmtExRefund` | 直接成交金额(剔除退款) | `Number` | 是 | `CSV.0.直接成交金额(剔除退款)` | `0.00` |
+| `directRoiExRefund` | 直接投入产出比(剔除退款) | `Number` | 是 | `CSV.0.直接投入产出比(剔除退款)` | `0.00` |
 | `favorCnt` | 收藏量 | `Number` | 是 | `CSV.0.收藏量` | `0` |
-| `cartCnt` | 加购量 | `Number` | 是 | `CSV.0.加购量` | `0` |
+| `cartCnt` | 加购量 | `Number` | 是 | `CSV.0.加购量` | `1` |
 | `directFavorCnt` | 直接收藏量 | `Number` | 是 | `CSV.0.直接收藏量` | `0` |
-| `directCartCnt` | 直接加购量 | `Number` | 是 | `CSV.0.直接加购量` | `0` |
+| `directCartCnt` | 直接加购量 | `Number` | 是 | `CSV.0.直接加购量` | `1` |
+| `guideVisit` | 引导访问 | `Number` | 是 | `CSV.0.引导访问` | `0` |
+| `arriveCnt` | 到达 | `Number` | 是 | `CSV.0.到达` | `0` |
+| `noteLike` | 笔记点赞 | `Number` | 是 | `CSV.0.笔记点赞` | `0` |
+| `noteComment` | 笔记评论 | `Number` | 是 | `CSV.0.笔记评论` | `0` |
+| `noteFavorite` | 笔记收藏 | `Number` | 是 | `CSV.0.笔记收藏` | `0` |
+| `noteShare` | 笔记分享 | `Number` | 是 | `CSV.0.笔记分享` | `0` |
+| `noteInteract` | 笔记互动量 | `Number` | 是 | `CSV.0.笔记互动量` | `0` |
 | `shoppingFundRechargeCnt` | 购物金充值笔数 | `Number` | 是 | `CSV.0.购物金充值笔数` | `0` |
-| `shoppingFundRechargeAmt` | 购物金充值金额 | `Number` | 是 | `CSV.0.购物金充值金额` | `0.0` |
+| `shoppingFundRechargeAmt` | 购物金充值金额 | `Number` | 是 | `CSV.0.购物金充值金额` | `0.00` |
 | `bizDate` | 业务日期 | `String` | 否 | 附加 | `20260810` |
 | `accountId` | 授权 ID | `String` | 否 | 附加 | `1****1` (已脱敏) |
 
 ### 数据样例
 
+字节媒体一行（含播放/项目/广告）；其它媒体独有列在该次导出中不出现，样例以空字符串占位展示并集 schema。
+
 ```json
 {
-  "reportDate": "2026-07-04",
-  "accountIdRaw": "672****688",
-  "accountName": "滴露-****-05",
-  "adgroupId": "111****223",
-  "creativeId": "104****566",
-  "creativeName": null,
-  "cost": 0.0,
-  "impression": 0,
-  "cpm": 0.0,
-  "click": 0,
-  "ctr": 0.0,
-  "cpc": 0.0,
-  "play": 0,
-  "validPlay": 0,
-  "validPlayRate": 0.0,
-  "playFinish": 0,
-  "playFinishRate": 0.0,
-  "convertCnt": 0,
-  "convertAmt": 0.0,
-  "convertRoi": 0.0,
-  "convertRate": 0.0,
-  "convertCost": 0.0,
-  "totalPresaleDealCnt": 0,
-  "totalPresaleDealAmt": 0.0,
-  "totalPresaleRoi": 0.0,
-  "totalOrderCnt": 0,
-  "totalOrderAmt": 0.0,
-  "directPresaleDealCnt": 0,
-  "directPresaleDealAmt": 0.0,
-  "directPresaleRoi": 0.0,
-  "directOrderCnt": 0,
-  "directOrderAmt": 0.0,
-  "totalDealCnt": 0,
-  "totalDealAmt": 0.0,
-  "roi": 0.0,
-  "totalDealCost": 0.0,
-  "directDealCnt": 0,
-  "directDealAmt": 0.0,
-  "directDealRoi": 0.0,
-  "directDealCost": 0.0,
-  "totalRefundOrderCnt": 0,
-  "totalRefundAmt": 0.0,
-  "totalRefundRate": 0.0,
-  "totalDealCntExRefund": 0,
-  "totalDealAmtExRefund": 0.0,
-  "roiExRefund": 0.0,
-  "directRefundOrderCnt": 0,
-  "directRefundAmt": 0.0,
-  "directReturnRate": 0.0,
-  "directDealCntExRefund": 0,
-  "directDealAmtExRefund": 0.0,
-  "directRoiExRefund": 0.0,
-  "favorCnt": 0,
-  "cartCnt": 0,
-  "directFavorCnt": 0,
-  "directCartCnt": 0,
-  "shoppingFundRechargeCnt": 0,
-  "shoppingFundRechargeAmt": 0.0,
+  "reportDate": "2026-08-23",
+  "accountIdRaw": "186****691",
+  "accountName": "****",
+  "campaignId": "767****098",
+  "planId": "",
+  "adgroupId": "767****406",
+  "adGroupId": "",
+  "unitId": "",
+  "creativeId": "",
+  "creativeName": "",
+  "cost": "10.11",
+  "impression": "130",
+  "cpm": "77.77",
+  "click": "2",
+  "ctr": "0.0154",
+  "cpc": "5.06",
+  "play": "126",
+  "validPlay": "20",
+  "validPlayRate": "0.1587",
+  "playFinish": "0",
+  "playFinishRate": "0.0000",
+  "convertCnt": "0",
+  "convertAmt": "0.00",
+  "convertRoi": "0.00",
+  "convertRate": "0.0000",
+  "convertCost": "0.00",
+  "totalPresaleDealCnt": "0",
+  "totalPresaleDealAmt": "0.00",
+  "totalPresaleRoi": "0.00",
+  "totalOrderCnt": "0",
+  "totalOrderAmt": "0.00",
+  "directPresaleDealCnt": "0",
+  "directPresaleDealAmt": "0.00",
+  "directPresaleRoi": "0.00",
+  "directOrderCnt": "0",
+  "directOrderAmt": "0.00",
+  "totalDealCnt": "0",
+  "totalDealAmt": "0.00",
+  "roi": "0.00",
+  "totalDealCost": "0.00",
+  "directDealCnt": "0",
+  "directDealAmt": "0.00",
+  "directDealRoi": "0.00",
+  "directDealCost": "0.00",
+  "totalRefundOrderCnt": "0",
+  "totalRefundAmt": "0.00",
+  "totalRefundRate": "0.0000",
+  "totalDealCntExRefund": "0",
+  "totalDealAmtExRefund": "0.00",
+  "roiExRefund": "0.00",
+  "directRefundOrderCnt": "0",
+  "directRefundAmt": "0.00",
+  "directReturnRate": "0.0000",
+  "directDealCntExRefund": "0",
+  "directDealAmtExRefund": "0.00",
+  "directRoiExRefund": "0.00",
+  "favorCnt": "0",
+  "cartCnt": "1",
+  "directFavorCnt": "0",
+  "directCartCnt": "1",
+  "guideVisit": "",
+  "arriveCnt": "",
+  "noteLike": "",
+  "noteComment": "",
+  "noteFavorite": "",
+  "noteShare": "",
+  "noteInteract": "",
+  "shoppingFundRechargeCnt": "0",
+  "shoppingFundRechargeAmt": "0.00",
   "bizDate": "20260810",
   "accountId": "1****1"
 }

@@ -171,30 +171,31 @@ module:
 
 ### 数据字段
 
-导出列为「全部数据指标」；部分列随投放媒体变化（如小红书出现计划/单元/笔记互动，视频媒体出现播放相关指标）。
+导出列为「全部数据指标」。下表为字节 / 腾讯 / 小红书 / 快手 / B 站五份真实 CSV 表头的**并集**；某一投放媒体没有的列在该次导出中不会出现对应英文字段。
 
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
 | `reportDate` | 日期 | `String` | 是 | `CSV.0.日期` | `2026-08-23` |
-| `accountIdRaw` | 账户 ID | `String` | 是 | `CSV.0.账户ID` | `106****055` (已脱敏) |
+| `accountIdRaw` | 账户 ID | `String` | 是 | `CSV.0.账户ID` | `186****691` (已脱敏) |
 | `accountName` | 账户名称 | `String` | 是 | `CSV.0.账户名称` | `****` (已脱敏) |
-| `campaignId` | 项目 ID | `String` | 是 | `CSV.0.项目ID` | — |
-| `计划ID` | 计划 ID | `String` | 是 | `CSV.0.计划ID` | `218****143` (已脱敏) |
-| `adgroupId` | 广告 ID | `String` | 是 | `CSV.0.广告ID` | — |
-| `单元ID` | 单元 ID | `String` | 是 | `CSV.0.单元ID` | `762****001` (已脱敏) |
-| `creativeId` | 创意 ID | `String` | 是 | `CSV.0.创意ID` | `600****526` (已脱敏) |
+| `campaignId` | 项目 ID | `String` | 是 | `CSV.0.项目ID` | `767****098` (已脱敏) |
+| `planId` | 计划 ID | `String` | 是 | `CSV.0.计划ID` | `185****458` (已脱敏) |
+| `adgroupId` | 广告 ID | `String` | 是 | `CSV.0.广告ID` | `767****406` (已脱敏) |
+| `adGroupId` | 广告组 ID | `String` | 是 | `CSV.0.广告组ID` | — |
+| `unitId` | 单元 ID | `String` | 是 | `CSV.0.单元ID` | `584****384` (已脱敏) |
+| `creativeId` | 创意 ID | `String` | 是 | `CSV.0.创意ID` | `432****268` (已脱敏) |
 | `creativeName` | 创意名称 | `String` | 是 | `CSV.0.创意名称` | `****` (已脱敏) |
-| `cost` | 花费 | `Number` | 是 | `CSV.0.花费` | `5.83` |
-| `impression` | 展现量 | `Number` | 是 | `CSV.0.展现量` | `6` |
-| `cpm` | 千次展现花费 | `Number` | 是 | `CSV.0.千次展现花费` | `971.67` |
-| `click` | 点击量 | `Number` | 是 | `CSV.0.点击量` | `1` |
-| `ctr` | 点击率 | `Number` | 是 | `CSV.0.点击率` | `0.1667` |
-| `cpc` | 平均点击花费 | `Number` | 是 | `CSV.0.平均点击花费` | `5.83` |
-| `play` | 播放数 | `Number` | 是 | `CSV.0.播放数` | — |
-| `validPlay` | 有效播放数 | `Number` | 是 | `CSV.0.有效播放数` | — |
-| `validPlayRate` | 有效播放率 | `Number` | 是 | `CSV.0.有效播放率` | — |
-| `playFinish` | 播完数 | `Number` | 是 | `CSV.0.播完数` | — |
-| `playFinishRate` | 播完率 | `Number` | 是 | `CSV.0.播完率` | — |
+| `cost` | 花费 | `Number` | 是 | `CSV.0.花费` | `10.11` |
+| `impression` | 展现量 | `Number` | 是 | `CSV.0.展现量` | `130` |
+| `cpm` | 千次展现花费 | `Number` | 是 | `CSV.0.千次展现花费` | `77.77` |
+| `click` | 点击量 | `Number` | 是 | `CSV.0.点击量` | `2` |
+| `ctr` | 点击率 | `Number` | 是 | `CSV.0.点击率` | `0.0154` |
+| `cpc` | 平均点击花费 | `Number` | 是 | `CSV.0.平均点击花费` | `5.06` |
+| `play` | 播放数 | `Number` | 是 | `CSV.0.播放数` | `126` |
+| `validPlay` | 有效播放数 | `Number` | 是 | `CSV.0.有效播放数` | `20` |
+| `validPlayRate` | 有效播放率 | `Number` | 是 | `CSV.0.有效播放率` | `0.1587` |
+| `playFinish` | 播完数 | `Number` | 是 | `CSV.0.播完数` | `0` |
+| `playFinishRate` | 播完率 | `Number` | 是 | `CSV.0.播完率` | `0.0000` |
 | `convertCnt` | 转化数 | `Number` | 是 | `CSV.0.转化数` | `0` |
 | `convertAmt` | 转化金额 | `Number` | 是 | `CSV.0.转化金额` | `0.00` |
 | `convertRoi` | 转化 ROI | `Number` | 是 | `CSV.0.转化ROI` | `0.00` |
@@ -231,16 +232,16 @@ module:
 | `directDealAmtExRefund` | 直接成交金额(剔除退款) | `Number` | 是 | `CSV.0.直接成交金额(剔除退款)` | `0.00` |
 | `directRoiExRefund` | 直接投入产出比(剔除退款) | `Number` | 是 | `CSV.0.直接投入产出比(剔除退款)` | `0.00` |
 | `favorCnt` | 收藏量 | `Number` | 是 | `CSV.0.收藏量` | `0` |
-| `cartCnt` | 加购量 | `Number` | 是 | `CSV.0.加购量` | `0` |
+| `cartCnt` | 加购量 | `Number` | 是 | `CSV.0.加购量` | `1` |
 | `directFavorCnt` | 直接收藏量 | `Number` | 是 | `CSV.0.直接收藏量` | `0` |
-| `directCartCnt` | 直接加购量 | `Number` | 是 | `CSV.0.直接加购量` | `0` |
-| `引导访问` | 引导访问 | `Number` | 是 | `CSV.0.引导访问` | `0` |
-| `到达` | 到达 | `Number` | 是 | `CSV.0.到达` | `0` |
-| `笔记点赞` | 笔记点赞 | `Number` | 是 | `CSV.0.笔记点赞` | `0` |
-| `笔记评论` | 笔记评论 | `Number` | 是 | `CSV.0.笔记评论` | `0` |
-| `笔记收藏` | 笔记收藏 | `Number` | 是 | `CSV.0.笔记收藏` | `0` |
-| `笔记分享` | 笔记分享 | `Number` | 是 | `CSV.0.笔记分享` | `0` |
-| `笔记互动量` | 笔记互动量 | `Number` | 是 | `CSV.0.笔记互动量` | `0` |
+| `directCartCnt` | 直接加购量 | `Number` | 是 | `CSV.0.直接加购量` | `1` |
+| `guideVisit` | 引导访问 | `Number` | 是 | `CSV.0.引导访问` | `0` |
+| `arriveCnt` | 到达 | `Number` | 是 | `CSV.0.到达` | `0` |
+| `noteLike` | 笔记点赞 | `Number` | 是 | `CSV.0.笔记点赞` | `0` |
+| `noteComment` | 笔记评论 | `Number` | 是 | `CSV.0.笔记评论` | `0` |
+| `noteFavorite` | 笔记收藏 | `Number` | 是 | `CSV.0.笔记收藏` | `0` |
+| `noteShare` | 笔记分享 | `Number` | 是 | `CSV.0.笔记分享` | `0` |
+| `noteInteract` | 笔记互动量 | `Number` | 是 | `CSV.0.笔记互动量` | `0` |
 | `shoppingFundRechargeCnt` | 购物金充值笔数 | `Number` | 是 | `CSV.0.购物金充值笔数` | `0` |
 | `shoppingFundRechargeAmt` | 购物金充值金额 | `Number` | 是 | `CSV.0.购物金充值金额` | `0.00` |
 | `bizDate` | 业务日期 | `String` | 否 | 附加 | `20260824` |
@@ -248,21 +249,31 @@ module:
 
 ### 数据样例
 
+字节媒体一行（含播放/项目/广告）；其它媒体独有列在该次导出中不出现，样例以空字符串占位展示并集 schema。
+
 ```json
 {
   "reportDate": "2026-08-23",
-  "accountIdRaw": "106****055",
+  "accountIdRaw": "186****691",
   "accountName": "****",
-  "计划ID": "218****143",
-  "单元ID": "762****001",
-  "creativeId": "600****526",
-  "creativeName": "****",
-  "cost": "5.83",
-  "impression": "6",
-  "cpm": "971.67",
-  "click": "1",
-  "ctr": "0.1667",
-  "cpc": "5.83",
+  "campaignId": "767****098",
+  "planId": "",
+  "adgroupId": "767****406",
+  "adGroupId": "",
+  "unitId": "",
+  "creativeId": "",
+  "creativeName": "",
+  "cost": "10.11",
+  "impression": "130",
+  "cpm": "77.77",
+  "click": "2",
+  "ctr": "0.0154",
+  "cpc": "5.06",
+  "play": "126",
+  "validPlay": "20",
+  "validPlayRate": "0.1587",
+  "playFinish": "0",
+  "playFinishRate": "0.0000",
   "convertCnt": "0",
   "convertAmt": "0.00",
   "convertRoi": "0.00",
@@ -299,16 +310,16 @@ module:
   "directDealAmtExRefund": "0.00",
   "directRoiExRefund": "0.00",
   "favorCnt": "0",
-  "cartCnt": "0",
+  "cartCnt": "1",
   "directFavorCnt": "0",
-  "directCartCnt": "0",
-  "引导访问": "0",
-  "到达": "0",
-  "笔记点赞": "0",
-  "笔记评论": "0",
-  "笔记收藏": "0",
-  "笔记分享": "0",
-  "笔记互动量": "0",
+  "directCartCnt": "1",
+  "guideVisit": "",
+  "arriveCnt": "",
+  "noteLike": "",
+  "noteComment": "",
+  "noteFavorite": "",
+  "noteShare": "",
+  "noteInteract": "",
   "shoppingFundRechargeCnt": "0",
   "shoppingFundRechargeAmt": "0.00",
   "bizDate": "20260824",
