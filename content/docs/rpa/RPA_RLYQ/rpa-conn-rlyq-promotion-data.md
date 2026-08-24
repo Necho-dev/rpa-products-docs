@@ -1,6 +1,6 @@
 ---
 title: 数据看板-推广数据总览-明细报表下载
-description: 打开推广数据总览页后校验入参，按统计时间与统计截止日期下载分日/分商品/分主播明细报表
+description: 校验统计时间与统计截止日期（最大可选日为昨天）后，打开推广数据总览页设置筛选项并回读校验，再下载分日/分商品/分主播明细报表
 entry: rpa.conn.rlyq.promotion.data
 badge:
   label: 已上线
@@ -17,7 +17,7 @@ estimatedDuration:
 | **连接器代码**   | `rpa.conn.rlyq.promotion.data`                             |
 | **操作类型**     | `文件导出`                                                 |
 | **目标网页**     | `https://hot.taobao.com/hw/union/goods-alliance/databoard/overview` |
-| **适用场景**     | 打开推广数据总览页后完成入参校验，按统计时间与统计截止日期下载分日/分商品/分主播明细报表 |
+| **适用场景**     | 校验统计时间与统计截止日期（最大可选日为昨天）后，打开推广数据总览页设置筛选项并回读校验，再下载分日/分商品/分主播明细报表 |
 | **数据表名**     | `ods_rpa_rlyq_promotion_data_du`                           |
 | **业务表名**     | `ODS_推广订单数据总览报表下载(热浪引擎RPA)`                     |
 
@@ -37,7 +37,7 @@ estimatedDuration:
 | ---- | -------- | -------- | ---- | ------ | ---- |
 | `stat_time` | 统计时间 | `String` | 否 | `YESTERDAY` | 可选值：`LAST_7_DAYS`（近7天）/ `LAST_30_DAYS`（近30天）/ `THIS_MONTH`（本月）/ `YESTERDAY`（昨天） |
 | `detail_type` | 明细类型 | `String` | 否 | `DAILY` | 可选值：`DAILY`（分日数据明细）/ `ITEM`（分商品数据明细）/ `ANCHOR`（分主播数据明细）；决定导出区块与返回维度列 |
-| `stat_end_date` | 统计截止日期 | `String` | 否 | — | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`。**打开目标页后校验**：不传或传空 → 默认使用页面「统计截止日期」**当前可选上限**设筛；有传 → 格式非法或**晚于**该上限 →「输入参数错误」；**不晚于上限的更早日期**允许。对应明细区块表格 placeholder 为「暂无数据」或无数据行时任务成功返回「无数据」（`data=[]`）；成功导出且有明细行时每条附加 `statEndDate`（有入参则为规范化入参值，未传则为默认补齐的上限日，格式 `YYYYMMDD`） |
+| `stat_end_date` | 统计截止日期 | `String` | 否 | — | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`。**导航前校验**：不传或传空 → 默认**昨天**，不操作页面日期控件，设置筛选项后回读 picker 须等于昨天；有传 → 格式非法或**晚于昨天** →「输入参数错误」；不晚于昨天的更早日期允许，有传时在页面上点选该日期。对应明细区块表格 placeholder 为「暂无数据」或无数据行时任务成功返回「暂无数据」（`data=[]`）；成功导出且有明细行时每条附加 `statEndDate`（有入参则为规范化入参值，未传则为昨天，格式 `YYYYMMDD`） |
 
 ### 入参样例
 
@@ -70,14 +70,14 @@ estimatedDuration:
   "stat_end_date": "2023-04-13"
 }
 ```
-
+尽量输入今年的日期，过早日期大概率没有数据
 ### 入参校验
 
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "热浪引擎-推广数据总览明细报表下载 - 查询入参",
-  "description": "按统计时间与统计截止日期，下载推广数据总览页分日/分商品/分主播明细报表",
+  "description": "校验统计时间与统计截止日期（最大可选日为昨天）后，打开推广数据总览页设置筛选项并回读校验，再下载分日/分商品/分主播明细报表",
   "type": "object",
   "properties": {
     "stat_time": {
@@ -94,7 +94,7 @@ estimatedDuration:
     },
     "stat_end_date": {
       "type": "string",
-      "description": "统计截止日期，YYYYMMDD 或 YYYY-MM-DD；空字符串视为未传。打开目标页后校验：未传则默认页面统计截止日期当前可选上限；不可晚于该上限；可早于上限",
+      "description": "统计截止日期，YYYYMMDD 或 YYYY-MM-DD；空字符串视为未传。导航前校验：未传则默认昨天且不操作页面日期控件，设置后回读须等于昨天；不可晚于昨天；可早于昨天",
       "anyOf": [
         { "const": "" },
         { "pattern": "^\\d{8}$" },
@@ -109,7 +109,7 @@ estimatedDuration:
 
 ### 数据字段
 
-> 三种明细共用同一套指标列；维度列与部分指标是否出现因 `detail_type` 而异（见取数路径中的出现条件）。成功导出且 `data` 非空时，每条明细含对应维度列 + 指标列 + 附加字段；任务成功但「无数据」时 `data=[]`，不附加 `statEndDate`。
+> 三种明细 xlsx 表头并集映射为统一英文字段；当前下载文件不含的列输出为 `null`。维度列有值与否因 `detail_type` 而异（见取数路径中的出现条件）；其余并集列在无对应表头时为 `null`。成功导出且 `data` 非空时，每条明细含并集字段 + 附加字段；任务成功但「暂无数据」时 `data=[]`，不附加 `statEndDate`。
 
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
@@ -141,7 +141,7 @@ estimatedDuration:
 | `estimatePresaleOrderAmount` | 预估预售整单金额(元) | `String` | 是 | `XLS.0.预估预售整单金额(元)` | - |
 | `payServiceFee` | 付款服务费支出 | `String` | 是 | `XLS.0.付款服务费支出` | - |
 | `confirmServiceFee` | 确认收货服务费支出 | `String` | 是 | `XLS.0.确认收货服务费支出` | - |
-| `statEndDate` | 统计截止日期 | `String` | 否 | 附加（入参规范化值或未传时默认补齐的可选上限日） | 20260729 |
+| `statEndDate` | 统计截止日期 | `String` | 否 | 附加（入参规范化值或未传时为昨天） | 20260729 |
 | `bizDate` | 业务日期 | `String` | 否 | 附加 | 20260729 |
 | `accountId` | 授权 ID | `String` | 否 | 附加 | 127****7 (已脱敏) |
 
@@ -153,6 +153,10 @@ estimatedDuration:
 [
   {
     "statDate": 20260727,
+    "itemName": null,
+    "itemId": null,
+    "anchorName": null,
+    "anchorId": null,
     "payCommissionAmount": 193.25,
     "payCommissionRate": "5.17%",
     "confirmCommissionAmount": 111.13,
@@ -188,8 +192,11 @@ estimatedDuration:
 ```json
 [
   {
+    "statDate": null,
     "itemName": "示例****称",
     "itemId": "752****302",
+    "anchorName": null,
+    "anchorId": null,
     "payCommissionAmount": 193.25,
     "payCommissionRate": "5.17%",
     "confirmCommissionAmount": 111.13,
@@ -197,6 +204,7 @@ estimatedDuration:
     "itemClickCount": 856,
     "itemClickUserCount": 677,
     "promoteAnchorCount": 30,
+    "promoteItemCount": null,
     "payUserCount": 127,
     "payOrderCount": 150,
     "payAmount": "3,740.97",
@@ -224,6 +232,9 @@ estimatedDuration:
 ```json
 [
   {
+    "statDate": null,
+    "itemName": null,
+    "itemId": null,
     "anchorName": "示例****称",
     "anchorId": "123****789",
     "payCommissionAmount": 193.25,
@@ -232,6 +243,7 @@ estimatedDuration:
     "confirmCommissionRate": "6.63%",
     "itemClickCount": 856,
     "itemClickUserCount": 677,
+    "promoteAnchorCount": null,
     "promoteItemCount": 36,
     "payUserCount": 127,
     "payOrderCount": 150,
