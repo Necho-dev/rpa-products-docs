@@ -1,4 +1,5 @@
 import type { UIMessage } from 'ai';
+import type { DocsViewClientContext } from '@/lib/docs/docs-view-context';
 
 /** assistant 消息 metadata，由服务端 stream finish 时注入 */
 export type InkeepMessageMetadata = {
@@ -10,8 +11,12 @@ export type InkeepMessageMetadata = {
 export type InkeepUIMessage = UIMessage<
   InkeepMessageMetadata,
   {
-    client: {
-      location: string;
+    client: DocsViewClientContext & {
+      selection?: {
+        text: string;
+        pageTitle?: string;
+        pageUrl?: string;
+      };
     };
   }
 >;

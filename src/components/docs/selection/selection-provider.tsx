@@ -21,8 +21,10 @@ import { fetchQuotePreSigned } from '@/lib/docs/selection/fetch-quote-pre-signed
 import {
   clearNativeSelection,
   extractTextQuote,
+  findContainerForNode,
+  findPeekContentRoot,
   findProseContainer,
-  readSelectionInContainer,
+  readActiveDocsSelection,
   type SelectionSnapshot,
 } from '@/lib/docs/selection/get-selection-in-container';
 import {
@@ -45,6 +47,7 @@ import { verifySharedQuoteFromUrl } from '@/lib/docs/selection/verify-shared-quo
 import { getDocPageTitle } from '@/lib/docs/feedback/page-title';
 import { safeWriteClipboard } from '@/lib/ui/code-block-utils';
 import { docsRoute } from '@/lib/core/shared';
+import { useDocPeek } from '@/components/docs/doc-peek-context';
 
 const HIGHLIGHT_CLICK_SUPPRESS_MS = 120;
 
@@ -80,7 +83,9 @@ function isToolbarTarget(target: EventTarget | null): boolean {
 }
 
 function isDialogTarget(target: EventTarget | null): boolean {
-  return Boolean((target as HTMLElement | null)?.closest('[role="dialog"]'));
+  const el = target as HTMLElement | null;
+  if (el?.closest('[data-doc-peek], [data-doc-peek-sheet]')) return false;
+  return Boolean(el?.closest('[role="dialog"]'));
 }
 
 function getHighlightIdFromTarget(target: EventTarget | null): string | null {
@@ -111,6 +116,8 @@ export function DocSelectionProvider() {
 function DocSelectionProviderInner({ pagePath }: { pagePath: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const peek = useDocPeek();
+  const peekPath = peek?.target?.path ?? null;
   const excerptCollection = useExcerptCollectionOptional();
   const reportLocateError = excerptCollection?.reportLocateError;
   const openExcerptPanel = excerptCollection?.setOpen;
@@ -118,6 +125,8 @@ function DocSelectionProviderInner({ pagePath }: { pagePath: string }) {
   const { enabled: feedbackEnabled, openFeedback } = useDocFeedback();
 
   const [selection, setSelection] = useState<SelectionSnapshot | null>(null);
+  const [selectionPagePath, setSelectionPagePath] = useState(pagePath);
+  const [selectionSurface, setSelectionSurface] = useState<'main' | 'peek'>('main');
   const selectionRef = useRef<SelectionSnapshot | null>(null);
   const copyResetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const suppressSelectionHideUntilRef = useRef(0);
@@ -155,8 +164,11 @@ function DocSelectionProviderInner({ pagePath }: { pagePath: string }) {
   }, []);
 
   const openToolbarForHighlight = useCallback((highlightId: string) => {
-    const container = findProseContainer();
+    const mark = document.querySelector(`[data-doc-highlight="${highlightId}"]`);
+    const located = mark ? findContainerForNode(mark) : null;
+    const container = located?.container ?? findProseContainer();
     if (!container) return false;
+    const surface = located?.surface ?? 'main';
 
     const segments = collectHighlightSegments(highlightId, container);
     if (segments.length === 0) return false;
@@ -181,6 +193,8 @@ function DocSelectionProviderInner({ pagePath }: { pagePath: string }) {
       suffix: quote.suffix,
       sameBlock: segments.length === 1,
     });
+    setSelectionSurface(surface);
+    setSelectionPagePath(surface === 'peek' && peekPath ? peekPath : pagePath);
     setToolbarPos(clampToolbarPosition(rect));
     setExistingHighlightId(highlightId);
     clearNativeSelection();
@@ -198,35 +212,36 @@ function DocSelectionProviderInner({ pagePath }: { pagePath: string }) {
       });
     });
 
-    return true;
-  }, []);
+  }, [pagePath, peekPath]);
 
   const refreshSelection = useCallback(async () => {
     if (Date.now() < suppressSelectionHideUntilRef.current) return;
 
-    const container = findProseContainer();
-    const snap = readSelectionInContainer(container);
-    if (!snap) {
+    const located = readActiveDocsSelection();
+    if (!located) {
       hideToolbar();
       return;
     }
 
+    const { surface, container: _container, ...snap } = located;
     if (selectionRef.current?.exact !== snap.exact) {
       if (copyResetTimerRef.current) clearTimeout(copyResetTimerRef.current);
       setCopyState('idle');
     }
 
     setSelection(snap);
+    setSelectionSurface(surface);
+    setSelectionPagePath(surface === 'peek' && peekPath ? peekPath : pagePath);
     setToolbarPos(clampToolbarPosition(snap.rect));
 
     const existing = await idbFindHighlightByQuote(
-      pagePath,
+      surface === 'peek' && peekPath ? peekPath : pagePath,
       snap.exact,
       snap.prefix,
       snap.suffix,
     );
     setExistingHighlightId(existing?.id ?? null);
-  }, [pagePath, hideToolbar]);
+  }, [pagePath, peekPath, hideToolbar]);
 
   useEffect(() => {
     let debounceTimer: ReturnType<typeof setTimeout> | null = null;
@@ -288,10 +303,12 @@ function DocSelectionProviderInner({ pagePath }: { pagePath: string }) {
         return;
       }
 
-      const container = findProseContainer();
-      const snap = readSelectionInContainer(container);
-      if (snap) {
+      const located = readActiveDocsSelection();
+      if (located) {
+        const { surface, container: _container, ...snap } = located;
         setSelection(snap);
+        setSelectionSurface(surface);
+        setSelectionPagePath(surface === 'peek' && peekPath ? peekPath : pagePath);
         setToolbarPos(clampToolbarPosition(snap.rect));
       }
     };
@@ -335,7 +352,7 @@ function DocSelectionProviderInner({ pagePath }: { pagePath: string }) {
       document.removeEventListener('scroll', onScroll, true);
       document.removeEventListener('keydown', onKeyDown);
     };
-  }, [hideToolbar, refreshSelection, openToolbarForHighlight]);
+  }, [hideToolbar, refreshSelection, openToolbarForHighlight, pagePath, peekPath]);
 
   useEffect(() => {
     let cancelled = false;
@@ -356,6 +373,27 @@ function DocSelectionProviderInner({ pagePath }: { pagePath: string }) {
       window.clearTimeout(retry);
     };
   }, [pagePath]);
+
+  useEffect(() => {
+    if (!peekPath) return;
+    let cancelled = false;
+
+    const restorePeek = async () => {
+      const highlights = await idbListHighlightsForPage(peekPath);
+      if (cancelled || highlights.length === 0) return;
+      const container = findPeekContentRoot();
+      if (!container) return;
+      applyHighlightsToContainer(container, highlights);
+    };
+
+    void restorePeek();
+    const retry = window.setTimeout(() => void restorePeek(), 400);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(retry);
+    };
+  }, [peekPath]);
 
   useEffect(() => {
     const hlId = searchParams.get('hl');
@@ -496,6 +534,8 @@ function DocSelectionProviderInner({ pagePath }: { pagePath: string }) {
   const handleSharedQuoteDismiss = useCallback(() => {
     const container = findProseContainer();
     if (container) removeSharedPreviewHighlight(container);
+    const peekContainer = findPeekContentRoot();
+    if (peekContainer) removeSharedPreviewHighlight(peekContainer);
     setSharedQuotePromptOpen(false);
     setSharedQuote(null);
   }, []);
@@ -540,7 +580,8 @@ function DocSelectionProviderInner({ pagePath }: { pagePath: string }) {
 
   const handleHighlight = useCallback(async () => {
     if (!selection) return;
-    const container = findProseContainer();
+    const container =
+      selectionSurface === 'peek' ? findPeekContentRoot() : findProseContainer();
     if (!container) return;
 
     if (existingHighlightId) {
@@ -554,8 +595,8 @@ function DocSelectionProviderInner({ pagePath }: { pagePath: string }) {
     }
 
     const highlight = createHighlight({
-      pagePath,
-      pageTitle: getDocPageTitle(),
+      pagePath: selectionPagePath,
+      pageTitle: getDocPageTitle(selectionSurface),
       exact: selection.exact,
       prefix: selection.prefix,
       suffix: selection.suffix,
@@ -566,7 +607,7 @@ function DocSelectionProviderInner({ pagePath }: { pagePath: string }) {
     applyHighlightFromRange(container, highlight, selection.range);
     hideToolbar();
     clearNativeSelection();
-  }, [selection, pagePath, existingHighlightId, hideToolbar]);
+  }, [selection, selectionPagePath, selectionSurface, existingHighlightId, hideToolbar]);
 
   const handleShare = useCallback(async () => {
     if (!selection) return;
@@ -576,12 +617,12 @@ function DocSelectionProviderInner({ pagePath }: { pagePath: string }) {
     clearNativeSelection();
 
     try {
-      const slugs = slugsFromPathname(pagePath);
-      const pageTitle = getDocPageTitle() ?? '文档摘录';
+      const slugs = slugsFromPathname(selectionPagePath);
+      const pageTitle = getDocPageTitle(selectionSurface) ?? '文档摘录';
       const result = await fetchQuotePreSigned({
         slugs,
         text: selection.text,
-        pageUrl: window.location.href.split('#')[0],
+        pageUrl: `${window.location.origin}${selectionPagePath}`,
         exact: selection.exact,
         prefix: selection.prefix,
         suffix: selection.suffix,
@@ -597,31 +638,31 @@ function DocSelectionProviderInner({ pagePath }: { pagePath: string }) {
     } finally {
       setShareLoading(false);
     }
-  }, [selection, pagePath, hideToolbar]);
+  }, [selection, selectionPagePath, selectionSurface, hideToolbar]);
 
   const handleFeedback = useCallback(() => {
     if (!selection || !feedbackEnabled) return;
-    const docUrl = window.location.href.split('#')[0];
+    const docUrl = `${window.location.origin}${selectionPagePath}`;
     openFeedback({
       errorContent: selection.text,
       docUrl,
       source: 'selection',
-      pagePath,
+      pagePath: selectionPagePath,
     });
     hideToolbar();
     clearNativeSelection();
-  }, [selection, feedbackEnabled, openFeedback, pagePath, hideToolbar]);
+  }, [selection, feedbackEnabled, openFeedback, selectionPagePath, hideToolbar]);
 
   const handleAskAi = useCallback(() => {
     if (!selection) return;
     openWithSelection({
       text: selection.text,
-      pageUrl: window.location.href,
-      pageTitle: getDocPageTitle(),
+      pageUrl: `${window.location.origin}${selectionPagePath}`,
+      pageTitle: getDocPageTitle(selectionSurface),
     });
     hideToolbar();
     clearNativeSelection();
-  }, [selection, openWithSelection, hideToolbar]);
+  }, [selection, selectionPagePath, selectionSurface, openWithSelection, hideToolbar]);
 
   const handleCopy = useCallback(() => {
     if (!selection) return;

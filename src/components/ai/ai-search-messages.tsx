@@ -53,16 +53,34 @@ const userMarkdownClass = cn(
   '[&_a]:underline',
 );
 
+const STICK_TO_BOTTOM_PX = 80;
+
 function List({
   scrollToBottomKey,
+  chatStatus,
+  className,
+  style,
+  children,
   ...props
 }: Omit<ComponentProps<'div'>, 'dir'> & {
   /** 变化时强制滚动到底部（如面板打开、切换会话） */
   scrollToBottomKey?: unknown;
+  /** 新一轮提交时重新贴底跟随 */
+  chatStatus?: string;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
   /** true = user has scrolled up, suppress auto-scroll */
   const userScrolledRef = useRef(false);
+  const awayFromBottomRef = useRef(false);
+  const [awayFromBottom, setAwayFromBottom] = useState(false);
+
+  const setAway = useCallback((away: boolean) => {
+    userScrolledRef.current = away;
+    if (awayFromBottomRef.current === away) return;
+    awayFromBottomRef.current = away;
+    setAwayFromBottom(away);
+  }, []);
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = 'instant') => {
     const container = containerRef.current;
@@ -70,51 +88,85 @@ function List({
     container.scrollTo({ top: container.scrollHeight, behavior });
   }, []);
 
-  // 监听用户手动上滚
+  const jumpToBottom = useCallback(() => {
+    setAway(false);
+    scrollToBottom('smooth');
+  }, [setAway, scrollToBottom]);
+
+  // 监听用户手动上滚；贴底时继续跟随
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
     const onScroll = () => {
       const distFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
-      userScrolledRef.current = distFromBottom > 80;
+      setAway(distFromBottom > STICK_TO_BOTTOM_PX);
     };
     container.addEventListener('scroll', onScroll, { passive: true });
     return () => container.removeEventListener('scroll', onScroll);
-  }, []);
+  }, [setAway]);
 
   // 面板打开或切换会话时，强制重置并滚底
   useEffect(() => {
-    userScrolledRef.current = false;
+    setAway(false);
     scrollToBottom('instant');
-  }, [scrollToBottomKey, scrollToBottom]);
+  }, [scrollToBottomKey, scrollToBottom, setAway]);
+
+  // 发出新问题时重新贴底跟随
+  useEffect(() => {
+    if (chatStatus !== 'submitted') return;
+    setAway(false);
+    scrollToBottom('instant');
+  }, [chatStatus, scrollToBottom, setAway]);
 
   // 内容增长时（流式回复）自动跟随底部
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    const inner = innerRef.current;
+    if (!inner) return;
 
-    const observer = new ResizeObserver(() => {
+    const followIfStuck = () => {
       if (userScrolledRef.current) return;
       scrollToBottom('instant');
-    });
+    };
 
-    // 观察直接子节点，子节点增高时触发
-    const inner = container.firstElementChild;
-    if (inner) observer.observe(inner);
+    const resizeObserver = new ResizeObserver(followIfStuck);
+    resizeObserver.observe(inner);
+    const mutationObserver = new MutationObserver(followIfStuck);
+    mutationObserver.observe(inner, { subtree: true, childList: true, characterData: true });
+    followIfStuck();
 
-    // 初始也滚一次
-    scrollToBottom('instant');
-
-    return () => observer.disconnect();
+    return () => {
+      resizeObserver.disconnect();
+      mutationObserver.disconnect();
+    };
   }, [scrollToBottom]);
 
   return (
-    <div
-      ref={containerRef}
-      {...props}
-      className={cn('fd-scroll-container overflow-y-auto min-w-0 flex flex-col', props.className)}
-    >
-      {props.children}
+    <div className={cn('relative flex min-h-0 flex-1 flex-col', className)}>
+      <div
+        ref={containerRef}
+        {...props}
+        style={style}
+        className="fd-scroll-container min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain py-4"
+      >
+        <div ref={innerRef} className="flex min-h-full min-w-0 flex-col">
+          {children}
+        </div>
+      </div>
+      {awayFromBottom ? (
+        <button
+          type="button"
+          aria-label="滚动到底部"
+          onClick={jumpToBottom}
+          className={cn(
+            'absolute bottom-3 left-1/2 z-10 flex size-8 -translate-x-1/2 items-center justify-center',
+            'rounded-full border border-fd-border/80 bg-fd-card/95 text-fd-muted-foreground shadow-md backdrop-blur-sm',
+            'transition-colors hover:bg-fd-accent hover:text-fd-foreground',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring',
+          )}
+        >
+          <ChevronDown className="size-4" strokeWidth={2.5} aria-hidden />
+        </button>
+      ) : null}
     </div>
   );
 }
@@ -683,7 +735,8 @@ export function AISearchPanelList({ className, style, ...props }: ComponentProps
   return (
     <List
       scrollToBottomKey={`${String(open)}-${activeSessionId}`}
-      className={cn('py-4 overscroll-contain', className)}
+      chatStatus={chat.status}
+      className={className}
       style={{
         maskImage:
           'linear-gradient(to bottom, transparent, white 1rem, white calc(100% - 1rem), transparent 100%)',

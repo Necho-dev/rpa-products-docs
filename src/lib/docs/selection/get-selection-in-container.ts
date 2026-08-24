@@ -1,5 +1,9 @@
-/** 文档页主内容根节点（含标题、MDX 正文、not-prose 组件块） */
+/** 文档页主内容根节点（含标题、MDX 正文、not-prose 组件块）。 */
 export const DOCS_PAGE_SELECTOR = '#nd-page';
+/** 并排/弹窗右栏正文，不含第二份 #nd-page */
+export const DOCS_PEEK_SELECTOR = '[data-doc-peek="true"]';
+
+export type DocsSelectionSurface = 'main' | 'peek';
 
 const INTERACTIVE_SELECTOR =
   'button, input, textarea, select, [role="button"], [contenteditable="true"]';
@@ -27,6 +31,36 @@ export function findDocsContentRoot(): HTMLElement | null {
     ?? document.querySelector<HTMLElement>('#nd-notebook-layout article .prose')
     ?? document.querySelector<HTMLElement>('article .prose')
   );
+}
+
+export function findPeekContentRoot(): HTMLElement | null {
+  const root = document.querySelector<HTMLElement>(DOCS_PEEK_SELECTOR);
+  if (!root) return null;
+  return root.querySelector<HTMLElement>('article') ?? root;
+}
+
+/** 按文档 path 找正文根：右栏优先（data-doc-path），否则当前路由左栏 */
+export function findContainerForPagePath(pagePath: string): HTMLElement | null {
+  const peekRoot = document.querySelector<HTMLElement>(DOCS_PEEK_SELECTOR);
+  if (peekRoot?.getAttribute('data-doc-path') === pagePath) {
+    return peekRoot.querySelector<HTMLElement>('article') ?? peekRoot;
+  }
+  if (window.location.pathname === pagePath) {
+    return findDocsContentRoot();
+  }
+  return null;
+}
+
+export function findContainerForNode(node: Node | null): {
+  container: HTMLElement;
+  surface: DocsSelectionSurface;
+} | null {
+  if (!node) return null;
+  const peek = findPeekContentRoot();
+  if (peek?.contains(node)) return { container: peek, surface: 'peek' };
+  const main = findDocsContentRoot();
+  if (main?.contains(node)) return { container: main, surface: 'main' };
+  return null;
 }
 
 function nodeInContainer(node: Node, container: Node): boolean {
@@ -122,6 +156,23 @@ export function readSelectionInContainer(container: HTMLElement | null): Selecti
     suffix,
     sameBlock: isSameBlockRange(range),
   };
+}
+
+export function readActiveDocsSelection(): (SelectionSnapshot & {
+  surface: DocsSelectionSurface;
+  container: HTMLElement;
+}) | null {
+  const sel = window.getSelection();
+  if (!sel || sel.isCollapsed || sel.rangeCount === 0) return null;
+
+  const range = sel.getRangeAt(0);
+  const located = findContainerForNode(range.startContainer);
+  if (!located) return null;
+  if (!located.container.contains(range.endContainer)) return null;
+
+  const snap = readSelectionInContainer(located.container);
+  if (!snap) return null;
+  return { ...snap, surface: located.surface, container: located.container };
 }
 
 export function clearNativeSelection(): void {

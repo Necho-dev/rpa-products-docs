@@ -22,8 +22,11 @@ import { getSiteDescription, siteName } from '@/lib/core/shared';
 import { AddMcpButton } from '@/components/docs/add-mcp-button';
 import { ConnectorSchedulePanel } from '@/components/docs/connector-schedule-panel';
 import { hasScheduleMeta } from '@/lib/docs/format-schedule-meta';
-import { headers } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { inferSiteOrigin } from '@/lib/core/site-origin';
+import { DOC_PEEK_COOKIE, parsePeekTarget, shouldRenderPeekFromCookie } from '@/lib/docs/doc-peek';
+import { DocSplitShell } from '@/components/docs/doc-split-shell';
+import { PeekArticle, peekArticleTitle } from '@/components/docs/peek-article';
 
 /** 路由段配置须为静态字面量；按请求做私有文档鉴权也需动态渲染 */
 export const dynamic = 'force-dynamic';
@@ -70,8 +73,13 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
     minInterval: page.data.minInterval,
   };
   const showSchedulePanel = hasScheduleMeta(scheduleMeta);
+  const cookieStore = await cookies();
+  const peekCookie = shouldRenderPeekFromCookie(hdrs)
+    ? parsePeekTarget(cookieStore.get(DOC_PEEK_COOKIE)?.value)
+    : null;
 
   return (
+    <>
     <DocsPage
       toc={toc}
       full={page.data.full}
@@ -125,6 +133,14 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
         <PageLastUpdate date={lastModified} className="mt-auto pt-2" />
       ) : null}
     </DocsPage>
+    {peekCookie ? (
+      <DocSplitShell title={peekArticleTitle(peekCookie.path)}>
+        <PeekArticle path={peekCookie.path} access={access} />
+      </DocSplitShell>
+    ) : (
+      <DocSplitShell title="文档预览">{null}</DocSplitShell>
+    )}
+    </>
   );
 }
 

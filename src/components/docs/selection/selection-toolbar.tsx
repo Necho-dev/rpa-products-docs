@@ -48,7 +48,7 @@ export function SelectionToolbar({
       role="toolbar"
       aria-label="选区操作"
       className={cn(
-        'fixed z-9998 flex items-center gap-0.5 rounded-lg border py-0.5 px-1 backdrop-blur-sm',
+        'fixed z-10050 flex items-center gap-0.5 rounded-lg border py-0.5 px-1 backdrop-blur-sm',
         'border-fd-border/80 bg-fd-popover/95 text-fd-popover-foreground shadow-lg',
         'dark:border-white/14 dark:bg-[hsl(220_14%_20%/0.98)]',
         'dark:shadow-[0_8px_28px_rgba(0,0,0,0.55),0_0_0_1px_rgba(255,255,255,0.1)]',

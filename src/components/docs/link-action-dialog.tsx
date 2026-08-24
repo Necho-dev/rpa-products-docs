@@ -14,11 +14,8 @@ import {
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/core/cn';
 import { siteName } from '@/lib/core/shared';
+import { isExternalHref } from '@/lib/docs/link-kind';
 import { safeWriteClipboard } from '@/lib/ui/code-block-utils';
-
-function isExternalHref(href: string): boolean {
-  return /^\w+:/.test(href) || href.startsWith('//');
-}
 
 function toAbsoluteUrl(href: string): string {
   if (typeof window === 'undefined') return href;

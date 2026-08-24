@@ -1,5 +1,8 @@
-export function getDocPageTitle(): string | undefined {
+export function getDocPageTitle(surface: 'main' | 'peek' = 'main'): string | undefined {
   if (typeof document === 'undefined') return undefined;
-  const h1 = document.querySelector<HTMLElement>('#nd-page h1');
-  return h1?.textContent?.trim() || undefined;
+  const root =
+    surface === 'peek'
+      ? document.querySelector<HTMLElement>('[data-doc-peek="true"]')
+      : document.querySelector<HTMLElement>('#nd-page');
+  return root?.querySelector('h1')?.textContent?.trim() || undefined;
 }

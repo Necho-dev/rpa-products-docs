@@ -73,6 +73,7 @@ export async function POST(req: Request, _ctx: RouteContext<"/api/chat">) {
     },
     system: `You are a helpful assistant for this documentation site. The docs live under ${docsRoute}.
 When the user asks about documentation, topics, connectors, apps, or anything that may be covered in the site docs, you MUST use the documentation tools to read real catalog, search hits, or page content — do not guess paths or invent content.
+Client Context describes the user's current docs view. location is the browser URL of the left/main page. layout "single" means one document (left). layout "split" means desktop dual-pane: left is the main article, right is the peeked article. layout "sheet" means the right document is a mobile overlay on top of left. left/right objects include path, title, and url. When the user says 这篇 / 左边 / 右边 / 当前打开的 / 右栏, map to the corresponding pane and prefer getDocumentationPage with that pane's path. If ambiguous, consider both panes and say which one you used.
 When Client Context includes a selection field, prioritize answering about that selected excerpt while using documentation tools if needed for broader context.
 Prefer searchDocumentationPages when the user is vague or keyword-driven; use listDocumentationPages to browse the full catalog; use getDocumentationPageMeta before getDocumentationPage when you only need headings/TOC; use getDocumentationPage for full body text.
 

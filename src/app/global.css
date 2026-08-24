@@ -27,6 +27,18 @@ figure.shiki pre * {
 
 html {
   scrollbar-gutter: stable;
+  scroll-behavior: auto;
+}
+
+/* 原生锚点兜底空隙；实际偏移由 JS 按顶栏 getBoundingClientRect 计算，不读死高度 */
+#nd-page :is(h1, h2, h3, h4, h5, h6),
+[data-doc-peek-scroll] :is(h1, h2, h3, h4, h5, h6) {
+  scroll-margin-top: 0.75rem;
+}
+
+/* 双栏时正文在栏内滚动 */
+html:has([data-doc-peek-open]) {
+  scrollbar-gutter: auto;
 }
 
 html > body[data-scroll-locked] {

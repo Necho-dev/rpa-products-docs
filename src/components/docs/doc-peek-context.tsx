@@ -1,0 +1,265 @@
+'use client';
+
+import {
+  createContext,
+  use,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  useTransition,
+  type ReactNode,
+} from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useSidebar } from 'fumadocs-ui/layouts/notebook/slots/sidebar';
+import {
+  isSameDocsPage,
+  writePeekCookie,
+  type DocPeekTarget,
+} from '@/lib/docs/doc-peek';
+import { docsPathAndHashFromHref } from '@/lib/docs/link-kind';
+import {
+  findAnchorInRoot,
+  getAnchorScrollRoot,
+  smoothScrollToElement,
+} from '@/lib/docs/smooth-scroll-to-anchor';
+import { type DocPeekSurface } from '@/components/docs/doc-peek-surface';
+
+export type { DocPeekSurface } from '@/components/docs/doc-peek-surface';
+export { DocPeekSurfaceProvider, useDocPeekSurface } from '@/components/docs/doc-peek-surface';
+
+const XL_QUERY = '(min-width: 1280px)';
+
+function subscribeXl(onChange: () => void) {
+  const mq = window.matchMedia(XL_QUERY);
+  mq.addEventListener('change', onChange);
+  return () => mq.removeEventListener('change', onChange);
+}
+
+function getXlSnapshot() {
+  return window.matchMedia(XL_QUERY).matches;
+}
+
+function getXlServerSnapshot() {
+  return false;
+}
+
+export type DocPeekContextValue = {
+  open: boolean;
+  desktop: boolean;
+  target: DocPeekTarget | null;
+  peekRatio: number;
+  setPeekRatio: (ratio: number) => void;
+  canPeekBack: boolean;
+  canPeekForward: boolean;
+  openPeek: (href: string, from?: DocPeekSurface) => void;
+  closePeek: () => void;
+  refreshPeek: () => void;
+  peekBack: () => void;
+  peekForward: () => void;
+  pending: boolean;
+};
+
+const DocPeekContext = createContext<DocPeekContextValue | null>(null);
+
+export function useDocPeek(): DocPeekContextValue | null {
+  return use(DocPeekContext);
+}
+
+type StackState = { entries: DocPeekTarget[]; index: number };
+
+export function DocPeekProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
+  const pathname = usePathname() ?? '/';
+  const desktop = useSyncExternalStore(subscribeXl, getXlSnapshot, getXlServerSnapshot);
+  const [peekRatio, setPeekRatio] = useState(0.5);
+  const [stack, setStack] = useState<StackState>({ entries: [], index: -1 });
+  const [pending, startTransition] = useTransition();
+  const pathnameRef = useRef(pathname);
+  const leftScrollRef = useRef(0);
+  const sidebar = useSidebar();
+  const setCollapsed = sidebar.setCollapsed;
+  const collapsed = sidebar.collapsed;
+  const collapsedRef = useRef(collapsed);
+  const collapsedSnapshot = useRef<boolean | null>(null);
+
+  const target = stack.index >= 0 ? (stack.entries[stack.index] ?? null) : null;
+  const open = Boolean(target) && desktop;
+
+  useEffect(() => {
+    collapsedRef.current = collapsed;
+  }, [collapsed]);
+
+  useEffect(() => {
+    const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
+    if (nav?.type === 'reload') writePeekCookie(null);
+  }, []);
+
+  useEffect(() => {
+    const onNavClick = (e: MouseEvent) => {
+      const el = e.target;
+      if (!(el instanceof Element)) return;
+      if (!el.closest('#nd-sidebar a, #nd-subnav a')) return;
+      writePeekCookie(null);
+    };
+    document.addEventListener('click', onNavClick, true);
+    return () => document.removeEventListener('click', onNavClick, true);
+  }, []);
+
+  useEffect(() => {
+    const prev = pathnameRef.current;
+    if (prev === pathname) return;
+    pathnameRef.current = pathname;
+    writePeekCookie(null);
+    setStack({ entries: [], index: -1 });
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!open) return;
+    requestAnimationFrame(() => {
+      const el = document.getElementById('nd-page');
+      if (el) el.scrollTop = leftScrollRef.current;
+    });
+  }, [open, target?.path]);
+
+  useEffect(() => {
+    if (!setCollapsed) return;
+    if (open) {
+      if (collapsedSnapshot.current === null) collapsedSnapshot.current = collapsedRef.current;
+      setCollapsed(true);
+      return;
+    }
+    if (collapsedSnapshot.current !== null) {
+      setCollapsed(collapsedSnapshot.current);
+      collapsedSnapshot.current = null;
+    }
+  }, [open, setCollapsed]);
+
+  useEffect(() => {
+    if (!open) return;
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtml = html.style.overflow;
+    const prevBody = body.style.overflow;
+    html.style.overflow = 'hidden';
+    body.style.overflow = 'hidden';
+    return () => {
+      html.style.overflow = prevHtml;
+      body.style.overflow = prevBody;
+    };
+  }, [open]);
+
+  const rememberLeftScroll = () => {
+    const el = document.getElementById('nd-page');
+    if (el) leftScrollRef.current = el.scrollTop;
+  };
+
+  const applyTarget = useCallback(
+    (next: DocPeekTarget | null, nextStack: StackState) => {
+      rememberLeftScroll();
+      setStack(nextStack);
+      writePeekCookie(next);
+      startTransition(() => {
+        router.refresh();
+      });
+    },
+    [router],
+  );
+
+  const openPeek = useCallback(
+    (href: string, from: DocPeekSurface = 'main') => {
+      const pageUrl = window.location.href;
+      if (isSameDocsPage(href, pageUrl, pathname) && from === 'main') {
+        const parsed = docsPathAndHashFromHref(href, pageUrl);
+        if (parsed?.hash) {
+          const id = decodeURIComponent(parsed.hash.slice(1));
+          const page = document.getElementById('nd-page') ?? document;
+          const heading = findAnchorInRoot(id, page);
+          if (heading) {
+            smoothScrollToElement(heading, {
+              container: getAnchorScrollRoot(heading),
+              block: 'start',
+            });
+          }
+        }
+        return;
+      }
+
+      const parsed = docsPathAndHashFromHref(href, pageUrl);
+      if (!parsed) {
+        router.push(href);
+        return;
+      }
+
+      let nextStack: StackState;
+      if (from === 'peek' && stack.index >= 0) {
+        const entries = [...stack.entries.slice(0, stack.index + 1), parsed];
+        nextStack = { entries, index: entries.length - 1 };
+      } else {
+        nextStack = { entries: [parsed], index: 0 };
+      }
+      applyTarget(parsed, nextStack);
+    },
+    [applyTarget, pathname, router, stack],
+  );
+
+  const closePeek = useCallback(() => {
+    applyTarget(null, { entries: [], index: -1 });
+  }, [applyTarget]);
+
+  const refreshPeek = useCallback(() => {
+    rememberLeftScroll();
+    writePeekCookie(target);
+    startTransition(() => {
+      router.refresh();
+    });
+  }, [router, target]);
+
+  const peekBack = useCallback(() => {
+    if (stack.index <= 0) return;
+    const index = stack.index - 1;
+    applyTarget(stack.entries[index] ?? null, { entries: stack.entries, index });
+  }, [applyTarget, stack]);
+
+  const peekForward = useCallback(() => {
+    if (stack.index < 0 || stack.index >= stack.entries.length - 1) return;
+    const index = stack.index + 1;
+    applyTarget(stack.entries[index] ?? null, { entries: stack.entries, index });
+  }, [applyTarget, stack]);
+
+  const value = useMemo<DocPeekContextValue>(
+    () => ({
+      open,
+      desktop,
+      target,
+      peekRatio,
+      setPeekRatio,
+      canPeekBack: stack.index > 0,
+      canPeekForward: stack.index >= 0 && stack.index < stack.entries.length - 1,
+      openPeek,
+      closePeek,
+      refreshPeek,
+      peekBack,
+      peekForward,
+      pending,
+    }),
+    [
+      closePeek,
+      desktop,
+      open,
+      openPeek,
+      peekBack,
+      peekForward,
+      peekRatio,
+      pending,
+      refreshPeek,
+      target,
+      stack.index,
+      stack.entries.length,
+    ],
+  );
+
+  return <DocPeekContext.Provider value={value}>{children}</DocPeekContext.Provider>;
+}

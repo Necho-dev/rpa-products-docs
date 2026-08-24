@@ -12,6 +12,7 @@ import {
 } from 'react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/core/cn';
+import { useDocPeek } from '@/components/docs/doc-peek-context';
 import { AskAIIcon } from '@/components/ai/ask-ai-icon';
 import { BackToTopRocketIcon } from '@/components/docs/back-to-top-rocket-icon';
 import { DocFeedbackIcon } from '@/components/docs/feedback/doc-feedback-icon';
@@ -92,6 +93,12 @@ const AUTO_TOOLTIP_VISIBLE_MS = 4_000;
 
 const ANCHOR_SIZE_CLASS = 'size-11';
 const ANCHOR_ICON_CLASS = 'size-9';
+/** 与单栏 `DocsFloatingAnchors` 的 inset 一致 */
+const FAB_INSET_END_CLASS =
+  'inset-e-[max(2.75rem,calc(2.75rem+var(--removed-body-scroll-bar-size,0px)),env(safe-area-inset-end,0px))]';
+const FAB_INSET_BOTTOM_CLASS = 'bottom-[max(5rem,env(safe-area-inset-bottom,0px))]';
+const FAB_INSET_END_PX = 44;
+const FAB_INSET_BOTTOM_PX = 80;
 
 /** SSR 与 hydration 首帧返回 false，客户端返回 true，避免 effect 内 setState。 */
 function useIsClient() {
@@ -387,9 +394,13 @@ function AskAIAnchor({ enabled }: { enabled: boolean }) {
 function DocFeedbackAnchor({
   enabled,
   hidden,
+  pageUrl,
+  titleSurface = 'main',
 }: {
   enabled: boolean;
   hidden: boolean;
+  pageUrl?: string;
+  titleSurface?: 'main' | 'peek';
 }) {
   const feedback = useDocFeedbackOptional();
   const pathname = usePathname();
@@ -399,19 +410,19 @@ function DocFeedbackAnchor({
   const isDocPage =
     pathname.startsWith('/docs/') && pathname !== '/docs/access';
 
-  if (!isDocPage) return null;
+  if (!isDocPage && !pageUrl) return null;
 
   return (
     <FloatingAnchorButton
       aria-label="文档反馈"
       title="文档反馈"
       onClick={() => {
-        const docUrl = window.location.href.split('#')[0];
+        const docUrl = pageUrl ?? window.location.href.split('#')[0];
         feedback.openFeedback({
-          errorContent: getDocPageTitle() ?? '当前文档',
+          errorContent: getDocPageTitle(titleSurface) ?? '当前文档',
           docUrl,
           source: 'document',
-          pagePath: pathname,
+          pagePath: pageUrl ? new URL(pageUrl, window.location.origin).pathname : pathname,
         });
       }}
       className={cn(
@@ -466,24 +477,43 @@ function ExcerptCollectionAnchor({
   );
 }
 
-function BackToTopAnchor({ enabled }: { enabled: boolean }) {
+function BackToTopAnchor({
+  enabled,
+  scrollRoot,
+}: {
+  enabled: boolean;
+  scrollRoot?: HTMLElement | null;
+}) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     if (!enabled) return;
 
-    const onScroll = () => setVisible(window.scrollY > 300);
+    const readTop = () =>
+      scrollRoot ? scrollRoot.scrollTop : window.scrollY;
+    const onScroll = () => setVisible(readTop() > 300);
     onScroll();
+
+    if (scrollRoot) {
+      scrollRoot.addEventListener('scroll', onScroll, { passive: true });
+      return () => scrollRoot.removeEventListener('scroll', onScroll);
+    }
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, [enabled]);
+  }, [enabled, scrollRoot]);
 
   if (!enabled) return null;
 
   return (
     <FloatingAnchorButton
       aria-label="回到页面顶部"
-      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      onClick={() => {
+        if (scrollRoot) {
+          scrollRoot.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }}
       className={cn(
         'group/back-to-top text-fd-muted-foreground transition-opacity duration-300',
         'dark:text-fd-foreground/75',
@@ -503,7 +533,131 @@ function BackToTopAnchor({ enabled }: { enabled: boolean }) {
   );
 }
 
+function usePaneCornerInsets(enabled: boolean) {
+  const [insets, setInsets] = useState({ bottom: 24, end: 20 });
+
+  useEffect(() => {
+    if (!enabled) return;
+    const el = document.getElementById('nd-page');
+    if (!el) return;
+
+    const update = () => {
+      const r = el.getBoundingClientRect();
+      setInsets({
+        bottom: Math.max(FAB_INSET_BOTTOM_PX, window.innerHeight - r.bottom + FAB_INSET_BOTTOM_PX),
+        end: Math.max(FAB_INSET_END_PX, window.innerWidth - r.right + FAB_INSET_END_PX),
+      });
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    window.addEventListener('resize', update);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', update);
+    };
+  }, [enabled]);
+
+  return insets;
+}
+
+function FloatingAnchorStack({
+  show,
+  hideForOverlay,
+  className,
+  style,
+  scrollRoot,
+  feedbackPageUrl,
+  showAskAi = true,
+  showExcerpt = true,
+  feedbackTitleSurface = 'main',
+}: {
+  show: boolean;
+  hideForOverlay: boolean;
+  className?: string;
+  style?: CSSProperties;
+  scrollRoot?: HTMLElement | null;
+  feedbackPageUrl?: string;
+  showAskAi?: boolean;
+  showExcerpt?: boolean;
+  feedbackTitleSurface?: 'main' | 'peek';
+}) {
+  if (!show) return null;
+
+  return (
+    <div
+      className={cn(
+        'z-30 flex flex-col items-center gap-3.5',
+        className,
+        hideForOverlay && 'pointer-events-none translate-y-2 scale-95 opacity-0',
+      )}
+      style={style}
+      aria-label="页面快捷操作"
+      aria-hidden={hideForOverlay}
+    >
+      {showAskAi ? <AskAIAnchor enabled={show && !hideForOverlay} /> : null}
+      {showExcerpt ? (
+        <ExcerptCollectionAnchor enabled={show} hidden={hideForOverlay} />
+      ) : null}
+      <DocFeedbackAnchor
+        enabled={show}
+        hidden={hideForOverlay}
+        pageUrl={feedbackPageUrl}
+        titleSurface={feedbackTitleSurface}
+      />
+      <BackToTopAnchor enabled={show && !hideForOverlay} scrollRoot={scrollRoot} />
+    </div>
+  );
+}
+
 export function DocsFloatingAnchors() {
+  const pathname = usePathname();
+  const isClient = useIsClient();
+  const { open: aiPanelOpen } = useAISearchContext();
+  const excerpt = useExcerptCollectionOptional();
+  const feedback = useDocFeedbackOptional();
+  const peek = useDocPeek();
+
+  const show = isClient && shouldShowFloatingAnchors(pathname);
+  const hideForOverlay = aiPanelOpen || Boolean(excerpt?.open) || Boolean(feedback?.open);
+  const peekOpen = Boolean(peek?.open);
+  const peekTarget = Boolean(peek?.target);
+  const paneInsets = usePaneCornerInsets(peekOpen);
+  const [leftScrollRoot, setLeftScrollRoot] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    setLeftScrollRoot(peekOpen ? document.getElementById('nd-page') : null);
+  }, [peekOpen]);
+
+  return (
+    <FloatingAnchorStack
+      show={show}
+      hideForOverlay={hideForOverlay || (peekTarget && !peek?.desktop)}
+      showAskAi={!peekTarget}
+      showExcerpt={!peekTarget}
+      scrollRoot={leftScrollRoot}
+      className={cn(
+        'fixed transition-[opacity,transform] duration-300 ease-out motion-reduce:transition-none',
+        !peekOpen && [FAB_INSET_BOTTOM_CLASS, FAB_INSET_END_CLASS],
+        peekOpen && 'bottom-auto inset-e-auto',
+      )}
+      style={
+        peekOpen
+          ? { bottom: paneInsets.bottom, right: paneInsets.end }
+          : undefined
+      }
+    />
+  );
+}
+
+/** 右栏栏内右下角快捷操作，对齐钉钉双栏各栏一套 */
+export function PeekFloatingAnchors({
+  scrollRoot,
+  pageUrl,
+}: {
+  scrollRoot: HTMLElement | null;
+  pageUrl: string;
+}) {
   const pathname = usePathname();
   const isClient = useIsClient();
   const { open: aiPanelOpen } = useAISearchContext();
@@ -513,25 +667,16 @@ export function DocsFloatingAnchors() {
   const show = isClient && shouldShowFloatingAnchors(pathname);
   const hideForOverlay = aiPanelOpen || Boolean(excerpt?.open) || Boolean(feedback?.open);
 
-  if (!show) return null;
-
   return (
-    <div
-      className={cn(
-        /* z-30：低于 AI 面板（z-50），避免打开对话后遮挡输入区 */
-        'fixed z-30 flex flex-col items-center gap-3.5',
-        'bottom-[max(5rem,env(safe-area-inset-bottom,0px))]',
-        'inset-e-[max(2.75rem,calc(2.75rem+var(--removed-body-scroll-bar-size,0px)),env(safe-area-inset-end,0px))]',
-        'transition-[opacity,transform] duration-300 ease-out motion-reduce:transition-none',
-        hideForOverlay && 'pointer-events-none translate-y-2 scale-95 opacity-0',
-      )}
-      aria-label="页面快捷操作"
-      aria-hidden={hideForOverlay}
-    >
-      <AskAIAnchor enabled={show && !hideForOverlay} />
-      <ExcerptCollectionAnchor enabled={show} hidden={hideForOverlay} />
-      <DocFeedbackAnchor enabled={show} hidden={hideForOverlay} />
-      <BackToTopAnchor enabled={show && !hideForOverlay} />
-    </div>
+    <FloatingAnchorStack
+      show={show}
+      hideForOverlay={hideForOverlay}
+      scrollRoot={scrollRoot}
+      feedbackPageUrl={pageUrl}
+      showAskAi
+      showExcerpt
+      feedbackTitleSurface="peek"
+      className={cn('absolute z-20', FAB_INSET_BOTTOM_CLASS, FAB_INSET_END_CLASS)}
+    />
   );
 }

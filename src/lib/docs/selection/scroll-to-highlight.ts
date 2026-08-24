@@ -3,18 +3,26 @@ import {
   ensureHighlightInDom,
   findRangeForHighlightQuote,
 } from '@/lib/docs/selection/apply-highlights';
-import { findProseContainer } from '@/lib/docs/selection/get-selection-in-container';
+import {
+  findContainerForPagePath,
+  findProseContainer,
+} from '@/lib/docs/selection/get-selection-in-container';
 import type { DocHighlight } from '@/lib/docs/selection/highlight-idb';
+import { smoothScrollRectIntoView, smoothScrollToElement } from '@/lib/docs/smooth-scroll-to-anchor';
 
 const FLASH_CLASS = 'doc-highlight-flash';
 const FLASH_DURATION_MS = 1500;
 
 function scrollRangeIntoView(range: Range): void {
+  const from =
+    range.startContainer.nodeType === Node.ELEMENT_NODE
+      ? (range.startContainer as HTMLElement)
+      : range.startContainer.parentElement;
+  if (!from) return;
+
   const rect = range.getBoundingClientRect();
   if (rect.width > 0 || rect.height > 0) {
-    const targetY =
-      window.scrollY + rect.top - window.innerHeight / 2 + Math.max(rect.height, 24) / 2;
-    window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
+    smoothScrollRectIntoView(rect, from, 'center');
     return;
   }
 
@@ -24,7 +32,7 @@ function scrollRangeIntoView(range: Range): void {
   marker.textContent = '\u200b';
   try {
     range.insertNode(marker);
-    marker.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    smoothScrollToElement(marker, { block: 'center' });
   } finally {
     marker.remove();
   }
@@ -46,7 +54,7 @@ export function flashHighlight(segments: HTMLElement[]): void {
 
 function scrollSegmentsIntoView(segments: HTMLElement[]): void {
   if (segments.length === 0) return;
-  segments[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+  smoothScrollToElement(segments[0], { block: 'center' });
   flashHighlight(segments);
 }
 
@@ -87,7 +95,8 @@ export async function locateAndScrollToHighlight(
   const intervalMs = options?.intervalMs ?? 120;
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const container = findProseContainer();
+    const container =
+      findContainerForPagePath(highlight.pagePath) ?? findProseContainer();
     if (container && locateHighlightInDom(container, highlight)) {
       return true;
     }

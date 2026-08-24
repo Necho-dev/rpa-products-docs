@@ -3,7 +3,9 @@
 import { Fragment, useMemo, type ComponentProps, type ReactNode } from 'react';
 import Link from 'fumadocs-core/link';
 import { useTreeContext, useTreePath } from 'fumadocs-ui/contexts/tree';
+import type { Node, Root } from 'fumadocs-core/page-tree';
 import { cn } from '@/lib/core/cn';
+import { stripTrailingSlash } from '@/lib/docs/link-kind';
 
 type Crumb = {
   name: ReactNode;
@@ -13,15 +15,25 @@ type Crumb = {
 /**
  * 弱化面包屑：只展示祖先（分区 + 中间目录），不展示当前页
  *（当前页已是下方 H1，再写一遍会重复）。
+ *
+ * `pageUrl` 用于右栏 peek：按目标文档在整棵树上的路径生成，而不是当前左栏页面。
  */
-export function DocsBreadcrumb({ className, ...props }: ComponentProps<'nav'>) {
-  const path = useTreePath();
-  const { root } = useTreeContext();
+export function DocsBreadcrumb({
+  className,
+  pageUrl,
+  ...props
+}: ComponentProps<'nav'> & { pageUrl?: string }) {
+  const currentPath = useTreePath();
+  const { root, full } = useTreeContext();
 
-  const items = useMemo(() => buildCrumbs(path, root.name), [path, root.name]);
+  const items = useMemo(() => {
+    const path = pageUrl ? findTreePath(full, pageUrl) : currentPath;
+    return buildCrumbs(path, root.name);
+  }, [currentPath, full, pageUrl, root.name]);
 
-  // 仅一层（通常是分区名）时与顶栏 Tab 重复，不展示
-  if (items.length < 2) return null;
+  // 左栏：仅一层时与顶栏 Tab 重复，不展示
+  // 右栏 peek：按目标文档路径展示，有祖先就显示
+  if (pageUrl ? items.length === 0 : items.length < 2) return null;
 
   return (
     <nav
@@ -56,10 +68,40 @@ export function DocsBreadcrumb({ className, ...props }: ComponentProps<'nav'>) {
   );
 }
 
-function buildCrumbs(
-  path: ReturnType<typeof useTreePath>,
-  fallbackRootName: ReactNode,
-): Crumb[] {
+function nodeUrl(node: Node | undefined): string | undefined {
+  if (!node) return undefined;
+  if (node.type === 'page') return node.url;
+  if (node.type === 'folder') return node.index?.url;
+  return undefined;
+}
+
+function findTreePath(tree: Root, url: string): Node[] {
+  const target = stripTrailingSlash(url);
+
+  const walk = (nodes: Node[], acc: Node[]): Node[] | null => {
+    for (const node of nodes) {
+      if (node.type === 'separator') continue;
+
+      if (node.type === 'page' && stripTrailingSlash(node.url) === target) {
+        return [...acc, node];
+      }
+
+      if (node.type === 'folder') {
+        const nextAcc = [...acc, node];
+        if (node.index && stripTrailingSlash(node.index.url) === target) {
+          return [...nextAcc, node.index];
+        }
+        const found = walk(node.children, nextAcc);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+
+  return walk(tree.children, []) ?? [];
+}
+
+function buildCrumbs(path: Node[], fallbackRootName: ReactNode): Crumb[] {
   const items: Crumb[] = [];
 
   for (let i = 0; i < path.length; i++) {
@@ -68,7 +110,6 @@ function buildCrumbs(
 
     if (node.type === 'folder') {
       if (node.root) {
-        // 分区根：用文件夹自身名称（getBreadcrumbItemsFromPath 会误用 tree.name）
         items.length = 0;
         items.push({
           name: node.name ?? fallbackRootName,
@@ -77,13 +118,12 @@ function buildCrumbs(
         continue;
       }
 
-      // 下一节点即该 folder 的 index 页时，folder 名会与标题重复，跳过
       const next = path[i + 1];
       if (next && node.index === next) continue;
 
       items.push({
         name: node.name,
-        url: node.index?.url,
+        url: node.index?.url ?? nodeUrl(next),
       });
     }
   }

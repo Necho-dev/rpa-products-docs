@@ -11,7 +11,7 @@ import {
 } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { unwrapHighlightMark } from '@/lib/docs/selection/apply-highlights';
-import { findProseContainer } from '@/lib/docs/selection/get-selection-in-container';
+import { findContainerForPagePath, findProseContainer } from '@/lib/docs/selection/get-selection-in-container';
 import {
   idbDeleteHighlight,
   idbListAllHighlights,
@@ -20,6 +20,7 @@ import {
 } from '@/lib/docs/selection/highlight-idb';
 import { locateAndScrollToHighlight } from '@/lib/docs/selection/scroll-to-highlight';
 import { docsRoute } from '@/lib/core/shared';
+import { useDocPeek } from '@/components/docs/doc-peek-context';
 
 type ExcerptCollectionContextValue = {
   open: boolean;
@@ -52,6 +53,7 @@ export function docsPathFromPathname(pathname: string): string | null {
 export function ExcerptCollectionProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const peek = useDocPeek();
   const pagePath = docsPathFromPathname(pathname);
 
   const [open, setOpenState] = useState(false);
@@ -97,14 +99,19 @@ export function ExcerptCollectionProvider({ children }: { children: ReactNode })
     };
   }, []);
 
+  const peekPath = peek?.target?.path ?? null;
   const { currentPageHighlights, otherHighlights } = useMemo(() => {
-    if (!pagePath) {
+    if (!pagePath && !peekPath) {
       return { currentPageHighlights: [], otherHighlights: highlights };
     }
-    const currentPageHighlights = highlights.filter((h) => h.pagePath === pagePath);
-    const otherHighlights = highlights.filter((h) => h.pagePath !== pagePath);
+    const currentPageHighlights = highlights.filter(
+      (h) => h.pagePath === pagePath || (peekPath !== null && h.pagePath === peekPath),
+    );
+    const otherHighlights = highlights.filter(
+      (h) => h.pagePath !== pagePath && h.pagePath !== peekPath,
+    );
     return { currentPageHighlights, otherHighlights };
-  }, [highlights, pagePath]);
+  }, [highlights, pagePath, peekPath]);
 
   const clearLocateError = useCallback(() => setLocateError(null), []);
   const reportLocateError = useCallback((message: string) => setLocateError(message), []);
@@ -114,7 +121,8 @@ export function ExcerptCollectionProvider({ children }: { children: ReactNode })
       setLocateError(null);
       setDeleteConfirmId(null);
 
-      if (pagePath === highlight.pagePath) {
+      const peekPath = peek?.target?.path;
+      if (pagePath === highlight.pagePath || peekPath === highlight.pagePath) {
         setOpen(false);
         const ok = await locateAndScrollToHighlight(highlight);
         if (!ok) {
@@ -127,7 +135,7 @@ export function ExcerptCollectionProvider({ children }: { children: ReactNode })
       setOpen(false);
       router.push(`${highlight.pagePath}?hl=${encodeURIComponent(highlight.id)}`);
     },
-    [pagePath, router, setOpen],
+    [pagePath, peek?.target?.path, router, setOpen],
   );
 
   const deleteHighlight = useCallback(
@@ -135,16 +143,15 @@ export function ExcerptCollectionProvider({ children }: { children: ReactNode })
       await idbDeleteHighlight(highlight.id);
       setDeleteConfirmId(null);
 
-      if (pagePath === highlight.pagePath) {
-        const container = findProseContainer();
-        container
-          ?.querySelectorAll(`[data-doc-highlight="${highlight.id}"]`)
-          .forEach((el) => unwrapHighlightMark(el));
-      }
+      const container =
+        findContainerForPagePath(highlight.pagePath) ?? findProseContainer();
+      container
+        ?.querySelectorAll(`[data-doc-highlight="${highlight.id}"]`)
+        .forEach((el) => unwrapHighlightMark(el));
 
       await refresh();
     },
-    [pagePath, refresh],
+    [refresh],
   );
 
   const value = useMemo<ExcerptCollectionContextValue>(

@@ -4,6 +4,7 @@ import { ArrowUp, Square } from 'lucide-react';
 import { cn } from '@/lib/core/cn';
 import { idbClearDraftInput, idbGetDraftInput, idbSetDraftInput } from '@/lib/ai/chat-idb';
 import { useAISearchContext } from '@/components/ai/ai-search-context';
+import { useDocsViewClientContext } from '@/components/docs/use-docs-view-context';
 
 const DRAFT_SAVE_DEBOUNCE_MS = 300;
 const MAX_INPUT_HEIGHT = 300;
@@ -52,6 +53,7 @@ function AISearchInputInner({
 }: ComponentProps<'form'> & { initialInput: string }) {
   const { chat, chatBooted, selectionContext, clearSelectionContext } = useAISearchContext();
   const { status, sendMessage, stop } = chat;
+  const getDocsViewContext = useDocsViewClientContext();
   const [input, setInput] = useState(initialInput);
   const draftSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isLoading = status === 'streaming' || status === 'submitted';
@@ -80,7 +82,7 @@ function AISearchInputInner({
         {
           type: 'data-client',
           data: {
-            location: location.href,
+            ...getDocsViewContext(),
             ...(selectionContext
               ? {
                   selection: {

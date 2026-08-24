@@ -1305,3 +1305,51 @@ html.dark .shared-quote-prompt-btn-default {
   font-weight: 500;
   line-height: 1.35;
 }
+
+/* 文档滚动条：单栏 html / 双栏栏内 / TOC 同一套细条 */
+html,
+#nd-toc,
+[data-doc-peek-open] #nd-page,
+[data-doc-peek-scroll] {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-fd-muted-foreground) 22%, transparent) transparent;
+}
+
+#nd-toc,
+[data-doc-peek-open] #nd-page,
+[data-doc-peek-scroll] {
+  scrollbar-gutter: auto;
+}
+
+html::-webkit-scrollbar,
+#nd-toc::-webkit-scrollbar,
+[data-doc-peek-open] #nd-page::-webkit-scrollbar,
+[data-doc-peek-scroll]::-webkit-scrollbar {
+  width: 4px;
+}
+
+html::-webkit-scrollbar-track,
+#nd-toc::-webkit-scrollbar-track,
+[data-doc-peek-open] #nd-page::-webkit-scrollbar-track,
+[data-doc-peek-scroll]::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html::-webkit-scrollbar-thumb,
+#nd-toc::-webkit-scrollbar-thumb,
+[data-doc-peek-open] #nd-page::-webkit-scrollbar-thumb,
+[data-doc-peek-scroll]::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--color-fd-muted-foreground) 22%, transparent);
+}
+
+html:hover::-webkit-scrollbar-thumb,
+#nd-toc:hover::-webkit-scrollbar-thumb,
+[data-doc-peek-open] #nd-page:hover::-webkit-scrollbar-thumb,
+[data-doc-peek-scroll]:hover::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-fd-muted-foreground) 42%, transparent);
+}
+
+[data-doc-peek-sheet] [data-doc-peek-toc] {
+  display: none;
+}
