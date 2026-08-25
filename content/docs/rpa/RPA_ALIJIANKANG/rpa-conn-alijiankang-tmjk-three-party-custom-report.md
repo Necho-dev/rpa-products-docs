@@ -25,11 +25,11 @@ module:
 
 ### 目标页面
 
-> **取数路径**：天猫健康云台—三方外投—店铺看板—选择指标模板—口径说明（分天）—多渠道数据汇总下载—下载中心
+> **取数路径**：天猫健康云台—推广—三方外投—店铺看板—选择指标模板—口径说明（分天）—多渠道下载—下载中心
 >
 > **取数链接**：[https://yt.taobao.com/v2/third-party-invest#](https://yt.taobao.com/v2/third-party-invest#)
 
-![天猫健康—三方外投自定义报表](../_public/images/alijiankang/tmjk_three_party_custom_report_20260821.png)
+![天猫健康—三方外投自定义报表](../_public/images/alijiankang/tmjk_three_party_custom_report_20260825.png)
 
 ### 业务入参
 
@@ -143,65 +143,78 @@ module:
 
 ### 数据字段
 
-导出 Excel 按所选表头模板解析为行级记录；口径说明固定为「分天」，下载维度固定为「账户」。导出前若列表无数据，返回 `success=true`、`message=暂无数据`、`data=[]`，不创建导出任务。
+导出列为所选自定义表头模板的动态表头：每条 Excel 行对应一条记录，`value` 保留原始中文表头。口径说明固定为「分天」，下载维度固定为「账户」。导出前若列表无数据，返回 `success=true`、`message=暂无数据`、`data=[]`，不创建导出任务。
+
+:::field-tree
+@define 报表行数据
+| `日期` | 日期 | `String` | 是 | `XLSX.0.日期` | — |
+| `商家昵称` | 商家昵称 | `String` | 是 | `XLSX.0.商家昵称` | `****` (已脱敏) |
+| `渠道名称` | 渠道名称 | `String` | 是 | `XLSX.0.渠道名称` | `抖音,腾讯` |
+| `账户id` | 账户 ID | `String` | 是 | `XLSX.0.账户id` | — |
+| `账户名称` | 账户名称 | `String` | 是 | `XLSX.0.账户名称` | — |
+| `备注` | 备注 | `String` | 是 | `XLSX.0.备注` | — |
+| `智能起量` | 智能起量 | `String` | 是 | `XLSX.0.智能起量` | `未开启` |
+| `出价托管` | 出价托管 | `String` | 是 | `XLSX.0.出价托管` | `未开启` |
+| `引流补贴(平台出资)` | 引流补贴(平台出资) | `String` | 是 | `XLSX.0.引流补贴(平台出资)` | — |
+| `消耗` | 消耗 | `String` | 是 | `XLSX.0.消耗` | `1550983.45` |
+| `有效gmv` | 有效 GMV | `String` | 是 | `XLSX.0.有效gmv` | `5593761.53` |
+| `今日gmv` | 今日 GMV | `String` | 是 | `XLSX.0.今日gmv` | `2976952.48` |
+| `有效gmv（本品）` | 有效 GMV（本品） | `String` | 是 | `XLSX.0.有效gmv（本品）` | `2601936.99` |
+| `加购量` | 加购量 | `String` | 是 | `XLSX.0.加购量` | `36642` |
+| `展示数` | 展示数 | `String` | 是 | `XLSX.0.展示数` | `34757399` |
+| `点击数` | 点击数 | `String` | 是 | `XLSX.0.点击数` | `274558` |
+| `转化数` | 转化数 | `String` | 是 | `XLSX.0.转化数` | `9728` |
+| `支付父订单量` | 支付父订单量 | `String` | 是 | `XLSX.0.支付父订单量` | `16441` |
+| `支付父订单量（本品）` | 支付父订单量（本品） | `String` | 是 | `XLSX.0.支付父订单量（本品）` | `7648` |
+| `有效roi（本品）` | 有效 ROI（本品） | `String` | 是 | `XLSX.0.有效roi（本品）` | `1.68` |
+| `有效roi` | 有效 ROI | `String` | 是 | `XLSX.0.有效roi` | `3.61` |
+| `今日roi` | 今日 ROI | `String` | 是 | `XLSX.0.今日roi` | `1.92` |
 
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
-| `statDate` | 日期 | `String` | 是 | `XLSX.日期` | `2026-07-01` |
-| `merchantNickname` | 商家昵称 | `String` | 是 | `XLSX.商家昵称` | `****` (已脱敏) |
-| `channelName` | 渠道名称 | `String` | 是 | `XLSX.渠道名称` | `抖音,腾讯` |
-| `mediaAccountId` | 账户 ID | `String` | 是 | `XLSX.账户id` | — |
-| `mediaAccountName` | 账户名称 | `String` | 是 | `XLSX.账户名称` | — |
-| `remark` | 备注 | `String` | 是 | `XLSX.备注` | — |
-| `smartVolumeBoost` | 智能起量 | `String` | 是 | `XLSX.智能起量` | `未开启` |
-| `bidHosting` | 出价托管 | `String` | 是 | `XLSX.出价托管` | `未开启` |
-| `trafficSubsidyPlatformFunded` | 引流补贴(平台出资) | `String` | 是 | `XLSX.引流补贴(平台出资)` | — |
-| `cost` | 消耗 | `String` | 是 | `XLSX.消耗` | `1550983.45` |
-| `validGmv` | 有效 GMV | `String` | 是 | `XLSX.有效gmv` | `5593761.53` |
-| `todayGmv` | 今日 GMV | `String` | 是 | `XLSX.今日gmv` | `2976952.48` |
-| `validGmvSelfProduct` | 有效 GMV（本品） | `String` | 是 | `XLSX.有效gmv（本品）` | `2601936.99` |
-| `addToCartCount` | 加购量 | `String` | 是 | `XLSX.加购量` | `36642` |
-| `impressionCount` | 展示数 | `String` | 是 | `XLSX.展示数` | `34757399` |
-| `clickCount` | 点击数 | `String` | 是 | `XLSX.点击数` | `274558` |
-| `conversionCount` | 转化数 | `String` | 是 | `XLSX.转化数` | `9728` |
-| `paidParentOrderCount` | 支付父订单量 | `String` | 是 | `XLSX.支付父订单量` | `16441` |
-| `paidParentOrderCountSelfProduct` | 支付父订单量（本品） | `String` | 是 | `XLSX.支付父订单量（本品）` | `7648` |
-| `validRoiSelfProduct` | 有效 ROI（本品） | `String` | 是 | `XLSX.有效roi（本品）` | `1.68` |
-| `validRoi` | 有效 ROI | `String` | 是 | `XLSX.有效roi` | `3.61` |
-| `todayRoi` | 今日 ROI | `String` | 是 | `XLSX.今日roi` | `1.92` |
-| `bizDate` | 业务日期 | `String` | 否 | 附加 | `20260821` |
+| `id` | 行序号 | `Number` | 否 | 序号从 1 递增 | `1` |
+| `value` @报表行数据 | 报表行数据 | `Dict` | 否 | `XLSX` 行记录（原始表头） | 见数据样例 `value` |
+| `taskId` | 任务 ID | `String` | 否 | 附加 | `dev****8f5` (已脱敏) |
+| `bizDate` | 业务日期 | `String` | 否 | 附加 | `20260824` |
 | `accountId` | 授权 ID | `String` | 否 | 附加 | `1****2` (已脱敏) |
+:::
+
+> `value` 内字段随所选自定义表头模板变化，上表为实测模板常见列；实际以导出文件表头为准。
 
 ### 数据样例
 
-> 样例来自真实运行（`message=导出成功，共 742 条`，自定义 2026-07-01~2026-07-31，渠道抖音+腾讯）。商家昵称等主体名称已脱敏。
+> 样例来自真实运行（`message=导出成功，共 742 条`，自定义 2026-07-01~2026-07-31，渠道*音+*讯）。`value` 内商家昵称等主体名称已脱敏；表头随模板变化，以下为实测首行完整字段。
 
 ```json
 [
   {
-    "statDate": null,
-    "merchantNickname": "****",
-    "channelName": "**,**",
-    "mediaAccountId": null,
-    "mediaAccountName": null,
-    "remark": null,
-    "smartVolumeBoost": "未开启",
-    "bidHosting": "未开启",
-    "trafficSubsidyPlatformFunded": null,
-    "cost": "1550983.45",
-    "validGmv": "5593761.53",
-    "todayGmv": "2976952.48",
-    "validGmvSelfProduct": "2601936.99",
-    "addToCartCount": "36642",
-    "impressionCount": "34757399",
-    "clickCount": "274558",
-    "conversionCount": "9728",
-    "paidParentOrderCount": "16441",
-    "paidParentOrderCountSelfProduct": "7648",
-    "validRoiSelfProduct": "1.68",
-    "validRoi": "3.61",
-    "todayRoi": "1.92",
-    "bizDate": "20260821",
+    "id": 1,
+    "value": {
+      "日期": null,
+      "商家昵称": "****",
+      "渠道名称": "**,**",
+      "账户id": null,
+      "账户名称": null,
+      "备注": null,
+      "智能起量": "未开启",
+      "出价托管": "未开启",
+      "引流补贴(平台出资)": null,
+      "消耗": "1550983.45",
+      "有效gmv": "5593761.53",
+      "今日gmv": "2976952.48",
+      "有效gmv（本品）": "2601936.99",
+      "加购量": "36642",
+      "展示数": "34757399",
+      "点击数": "274558",
+      "转化数": "9728",
+      "支付父订单量": "16441",
+      "支付父订单量（本品）": "7648",
+      "有效roi（本品）": "1.68",
+      "有效roi": "3.61",
+      "今日roi": "1.92"
+    },
+    "taskId": "dev****8f5",
+    "bizDate": "20260824",
     "accountId": "1****2"
   }
 ]
