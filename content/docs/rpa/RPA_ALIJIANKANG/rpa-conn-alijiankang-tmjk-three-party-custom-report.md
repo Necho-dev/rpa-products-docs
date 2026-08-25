@@ -31,6 +31,8 @@ module:
 
 ![天猫健康—三方外投自定义报表](../_public/images/alijiankang/tmjk_three_party_custom_report_20260825.png)
 
+![天猫健康—三方外投—多渠道数据汇总下载](../_public/images/alijiankang/tmjk_three_party_custom_report_download_20260825.png)
+
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
