@@ -1,6 +1,6 @@
 ---
-title: 营销生态-报表-UDSmart
-description: 从阿里妈妈营销生态进入 UD智汇投，导出 UDSmart 报表明细，支持按投放媒体、归因周期、归因模型及汇总周期筛选
+title: 营销生态UD-报表-UDSmart
+description: 从阿里妈妈营销生态UD进入 UD智汇投，导出 UDSmart 报表明细，支持按投放媒体、归因周期、归因模型及汇总周期筛选
 entry: rpa.conn.alimm.yxstud.smart.report
 badge:
   label: 待上线
@@ -19,17 +19,17 @@ module:
 | **连接器代码**   | `rpa.conn.alimm.yxstud.smart.report`                               |
 | **操作类型**     | `文件导出`                                                         |
 | **目标网页**     | `https://ud.alimama.com/index.html#!/report/ud_smart?rptType=udSmart&bizCode=udSmart` |
-| **适用场景**     | 从阿里妈妈营销生态进入 UD智汇投，导出 UDSmart 报表明细，支持按投放媒体、归因周期、归因模型及汇总周期筛选 |
+| **适用场景**     | 从阿里妈妈营销生态UD进入 UD智汇投，导出 UDSmart 报表明细，支持按投放媒体、归因周期、归因模型及汇总周期筛选 |
 | **数据表名**     | `ods_rpa_alimm_yxstud_smart_report_du`                             |
 | **业务表名**     | `ODS_营销生态UD智汇投报表UDSmart明细表(阿里妈妈RPA)`               |
 
 ### 目标页面
 
-> **取数路径**：阿里妈妈—营销生态—UD智汇投—报表—基础报表—UDSmart
+> **取数路径**：阿里妈妈—营销生态UD—UD智汇投—报表—基础报表—UDSmart
 >
 > **取数链接**：[https://ud.alimama.com/index.html#!/report/ud_smart?rptType=udSmart&bizCode=udSmart](https://ud.alimama.com/index.html#!/report/ud_smart?rptType=udSmart&bizCode=udSmart)
 
-![阿里妈妈—营销生态—UD智汇投—报表—UDSmart](../_public/images/alimm/yxstud_smart_report_20260824.png)
+![阿里妈妈—营销生态UD—UD智汇投—报表—UDSmart](../_public/images/alimm/yxstud_smart_report_20260824.png)
 
 ### 业务入参
 
@@ -82,8 +82,8 @@ module:
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "阿里妈妈-营销生态UDSmart报表 - 查询入参",
-  "description": "从阿里妈妈营销生态进入 UD智汇投，导出 UDSmart 报表明细，支持按投放媒体、归因周期、归因模型及汇总周期筛选",
+  "title": "阿里妈妈-营销生态UD-UDSmart报表 - 查询入参",
+  "description": "从阿里妈妈营销生态UD进入 UD智汇投，导出 UDSmart 报表明细，支持按投放媒体、归因周期、归因模型及汇总周期筛选",
   "type": "object",
   "properties": {
     "delivery_media": {

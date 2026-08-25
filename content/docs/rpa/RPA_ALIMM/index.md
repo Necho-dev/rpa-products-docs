@@ -1,7 +1,7 @@
 ---
 title: 阿里妈妈
 icon: ALIMM
-description: 覆盖阿里妈妈品销宝、万相台、品牌新享、淘宝联盟、达摩盘、UD智汇投、营销生态等场景的连接器
+description: 覆盖阿里妈妈品销宝、万相台、品牌新享、淘宝联盟、达摩盘、UD智汇投、营销生态UD等场景的连接器
 entry: RPA_ALIMM
 module:
   link: https://www.alimama.com
@@ -58,7 +58,7 @@ ud:
     comp: LineChart
     color: '#db2777'
 yxstud:
-  label: 营销生态/YXSTUD
+  label: 营销生态UD/YXSTUD
   icon:
     comp: Share2
     color: '#0891b2'
