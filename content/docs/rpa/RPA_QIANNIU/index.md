@@ -8,6 +8,14 @@ module:
   group: taobao
   icon:
     comp: QIANNIU
+references:
+  - path: /docs/auth/ACCOUNT_PASSWORD/RPA_QIANNIU
+    kind: dependency
+    badge:
+      label: 授权依赖
+    prompt:
+      label: 请提前完成授权配置
+      type: warning
 ---
 
 :::meta-panel
@@ -19,7 +27,6 @@ loginOptions:
   - text: 账号+密码
     icon: CircleUserRound
   - type: sms
-authHelpUrl: /docs/auth/ACCOUNT_PASSWORD/RPA_QIANNIU
 :::
 
 ## 内含连接器

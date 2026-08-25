@@ -116,8 +116,18 @@ export function groupKeyFromLocationHash(
   hash: string,
   groupAnchors: ModuleGridGroupAnchor[],
 ): string | null {
-  const id = decodeURIComponent(hash.replace(/^#/, ''));
-  if (!id) return null;
+  const raw = hash.replace(/^#/, '');
+  if (!raw) return null;
+
+  let id = raw;
+  try {
+    id = decodeURIComponent(raw);
+  } catch {
+    /* keep raw */
+  }
+  if (id.startsWith('peek--')) id = id.slice('peek--'.length);
+  const scoped = id.match(/^ref-.+--(.+)$/u);
+  if (scoped?.[1]) id = scoped[1];
 
   return groupAnchors.find((a) => a.anchorId === id)?.key ?? null;
 }

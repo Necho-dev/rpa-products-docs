@@ -8,6 +8,13 @@ module:
   group: taobao
   icon:
     comp: SYCM
+references:
+  - kind: dependency
+    path: /docs/auth/ACCOUNT_PASSWORD/RPA_SYCM
+    mode: summary
+    prompt:
+      label: 请提前完成授权配置
+      type: warning
 ---
 
 :::meta-panel
@@ -21,7 +28,6 @@ loginOptions:
   - text: 店铺名称
     icon: Store
   - type: sms
-authHelpUrl: /docs/auth/ACCOUNT_PASSWORD/RPA_SYCM
 :::
 
 ## 内含连接器

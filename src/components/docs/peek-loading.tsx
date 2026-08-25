@@ -106,7 +106,7 @@ export function PeekLoadingHint({ overlay }: { overlay?: boolean }) {
       aria-live="polite"
       className={cn(
         'flex flex-col items-center justify-center gap-3 text-sm text-fd-muted-foreground',
-        overlay && 'absolute inset-0 z-10 bg-fd-background/70 backdrop-blur-[2px]',
+        overlay && 'absolute inset-0 z-10 flex bg-fd-background/70 backdrop-blur-[2px]',
       )}
     >
       <Loader2Icon className="size-6 animate-spin text-fd-primary" aria-hidden />

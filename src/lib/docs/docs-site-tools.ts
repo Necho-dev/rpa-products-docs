@@ -5,7 +5,11 @@ import { getDocsSearchApi } from '@/lib/docs/search/docs-search-server';
 import type { SearchTag } from '@/lib/docs/search/search-tags';
 import { filterSearchByScope, type SearchScope } from '@/lib/docs/search/search-utils';
 import { getLLMText, source } from '@/lib/docs/source/source';
+import { getPageBacklinks, getPageReferences } from '@/lib/docs/doc-references';
 import { docsRoute } from '@/lib/core/shared';
+
+/** referencedBy 截断上限，避免热门授权页把 meta payload 撑爆 */
+const MAX_REFERENCED_BY = 20;
 
 export function isDocPageAccessible(
   page: { data: { access?: string }; url: string },
@@ -192,9 +196,13 @@ export const searchDocsToolDescription = buildSearchDocsToolDescription();
 
 export const getPageMetaToolDescription = `Returns page metadata and table of contents without the full body (token-efficient).
 
-Includes title, description, path, url, entry (technical id), tags, badge (status label/color), toc, and lastModified.
+Includes title, description, path, url, entry (technical id), tags, badge (status label/color), toc, lastModified, and the page's document relationships.
 
-WHEN TO USE: You need structure, headings, or links before loading full content.
+Relationships (both are access-filtered and may be empty arrays):
+- references: pages this page points to, as { kind, path, title, badge?: { label, color? }, prompt?: { label, type } }. kind "dependency" means the target must be satisfied first (most often an authorization page); kind "fallback" means the target is an alternative to switch to when this one fails. badge defaults to a four-character kind label (前置依赖 / 备选方案). prompt is an optional author-written hint whose type is info | warning | success | error.
+- referencedBy: pages that explicitly point here, as { path, title }, capped at ${MAX_REFERENCED_BY}.
+
+WHEN TO USE: You need structure, headings, links, or prerequisites before loading full content.
 
 WHEN NOT TO USE: When you need the complete document text — use get_docs_content instead.`;
 
@@ -390,6 +398,17 @@ export async function getDocumentationPageMeta(
     dataReady: data.dataReady ?? null,
     estimatedDuration: data.estimatedDuration ?? null,
     minInterval: data.minInterval ?? null,
+    // mode 是渲染轴，对 agent 没有信息量，不输出
+    references: getPageReferences(page, access).map((reference) => ({
+      kind: reference.kind,
+      path: reference.url,
+      title: reference.title,
+      badge: reference.badge,
+      ...(reference.prompt ? { prompt: reference.prompt } : {}),
+    })),
+    referencedBy: getPageBacklinks(page, access)
+      .slice(0, MAX_REFERENCED_BY)
+      .map((referrer) => ({ path: referrer.url, title: referrer.title })),
   };
 
   return { ok: true, text: JSON.stringify(payload, null, 2) };

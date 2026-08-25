@@ -1306,6 +1306,44 @@ html.dark .shared-quote-prompt-btn-default {
   line-height: 1.35;
 }
 
+/*
+ * 页底元信息与正文章节之间：短线靠左、向右淡出。
+ * 画在第一项元信息上（指标注释优先；没有注释时画在本文被引用）。
+ * 不用父级 :has()：授权帮助等只有「本文被引用」时，:has(注释链接) 的反选经常匹配失败。
+ */
+:is(#nd-toc, [data-doc-peek-toc], [data-toc-popover], [data-reference-preview-toc])
+  a:is([href*='doc-annotations'], [href*='doc-cited-by']) {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+:is(#nd-toc, [data-doc-peek-toc], [data-toc-popover], [data-reference-preview-toc])
+  a:is([href*='doc-annotations'], [href*='doc-cited-by'])::before {
+  content: '';
+  display: block;
+  width: 2.75rem;
+  height: 1px;
+  margin: 0.45rem 0 0.5rem;
+  align-self: flex-start;
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--color-fd-border) 85%, transparent),
+    transparent
+  );
+}
+
+:is(#nd-toc, [data-doc-peek-toc], [data-toc-popover], [data-reference-preview-toc])
+  a[href*='doc-annotations'] ~ a[href*='doc-cited-by']::before {
+  display: none;
+  content: none;
+}
+
+/* 比默认 pt-12 略低，给双栏右上工具条留空；单栏同样下移保持对齐 */
+#nd-toc {
+  padding-top: 3.25rem;
+}
+
 /* 双栏时左栏 TOC 叠在正文上（兄弟节点），滚轮无法冒泡到 #nd-page；
  * 目录列表区拉满高度，条目过多时在 TOCScrollArea 内滚动。 */
 [data-doc-peek-open] #nd-toc {
@@ -1321,35 +1359,40 @@ html.dark .shared-quote-prompt-btn-default {
 html,
 #nd-toc,
 [data-doc-peek-open] #nd-page,
-[data-doc-peek-scroll] {
+[data-doc-peek-scroll],
+[data-reference-preview-scroll] {
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--color-fd-muted-foreground) 22%, transparent) transparent;
 }
 
 #nd-toc,
 [data-doc-peek-open] #nd-page,
-[data-doc-peek-scroll] {
+[data-doc-peek-scroll],
+[data-reference-preview-scroll] {
   scrollbar-gutter: stable;
 }
 
 html::-webkit-scrollbar,
 #nd-toc::-webkit-scrollbar,
 [data-doc-peek-open] #nd-page::-webkit-scrollbar,
-[data-doc-peek-scroll]::-webkit-scrollbar {
+[data-doc-peek-scroll]::-webkit-scrollbar,
+[data-reference-preview-scroll]::-webkit-scrollbar {
   width: 4px;
 }
 
 html::-webkit-scrollbar-track,
 #nd-toc::-webkit-scrollbar-track,
 [data-doc-peek-open] #nd-page::-webkit-scrollbar-track,
-[data-doc-peek-scroll]::-webkit-scrollbar-track {
+[data-doc-peek-scroll]::-webkit-scrollbar-track,
+[data-reference-preview-scroll]::-webkit-scrollbar-track {
   background: transparent;
 }
 
 html::-webkit-scrollbar-thumb,
 #nd-toc::-webkit-scrollbar-thumb,
 [data-doc-peek-open] #nd-page::-webkit-scrollbar-thumb,
-[data-doc-peek-scroll]::-webkit-scrollbar-thumb {
+[data-doc-peek-scroll]::-webkit-scrollbar-thumb,
+[data-reference-preview-scroll]::-webkit-scrollbar-thumb {
   border-radius: 9999px;
   background: color-mix(in srgb, var(--color-fd-muted-foreground) 22%, transparent);
 }
@@ -1357,7 +1400,8 @@ html::-webkit-scrollbar-thumb,
 html:hover::-webkit-scrollbar-thumb,
 #nd-toc:hover::-webkit-scrollbar-thumb,
 [data-doc-peek-open] #nd-page:hover::-webkit-scrollbar-thumb,
-[data-doc-peek-scroll]:hover::-webkit-scrollbar-thumb {
+[data-doc-peek-scroll]:hover::-webkit-scrollbar-thumb,
+[data-reference-preview-scroll]:hover::-webkit-scrollbar-thumb {
   background: color-mix(in srgb, var(--color-fd-muted-foreground) 42%, transparent);
 }
 
@@ -1375,9 +1419,11 @@ html:hover::-webkit-scrollbar-thumb,
 
 /*
  * 折叠轨 56px；hover 浮出原目录样式（标题/字号/指示条），宽度随内容、上限 20rem。
+ * preview 内目录共用同一套浮层/短横/高亮，布局轨更窄（2rem）以免盖住正文。
  */
 #nd-notebook-layout[data-toc-compact-left] #nd-toc,
-[data-doc-peek-toc][data-toc-compact] {
+[data-doc-peek-toc][data-toc-compact],
+[data-reference-preview-toc] {
   isolation: isolate;
   background-color: transparent;
   transition: none !important;
@@ -1392,9 +1438,28 @@ html:hover::-webkit-scrollbar-thumb,
 }
 
 #nd-notebook-layout[data-toc-compact-left] #nd-toc:not(:hover):not(:focus-within),
-[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within) {
-  pointer-events: none;
+[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within),
+[data-reference-preview-toc]:not(:hover):not(:focus-within) {
   padding-inline: 0;
+}
+
+/*
+ * 折叠：外壳不接指针，只有短横/标题可点，以免盖住栏内悬浮按钮。
+ * 展开：整块面板接指针，否则鼠标落到毛玻璃空白处会丢 :hover → 收起再展开（闪动）。
+ */
+#nd-notebook-layout[data-toc-compact-left] #nd-toc,
+[data-doc-peek-toc][data-toc-compact],
+[data-reference-preview-toc] {
+  pointer-events: none;
+}
+
+#nd-notebook-layout[data-toc-compact-left] #nd-toc a,
+#nd-notebook-layout[data-toc-compact-left] #nd-toc #toc-title,
+[data-doc-peek-toc] a,
+[data-doc-peek-toc] #peek-toc-title,
+[data-reference-preview-toc] a,
+[data-reference-preview-toc] #reference-preview-toc-title {
+  pointer-events: auto;
 }
 
 [data-doc-peek-toc][data-toc-compact] {
@@ -1404,8 +1469,18 @@ html:hover::-webkit-scrollbar-thumb,
   overflow: hidden;
 }
 
+[data-reference-preview-toc] {
+  width: 2.5rem;
+  max-width: 2.5rem;
+  max-height: calc(100% - 0.5rem);
+  padding-inline-end: 0.5rem;
+  overflow: hidden;
+}
+
 #nd-notebook-layout[data-toc-compact-left] #nd-toc:is(:hover, :focus-within),
-[data-doc-peek-toc][data-toc-compact]:is(:hover, :focus-within) {
+[data-doc-peek-toc][data-toc-compact]:is(:hover, :focus-within),
+[data-reference-preview-toc]:is(:hover, :focus-within) {
+  pointer-events: auto;
   z-index: 50;
   width: fit-content;
   min-width: 12.5rem;
@@ -1423,15 +1498,24 @@ html:hover::-webkit-scrollbar-thumb,
 }
 
 /*
- * 右栏目录的 sticky 外层是 z-20，自成堆叠上下文，
- * 会把浮层的 z-50 关在里面，让 z-40 的悬浮按钮盖住目录内容。
+ * 仅 compact hover 展开时抬高轨道、藏工具条/悬浮按钮。
+ * 常驻宽目录 hover 不得隐藏图标。
  */
-[data-doc-peek-toc-col]:has([data-doc-peek-toc]:is(:hover, :focus-within)) {
+[data-doc-peek-toc-col]:has([data-doc-peek-toc][data-toc-compact]:is(:hover, :focus-within)),
+[data-reference-preview]:has([data-reference-preview-toc][data-toc-compact]:is(:hover, :focus-within)) {
   z-index: 50;
 }
 
+[data-doc-peek-panel]:has([data-doc-peek-toc][data-toc-compact]:is(:hover, :focus-within)) [data-doc-peek-toolbar],
+[data-doc-peek-panel]:has([data-doc-peek-toc][data-toc-compact]:is(:hover, :focus-within)) [data-docs-fab],
+html:has(#nd-notebook-layout[data-toc-compact-left] #nd-toc:is(:hover, :focus-within)) [data-docs-fab-surface='main'] {
+  opacity: 0;
+  pointer-events: none;
+}
+
 #nd-notebook-layout[data-toc-compact-left] #nd-toc:is(:hover, :focus-within) a,
-[data-doc-peek-toc][data-toc-compact]:is(:hover, :focus-within) a {
+[data-doc-peek-toc][data-toc-compact]:is(:hover, :focus-within) a,
+[data-reference-preview-toc]:is(:hover, :focus-within) a {
   width: max-content;
   max-width: 100%;
   white-space: nowrap;
@@ -1441,16 +1525,19 @@ html:hover::-webkit-scrollbar-thumb,
 
 /* 折叠：无「目录」标题，只留短横轨 */
 #nd-notebook-layout[data-toc-compact-left] #nd-toc:not(:hover):not(:focus-within) #toc-title,
-[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within) #peek-toc-title {
+[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within) #peek-toc-title,
+[data-reference-preview-toc]:not(:hover):not(:focus-within) #reference-preview-toc-title {
   display: none;
 }
 
 #nd-notebook-layout[data-toc-compact-left] #nd-toc:not(:hover):not(:focus-within) a,
-[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within) a {
+[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within) a,
+[data-reference-preview-toc]:not(:hover):not(:focus-within) a {
   position: relative;
   display: flex;
   height: 18px;
   min-height: 18px;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   overflow: visible;
@@ -1462,13 +1549,38 @@ html:hover::-webkit-scrollbar-thumb,
   pointer-events: auto;
 }
 
+#nd-notebook-layout[data-toc-compact-left] #nd-toc:not(:hover):not(:focus-within)
+  a:is(
+    [href='#doc-annotations'],
+    [href='#doc-cited-by'],
+    [href='#peek--doc-annotations'],
+    [href='#peek--doc-cited-by'],
+    [href$='--doc-annotations'],
+    [href$='--doc-cited-by']
+  )::before,
+[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within)
+  a:is(
+    [href='#doc-annotations'],
+    [href='#doc-cited-by'],
+    [href='#peek--doc-annotations'],
+    [href='#peek--doc-cited-by'],
+    [href$='--doc-annotations'],
+    [href$='--doc-cited-by']
+  )::before,
+[data-reference-preview-toc]:not(:hover):not(:focus-within)
+  a:is([href$='--doc-annotations'], [href$='--doc-cited-by'])::before {
+  display: none;
+}
+
 #nd-notebook-layout[data-toc-compact-left] #nd-toc:not(:hover):not(:focus-within) a > *,
-[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within) a > * {
+[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within) a > *,
+[data-reference-preview-toc]:not(:hover):not(:focus-within) a > * {
   visibility: hidden;
 }
 
 #nd-notebook-layout[data-toc-compact-left] #nd-toc:not(:hover):not(:focus-within) a::after,
-[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within) a::after {
+[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within) a::after,
+[data-reference-preview-toc]:not(:hover):not(:focus-within) a::after {
   content: '';
   width: 24px;
   height: 2px;
@@ -1477,28 +1589,69 @@ html:hover::-webkit-scrollbar-thumb,
 }
 
 #nd-notebook-layout[data-toc-compact-left] #nd-toc:not(:hover):not(:focus-within) a.ps-6::after,
-[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within) a.ps-6::after {
+[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within) a.ps-6::after,
+[data-reference-preview-toc]:not(:hover):not(:focus-within) a.ps-6::after {
   width: 20px;
 }
 
 #nd-notebook-layout[data-toc-compact-left] #nd-toc:not(:hover):not(:focus-within) a.ps-8::after,
-[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within) a.ps-8::after {
+[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within) a.ps-8::after,
+[data-reference-preview-toc]:not(:hover):not(:focus-within) a.ps-8::after {
   width: 16px;
 }
 
 #nd-notebook-layout[data-toc-compact-left] #nd-toc:not(:hover):not(:focus-within) a[data-active='true']::after,
-[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within) a[data-active='true']::after {
+[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within) a[data-active='true']::after,
+[data-reference-preview-toc]:not(:hover):not(:focus-within) a[data-active='true']::after {
   width: 24px;
   background: var(--color-fd-primary);
 }
 
 /* 仅折叠轨去掉指示竖线；展开后恢复原目录 border-s + TocThumb */
 #nd-notebook-layout[data-toc-compact-left] #nd-toc:not(:hover):not(:focus-within) .bg-fd-primary.w-px,
-[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within) .bg-fd-primary.w-px {
+[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within) .bg-fd-primary.w-px,
+[data-reference-preview-toc]:not(:hover):not(:focus-within) .bg-fd-primary.w-px {
   display: none;
 }
 
 #nd-notebook-layout[data-toc-compact-left] #nd-toc:not(:hover):not(:focus-within) .border-s,
-[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within) .border-s {
+[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within) .border-s,
+[data-reference-preview-toc]:not(:hover):not(:focus-within) .border-s {
   border-inline-start-width: 0;
+}
+
+/* preview 折叠轨：短横略短，右侧留空躲开正文滚动条 */
+[data-reference-preview-toc]:not(:hover):not(:focus-within) {
+  padding-inline-end: 0.5rem;
+}
+
+[data-reference-preview-toc]:not(:hover):not(:focus-within) a::after {
+  width: 28px;
+  height: 2.5px;
+}
+
+[data-reference-preview-toc]:not(:hover):not(:focus-within) a.ps-6::after {
+  width: 22px;
+}
+
+[data-reference-preview-toc]:not(:hover):not(:focus-within) a.ps-8::after {
+  width: 16px;
+}
+
+[data-reference-preview-toc]:not(:hover):not(:focus-within) a[data-active='true']::after {
+  width: 28px;
+}
+
+/* hover 浮层可滚但不画滚动条，与 TOCScrollArea 默认一致 */
+[data-reference-preview-toc],
+[data-reference-preview-toc] .overflow-auto {
+  scrollbar-width: none;
+  scrollbar-gutter: auto;
+}
+
+[data-reference-preview-toc]::-webkit-scrollbar,
+[data-reference-preview-toc] .overflow-auto::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }

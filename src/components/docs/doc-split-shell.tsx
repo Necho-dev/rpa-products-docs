@@ -85,10 +85,10 @@ function PeekIconButton({
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        'flex h-full min-w-0 flex-1 items-center justify-center rounded-md',
-        'text-fd-foreground/80 transition-colors',
+        'flex size-8 shrink-0 items-center justify-center rounded-md',
+        'text-fd-foreground transition-colors',
         'hover:bg-fd-muted hover:text-fd-foreground',
-        'disabled:pointer-events-none disabled:text-fd-muted-foreground/35',
+        'disabled:pointer-events-none disabled:opacity-35',
         pressed && 'bg-fd-muted text-fd-primary hover:text-fd-primary',
       )}
     >
@@ -98,8 +98,8 @@ function PeekIconButton({
 }
 
 const peekToolbarIcon = {
-  className: 'size-[18px]',
-  strokeWidth: 2.5,
+  className: 'size-4.5',
+  strokeWidth: 2.25,
 } as const;
 
 const PEEK_RATIO_MIN = 0.28;
@@ -277,7 +277,8 @@ export function DocSplitShell({
       data-doc-peek-panel=""
       aria-label={title}
       className={cn(
-        'relative z-50 hidden min-h-0 min-w-0 overflow-visible border-s border-fd-border/40 bg-fd-background xl:flex xl:flex-col',
+        'relative z-20 hidden min-h-0 min-w-0 overflow-visible border-s border-fd-border/40 bg-fd-background xl:flex xl:flex-col',
+        'isolate',
         '[grid-area:peek] [--fd-toc-width:12.5rem]',
         'before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:z-1 before:h-2 before:bg-linear-to-b before:from-[rgba(15,23,42,0.035)] before:to-transparent',
         'dark:before:from-black/22',
@@ -297,7 +298,7 @@ export function DocSplitShell({
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
         className={cn(
-          'group/split absolute inset-s-0 top-0 z-50 flex h-full w-4 -translate-x-1/2 cursor-col-resize touch-none items-center justify-center',
+          'group/split absolute inset-s-0 top-0 z-30 flex h-full w-4 -translate-x-1/2 cursor-col-resize touch-none items-center justify-center',
           'before:absolute before:inset-y-0 before:left-1/2 before:w-px before:-translate-x-1/2 before:bg-fd-border/80',
           'hover:before:bg-fd-primary/70',
           peek.splitDragging && 'before:bg-fd-primary',
@@ -352,11 +353,16 @@ export function DocSplitShell({
         </div>
       </div>
       <div
-        className={cn(
-          'pointer-events-auto absolute -top-10.5 inset-e-3 z-60',
-          'flex h-9 w-60 items-center rounded-lg border-0 bg-transparent p-0.5',
-        )}
+        data-doc-peek-toolbar=""
+        className="pointer-events-none absolute inset-e-1.5 top-2 z-40 flex justify-end transition-opacity duration-150"
       >
+        <div
+          className={cn(
+            'pointer-events-auto flex h-9 items-center gap-0.5 rounded-lg p-0.5',
+            'border border-fd-border/80 bg-fd-background/95 shadow-sm backdrop-blur-md',
+            'transition-opacity duration-150',
+          )}
+        >
           <PeekIconButton
             label="后退"
             disabled={!peek.canPeekBack}
@@ -406,10 +412,11 @@ export function DocSplitShell({
             <XIcon {...peekToolbarIcon} />
           </PeekIconButton>
         </div>
+      </div>
         <div
           aria-busy={loading || undefined}
           data-doc-peek-scroll=""
-          className="relative min-h-0 min-w-0 w-full flex-1 overflow-y-auto overflow-x-hidden overscroll-contain"
+          className="relative z-0 min-h-0 min-w-0 w-full flex-1 overflow-y-auto overflow-x-hidden overscroll-contain"
         >
           <DocPeekSurfaceProvider surface="peek">
             {peek.target
@@ -423,8 +430,12 @@ export function DocSplitShell({
                 </div>
               )}
           </DocPeekSurfaceProvider>
-          {loading && children ? <PeekLoadingHint overlay /> : null}
         </div>
+        {loading && children ? (
+          <div className="pointer-events-auto absolute inset-0 z-20">
+            <PeekLoadingHint overlay />
+          </div>
+        ) : null}
         {peek.target ? (
           <PeekFloatingAnchors scrollRoot={scrollEl} pageUrl={copyHref} />
         ) : null}

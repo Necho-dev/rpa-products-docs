@@ -12,6 +12,9 @@ module:
   group: weather
   icon:
     comp: NMC
+references:
+  - kind: fallback
+    path: /docs/rpa/RPA_UNIVERSAL/rpa-conn-universal-weather-cma-forecast-detail
 ---
 
 :::warning[稳定性提示]

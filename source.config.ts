@@ -14,6 +14,7 @@ import { remarkMdxFieldTree } from './src/lib/docs/source/remark-mdx-field-tree'
 import { remarkMdxDocBlocks } from './src/lib/docs/source/remark-mdx-doc-blocks';
 import { remarkMdxChangelog } from './src/lib/docs/source/remark-mdx-changelog';
 import { remarkSectionDirective } from './src/lib/docs/source/remark-section-directive';
+import { referencesSchema } from './src/lib/docs/doc-references-core'; // 含 kind / mode / badge / prompt
 import remarkDirective from 'remark-directive';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -116,6 +117,11 @@ const docsPageSchema = pageSchema.extend({
   estimatedDuration: estimatedDurationSchema,
   /** 最小调度间隔；仅 rpa.conn.* 连接器页展示 */
   minInterval: minIntervalSchema,
+  /**
+   * 本页引用的其它文档（opt-in，不写则不渲染）。
+   * `inherit` 抄最近祖先目录 index 的 references；具体规则与默认值见 doc-references-core.ts。
+   */
+  references: referencesSchema,
 });
 
 /** 目录 meta：`access: private` 时其下所有页面默认私有（除非某页写 `access: public`） */

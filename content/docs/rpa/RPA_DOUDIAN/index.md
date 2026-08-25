@@ -8,6 +8,12 @@ module:
   group: doudian
   icon:
     comp: DOUDIAN
+references:
+  - kind: dependency
+    path: /docs/auth/ACCOUNT_PASSWORD/RPA_DOUDIAN
+    prompt:
+      label: 请提前完成授权配置
+      type: warning
 ---
 
 :::meta-panel
@@ -21,7 +27,6 @@ loginOptions:
   - text: 店铺名称
     icon: Store
   - type: sms
-authHelpUrl: /docs/auth/ACCOUNT_PASSWORD/RPA_DOUDIAN
 :::
 
 ## 内含连接器

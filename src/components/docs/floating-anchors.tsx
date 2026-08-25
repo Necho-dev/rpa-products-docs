@@ -550,6 +550,7 @@ function FloatingAnchorStack({
   showAskAi = true,
   showExcerpt = true,
   feedbackTitleSurface = 'main',
+  fabSurface,
 }: {
   show: boolean;
   hideForOverlay: boolean;
@@ -560,17 +561,20 @@ function FloatingAnchorStack({
   showAskAi?: boolean;
   showExcerpt?: boolean;
   feedbackTitleSurface?: 'main' | 'peek';
+  fabSurface?: 'main' | 'peek';
 }) {
   if (!show) return null;
 
   return (
     <div
       className={cn(
-        'z-40 flex flex-col items-center gap-3.5',
+        'z-40 flex flex-col items-center gap-3.5 transition-opacity duration-150',
         className,
         hideForOverlay && 'pointer-events-none translate-y-2 scale-95 opacity-0',
       )}
       style={style}
+      data-docs-fab=""
+      data-docs-fab-surface={fabSurface}
       aria-label="页面快捷操作"
       aria-hidden={hideForOverlay}
       /*
@@ -677,6 +681,7 @@ export function DocsFloatingAnchors() {
       showAskAi={!peekTarget}
       showExcerpt={!peekTarget}
       scrollRoot={leftScrollRoot}
+      fabSurface="main"
       className={cn(
         'z-40 transition-[opacity,transform] duration-300 ease-out motion-reduce:transition-none',
         FAB_INSET_BOTTOM_CLASS,
@@ -731,7 +736,12 @@ export function PeekFloatingAnchors({
       showAskAi
       showExcerpt
       feedbackTitleSurface="peek"
-      className={cn('absolute z-40', FAB_INSET_BOTTOM_CLASS, FAB_INSET_END_CLASS)}
+      fabSurface="peek"
+      className={cn(
+        'pointer-events-auto absolute z-40',
+        FAB_INSET_BOTTOM_CLASS,
+        FAB_INSET_END_CLASS,
+      )}
     />
   );
 }

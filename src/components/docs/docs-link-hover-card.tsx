@@ -7,7 +7,7 @@ import { cn } from '@/lib/core/cn';
 export type LinkPreviewPayload = {
   title: string;
   description: string | null;
-  coverUrl: string;
+  coverUrl: string | null;
   url: string;
 };
 

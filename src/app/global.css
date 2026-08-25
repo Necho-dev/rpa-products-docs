@@ -146,10 +146,22 @@ html > body[data-scroll-locked] {
  * - 保留极淡的「搜索行 ↔ 分区导航」分隔线
  * - 「分区导航 ↔ 正文」用轻阴影，去掉硬线
  */
+/*
+ * 文档页叠层（数字越大越靠上）。双栏 peek 是独立上下文（isolate），
+ * 其内部 z-index 不与顶栏直接比较，所以 peek 外壳必须低于 #nd-subnav。
+ *
+ *  10  peek 目录轨
+ *  20  右栏外壳 / 加载遮罩
+ *  30  分栏拖条 / 左栏 overlay 目录
+ *  40  栏内悬浮按钮与右上工具条
+ *  50  顶栏
+ *  70  AI 面板 / 链接悬停条
+ *  80  搜索弹层
+ *  90+ 抽屉与对话框
+ */
 #nd-subnav {
   position: sticky;
-  /* 高于侧栏，避免侧栏分割线透出/叠进顶栏 */
-  z-index: 40;
+  z-index: 50;
   background-color: var(--color-fd-background);
   border-bottom-width: 0 !important;
   box-shadow: none;

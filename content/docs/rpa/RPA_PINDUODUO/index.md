@@ -8,6 +8,15 @@ module:
   group: pinduoduo
   icon:
     comp: PINDUODUO
+references:
+  - kind: dependency
+    path: /docs/auth/ACCOUNT_PASSWORD/RPA_PINDUODUO
+    mode: summary
+    badge:
+      label: 授权依赖
+    prompt:
+      label: 请提前完成授权配置
+      type: warning
 ---
 
 :::meta-panel
@@ -19,7 +28,6 @@ loginOptions:
   - text: 账号+密码
     icon: CircleUserRound
   - type: sms
-authHelpUrl: /docs/auth/ACCOUNT_PASSWORD/RPA_PINDUODUO
 :::
 
 ## 内含连接器

@@ -8,6 +8,15 @@ module:
   group: weixin
   icon:
     comp: WEIXIN_SPHZS
+references:
+  - kind: dependency
+    path: /docs/auth/ACCOUNT_PASSWORD/RPA_WEIXIN_XD
+    mode: summary
+    badge:
+      label: 授权依赖
+    prompt:
+      label: 请提前完成授权配置
+      type: warning
 ---
 
 :::meta-panel

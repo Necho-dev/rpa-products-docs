@@ -8,6 +8,15 @@ module:
   group: dewu
   icon:
     comp: DEWU
+references:
+  - kind: dependency
+    path: /docs/auth/ACCOUNT_PASSWORD/RPA_DEWU
+    mode: summary
+    badge:
+      label: 授权依赖
+    prompt:
+      label: 请提前完成授权配置
+      type: warning
 ---
 
 :::meta-panel

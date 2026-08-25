@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Cards } from 'fumadocs-ui/components/card';
 import { cn } from '@/lib/core/cn';
@@ -100,7 +100,7 @@ function GroupTabButton({
       </span>
       <span
         className={cn(
-          'inline-flex size-[18px] shrink-0 items-center justify-center rounded-full text-[10px] font-bold leading-none tabular-nums',
+          'inline-flex size-4.5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold leading-none tabular-nums',
           active
             ? 'bg-fd-primary text-fd-primary-foreground'
             : 'bg-fd-muted text-fd-muted-foreground',
@@ -160,6 +160,27 @@ function ModuleGridFlat({ groups }: { groups: ModuleGroupData[] }) {
   );
 }
 
+function groupKeyFromTocHref(
+  href: string,
+  groups: ModuleGroupData[],
+  groupAnchors?: ModuleGridGroupAnchor[],
+): string | null {
+  if (groupAnchors?.length) {
+    const fromAnchor = groupKeyFromLocationHash(href, groupAnchors);
+    if (fromAnchor) return fromAnchor;
+  }
+  let raw = href.replace(/^#/, '');
+  try {
+    raw = decodeURIComponent(raw);
+  } catch {
+    /* keep */
+  }
+  if (raw.startsWith('peek--')) raw = raw.slice('peek--'.length);
+  const scoped = raw.match(/^ref-.+--(.+)$/u);
+  if (scoped?.[1]) raw = scoped[1];
+  return groups.find((g) => raw === g.key || raw.endsWith(`-${g.key}`))?.key ?? null;
+}
+
 export function ModuleGridTabs({
   groups,
   groupAnchors,
@@ -170,21 +191,52 @@ export function ModuleGridTabs({
   layout?: ModuleGridLayout;
 }) {
   const pathname = usePathname();
+  const rootRef = useRef<HTMLDivElement>(null);
   const nonEmpty = groups.filter((g) => g.modules.length > 0);
   const [activeKey, setActiveKey] = useState(nonEmpty[0]?.key ?? '');
 
-  useEffect(() => {
-    if (!groupAnchors?.length) return;
+  const groupKeys = nonEmpty.map((g) => g.key).join('\0');
 
-    const syncFromHash = () => {
-      const key = groupKeyFromLocationHash(window.location.hash, groupAnchors);
+  useEffect(() => {
+    if (layout !== 'tabs' || nonEmpty.length < 2) return;
+
+    const tocRoot = () =>
+      rootRef.current?.closest('[data-doc-peek-panel]')?.querySelector('[data-doc-peek-toc]') ??
+      document.getElementById('nd-toc');
+
+    const applyFromHref = (href: string | null | undefined) => {
+      if (!href) return;
+      const key = groupKeyFromTocHref(href, nonEmpty, groupAnchors);
       if (key) setActiveKey(key);
     };
 
-    syncFromHash();
-    window.addEventListener('hashchange', syncFromHash);
-    return () => window.removeEventListener('hashchange', syncFromHash);
-  }, [groupAnchors]);
+    const applyHash = () => applyFromHref(window.location.hash);
+    const applyToc = () => {
+      const active = tocRoot()?.querySelector<HTMLAnchorElement>('a[data-active="true"]');
+      applyFromHref(active?.getAttribute('href'));
+    };
+    const onTocClick = (event: MouseEvent) => {
+      const root = tocRoot();
+      const link = (event.target as Element | null)?.closest?.('a[href]');
+      if (!root || !link || !root.contains(link)) return;
+      applyFromHref(link.getAttribute('href'));
+    };
+
+    applyHash();
+    applyToc();
+    window.addEventListener('hashchange', applyHash);
+    window.addEventListener('popstate', applyHash);
+    document.addEventListener('click', onTocClick, true);
+    const toc = tocRoot();
+    const mo = toc ? new MutationObserver(applyToc) : null;
+    if (toc) mo?.observe(toc, { subtree: true, attributes: true, attributeFilter: ['data-active'] });
+    return () => {
+      window.removeEventListener('hashchange', applyHash);
+      window.removeEventListener('popstate', applyHash);
+      document.removeEventListener('click', onTocClick, true);
+      mo?.disconnect();
+    };
+  }, [groupAnchors, groupKeys, layout, nonEmpty]);
 
   const selectTab = useCallback(
     (key: string) => {
@@ -196,7 +248,7 @@ export function ModuleGridTabs({
 
       window.history.replaceState(null, '', `${pathname}#${anchor.anchorId}`);
     },
-    [groupAnchors, pathname],
+    [groupAnchors, pathname, setActiveKey],
   );
 
   if (nonEmpty.length === 0) return null;
@@ -222,7 +274,7 @@ export function ModuleGridTabs({
   const anchors = groupAnchors ?? [];
 
   return (
-    <div className="not-prose w-full space-y-4">
+    <div ref={rootRef} className="not-prose w-full space-y-4">
       {anchors.length > 0 ? <ModuleGridAnchors groupAnchors={anchors} /> : null}
       <div
         role="tablist"

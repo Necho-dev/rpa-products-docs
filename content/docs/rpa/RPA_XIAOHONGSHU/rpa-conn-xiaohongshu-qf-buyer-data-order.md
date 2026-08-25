@@ -14,6 +14,15 @@ dataReady:
   description: 每天最晚 14 点前更新昨日数据；支持下载数据的时间间隔为近 1 年
 module:
   group: qf
+references:
+  - kind: dependency
+    path: /docs/auth/ACCOUNT_PASSWORD/RPA_XIAOHONGSHU_QF
+    mode: summary
+    badge:
+      label: 授权依赖
+    prompt:
+      label: 请提前完成授权配置
+      type: warning
 ---
 
 | 属性             | 值                                                         |

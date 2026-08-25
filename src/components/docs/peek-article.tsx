@@ -12,13 +12,17 @@ import { MarkdownActionsButton } from '@/components/docs/markdown-copy-button';
 import { AddMcpButton } from '@/components/docs/add-mcp-button';
 import { DocShareButton } from '@/components/docs/doc-share-dialog';
 import { ConnectorSchedulePanel } from '@/components/docs/connector-schedule-panel';
-import { hasScheduleMeta } from '@/lib/docs/format-schedule-meta';
+import { collectScheduleAnnotations, hasScheduleMeta } from '@/lib/docs/format-schedule-meta';
 import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
 import { getPageMarkdownUrl, getPageSharePoster, source } from '@/lib/docs/source/source';
 import { docsRoute } from '@/lib/core/shared';
 import { inferSiteOrigin } from '@/lib/core/site-origin';
 import { headers } from 'next/headers';
 import type { DocAccessContext } from '@/lib/docs/access/doc-access';
+import { ReferencesOutbound } from '@/components/docs/references/references-outbound';
+import { DocAppendix } from '@/components/docs/doc-appendix';
+import { appendixTocItems } from '@/lib/docs/doc-appendix';
+import { getPageBacklinks } from '@/lib/docs/doc-references';
 
 function PeekArticleDenied({ path }: { path: string }) {
   const next = path.startsWith('/') ? path : `${docsRoute}/${path}`;
@@ -68,7 +72,13 @@ export async function PeekArticle({
     minInterval: page.data.minInterval,
   };
   const showSchedule = hasScheduleMeta(scheduleMeta);
-  const toc = (page.data.toc ?? []) as TOCItemType[];
+  const annotations = collectScheduleAnnotations(scheduleMeta);
+  const backlinks = getPageBacklinks(page, access);
+  const appendixToc = appendixTocItems({
+    citedBy: backlinks.length,
+    annotations: annotations.length,
+  });
+  const toc = [...((page.data.toc ?? []) as TOCItemType[]), ...appendixToc];
   const tocIds = toc
     .map((item) => item.url.replace(/^#/, ''))
     .filter((id) => id.length > 0);
@@ -121,6 +131,7 @@ export async function PeekArticle({
             posterUrl={`${origin}${getPageSharePoster(page).url}`}
           />
         </div>
+        <ReferencesOutbound page={page} access={access} className="mt-4" />
         <DocsBody className="mt-5 flex-1">
           <MDX
             components={getMDXComponents({
@@ -128,8 +139,9 @@ export async function PeekArticle({
             })}
           />
         </DocsBody>
+        <DocAppendix referrers={backlinks} annotations={annotations} />
         {lastModified ? (
-          <PageLastUpdate date={lastModified} className="mt-auto pt-2" />
+          <PageLastUpdate date={lastModified} className="mt-auto pt-6" />
         ) : null}
         </article>
       </PeekHeadingScope>

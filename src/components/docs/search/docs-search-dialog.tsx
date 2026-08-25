@@ -148,8 +148,8 @@ export default function DocsSearchDialog(props: DocsSearchDialogProps) {
   if (!props.open) {
     return (
       <SearchDialog search={draftInput} onSearchChange={setDraftInput} isLoading={false} {...props}>
-        <SearchDialogOverlay />
-        <SearchDialogContent />
+        <SearchDialogOverlay className="z-80" />
+        <SearchDialogContent className="z-80" />
       </SearchDialog>
     );
   }
@@ -161,10 +161,10 @@ export default function DocsSearchDialog(props: DocsSearchDialogProps) {
       isLoading={aiEnabled ? aiLoading : isLoading}
       {...props}
     >
-      <SearchDialogOverlay />
+      <SearchDialogOverlay className="z-80" />
       <SearchDialogContent
         aria-describedby={undefined}
-        className="overflow-hidden flex flex-col max-h-[min(90dvh,680px)]"
+        className="z-80 overflow-hidden flex flex-col max-h-[min(90dvh,680px)]"
       >
         <SearchDialogHeader className="shrink-0">
           <DocsSearchDialogInput

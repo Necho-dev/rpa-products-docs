@@ -21,13 +21,17 @@ import { DocsLink } from '@/components/docs/docs-link';
 import { getSiteDescription, siteName } from '@/lib/core/shared';
 import { AddMcpButton } from '@/components/docs/add-mcp-button';
 import { ConnectorSchedulePanel } from '@/components/docs/connector-schedule-panel';
-import { hasScheduleMeta } from '@/lib/docs/format-schedule-meta';
 import { cookies, headers } from 'next/headers';
 import { inferSiteOrigin } from '@/lib/core/site-origin';
 import { DOC_PEEK_COOKIE, parsePeekTarget, shouldRenderPeekFromCookie } from '@/lib/docs/doc-peek';
 import { DocSplitShell } from '@/components/docs/doc-split-shell';
 import { PeekArticle, peekArticleTitle } from '@/components/docs/peek-article';
 import { DocPeekSeed } from '@/components/docs/doc-peek-seed';
+import { ReferencesOutbound } from '@/components/docs/references/references-outbound';
+import { DocAppendix } from '@/components/docs/doc-appendix';
+import { appendixTocItems } from '@/lib/docs/doc-appendix';
+import { getPageBacklinks } from '@/lib/docs/doc-references';
+import { collectScheduleAnnotations, hasScheduleMeta } from '@/lib/docs/format-schedule-meta';
 
 /** 路由段配置须为静态字面量；按请求做私有文档鉴权也需动态渲染 */
 export const dynamic = 'force-dynamic';
@@ -63,10 +67,8 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
   const mcpUrl = `${origin}/mcp`;
 
   const lastModified = page.data.lastModified;
+  const backlinks = getPageBacklinks(page, access);
   const stackToc = await resolveModuleGridStackToc(page.slugs, access);
-  const toc =
-    stackToc.length > 0 ? [...(page.data.toc ?? []), ...stackToc] : page.data.toc;
-
   const scheduleMeta = {
     entry: page.data.entry,
     dataReady: page.data.dataReady,
@@ -74,6 +76,12 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
     minInterval: page.data.minInterval,
   };
   const showSchedulePanel = hasScheduleMeta(scheduleMeta);
+  const annotations = collectScheduleAnnotations(scheduleMeta);
+  const appendixToc = appendixTocItems({
+    citedBy: backlinks.length,
+    annotations: annotations.length,
+  });
+  const toc = [...(page.data.toc ?? []), ...stackToc, ...appendixToc];
   const cookieStore = await cookies();
   const searchParams = await props.searchParams;
   const peekFromQuery = parsePeekTarget(searchParams.peek);
@@ -125,6 +133,7 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
           posterUrl={`${origin}${getPageSharePoster(page).url}`}
         />
       </div>
+      <ReferencesOutbound page={page} access={access} />
       <DocsBody>
         <MDX
           components={getMDXComponents({
@@ -133,8 +142,9 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
           })}
         />
       </DocsBody>
+      <DocAppendix referrers={backlinks} annotations={annotations} />
       {lastModified ? (
-        <PageLastUpdate date={lastModified} className="mt-auto pt-2" />
+        <PageLastUpdate date={lastModified} className="mt-auto pt-6" />
       ) : null}
     </DocsPage>
     <DocPeekSeed target={peekFromQuery} />

@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server';
 export async function GET(req: Request) {
   const path = new URL(req.url).searchParams.get('path') ?? '';
   const access = await getDocAccessContextFromRequest();
-  const result = getLinkPreview(path, access);
+  const result = await getLinkPreview(path, access);
 
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: result.status });

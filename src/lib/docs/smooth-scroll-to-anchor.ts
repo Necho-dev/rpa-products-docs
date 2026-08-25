@@ -53,7 +53,25 @@ export function findAnchorInRoot(id: string, root: ParentNode): HTMLElement | nu
   const direct = matchIdInRoot(id, root);
   if (direct) return direct;
   if (id.startsWith('peek--')) return matchIdInRoot(id.slice('peek--'.length), root);
-  return matchIdInRoot(`peek--${id}`, root);
+  const refScoped = id.match(/^ref-.+--(.+)$/u);
+  if (refScoped) {
+    const unprefixed = matchIdInRoot(refScoped[1], root);
+    if (unprefixed) return unprefixed;
+  }
+  const peekPrefixed = matchIdInRoot(`peek--${id}`, root);
+  if (peekPrefixed) return peekPrefixed;
+
+  const suffix = `--${id}`;
+  const nodes = root.querySelectorAll<HTMLElement>('[id]');
+  for (const el of nodes) {
+    if (
+      el.id.endsWith(suffix) &&
+      (el.id.startsWith('peek--') || el.id.startsWith('ref-'))
+    ) {
+      return el;
+    }
+  }
+  return null;
 }
 
 function isScrollableBox(el: HTMLElement): boolean {
@@ -80,6 +98,12 @@ export function findScrollParent(el: HTMLElement): HTMLElement | Window {
 export function getAnchorScrollRoot(from: Element): HTMLElement | Window {
   const peekScroll = from.closest<HTMLElement>('[data-doc-peek-scroll]');
   if (peekScroll) return peekScroll;
+
+  const preview = from.closest('[data-reference-preview]');
+  const previewScroll =
+    preview?.querySelector<HTMLElement>('[data-reference-preview-scroll]') ??
+    from.closest<HTMLElement>('[data-reference-preview-scroll]');
+  if (previewScroll && isScrollableBox(previewScroll)) return previewScroll;
 
   const peekPanel = from.closest('[data-doc-peek-panel]');
   const peekFromToc = peekPanel?.querySelector<HTMLElement>('[data-doc-peek-scroll]');
@@ -197,7 +221,7 @@ export function handleDocsAnchorClick(event: MouseEvent): boolean {
   if (!anchor || anchor.tagName !== 'A') return false;
   if (
     !anchor.closest(
-      '#nd-toc, [data-toc-popover], [data-doc-peek-toc], #nd-page, [data-doc-peek-scroll]',
+      '#nd-toc, [data-toc-popover], [data-doc-peek-toc], #nd-page, [data-doc-peek-scroll], [data-reference-preview], [data-reference-preview-toc]',
     )
   ) {
     return false;
@@ -220,8 +244,9 @@ export function handleDocsAnchorClick(event: MouseEvent): boolean {
   const inPeek = Boolean(
     anchor.closest('[data-doc-peek-toc], [data-doc-peek-scroll], [data-doc-peek-panel]'),
   );
+  const inPreview = Boolean(anchor.closest('[data-reference-preview]'));
   const samePage = samePathname(url.pathname, window.location.pathname);
-  if (!samePage && !inPeek) return false;
+  if (!samePage && !inPeek && !inPreview) return false;
 
   const scrollRoot = getAnchorScrollRoot(anchor);
   const queryRoot = getAnchorQueryRoot(scrollRoot);
@@ -230,7 +255,7 @@ export function handleDocsAnchorClick(event: MouseEvent): boolean {
 
   event.preventDefault();
 
-  if (samePage && !inPeek) {
+  if (samePage && !inPeek && !inPreview) {
     const next = `${window.location.pathname}${window.location.search}${url.hash}`;
     if (window.location.hash !== url.hash) {
       history.pushState(null, '', next);

@@ -153,15 +153,21 @@ export function PeekArticleDialog({
               </button>
             </RadixDialog.Close>
           </header>
-          <div
-            ref={setScrollEl}
-            data-doc-peek-scroll=""
-            className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain"
-          >
-            <DocPeekSurfaceProvider surface="peek">
-              {children ?? (peek.pending ? <PeekArticleSkeleton /> : null)}
-            </DocPeekSurfaceProvider>
-            {peek.pending && children ? <PeekLoadingHint overlay /> : null}
+          <div className="relative min-h-0 flex-1">
+            <div
+              ref={setScrollEl}
+              data-doc-peek-scroll=""
+              className="h-full overflow-y-auto overscroll-contain"
+            >
+              <DocPeekSurfaceProvider surface="peek">
+                {children ?? (peek.pending ? <PeekArticleSkeleton /> : null)}
+              </DocPeekSurfaceProvider>
+            </div>
+            {peek.pending && children ? (
+              <div className="absolute inset-0 z-20">
+                <PeekLoadingHint overlay />
+              </div>
+            ) : null}
             <PeekFloatingAnchors scrollRoot={scrollEl} pageUrl={copyHref} />
           </div>
         </RadixDialog.Content>

@@ -1,10 +1,19 @@
 # HeroKnowledge
 
-基于 [Fumadocs](https://fumadocs.vercel.app/) + Next.js 构建的文档站点（HeroKnowledge），支持本地开发、静态构建与 Docker 部署。当前版本 **0.5.2**。
+基于 [Fumadocs](https://fumadocs.vercel.app/) + Next.js 构建的文档站点（HeroKnowledge），支持本地开发、静态构建与 Docker 部署。当前版本 **0.6.0**。
 
 ---
 
-## 阅读体验（0.5.2）
+## 阅读体验（0.6.0）
+
+在 0.5.2 双栏与紧凑目录之上：
+
+| 能力 | 行为 |
+|------|------|
+| 文档引用 | frontmatter `references`：平台首页或连接器页展示授权依赖等卡片；`本文被引用` 出现在页底 Tab。小红书 / 唯品会 / 1688 等多入口授权挂在具体连接器上，不堆在平台首页 |
+| 页底元信息 | 「指标注释」「本文被引用」同一 Tab 模块；右侧目录同级列出并带数量，中间短线靠左向右淡出 |
+| 链接预览 | 站内 hover 卡：正文无首图时不显示预览图区域 |
+| LLM 导出 | `/llms.mdx` 去掉 `fd-steps` 包装，还原 `1.` / `2.` 标题 |
 
 正文站内 `/docs/**` 链接与侧栏/面包屑走不同路径：
 

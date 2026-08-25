@@ -164,3 +164,61 @@ export function resolveScheduleDescription(
 ): string {
   return custom?.trim() || fallback;
 }
+
+export const SCHEDULE_METRIC_LABEL = {
+  dataReady: '数据就绪',
+  estimatedDuration: '预估耗时',
+  minInterval: '最小间隔',
+} as const;
+
+export type ScheduleAnnotationRow = {
+  key: keyof typeof SCHEDULE_METRIC_LABEL;
+  label: string;
+  value: string;
+  description: string;
+};
+
+/** 页底「指标注释」用：有值的调度指标 + 自定义或默认描述 */
+export function collectScheduleAnnotations(data: ScheduleMetaFields): ScheduleAnnotationRow[] {
+  const rows: ScheduleAnnotationRow[] = [];
+
+  if (hasDataReady(data.dataReady)) {
+    rows.push({
+      key: 'dataReady',
+      label: SCHEDULE_METRIC_LABEL.dataReady,
+      value: formatDataReadyCompactValue(data.dataReady!),
+      description: resolveScheduleDescription(
+        data.dataReady?.description,
+        DEFAULT_SCHEDULE_DESCRIPTIONS.dataReady,
+      ),
+    });
+  }
+
+  const durationSec = resolveDurationSec(data.estimatedDuration);
+  if (durationSec != null) {
+    rows.push({
+      key: 'estimatedDuration',
+      label: SCHEDULE_METRIC_LABEL.estimatedDuration,
+      value: getDefaultDurationDisplay(durationSec, data.estimatedDuration?.unit),
+      description: resolveScheduleDescription(
+        data.estimatedDuration?.description,
+        DEFAULT_SCHEDULE_DESCRIPTIONS.estimatedDuration,
+      ),
+    });
+  }
+
+  const intervalSec = resolveDurationSec(data.minInterval);
+  if (intervalSec != null) {
+    rows.push({
+      key: 'minInterval',
+      label: SCHEDULE_METRIC_LABEL.minInterval,
+      value: getDefaultDurationDisplay(intervalSec, data.minInterval?.unit),
+      description: resolveScheduleDescription(
+        data.minInterval?.description,
+        DEFAULT_SCHEDULE_DESCRIPTIONS.minInterval,
+      ),
+    });
+  }
+
+  return rows;
+}

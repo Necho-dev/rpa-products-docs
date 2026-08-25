@@ -10,6 +10,15 @@ estimatedDuration:
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。
 module:
   group: gys
+references:
+  - kind: dependency
+    path: /docs/auth/ACCOUNT_PASSWORD/RPA_WEIPINHUI_GYS
+    mode: summary
+    badge:
+      label: 授权依赖
+    prompt:
+      label: 请提前完成授权配置
+      type: warning
 ---
 
 | 属性             | 值                                                                                   |

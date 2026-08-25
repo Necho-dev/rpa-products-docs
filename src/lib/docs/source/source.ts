@@ -4,6 +4,7 @@ import { docsContentRoute, docsImageRoute, docsRoute, getPublicSiteUrlIfSet } fr
 import { docIconsPlugin } from '@/lib/docs/source/doc-icons-plugin';
 import { docsEntryInSidebarPlugin } from '@/lib/docs/source/docs-entry-in-sidebar-plugin';
 import { rewriteMarkdownImagesForEmbed } from '@/lib/docs/embed/markdown';
+import { unwrapFdSteps } from '@/lib/docs/llms/unwrap-fd-steps';
 import { stripTocOnlyHeadings } from '@/lib/docs/source/module-grid-fs-scan';
 
 // See https://fumadocs.dev/docs/headless/source-api for more info
@@ -79,7 +80,7 @@ export async function getLLMText(
     siteOrigin,
     docsRelativePaths: options?.docsRelativeImagePaths,
   });
-  const body = stripTocOnlyHeadings(rewritten);
+  const body = stripTocOnlyHeadings(unwrapFdSteps(rewritten));
 
   return `# ${page.data.title} (${page.url})
 
@@ -100,6 +101,6 @@ export async function getEmbedMarkdown(
   const rewritten = rewriteMarkdownImagesForEmbed(processed, raw, page.path, {
     cubeOrigin,
   });
-  const body = stripTocOnlyHeadings(rewritten);
+  const body = stripTocOnlyHeadings(unwrapFdSteps(rewritten));
   return `# ${page.data.title} (${page.url})\n\n${body}`;
 }

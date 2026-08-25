@@ -52,7 +52,7 @@ export function PeekToc({ items }: { items: TOCItemType[] }) {
       <div
         data-doc-peek-toc-col=""
         className={cn(
-          'sticky top-0 z-20 hidden h-[calc(var(--fd-docs-height)-var(--fd-docs-row-2))] shrink-0 self-start xl:block',
+          'pointer-events-none sticky top-0 z-10 hidden h-[calc(var(--fd-docs-height)-var(--fd-docs-row-2))] shrink-0 self-start xl:block',
           compact ? 'w-14' : 'w-(--fd-toc-width) [--fd-toc-width:12.5rem]',
         )}
       >
@@ -61,8 +61,8 @@ export function PeekToc({ items }: { items: TOCItemType[] }) {
           data-doc-peek-toc=""
           data-toc-compact={compact || undefined}
           className={cn(
-            'not-prose flex h-full flex-col overflow-hidden pt-4 pe-3 pb-2',
-            compact ? 'absolute inset-e-0 top-0 w-14' : 'w-full',
+            'not-prose flex h-full flex-col overflow-hidden pt-12 pe-3 pb-2',
+            compact ? 'pointer-events-none absolute inset-e-0 top-0 bottom-32 w-14' : 'pointer-events-auto w-full',
             '[--fd-toc-width:12.5rem]',
           )}
         >

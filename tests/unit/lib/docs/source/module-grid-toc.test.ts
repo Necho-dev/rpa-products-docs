@@ -117,6 +117,7 @@ describe('groupKeyFromLocationHash', () => {
   it('resolves group key from hash', () => {
     assert.equal(groupKeyFromLocationHash('#内含连接器-shop', anchors), 'shop');
     assert.equal(groupKeyFromLocationHash('', anchors), null);
+    assert.equal(groupKeyFromLocationHash('#peek--内含连接器-shop', anchors), 'shop');
     assert.equal(groupKeyFromLocationHash('#unknown', anchors), null);
   });
 });
