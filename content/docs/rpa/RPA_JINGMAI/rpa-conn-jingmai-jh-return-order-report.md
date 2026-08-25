@@ -3,8 +3,8 @@ title: 京慧-退货订单-明细报表
 description: 按退货上架时间与创建日期筛选京慧退货订单报表，异步导出并解析为行级明细
 entry: rpa.conn.jingmai.jh.return.order.report
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 60
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

@@ -3,8 +3,8 @@ title: 京慧-销售出库-订单明细
 description: 按创建日期与下单日期筛选京慧销售出库订单及明细报表，异步导出并解析为行级明细
 entry: rpa.conn.jingmai.jh.sales.order.report
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 60
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

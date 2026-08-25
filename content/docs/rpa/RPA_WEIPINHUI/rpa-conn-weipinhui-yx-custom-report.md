@@ -3,8 +3,8 @@ title: 营销数据-下载中心-自定义报表
 description: 按报表模板名称与时间粒度匹配唯品会营销平台自定义报表，设置日期后异步导出并解析为行级明细
 entry: rpa.conn.weipinhui.yx.custom.report
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 60
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

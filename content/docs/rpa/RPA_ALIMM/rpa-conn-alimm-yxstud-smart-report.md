@@ -3,8 +3,8 @@ title: 营销生态UD-报表-UDSmart
 description: 从阿里妈妈营销生态UD进入 UD智汇投，导出 UDSmart 报表明细，支持按投放媒体、归因周期、归因模型及汇总周期筛选
 entry: rpa.conn.alimm.yxstud.smart.report
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 120
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

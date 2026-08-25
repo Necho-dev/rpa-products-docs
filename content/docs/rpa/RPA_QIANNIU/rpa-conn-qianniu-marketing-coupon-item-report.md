@@ -3,8 +3,8 @@ title: 营销-优惠券管理-优惠券明细列表
 description: 按推广方式、商品生效范围、可用时间等条件，从优惠券管理批量导出商品明细报表
 entry: rpa.conn.qianniu.marketing.coupon.item.report
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 90
   description: 根据测试运行耗时估算，每翻一页约 5s；实际运行耗时将受到数据量、调度并发、网路波动等情况影响。
