@@ -51,6 +51,79 @@ export function canonicalDocsHref(path: string, hash = ''): string {
   return `${stripTrailingSlash(path)}${h}`;
 }
 
+/** 分屏打开默认 1:1 */
+export const DEFAULT_PEEK_RATIO = 0.5;
+
+/** 左:右 分栏预设，写入 peekRatio（仍夹在 0.28–0.72） */
+export const PEEK_RATIO_PRESETS = [
+  { label: '2:1', ratio: 2 / 3 },
+  { label: '1:1', ratio: DEFAULT_PEEK_RATIO },
+  { label: '1:2', ratio: 1 / 3 },
+] as const;
+
+export type DocPeekSurfaceKind = 'main' | 'peek';
+
+/**
+ * 正文 DocsLink：单栏或双栏均右栏 peek。
+ * onlyWhenSplit（module-grid）：主栏点击始终走左栏路由，不打开/改右栏。
+ */
+export function shouldPeekDocsLink(input: {
+  splitOpen: boolean;
+  surface: DocPeekSurfaceKind;
+  onlyWhenSplit?: boolean;
+}): boolean {
+  if (input.surface === 'peek') return true;
+  if (input.onlyWhenSplit) return false;
+  return true;
+}
+
+export function buildPeekShareUrl(
+  origin: string,
+  leftPath: string,
+  leftHash: string,
+  right: DocPeekTarget,
+): string {
+  const url = new URL(origin);
+  url.pathname = stripTrailingSlash(leftPath);
+  url.search = '';
+  url.searchParams.set('peek', encodePeekTarget(right.path, right.hash));
+  const hash = leftHash.startsWith('#') ? leftHash.slice(1) : leftHash;
+  url.hash = hash;
+  return url.toString();
+}
+
+export type DocShareLinks = {
+  /** 当前这篇文档自己的地址，与分享图、二维码一致 */
+  pageUrl: string;
+  /** 双栏对比地址；未开双栏时为 null */
+  compareUrl: string | null;
+};
+
+/**
+ * 单页链接与双栏对比链接分开返回，避免分享面板把两者混成一条。
+ * 对比链接沿用 pageUrl 的 origin，保证与二维码指向同一站点。
+ */
+export function resolveDocShareLinks(input: {
+  pageUrl: string;
+  leftPath: string;
+  leftHash: string;
+  peekTarget: DocPeekTarget | null;
+  splitOpen: boolean;
+}): DocShareLinks {
+  const { pageUrl, leftPath, leftHash, peekTarget, splitOpen } = input;
+  if (!splitOpen || !peekTarget) return { pageUrl, compareUrl: null };
+
+  let origin: string;
+  try {
+    origin = new URL(pageUrl).origin;
+  } catch {
+    return { pageUrl, compareUrl: null };
+  }
+
+  const compareUrl = buildPeekShareUrl(origin, leftPath, leftHash, peekTarget);
+  return { pageUrl, compareUrl: compareUrl === pageUrl ? null : compareUrl };
+}
+
 export function isSameDocsPage(href: string, pageUrl: string, currentPathname: string): boolean {
   if (classifyLink(href, pageUrl) !== 'docs') return false;
   try {

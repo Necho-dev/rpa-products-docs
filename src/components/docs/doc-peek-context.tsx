@@ -15,11 +15,14 @@ import {
 import { usePathname, useRouter } from 'next/navigation';
 import { useSidebar } from 'fumadocs-ui/layouts/notebook/slots/sidebar';
 import {
+  canonicalDocsHref,
+  DEFAULT_PEEK_RATIO,
   isSameDocsPage,
+  parsePeekTarget,
   writePeekCookie,
   type DocPeekTarget,
 } from '@/lib/docs/doc-peek';
-import { docsPathAndHashFromHref } from '@/lib/docs/link-kind';
+import { docsPathAndHashFromHref, stripTrailingSlash } from '@/lib/docs/link-kind';
 import {
   findAnchorInRoot,
   getAnchorScrollRoot,
@@ -50,6 +53,7 @@ export type DocPeekContextValue = {
   open: boolean;
   desktop: boolean;
   target: DocPeekTarget | null;
+  blankSplit: boolean;
   peekRatio: number;
   setPeekRatio: (ratio: number) => void;
   splitDragging: boolean;
@@ -59,7 +63,10 @@ export type DocPeekContextValue = {
   pinned: boolean;
   togglePeekPin: () => void;
   openPeek: (href: string, from?: DocPeekSurface) => void;
+  hydrate: (target: DocPeekTarget) => void;
+  openSplitView: () => void;
   closePeek: () => void;
+  openFullPage: (href?: string) => void;
   refreshPeek: () => void;
   peekBack: () => void;
   peekForward: () => void;
@@ -74,17 +81,25 @@ export function useDocPeek(): DocPeekContextValue | null {
 
 type StackState = { entries: DocPeekTarget[]; index: number };
 
+function stackFromTarget(target: DocPeekTarget | null): StackState {
+  if (!target) return { entries: [], index: -1 };
+  return { entries: [target], index: 0 };
+}
+
 export function DocPeekProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname() ?? '/';
   const desktop = useSyncExternalStore(subscribeXl, getXlSnapshot, getXlServerSnapshot);
-  const [peekRatio, setPeekRatio] = useState(0.5);
+  const [peekRatio, setPeekRatio] = useState(DEFAULT_PEEK_RATIO);
   const [splitDragging, setSplitDragging] = useState(false);
   const [stack, setStack] = useState<StackState>({ entries: [], index: -1 });
   const [pinned, setPinned] = useState(false);
+  const [blankSplit, setBlankSplit] = useState(false);
   const [pending, startTransition] = useTransition();
   const pathnameRef = useRef(pathname);
   const pinnedRef = useRef(false);
+  const openRef = useRef(false);
+  const lastTargetRef = useRef<DocPeekTarget | null>(null);
   const leftScrollRef = useRef(0);
   const sidebar = useSidebar();
   const setCollapsed = sidebar.setCollapsed;
@@ -93,7 +108,7 @@ export function DocPeekProvider({ children }: { children: ReactNode }) {
   const collapsedSnapshot = useRef<boolean | null>(null);
 
   const target = stack.index >= 0 ? (stack.entries[stack.index] ?? null) : null;
-  const open = Boolean(target) && desktop;
+  const open = (Boolean(target) || blankSplit) && desktop;
 
   useEffect(() => {
     collapsedRef.current = collapsed;
@@ -104,13 +119,31 @@ export function DocPeekProvider({ children }: { children: ReactNode }) {
   }, [pinned]);
 
   useEffect(() => {
-    const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
-    if (nav?.type === 'reload') writePeekCookie(null);
+    openRef.current = open;
+  }, [open]);
+
+  useEffect(() => {
+    if (target) lastTargetRef.current = target;
+  }, [target]);
+
+  useEffect(() => {
+    const nav = performance.getEntriesByType('navigation')[0] as
+      | PerformanceNavigationTiming
+      | undefined;
+    if (nav?.type !== 'reload') return;
+    const fromUrl = parsePeekTarget(
+      new URLSearchParams(window.location.search).get('peek') ?? undefined,
+    );
+    if (fromUrl) {
+      writePeekCookie(fromUrl);
+      return;
+    }
+    writePeekCookie(null);
   }, []);
 
   useEffect(() => {
     const onNavClick = (e: MouseEvent) => {
-      if (pinnedRef.current) return;
+      if (pinnedRef.current || openRef.current) return;
       const el = e.target;
       if (!(el instanceof Element)) return;
       if (!el.closest('#nd-sidebar a, #nd-subnav a')) return;
@@ -124,8 +157,10 @@ export function DocPeekProvider({ children }: { children: ReactNode }) {
     const prev = pathnameRef.current;
     if (prev === pathname) return;
     pathnameRef.current = pathname;
-    if (pinnedRef.current) return;
+    if (pinnedRef.current || openRef.current) return;
     writePeekCookie(null);
+    setBlankSplit(false);
+    setPinned(false);
     setStack({ entries: [], index: -1 });
   }, [pathname]);
 
@@ -169,9 +204,18 @@ export function DocPeekProvider({ children }: { children: ReactNode }) {
     if (el) leftScrollRef.current = el.scrollTop;
   };
 
+  const resetPeekRatio = useCallback(() => {
+    setPeekRatio(DEFAULT_PEEK_RATIO);
+    const layout = document.getElementById('nd-notebook-layout');
+    if (!layout) return;
+    layout.style.setProperty('--fd-peek-left-fr', `${DEFAULT_PEEK_RATIO}fr`);
+    layout.style.setProperty('--fd-peek-right-fr', `${1 - DEFAULT_PEEK_RATIO}fr`);
+  }, []);
+
   const applyTarget = useCallback(
     (next: DocPeekTarget | null, nextStack: StackState) => {
       rememberLeftScroll();
+      setBlankSplit(false);
       setStack(nextStack);
       writePeekCookie(next);
       startTransition(() => {
@@ -213,19 +257,70 @@ export function DocPeekProvider({ children }: { children: ReactNode }) {
       } else {
         nextStack = { entries: [parsed], index: 0 };
       }
+      if (!openRef.current) resetPeekRatio();
       applyTarget(parsed, nextStack);
     },
-    [applyTarget, pathname, router, stack],
+    [applyTarget, pathname, resetPeekRatio, router, stack],
   );
 
   const togglePeekPin = useCallback(() => {
     setPinned((prev) => !prev);
   }, []);
 
+  const hydrate = useCallback((next: DocPeekTarget) => {
+    lastTargetRef.current = next;
+    setBlankSplit(false);
+    setStack(stackFromTarget(next));
+    writePeekCookie(next);
+  }, []);
+
+  const openSplitView = useCallback(() => {
+    if (target || blankSplit) return;
+    resetPeekRatio();
+    const last = lastTargetRef.current;
+    if (last) {
+      applyTarget(last, stackFromTarget(last));
+      return;
+    }
+    setBlankSplit(true);
+  }, [applyTarget, blankSplit, resetPeekRatio, target]);
+
   const closePeek = useCallback(() => {
     setPinned(false);
+    setBlankSplit(false);
     applyTarget(null, { entries: [], index: -1 });
   }, [applyTarget]);
+
+  const openFullPage = useCallback(
+    (href?: string) => {
+      const next =
+        href?.trim() ||
+        (target ? canonicalDocsHref(target.path, target.hash) : '');
+      setPinned(false);
+      setBlankSplit(false);
+      setStack({ entries: [], index: -1 });
+      writePeekCookie(null);
+      if (!next) {
+        startTransition(() => {
+          router.refresh();
+        });
+        return;
+      }
+      try {
+        const url = new URL(next, window.location.href);
+        if (stripTrailingSlash(url.pathname) === stripTrailingSlash(pathname)) {
+          startTransition(() => {
+            router.refresh();
+          });
+          return;
+        }
+      } catch {
+        /* fall through to push */
+      }
+      router.push(next);
+    },
+    [pathname, router, target],
+  );
 
   const refreshPeek = useCallback(() => {
     rememberLeftScroll();
@@ -252,6 +347,7 @@ export function DocPeekProvider({ children }: { children: ReactNode }) {
       open,
       desktop,
       target,
+      blankSplit,
       peekRatio,
       setPeekRatio,
       splitDragging,
@@ -261,17 +357,24 @@ export function DocPeekProvider({ children }: { children: ReactNode }) {
       pinned,
       togglePeekPin,
       openPeek,
+      hydrate,
+      openSplitView,
       closePeek,
+      openFullPage,
       refreshPeek,
       peekBack,
       peekForward,
       pending,
     }),
     [
+      blankSplit,
       closePeek,
       desktop,
       open,
+      openFullPage,
       openPeek,
+      hydrate,
+      openSplitView,
       peekBack,
       peekForward,
       peekRatio,
@@ -279,7 +382,6 @@ export function DocPeekProvider({ children }: { children: ReactNode }) {
       pinned,
       refreshPeek,
       splitDragging,
-      togglePeekPin,
       togglePeekPin,
       target,
       stack.index,

@@ -18,6 +18,60 @@ import { safeWriteClipboard } from '@/lib/ui/code-block-utils';
 
 type CopyState = 'idle' | 'ok' | 'err';
 
+function useCopyLink() {
+  const [state, setState] = useState<CopyState>('idle');
+  const copy = useCallback((url: string) => {
+    void safeWriteClipboard(url).then(() => {
+      setState('ok');
+      setTimeout(() => setState('idle'), 2000);
+    });
+  }, []);
+  return [state, copy] as const;
+}
+
+function ShareLinkRow({
+  label,
+  hint,
+  url,
+  copied,
+  onCopy,
+}: {
+  label: string;
+  hint?: string;
+  url: string;
+  copied: CopyState;
+  onCopy: () => void;
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <span className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-xs font-medium text-fd-muted-foreground">
+        {label}
+        {hint ? <span className="font-normal text-fd-muted-foreground/70">{hint}</span> : null}
+      </span>
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <input
+          readOnly
+          value={url}
+          title={url}
+          aria-label={label}
+          className="min-w-0 flex-1 rounded-lg border border-fd-border bg-fd-background px-3 py-2 text-[11px] text-fd-foreground sm:text-xs"
+        />
+        <button
+          type="button"
+          onClick={onCopy}
+          className={cn(
+            buttonVariants({ color: 'secondary', size: 'sm' }),
+            'w-full shrink-0 gap-1.5 sm:w-auto',
+          )}
+        >
+          {copied === 'ok' ? <CheckIcon className="size-3.5" /> : <CopyIcon className="size-3.5" />}
+          复制
+        </button>
+      </div>
+    </div>
+  );
+}
+
 const emptySubscribe = () => () => {};
 
 function useIsClient() {
@@ -53,6 +107,7 @@ function fitPosterSize(naturalW: number, naturalH: number, maxW: number, maxH: n
 
 export function PosterPreview({ posterUrl, title }: { posterUrl: string; title: string }) {
   const frameRef = useRef<HTMLDivElement>(null);
+  const stableWidth = useRef<number | null>(null);
   const [natural, setNatural] = useState<PosterSize | null>(null);
   const [layout, setLayout] = useState<PosterSize | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -62,25 +117,41 @@ export function PosterPreview({ posterUrl, title }: { posterUrl: string; title: 
 
   const recomputeLayout = useCallback(() => {
     if (!natural || !frameRef.current) return;
-    const maxW = frameRef.current.clientWidth;
-    if (maxW <= 0) return;
-    setLayout(fitPosterSize(natural.width, natural.height, maxW, getPosterMaxHeightPx()));
+    const measured = frameRef.current.clientWidth;
+    if (measured <= 0) return;
+    /*
+     * 海报撑满可用宽度会改变弹窗内容高度，进而让滚动条出现/消失，可用宽度随之来回跳动，
+     * ResizeObserver 就会陷入抖动。这里收敛到观察到的最小宽度（即有滚动条时的宽度），
+     * 仅在视口真正变化时重新放开。
+     */
+    const maxW = Math.min(measured, stableWidth.current ?? measured);
+    stableWidth.current = maxW;
+    const next = fitPosterSize(natural.width, natural.height, maxW, getPosterMaxHeightPx());
+    setLayout((prev) =>
+      prev && prev.width === next.width && prev.height === next.height ? prev : next,
+    );
   }, [natural]);
+
+  const handleViewportResize = useCallback(() => {
+    stableWidth.current = null;
+    recomputeLayout();
+  }, [recomputeLayout]);
 
   useEffect(() => {
     if (!natural) return;
+    stableWidth.current = null;
     recomputeLayout();
     const frame = frameRef.current;
     if (!frame) return;
 
     const observer = new ResizeObserver(() => recomputeLayout());
     observer.observe(frame);
-    window.addEventListener('resize', recomputeLayout);
+    window.addEventListener('resize', handleViewportResize);
     return () => {
       observer.disconnect();
-      window.removeEventListener('resize', recomputeLayout);
+      window.removeEventListener('resize', handleViewportResize);
     };
-  }, [natural, recomputeLayout]);
+  }, [natural, recomputeLayout, handleViewportResize]);
 
   return (
     <div ref={frameRef} className="w-full">
@@ -120,6 +191,7 @@ export function PosterPreview({ posterUrl, title }: { posterUrl: string; title: 
             setLoaded(true);
             const maxW = frameRef.current?.clientWidth ?? 0;
             if (maxW > 0) {
+              stableWidth.current = maxW;
               setLayout(fitPosterSize(nat.width, nat.height, maxW, getPosterMaxHeightPx()));
             }
           }}
@@ -170,6 +242,8 @@ export type SharePosterDialogProps = {
   title: string;
   description?: string;
   pageUrl: string;
+  /** 双栏对比链接单独一行，不与单页链接混用 */
+  compareUrl?: string | null;
   posterUrl: string;
   downloadFileName?: string;
 };
@@ -181,10 +255,12 @@ export function SharePosterDialog({
   title,
   description,
   pageUrl,
+  compareUrl,
   posterUrl,
   downloadFileName = 'doc-share-poster.png',
 }: SharePosterDialogProps) {
-  const [linkCopied, setLinkCopied] = useState<CopyState>('idle');
+  const [linkCopied, copyLink] = useCopyLink();
+  const [compareCopied, copyCompare] = useCopyLink();
   const [imageCopied, setImageCopied] = useState<CopyState>('idle');
   const isClient = useIsClient();
   const canNativeShare = useCanNativeShare();
@@ -209,12 +285,7 @@ export function SharePosterDialog({
     return res.blob();
   }, [posterUrl]);
 
-  const handleCopyLink = () => {
-    void safeWriteClipboard(pageUrl).then(() => {
-      setLinkCopied('ok');
-      setTimeout(() => setLinkCopied('idle'), 2000);
-    });
-  };
+  const handleCopyLink = () => copyLink(pageUrl);
 
   const handleDownload = () => {
     void (async () => {
@@ -297,7 +368,7 @@ export function SharePosterDialog({
           </button>
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:gap-4 sm:px-4 sm:py-4 sm:pb-4">
+        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain [scrollbar-gutter:stable] px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:gap-4 sm:px-4 sm:py-4 sm:pb-4">
           <div className="flex flex-col gap-1">
             <h2 className="line-clamp-3 text-sm font-semibold text-fd-foreground sm:line-clamp-none sm:text-base">
               {title}
@@ -312,28 +383,21 @@ export function SharePosterDialog({
             <PosterPreview key={posterUrl} posterUrl={posterUrl} title={title} />
           </div>
 
-          <div className="flex flex-col gap-2">
-            <span className="text-xs font-medium text-fd-muted-foreground">文档链接</span>
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <input
-                readOnly
-                value={pageUrl}
-                title={pageUrl}
-                className="min-w-0 flex-1 rounded-lg border border-fd-border bg-fd-background px-3 py-2 text-[11px] text-fd-foreground sm:text-xs"
-              />
-              <button
-                type="button"
-                onClick={handleCopyLink}
-                className={cn(
-                  buttonVariants({ color: 'secondary', size: 'sm' }),
-                  'w-full shrink-0 gap-1.5 sm:w-auto',
-                )}
-              >
-                {linkCopied === 'ok' ? <CheckIcon className="size-3.5" /> : <CopyIcon className="size-3.5" />}
-                复制
-              </button>
-            </div>
-          </div>
+          <ShareLinkRow
+            label="当前文档链接"
+            url={pageUrl}
+            copied={linkCopied}
+            onCopy={handleCopyLink}
+          />
+
+          {compareUrl ? (
+            <ShareLinkRow
+              label="双栏对比链接"
+              url={compareUrl}
+              copied={compareCopied}
+              onCopy={() => copyCompare(compareUrl)}
+            />
+          ) : null}
 
           <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
             <ActionButton

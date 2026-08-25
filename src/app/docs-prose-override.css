@@ -1329,7 +1329,7 @@ html,
 #nd-toc,
 [data-doc-peek-open] #nd-page,
 [data-doc-peek-scroll] {
-  scrollbar-gutter: auto;
+  scrollbar-gutter: stable;
 }
 
 html::-webkit-scrollbar,
@@ -1363,4 +1363,142 @@ html:hover::-webkit-scrollbar-thumb,
 
 [data-doc-peek-sheet] [data-doc-peek-toc] {
   display: none;
+}
+
+#nd-notebook-layout[data-doc-peek-open] {
+  --fd-toc-width: 12.5rem;
+}
+
+#nd-notebook-layout[data-toc-compact-left] {
+  --fd-toc-width: 3.5rem;
+}
+
+/*
+ * 折叠轨 56px；hover 浮出原目录样式（标题/字号/指示条），宽度随内容、上限 20rem。
+ */
+#nd-notebook-layout[data-toc-compact-left] #nd-toc,
+[data-doc-peek-toc][data-toc-compact] {
+  isolation: isolate;
+  background-color: transparent;
+  transition: none !important;
+}
+
+#nd-notebook-layout[data-toc-compact-left] #nd-toc {
+  width: 3.5rem;
+  max-width: 3.5rem;
+  min-width: 3.5rem;
+  justify-self: end;
+  overflow: hidden;
+}
+
+#nd-notebook-layout[data-toc-compact-left] #nd-toc:not(:hover):not(:focus-within),
+[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within) {
+  pointer-events: none;
+  padding-inline: 0;
+}
+
+[data-doc-peek-toc][data-toc-compact] {
+  width: 3.5rem;
+  max-width: 3.5rem;
+  padding-inline-end: 0;
+  overflow: hidden;
+}
+
+#nd-notebook-layout[data-toc-compact-left] #nd-toc:is(:hover, :focus-within),
+[data-doc-peek-toc][data-toc-compact]:is(:hover, :focus-within) {
+  z-index: 50;
+  width: fit-content;
+  min-width: 12.5rem;
+  max-width: 20rem;
+  overflow: hidden;
+  padding-inline-start: 0.75rem;
+  padding-inline-end: 0.75rem;
+  border-start-start-radius: 8px;
+  border-end-start-radius: 8px;
+  background-color: color-mix(in srgb, var(--color-fd-background) 58%, transparent);
+  backdrop-filter: blur(16px);
+  box-shadow:
+    -1px 0 0 color-mix(in srgb, var(--color-fd-border) 40%, transparent),
+    -8px 0 28px rgba(53, 64, 90, 0.12);
+}
+
+/*
+ * 右栏目录的 sticky 外层是 z-20，自成堆叠上下文，
+ * 会把浮层的 z-50 关在里面，让 z-40 的悬浮按钮盖住目录内容。
+ */
+[data-doc-peek-toc-col]:has([data-doc-peek-toc]:is(:hover, :focus-within)) {
+  z-index: 50;
+}
+
+#nd-notebook-layout[data-toc-compact-left] #nd-toc:is(:hover, :focus-within) a,
+[data-doc-peek-toc][data-toc-compact]:is(:hover, :focus-within) a {
+  width: max-content;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 折叠：无「目录」标题，只留短横轨 */
+#nd-notebook-layout[data-toc-compact-left] #nd-toc:not(:hover):not(:focus-within) #toc-title,
+[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within) #peek-toc-title {
+  display: none;
+}
+
+#nd-notebook-layout[data-toc-compact-left] #nd-toc:not(:hover):not(:focus-within) a,
+[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within) a {
+  position: relative;
+  display: flex;
+  height: 18px;
+  min-height: 18px;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  padding-block: 0;
+  padding-inline: 0 !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  color: transparent !important;
+  pointer-events: auto;
+}
+
+#nd-notebook-layout[data-toc-compact-left] #nd-toc:not(:hover):not(:focus-within) a > *,
+[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within) a > * {
+  visibility: hidden;
+}
+
+#nd-notebook-layout[data-toc-compact-left] #nd-toc:not(:hover):not(:focus-within) a::after,
+[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within) a::after {
+  content: '';
+  width: 24px;
+  height: 2px;
+  border-radius: 2px;
+  background: color-mix(in srgb, rgb(107, 114, 148) 24%, transparent);
+}
+
+#nd-notebook-layout[data-toc-compact-left] #nd-toc:not(:hover):not(:focus-within) a.ps-6::after,
+[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within) a.ps-6::after {
+  width: 20px;
+}
+
+#nd-notebook-layout[data-toc-compact-left] #nd-toc:not(:hover):not(:focus-within) a.ps-8::after,
+[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within) a.ps-8::after {
+  width: 16px;
+}
+
+#nd-notebook-layout[data-toc-compact-left] #nd-toc:not(:hover):not(:focus-within) a[data-active='true']::after,
+[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within) a[data-active='true']::after {
+  width: 24px;
+  background: var(--color-fd-primary);
+}
+
+/* 仅折叠轨去掉指示竖线；展开后恢复原目录 border-s + TocThumb */
+#nd-notebook-layout[data-toc-compact-left] #nd-toc:not(:hover):not(:focus-within) .bg-fd-primary.w-px,
+[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within) .bg-fd-primary.w-px {
+  display: none;
+}
+
+#nd-notebook-layout[data-toc-compact-left] #nd-toc:not(:hover):not(:focus-within) .border-s,
+[data-doc-peek-toc][data-toc-compact]:not(:hover):not(:focus-within) .border-s {
+  border-inline-start-width: 0;
 }

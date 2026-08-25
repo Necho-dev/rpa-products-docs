@@ -45,7 +45,7 @@ function SkeletonTable({ rows, cols = 3 }: { rows: number; cols?: number }) {
 
 export function PeekArticleSkeleton() {
   return (
-    <div className="flex min-h-full">
+    <div className="flex min-h-full w-full">
       <div className="flex min-h-full min-w-0 flex-1 flex-col gap-5 px-4 py-6 md:px-5 md:pt-8 xl:px-6 xl:pt-10">
         <div role="status" aria-live="polite" className="flex items-center gap-2 text-xs text-fd-muted-foreground">
           <Loader2Icon className="size-3.5 animate-spin text-fd-primary" aria-hidden />
@@ -87,7 +87,7 @@ export function PeekArticleSkeleton() {
         <SkeletonTable rows={4} cols={3} />
         </div>
       </div>
-      <div className="hidden w-(--fd-toc-width) shrink-0 pt-12 xl:block">
+      <div className="hidden w-(--fd-toc-width) shrink-0 pt-4 xl:block">
         <div className="space-y-2.5 pe-3">
           <Pulse className="mb-3 h-3 w-10" />
           {['w-24', 'w-20', 'w-[6.5rem]', 'w-16', 'w-[7rem]', 'w-[5.5rem]', 'w-24', 'w-14'].map((w, i) => (

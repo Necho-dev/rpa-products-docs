@@ -3,6 +3,7 @@ import { DocsBody, PageLastUpdate } from 'fumadocs-ui/layouts/notebook/page';
 import { createRelativeLink } from 'fumadocs-ui/mdx';
 import type { TOCItemType } from 'fumadocs-core/toc';
 import { PeekToc } from '@/components/docs/peek-toc';
+import { PeekHeadingScope } from '@/components/docs/peek-heading-scope';
 import { isCubeSsoEnabled } from '@/lib/auth/auth-config';
 import { getMDXComponents } from '@/components/docs/mdx';
 import { DocsLink } from '@/components/docs/docs-link';
@@ -68,6 +69,9 @@ export async function PeekArticle({
   };
   const showSchedule = hasScheduleMeta(scheduleMeta);
   const toc = (page.data.toc ?? []) as TOCItemType[];
+  const tocIds = toc
+    .map((item) => item.url.replace(/^#/, ''))
+    .filter((id) => id.length > 0);
   const markdownUrl = getPageMarkdownUrl(page).url;
   const hdrs = await headers();
   const origin = inferSiteOrigin(
@@ -77,8 +81,9 @@ export async function PeekArticle({
   const lastModified = page.data.lastModified;
 
   return (
-    <div data-doc-peek="true" data-doc-path={page.url} className="flex min-h-full">
-      <article className="flex min-h-full min-w-0 flex-1 flex-col px-4 py-6 md:px-5 md:pt-8 xl:px-6 xl:pt-10">
+    <div data-doc-peek="true" data-doc-path={page.url} className="flex min-h-full w-full">
+      <PeekHeadingScope ids={tocIds}>
+        <article className="flex min-h-full min-w-0 flex-1 flex-col px-4 py-6 md:px-5 md:pt-8 xl:px-6 xl:pt-10">
         <DocsBreadcrumb pageUrl={page.url} className="mb-2" />
         <h1 className="text-[1.5em] font-semibold">{page.data.title}</h1>
         {showSchedule ? (
@@ -126,7 +131,8 @@ export async function PeekArticle({
         {lastModified ? (
           <PageLastUpdate date={lastModified} className="mt-auto pt-2" />
         ) : null}
-      </article>
+        </article>
+      </PeekHeadingScope>
       <PeekToc items={toc} />
     </div>
   );

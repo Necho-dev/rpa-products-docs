@@ -27,6 +27,7 @@ import { inferSiteOrigin } from '@/lib/core/site-origin';
 import { DOC_PEEK_COOKIE, parsePeekTarget, shouldRenderPeekFromCookie } from '@/lib/docs/doc-peek';
 import { DocSplitShell } from '@/components/docs/doc-split-shell';
 import { PeekArticle, peekArticleTitle } from '@/components/docs/peek-article';
+import { DocPeekSeed } from '@/components/docs/doc-peek-seed';
 
 /** 路由段配置须为静态字面量；按请求做私有文档鉴权也需动态渲染 */
 export const dynamic = 'force-dynamic';
@@ -74,9 +75,12 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
   };
   const showSchedulePanel = hasScheduleMeta(scheduleMeta);
   const cookieStore = await cookies();
+  const searchParams = await props.searchParams;
+  const peekFromQuery = parsePeekTarget(searchParams.peek);
   const peekCookie = shouldRenderPeekFromCookie(hdrs)
     ? parsePeekTarget(cookieStore.get(DOC_PEEK_COOKIE)?.value)
     : null;
+  const peekTarget = peekFromQuery ?? peekCookie;
 
   return (
     <>
@@ -133,9 +137,10 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
         <PageLastUpdate date={lastModified} className="mt-auto pt-2" />
       ) : null}
     </DocsPage>
-    {peekCookie ? (
-      <DocSplitShell title={peekArticleTitle(peekCookie.path)}>
-        <PeekArticle path={peekCookie.path} access={access} />
+    <DocPeekSeed target={peekFromQuery} />
+    {peekTarget ? (
+      <DocSplitShell title={peekArticleTitle(peekTarget.path)}>
+        <PeekArticle path={peekTarget.path} access={access} />
       </DocSplitShell>
     ) : (
       <DocSplitShell title="文档预览">{null}</DocSplitShell>

@@ -44,11 +44,12 @@ export function DocFeedbackDialog({
     setSubmitted(false);
   }, []);
 
-  useEffect(() => {
-    if (!open) {
-      resetForm();
-    }
-  }, [open, resetForm]);
+  // 关闭时在渲染期清空表单，避免 effect 内同步 setState 造成级联渲染。
+  const [wasOpen, setWasOpen] = useState(open);
+  if (wasOpen !== open) {
+    setWasOpen(open);
+    if (!open) resetForm();
+  }
 
   useEffect(() => {
     if (!submitted) return;

@@ -42,7 +42,7 @@ export function AISearchPanel() {
       <Presence present={open}>
         <div
           data-state={open ? 'open' : 'closed'}
-          className="fixed inset-0 z-40 backdrop-blur-xs bg-fd-overlay data-[state=open]:animate-fd-fade-in data-[state=closed]:animate-fd-fade-out lg:hidden"
+          className="fixed inset-0 z-70 backdrop-blur-xs bg-fd-overlay data-[state=open]:animate-fd-fade-in data-[state=closed]:animate-fd-fade-out lg:hidden"
           onClick={() => setOpen(false)}
         />
       </Presence>
@@ -50,7 +50,7 @@ export function AISearchPanel() {
         <div
           className={cn(
             /* 悬浮层，不占用任何布局空间 */
-            'fixed z-50 overflow-hidden bg-fd-card text-fd-card-foreground shadow-2xl border rounded-2xl',
+            'fixed z-70 overflow-hidden bg-fd-card text-fd-card-foreground shadow-2xl border rounded-2xl',
             '[--ai-chat-width:min(calc(100vw-1.25rem),640px)]',
             /* 小屏：铺满视口 */
             'max-lg:inset-x-1.5 max-lg:inset-y-3',
@@ -59,7 +59,7 @@ export function AISearchPanel() {
             'lg:bottom-[max(4.5rem,calc(env(safe-area-inset-bottom,0px)+4.5rem))]',
             'lg:inset-e-[max(1.25rem,calc(1.25rem+var(--removed-body-scroll-bar-size,0px)))]',
             /* 固定高度：默认 960px，视口不够时收缩，保底 400px */
-            'lg:h-[min(960px,calc(100dvh-6rem))] lg:min-h-[400px]',
+            'lg:h-[min(960px,calc(100dvh-6rem))] lg:min-h-100',
             open ? 'animate-fd-dialog-in' : 'animate-fd-dialog-out',
           )}
         >

@@ -6,6 +6,7 @@ import {
   type ReactNode,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   useSyncExternalStore,
@@ -97,8 +98,6 @@ const ANCHOR_ICON_CLASS = 'size-9';
 const FAB_INSET_END_CLASS =
   'inset-e-[max(2.75rem,calc(2.75rem+var(--removed-body-scroll-bar-size,0px)),env(safe-area-inset-end,0px))]';
 const FAB_INSET_BOTTOM_CLASS = 'bottom-[max(5rem,env(safe-area-inset-bottom,0px))]';
-const FAB_INSET_END_PX = 44;
-const FAB_INSET_BOTTOM_PX = 80;
 
 /** SSR 与 hydration 首帧返回 false，客户端返回 true，避免 effect 内 setState。 */
 function useIsClient() {
@@ -477,26 +476,33 @@ function ExcerptCollectionAnchor({
   );
 }
 
+/** 滚动容器可以直接传节点，也可以传惰性解析函数，避免在 effect 里同步 setState 存节点。 */
+type ScrollRootSource = HTMLElement | null | (() => HTMLElement | null);
+
+function resolveScrollRoot(source?: ScrollRootSource): HTMLElement | null {
+  return typeof source === 'function' ? source() : (source ?? null);
+}
+
 function BackToTopAnchor({
   enabled,
   scrollRoot,
 }: {
   enabled: boolean;
-  scrollRoot?: HTMLElement | null;
+  scrollRoot?: ScrollRootSource;
 }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     if (!enabled) return;
 
-    const readTop = () =>
-      scrollRoot ? scrollRoot.scrollTop : window.scrollY;
+    const root = resolveScrollRoot(scrollRoot);
+    const readTop = () => (root ? root.scrollTop : window.scrollY);
     const onScroll = () => setVisible(readTop() > 300);
     onScroll();
 
-    if (scrollRoot) {
-      scrollRoot.addEventListener('scroll', onScroll, { passive: true });
-      return () => scrollRoot.removeEventListener('scroll', onScroll);
+    if (root) {
+      root.addEventListener('scroll', onScroll, { passive: true });
+      return () => root.removeEventListener('scroll', onScroll);
     }
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
@@ -508,8 +514,9 @@ function BackToTopAnchor({
     <FloatingAnchorButton
       aria-label="回到页面顶部"
       onClick={() => {
-        if (scrollRoot) {
-          scrollRoot.scrollTo({ top: 0, behavior: 'smooth' });
+        const root = resolveScrollRoot(scrollRoot);
+        if (root) {
+          root.scrollTo({ top: 0, behavior: 'smooth' });
           return;
         }
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -533,34 +540,6 @@ function BackToTopAnchor({
   );
 }
 
-function usePaneCornerInsets(enabled: boolean) {
-  const [insets, setInsets] = useState({ bottom: 24, end: 20 });
-
-  useEffect(() => {
-    if (!enabled) return;
-    const el = document.getElementById('nd-page');
-    if (!el) return;
-
-    const update = () => {
-      const r = el.getBoundingClientRect();
-      setInsets({
-        bottom: Math.max(FAB_INSET_BOTTOM_PX, window.innerHeight - r.bottom + FAB_INSET_BOTTOM_PX),
-        end: Math.max(FAB_INSET_END_PX, window.innerWidth - r.right + FAB_INSET_END_PX),
-      });
-    };
-    update();
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-    window.addEventListener('resize', update);
-    return () => {
-      ro.disconnect();
-      window.removeEventListener('resize', update);
-    };
-  }, [enabled]);
-
-  return insets;
-}
-
 function FloatingAnchorStack({
   show,
   hideForOverlay,
@@ -576,7 +555,7 @@ function FloatingAnchorStack({
   hideForOverlay: boolean;
   className?: string;
   style?: CSSProperties;
-  scrollRoot?: HTMLElement | null;
+  scrollRoot?: ScrollRootSource;
   feedbackPageUrl?: string;
   showAskAi?: boolean;
   showExcerpt?: boolean;
@@ -587,13 +566,21 @@ function FloatingAnchorStack({
   return (
     <div
       className={cn(
-        'z-30 flex flex-col items-center gap-3.5',
+        'z-40 flex flex-col items-center gap-3.5',
         className,
         hideForOverlay && 'pointer-events-none translate-y-2 scale-95 opacity-0',
       )}
       style={style}
       aria-label="页面快捷操作"
       aria-hidden={hideForOverlay}
+      /*
+       * 按钮组是浮在正文上的独立层，双栏时它没有可滚动的祖先，
+       * 不转发的话滚轮划到图标上就完全没反应。
+       */
+      onWheel={(e) => {
+        const root = resolveScrollRoot(scrollRoot);
+        if (root) root.scrollTop += e.deltaY;
+      }}
     >
       {showAskAi ? <AskAIAnchor enabled={show && !hideForOverlay} /> : null}
       {showExcerpt ? (
@@ -610,6 +597,61 @@ function FloatingAnchorStack({
   );
 }
 
+function useLeftPaneBox(enabled: boolean, dragging: boolean) {
+  type PaneBox = { top: number; left: number; width: number; height: number };
+  const [box, setBox] = useState<PaneBox | null>(null);
+
+  useLayoutEffect(() => {
+    if (!enabled) return;
+    const page = document.getElementById('nd-page');
+    const layout = document.getElementById('nd-notebook-layout');
+    if (!page) return;
+
+    const update = () => {
+      const r = page.getBoundingClientRect();
+      if (r.width < 96 || r.height < 96) return;
+      setBox({
+        top: r.top,
+        left: r.left,
+        width: r.width,
+        height: r.height,
+      });
+    };
+    update();
+    const later = window.setTimeout(update, 420);
+    const ro = new ResizeObserver(update);
+    ro.observe(page);
+    if (layout) ro.observe(layout);
+    window.addEventListener('resize', update);
+    layout?.addEventListener('transitionend', update);
+
+    if (!dragging) {
+      return () => {
+        window.clearTimeout(later);
+        ro.disconnect();
+        window.removeEventListener('resize', update);
+        layout?.removeEventListener('transitionend', update);
+      };
+    }
+    let raf = 0;
+    const loop = () => {
+      update();
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.clearTimeout(later);
+      ro.disconnect();
+      window.removeEventListener('resize', update);
+      layout?.removeEventListener('transitionend', update);
+    };
+  }, [enabled, dragging]);
+
+  // 关闭双栏后保留旧值也无妨，消费方按 enabled 取用，避免在 effect 里同步置空触发级联渲染。
+  return enabled ? box : null;
+}
+
 export function DocsFloatingAnchors() {
   const pathname = usePathname();
   const isClient = useIsClient();
@@ -622,32 +664,45 @@ export function DocsFloatingAnchors() {
   const hideForOverlay = aiPanelOpen || Boolean(excerpt?.open) || Boolean(feedback?.open);
   const peekOpen = Boolean(peek?.open);
   const peekTarget = Boolean(peek?.target);
-  const paneInsets = usePaneCornerInsets(peekOpen);
-  const [leftScrollRoot, setLeftScrollRoot] = useState<HTMLElement | null>(null);
+  const paneBox = useLeftPaneBox(peekOpen, Boolean(peek?.splitDragging));
+  const leftScrollRoot = useCallback(
+    () => (peekOpen ? document.getElementById('nd-page') : null),
+    [peekOpen],
+  );
 
-  useEffect(() => {
-    setLeftScrollRoot(peekOpen ? document.getElementById('nd-page') : null);
-  }, [peekOpen]);
-
-  return (
+  const stack = (
     <FloatingAnchorStack
-      show={show}
+      show={show && (!peekOpen || paneBox != null)}
       hideForOverlay={hideForOverlay || (peekTarget && !peek?.desktop)}
       showAskAi={!peekTarget}
       showExcerpt={!peekTarget}
       scrollRoot={leftScrollRoot}
       className={cn(
-        'fixed transition-[opacity,transform] duration-300 ease-out motion-reduce:transition-none',
-        !peekOpen && [FAB_INSET_BOTTOM_CLASS, FAB_INSET_END_CLASS],
-        peekOpen && 'bottom-auto inset-e-auto',
+        'z-40 transition-[opacity,transform] duration-300 ease-out motion-reduce:transition-none',
+        FAB_INSET_BOTTOM_CLASS,
+        FAB_INSET_END_CLASS,
+        peekOpen ? 'pointer-events-auto absolute' : 'fixed',
       )}
-      style={
-        peekOpen
-          ? { bottom: paneInsets.bottom, right: paneInsets.end }
-          : undefined
-      }
     />
   );
+
+  if (peekOpen && paneBox) {
+    return (
+      <div
+        className="pointer-events-none fixed z-40"
+        style={{
+          top: paneBox.top,
+          left: paneBox.left,
+          width: paneBox.width,
+          height: paneBox.height,
+        }}
+      >
+        {stack}
+      </div>
+    );
+  }
+
+  return stack;
 }
 
 /** 右栏栏内右下角快捷操作，对齐钉钉双栏各栏一套 */
@@ -676,7 +731,7 @@ export function PeekFloatingAnchors({
       showAskAi
       showExcerpt
       feedbackTitleSurface="peek"
-      className={cn('absolute z-20', FAB_INSET_BOTTOM_CLASS, FAB_INSET_END_CLASS)}
+      className={cn('absolute z-40', FAB_INSET_BOTTOM_CLASS, FAB_INSET_END_CLASS)}
     />
   );
 }

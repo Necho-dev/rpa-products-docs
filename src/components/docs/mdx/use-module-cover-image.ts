@@ -16,10 +16,15 @@ export function useModuleCoverImage(coverUrl: string) {
   const [src, setSrc] = useState<string | undefined>();
   const [status, setStatus] = useState<ModuleCoverImageStatus>('idle');
 
-  useEffect(() => {
+  // cover 换图时在渲染期重置，避免 effect 内同步 setState 造成级联渲染。
+  const [loadedUrl, setLoadedUrl] = useState(coverUrl);
+  if (loadedUrl !== coverUrl) {
+    setLoadedUrl(coverUrl);
     setSrc(undefined);
     setStatus('idle');
+  }
 
+  useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
 

@@ -37,16 +37,23 @@ export function hashIdFromHref(href: string, pageUrl?: string): string | null {
   }
 }
 
-export function findAnchorInRoot(id: string, root: ParentNode): HTMLElement | null {
-  if (!id) return null;
-  if (root === document) {
+function matchIdInRoot(id: string, root: ParentNode): HTMLElement | null {
+  if (typeof document !== 'undefined' && root === document) {
     return document.getElementById(id);
   }
-  const children = (root as ParentNode).querySelectorAll<HTMLElement>('[id]');
+  const children = root.querySelectorAll<HTMLElement>('[id]');
   for (const el of children) {
     if (el.id === id) return el;
   }
   return null;
+}
+
+export function findAnchorInRoot(id: string, root: ParentNode): HTMLElement | null {
+  if (!id) return null;
+  const direct = matchIdInRoot(id, root);
+  if (direct) return direct;
+  if (id.startsWith('peek--')) return matchIdInRoot(id.slice('peek--'.length), root);
+  return matchIdInRoot(`peek--${id}`, root);
 }
 
 function isScrollableBox(el: HTMLElement): boolean {

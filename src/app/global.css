@@ -135,6 +135,10 @@ html > body[data-scroll-locked] {
     --fd-docs-content-max: 96rem;
     --fd-toc-width: 12.5rem !important;
   }
+
+  #nd-notebook-layout[data-toc-compact-left] {
+    --fd-toc-width: 3.5rem !important;
+  }
 }
 
 /*

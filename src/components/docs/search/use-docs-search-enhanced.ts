@@ -352,11 +352,6 @@ export function useDocsSearchEnhanced({
     setSelectedKeywords(new Set(interpretation.keywords));
   }, [interpretation]);
 
-  const selectedKeywordsKey = useMemo(
-    () => [...selectedKeywords].sort().join('\0'),
-    [selectedKeywords],
-  );
-
   const items = useMemo<SortedResult[] | 'empty'>(() => {
     if (!aiEnabled || degraded) {
       const raw = keywordQuery.data ?? 'empty';
@@ -376,7 +371,6 @@ export function useDocsSearchEnhanced({
     keywordQuery.data,
     aiResults,
     selectedKeywords,
-    selectedKeywordsKey,
     scope,
     lastAiQuery,
   ]);

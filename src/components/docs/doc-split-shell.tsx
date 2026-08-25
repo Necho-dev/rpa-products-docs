@@ -6,6 +6,7 @@ import {
   useLayoutEffect,
   useRef,
   useState,
+  useSyncExternalStore,
   type MouseEvent,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
@@ -22,12 +23,45 @@ import {
 } from 'lucide-react';
 import { useCopyButton } from 'fumadocs-ui/utils/use-copy-button';
 import { cn } from '@/lib/core/cn';
-import { canonicalDocsHref } from '@/lib/docs/doc-peek';
+import { canonicalDocsHref, PEEK_RATIO_PRESETS } from '@/lib/docs/doc-peek';
+import {
+  findAnchorInRoot,
+  getStickyOverlapOffset,
+} from '@/lib/docs/smooth-scroll-to-anchor';
 import { safeWriteClipboard } from '@/lib/ui/code-block-utils';
 import { DocPeekSurfaceProvider, useDocPeek } from '@/components/docs/doc-peek-context';
 import { PeekArticleDialog } from '@/components/docs/peek-article-dialog';
 import { PeekFloatingAnchors } from '@/components/docs/floating-anchors';
 import { PeekArticleSkeleton, PeekLoadingHint } from '@/components/docs/peek-loading';
+
+const emptySubscribe = () => () => {};
+
+/** SSR 与 hydration 首帧返回 false，客户端返回 true，避免 effect 内 setState。 */
+function useIsClient() {
+  return useSyncExternalStore(emptySubscribe, () => true, () => false);
+}
+
+function PeekRatioLegend({ leftFr, active }: { leftFr: number; active: boolean }) {
+  const rightFr = Math.max(0.01, 1 - leftFr);
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        'flex h-3.5 w-6 shrink-0 items-stretch gap-px rounded-sm p-px',
+        active ? 'bg-fd-primary/15' : 'bg-fd-muted',
+      )}
+    >
+      <span
+        className={cn('rounded-[1px]', active ? 'bg-fd-primary/80' : 'bg-fd-foreground/45')}
+        style={{ flex: leftFr }}
+      />
+      <span
+        className={cn('rounded-[1px]', active ? 'bg-fd-primary/30' : 'bg-fd-foreground/18')}
+        style={{ flex: rightFr }}
+      />
+    </span>
+  );
+}
 
 function PeekIconButton({
   label,
@@ -82,14 +116,22 @@ function writePeekRatioVars(layout: HTMLElement, ratio: number) {
   return next;
 }
 
-function peekRatioFromClientX(layout: HTMLElement, clientX: number) {
-  const rect = layout.getBoundingClientRect();
-  const cs = getComputedStyle(layout);
-  const sidebar = Number.parseFloat(cs.getPropertyValue('--fd-sidebar-col') || '0');
-  const inset = Number.parseFloat(cs.getPropertyValue('--fd-docs-inline-start') || '0');
-  const usable = rect.width - inset - sidebar;
+/** 用左右栏真实盒模型算比例，避免把 rem CSS 变量 parseFloat 成错误像素。 */
+function peekSplitBounds() {
+  const page = document.getElementById('nd-page');
+  const pane = document.querySelector('[data-doc-peek-panel]');
+  if (!page || !(pane instanceof HTMLElement)) return null;
+  const start = page.getBoundingClientRect().left;
+  const end = pane.getBoundingClientRect().right;
+  const usable = end - start;
   if (usable <= 0) return null;
-  return clampPeekRatio((clientX - rect.left - inset - sidebar) / usable);
+  return { start, usable, splitX: pane.getBoundingClientRect().left };
+}
+
+function peekRatioFromClientX(clientX: number) {
+  const bounds = peekSplitBounds();
+  if (!bounds) return null;
+  return clampPeekRatio((clientX - bounds.start) / bounds.usable);
 }
 
 export function DocSplitShell({
@@ -100,11 +142,13 @@ export function DocSplitShell({
   children: ReactNode;
 }) {
   const peek = useDocPeek();
+  const panelRef = useRef<HTMLElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [scrollEl, setScrollEl] = useState<HTMLDivElement | null>(null);
   const [loadedPath, setLoadedPath] = useState<string | null>(null);
   const dragging = useRef(false);
   const dragRatio = useRef(0.5);
+  const grabOffset = useRef(0);
   const [copied, onCopy] = useCopyButton(() => {
     const target = peek?.target;
     if (!target) return;
@@ -114,6 +158,20 @@ export function DocSplitShell({
         : `${window.location.origin}${canonicalDocsHref(target.path, target.hash)}`;
     void safeWriteClipboard(href);
   });
+  const [ratioMenu, setRatioMenu] = useState(false);
+  const ratioTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const client = useIsClient();
+
+  const showRatioMenu = () => {
+    if (peek?.splitDragging) return;
+    if (ratioTimer.current) clearTimeout(ratioTimer.current);
+    ratioTimer.current = setTimeout(() => setRatioMenu(true), 160);
+  };
+
+  const hideRatioMenu = () => {
+    if (ratioTimer.current) clearTimeout(ratioTimer.current);
+    ratioTimer.current = setTimeout(() => setRatioMenu(false), 120);
+  };
 
   const onPointerDown = useCallback(
     (e: ReactPointerEvent<HTMLDivElement>) => {
@@ -122,12 +180,17 @@ export function DocSplitShell({
       if (!layout || !peek) return;
       e.preventDefault();
       e.stopPropagation();
+      const bounds = peekSplitBounds();
+      grabOffset.current = bounds ? e.clientX - bounds.splitX : 0;
       dragging.current = true;
       dragRatio.current = peek.peekRatio;
+      layout.setAttribute('data-peek-dragging', 'true');
       peek.setSplitDragging(true);
       e.currentTarget.setPointerCapture(e.pointerId);
       document.body.style.userSelect = 'none';
       document.body.style.cursor = 'col-resize';
+      setRatioMenu(false);
+      if (ratioTimer.current) clearTimeout(ratioTimer.current);
     },
     [peek],
   );
@@ -137,7 +200,7 @@ export function DocSplitShell({
       if (!dragging.current || !peek) return;
       const layout = document.getElementById('nd-notebook-layout');
       if (!layout) return;
-      const next = peekRatioFromClientX(layout, e.clientX);
+      const next = peekRatioFromClientX(e.clientX - grabOffset.current);
       if (next == null) return;
       dragRatio.current = writePeekRatioVars(layout, next);
     },
@@ -160,8 +223,15 @@ export function DocSplitShell({
   );
 
   useLayoutEffect(() => {
-    const root = scrollRef.current;
-    const path = root?.querySelector('[data-doc-path]')?.getAttribute('data-doc-path') ?? null;
+    const panel = panelRef.current;
+    const scroller =
+      panel?.querySelector<HTMLDivElement>('[data-doc-peek-scroll]') ?? null;
+    scrollRef.current = scroller;
+    setScrollEl(scroller);
+    const path =
+      panel?.querySelector('[data-doc-path]')?.getAttribute('data-doc-path') ??
+      scroller?.getAttribute('data-doc-path') ??
+      null;
     setLoadedPath(path);
   }, [children, peek?.pending, peek?.target?.path]);
 
@@ -170,31 +240,47 @@ export function DocSplitShell({
     if (!hash) return;
     const root = scrollRef.current;
     if (!root) return;
-    const id = decodeURIComponent(hash.replace(/^#/, ''));
-    const el = root.querySelector<HTMLElement>(`[id="${CSS.escape(id)}"]`);
+    let id = hash.replace(/^#/, '');
+    try {
+      id = decodeURIComponent(id);
+    } catch {
+      /* keep raw */
+    }
+    const el = findAnchorInRoot(id, root);
     if (!el) return;
-    const top = el.getBoundingClientRect().top - root.getBoundingClientRect().top + root.scrollTop;
-    root.scrollTo({ top, behavior: 'instant' });
+    const offset = getStickyOverlapOffset(root);
+    const top =
+      el.getBoundingClientRect().top -
+      root.getBoundingClientRect().top +
+      root.scrollTop -
+      offset;
+    root.scrollTo({ top: Math.max(0, top), behavior: 'instant' });
   }, [peek?.target?.path, peek?.target?.hash, children, loadedPath]);
 
-  if (!peek?.target) return null;
-  if (!peek.desktop) {
-    return <PeekArticleDialog title={title}>{children}</PeekArticleDialog>;
-  }
-
-  const loading = Boolean(peek.pending || loadedPath !== peek.target.path);
-  const copyHref =
-    typeof window === 'undefined'
+  if (!peek) return null;
+  const hasArticle = children != null;
+  const sheet = client && peek.desktop === false && Boolean(peek.target);
+  if (client && !peek.open && !sheet) return null;
+  if (!peek.target && !peek.blankSplit && !hasArticle) return null;
+  const loading = Boolean(peek.target && loadedPath !== peek.target.path);
+  const copyHref = peek.target
+    ? typeof window === 'undefined'
       ? canonicalDocsHref(peek.target.path, peek.target.hash)
-      : `${window.location.origin}${canonicalDocsHref(peek.target.path, peek.target.hash)}`;
+      : `${window.location.origin}${canonicalDocsHref(peek.target.path, peek.target.hash)}`
+    : '';
 
   return (
-    <aside
+    <>
+      {sheet ? <PeekArticleDialog title={title}>{children}</PeekArticleDialog> : null}
+      <aside
+      ref={panelRef}
       data-doc-peek-panel=""
       aria-label={title}
       className={cn(
-        'relative z-10 hidden min-h-0 min-w-0 overflow-hidden border-s border-fd-border/40 bg-fd-background xl:flex xl:flex-col',
+        'relative z-50 hidden min-h-0 min-w-0 overflow-visible border-s border-fd-border/40 bg-fd-background xl:flex xl:flex-col',
         '[grid-area:peek] [--fd-toc-width:12.5rem]',
+        'before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:z-1 before:h-2 before:bg-linear-to-b before:from-[rgba(15,23,42,0.035)] before:to-transparent',
+        'dark:before:from-black/22',
         'animate-in fade-in slide-in-from-right-8 duration-400 fill-mode-both',
       )}
     >
@@ -211,7 +297,7 @@ export function DocSplitShell({
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
         className={cn(
-          'group/split absolute inset-s-0 top-0 z-20 flex h-full w-4 -translate-x-1/2 cursor-col-resize touch-none items-center justify-center',
+          'group/split absolute inset-s-0 top-0 z-50 flex h-full w-4 -translate-x-1/2 cursor-col-resize touch-none items-center justify-center',
           'before:absolute before:inset-y-0 before:left-1/2 before:w-px before:-translate-x-1/2 before:bg-fd-border/80',
           'hover:before:bg-fd-primary/70',
           peek.splitDragging && 'before:bg-fd-primary',
@@ -225,14 +311,50 @@ export function DocSplitShell({
             'group-hover/split:border-fd-primary/40 group-hover/split:text-fd-foreground group-hover/split:shadow-md',
             peek.splitDragging && 'border-fd-primary/60 text-fd-primary shadow-md',
           )}
+          onMouseEnter={showRatioMenu}
+          onMouseLeave={hideRatioMenu}
         >
           <GripVerticalIcon className="size-3.5" strokeWidth={2.25} />
+          {ratioMenu && !peek.splitDragging ? (
+            <div
+              className="absolute inset-s-full top-1/2 z-30 ms-2 flex min-w-22 -translate-y-1/2 flex-col gap-0.5 rounded-xl border border-fd-border/60 bg-fd-background/90 p-1.5 shadow-lg backdrop-blur-md"
+              onPointerDown={(e) => e.stopPropagation()}
+              onMouseEnter={showRatioMenu}
+              onMouseLeave={hideRatioMenu}
+            >
+              {PEEK_RATIO_PRESETS.map((preset) => {
+                const active = Math.abs(peek.peekRatio - preset.ratio) < 0.02;
+                return (
+                  <button
+                    key={preset.label}
+                    type="button"
+                    title={`左:右 ${preset.label}`}
+                    onClick={() => {
+                      const layout = document.getElementById('nd-notebook-layout');
+                      if (layout) writePeekRatioVars(layout, preset.ratio);
+                      peek.setPeekRatio(preset.ratio);
+                      setRatioMenu(false);
+                    }}
+                    className={cn(
+                      'flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[11px] font-medium tabular-nums',
+                      active
+                        ? 'bg-fd-primary/10 text-fd-primary'
+                        : 'text-fd-muted-foreground hover:bg-fd-muted/80 hover:text-fd-foreground',
+                    )}
+                  >
+                    <PeekRatioLegend leftFr={preset.ratio} active={active} />
+                    {preset.label}
+                  </button>
+                );
+              })}
+            </div>
+          ) : null}
         </div>
       </div>
       <div
         className={cn(
-          'pointer-events-auto absolute top-3 inset-e-3 z-30',
-          'flex h-9 w-60 items-center rounded-lg border border-fd-border/70 bg-fd-background p-0.5 shadow-md',
+          'pointer-events-auto absolute -top-10.5 inset-e-3 z-60',
+          'flex h-9 w-60 items-center rounded-lg border-0 bg-transparent p-0.5',
         )}
       >
           <PeekIconButton
@@ -251,6 +373,7 @@ export function DocSplitShell({
           </PeekIconButton>
           <PeekIconButton
             label={copied ? '已复制' : '复制链接'}
+            disabled={!peek.target}
             onClick={onCopy}
           >
             {copied ? (
@@ -271,7 +394,9 @@ export function DocSplitShell({
           </PeekIconButton>
           <PeekIconButton
             label="新标签打开"
+            disabled={!peek.target}
             onClick={() => {
+              if (!copyHref) return;
               window.open(copyHref, '_blank', 'noopener,noreferrer');
             }}
           >
@@ -282,20 +407,28 @@ export function DocSplitShell({
           </PeekIconButton>
         </div>
         <div
-          ref={(node) => {
-            scrollRef.current = node;
-            setScrollEl(node);
-          }}
-          data-doc-peek-scroll=""
           aria-busy={loading || undefined}
+          data-doc-peek-scroll=""
           className="relative min-h-0 min-w-0 w-full flex-1 overflow-y-auto overflow-x-hidden overscroll-contain"
         >
           <DocPeekSurfaceProvider surface="peek">
-            {children ?? (loading ? <PeekArticleSkeleton /> : null)}
+            {peek.target
+              ? (children ?? (loading ? <PeekArticleSkeleton /> : null))
+              : (
+                <div className="flex min-h-full flex-col items-center justify-center gap-2 px-8 py-16 text-center">
+                  <p className="text-sm font-medium">对照阅读</p>
+                  <p className="max-w-xs text-xs leading-relaxed text-fd-muted-foreground">
+                    点击左栏正文里的站内链接，文档会在这一侧打开。
+                  </p>
+                </div>
+              )}
           </DocPeekSurfaceProvider>
           {loading && children ? <PeekLoadingHint overlay /> : null}
         </div>
-        <PeekFloatingAnchors scrollRoot={scrollEl} pageUrl={copyHref} />
+        {peek.target ? (
+          <PeekFloatingAnchors scrollRoot={scrollEl} pageUrl={copyHref} />
+        ) : null}
       </aside>
+    </>
   );
 }

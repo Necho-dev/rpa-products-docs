@@ -6,7 +6,14 @@ import {
   isDocsPathname,
   isPureHashHref,
 } from '../src/lib/docs/link-kind';
-import { encodePeekTarget, parsePeekTarget, shouldRenderPeekFromCookie } from '../src/lib/docs/doc-peek';
+import {
+  encodePeekTarget,
+  parsePeekTarget,
+  resolveDocShareLinks,
+  shouldRenderPeekFromCookie,
+  buildPeekShareUrl,
+  shouldPeekDocsLink,
+} from '../src/lib/docs/doc-peek';
 
 const origin = 'https://knowledge.example.com';
 const pageUrl = `${origin}/docs/rpa/foo`;
@@ -83,8 +90,104 @@ describe('parsePeekTarget', () => {
     assert.equal(parsePeekTarget(undefined), null);
   });
 
+  it('strips query strings from the path part', () => {
+    assert.deepEqual(parsePeekTarget('/docs/auth/foo?x=1#背景'), {
+      path: '/docs/auth/foo',
+      hash: '#背景',
+    });
+  });
+
   it('encodes path and hash for the cookie value', () => {
     assert.equal(encodePeekTarget('/docs/auth/bar', '#x'), '/docs/auth/bar#x');
+  });
+});
+
+describe('shouldPeekDocsLink', () => {
+  it('peeks body links in single column and when split is open', () => {
+    assert.equal(shouldPeekDocsLink({ splitOpen: false, surface: 'main' }), true);
+    assert.equal(shouldPeekDocsLink({ splitOpen: true, surface: 'main' }), true);
+    assert.equal(shouldPeekDocsLink({ splitOpen: true, surface: 'peek' }), true);
+  });
+
+  it('never peeks module-grid cards from the main column; hover bar opens the right pane', () => {
+    assert.equal(
+      shouldPeekDocsLink({ splitOpen: false, surface: 'main', onlyWhenSplit: true }),
+      false,
+    );
+    assert.equal(
+      shouldPeekDocsLink({ splitOpen: true, surface: 'main', onlyWhenSplit: true }),
+      false,
+    );
+    assert.equal(
+      shouldPeekDocsLink({ splitOpen: true, surface: 'peek', onlyWhenSplit: true }),
+      true,
+    );
+  });
+});
+
+describe('buildPeekShareUrl', () => {
+  it('puts the right pane into ?peek= and keeps the left hash', () => {
+    const url = buildPeekShareUrl(
+      origin,
+      '/docs/rpa/foo',
+      '#左栏',
+      { path: '/docs/auth/bar', hash: '#右栏' },
+    );
+    const parsed = new URL(url);
+    assert.equal(parsed.pathname, '/docs/rpa/foo');
+    assert.equal(decodeURIComponent(parsed.hash), '#左栏');
+    assert.deepEqual(parsePeekTarget(parsed.searchParams.get('peek') ?? undefined), {
+      path: '/docs/auth/bar',
+      hash: '#右栏',
+    });
+  });
+});
+
+describe('resolveDocShareLinks', () => {
+  const base = {
+    pageUrl: `${origin}/docs/auth/bar`,
+    leftPath: '/docs/rpa/foo',
+    leftHash: '#左栏',
+  };
+
+  it('keeps the compare link out of the single page link', () => {
+    const links = resolveDocShareLinks({
+      ...base,
+      peekTarget: { path: '/docs/auth/bar', hash: '#右栏' },
+      splitOpen: true,
+    });
+    assert.equal(links.pageUrl, `${origin}/docs/auth/bar`);
+    const parsed = new URL(links.compareUrl ?? '');
+    assert.equal(parsed.pathname, '/docs/rpa/foo');
+    assert.deepEqual(parsePeekTarget(parsed.searchParams.get('peek') ?? undefined), {
+      path: '/docs/auth/bar',
+      hash: '#右栏',
+    });
+  });
+
+  it('reuses the page origin so the link matches the poster QR code', () => {
+    const links = resolveDocShareLinks({
+      ...base,
+      pageUrl: 'https://docs.example.com/docs/auth/bar',
+      peekTarget: { path: '/docs/auth/bar', hash: '' },
+      splitOpen: true,
+    });
+    assert.equal(new URL(links.compareUrl ?? '').origin, 'https://docs.example.com');
+  });
+
+  it('has no compare link when the split view is closed', () => {
+    assert.equal(
+      resolveDocShareLinks({ ...base, peekTarget: null, splitOpen: true }).compareUrl,
+      null,
+    );
+    assert.equal(
+      resolveDocShareLinks({
+        ...base,
+        peekTarget: { path: '/docs/auth/bar', hash: '' },
+        splitOpen: false,
+      }).compareUrl,
+      null,
+    );
   });
 });
 

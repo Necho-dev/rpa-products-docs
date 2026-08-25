@@ -66,14 +66,16 @@ export function DocsLinkHoverCard({
   const abortRef = useRef<AbortController | null>(null);
   const titleId = useId();
 
-  useEffect(() => {
+  // 切换目标链接时在渲染期重置，避免 effect 内同步 setState 造成级联渲染。
+  const [loadedPath, setLoadedPath] = useState(path);
+  if (loadedPath !== path) {
+    setLoadedPath(path);
     setCoverFailed(false);
-    const hit = cache.get(path);
-    if (hit !== undefined) {
-      setPayload(hit);
-      return;
-    }
-    setPayload(undefined);
+    setPayload(cache.get(path));
+  }
+
+  useEffect(() => {
+    if (cache.get(path) !== undefined) return;
     const ac = new AbortController();
     abortRef.current = ac;
     const timer = window.setTimeout(() => {

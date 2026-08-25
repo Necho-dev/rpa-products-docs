@@ -131,7 +131,7 @@ export function ExcerptCollectionDrawer() {
       <div
         aria-hidden={exiting}
         className={cn(
-          'fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px]',
+          'fixed inset-0 z-80 bg-black/40 backdrop-blur-[2px]',
           exiting ? 'excerpt-drawer-backdrop-out' : 'excerpt-drawer-backdrop-in',
           'motion-reduce:animate-none',
         )}
@@ -143,7 +143,7 @@ export function ExcerptCollectionDrawer() {
         aria-modal="true"
         aria-label="摘录集"
         className={cn(
-          'excerpt-drawer-panel fixed inset-y-0 inset-e-0 z-45 flex flex-col',
+          'excerpt-drawer-panel fixed inset-y-0 inset-e-0 z-90 flex flex-col',
           'w-[min(calc(100vw-1rem),400px)] max-sm:w-full',
           'border-s border-fd-border/60 bg-fd-card text-fd-card-foreground shadow-2xl',
           exiting ? 'excerpt-drawer-panel-out' : 'excerpt-drawer-panel-in',

@@ -8,6 +8,7 @@ import { LinkActionDialog } from '@/components/docs/link-action-dialog';
 import { DocsLinkHoverCard } from '@/components/docs/docs-link-hover-card';
 import { useDocPeek, useDocPeekSurface } from '@/components/docs/doc-peek-context';
 import { AISearchContext } from '@/components/ai/ai-search-context';
+import { shouldPeekDocsLink } from '@/lib/docs/doc-peek';
 import { classifyLink, docsPathAndHashFromHref } from '@/lib/docs/link-kind';
 import {
   findAnchorInRoot,
@@ -20,6 +21,38 @@ import { cn } from '@/lib/core/cn';
 
 function isModifiedClick(e: MouseEvent<HTMLAnchorElement>): boolean {
   return e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0;
+}
+
+/** 站内文档跳转；module-grid 传 onlyWhenSplit，主栏点击只刷新左栏 */
+export function useOpenDocsHref(options?: { onlyWhenSplit?: boolean }) {
+  const peek = useDocPeek();
+  const surface = useDocPeekSurface();
+  const router = useRouter();
+  const ai = use(AISearchContext);
+  const onlyWhenSplit = Boolean(options?.onlyWhenSplit);
+
+  return useCallback(
+    (targetHref: string, e: MouseEvent<HTMLAnchorElement>) => {
+      if (e.defaultPrevented || isModifiedClick(e)) return;
+      const kind = classifyLink(targetHref, window.location.href);
+      if (kind !== 'docs' || !peek) return;
+      e.preventDefault();
+      e.stopPropagation();
+      if (
+        !shouldPeekDocsLink({
+          splitOpen: peek.open,
+          surface,
+          onlyWhenSplit,
+        })
+      ) {
+        router.push(targetHref);
+        return;
+      }
+      ai?.setOpen(false);
+      peek.openPeek(targetHref, surface);
+    },
+    [ai, onlyWhenSplit, peek, router, surface],
+  );
 }
 
 export const DocsLink = forwardRef<HTMLAnchorElement, LinkProps>(function DocsLink(
@@ -92,6 +125,15 @@ export const DocsLink = forwardRef<HTMLAnchorElement, LinkProps>(function DocsLi
     if (kind === 'docs') {
       e.preventDefault();
       e.stopPropagation();
+      if (
+        !shouldPeekDocsLink({
+          splitOpen: peek.open,
+          surface,
+        })
+      ) {
+        router.push(href);
+        return;
+      }
       openDocs(href);
     }
   };
@@ -118,7 +160,19 @@ export const DocsLink = forwardRef<HTMLAnchorElement, LinkProps>(function DocsLi
         <DocsLinkHoverCard
           path={hoverPath}
           anchorRef={anchorRef}
-          onBrowse={() => openDocs(href)}
+          onBrowse={() => {
+            if (
+              peek &&
+              !shouldPeekDocsLink({
+                splitOpen: peek.open,
+                surface,
+              })
+            ) {
+              router.push(href);
+              return;
+            }
+            openDocs(href);
+          }}
           onMouseEnter={cancelHide}
           onMouseLeave={scheduleHide}
         />
