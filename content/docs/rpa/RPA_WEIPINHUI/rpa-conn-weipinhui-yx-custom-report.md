@@ -1,5 +1,5 @@
 ---
-title: 数据-自定义报表
+title: 营销数据-下载中心-自定义报表
 description: 按报表模板名称与时间粒度匹配唯品会营销平台自定义报表，设置日期后异步导出并解析为行级明细
 entry: rpa.conn.weipinhui.yx.custom.report
 badge:
