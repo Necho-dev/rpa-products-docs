@@ -23,7 +23,7 @@ function isModifiedClick(e: MouseEvent<HTMLAnchorElement>): boolean {
   return e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0;
 }
 
-/** 站内文档跳转；module-grid 传 onlyWhenSplit，主栏点击只刷新左栏 */
+/** 站内文档跳转；module-grid 传 onlyWhenSplit：单栏走左栏，双栏未锁定则覆盖右栏 */
 export function useOpenDocsHref(options?: { onlyWhenSplit?: boolean }) {
   const peek = useDocPeek();
   const surface = useDocPeekSurface();
@@ -43,6 +43,7 @@ export function useOpenDocsHref(options?: { onlyWhenSplit?: boolean }) {
           splitOpen: peek.open,
           surface,
           onlyWhenSplit,
+          pinned: peek.pinned,
         })
       ) {
         router.push(targetHref);
@@ -129,6 +130,7 @@ export const DocsLink = forwardRef<HTMLAnchorElement, LinkProps>(function DocsLi
         !shouldPeekDocsLink({
           splitOpen: peek.open,
           surface,
+          pinned: peek.pinned,
         })
       ) {
         router.push(href);
@@ -166,6 +168,7 @@ export const DocsLink = forwardRef<HTMLAnchorElement, LinkProps>(function DocsLi
               !shouldPeekDocsLink({
                 splitOpen: peek.open,
                 surface,
+                pinned: peek.pinned,
               })
             ) {
               router.push(href);

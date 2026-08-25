@@ -1,7 +1,9 @@
 'use client';
 
-import { Fragment, useMemo, type ComponentProps, type ReactNode } from 'react';
+import { Fragment, useMemo, type ComponentProps, type MouseEvent, type ReactNode } from 'react';
 import Link from 'fumadocs-core/link';
+import { useRouter } from 'next/navigation';
+import { useDocPeek, useDocPeekSurface } from '@/components/docs/doc-peek-context';
 import { useTreeContext, useTreePath } from 'fumadocs-ui/contexts/tree';
 import type { Node, Root } from 'fumadocs-core/page-tree';
 import { cn } from '@/lib/core/cn';
@@ -53,12 +55,12 @@ export function DocsBreadcrumb({
             </span>
           ) : null}
           {item.url ? (
-            <Link
+            <BreadcrumbLink
               href={item.url}
               className="min-w-0 truncate rounded-sm px-0.5 transition-colors hover:bg-fd-accent/60 hover:text-fd-foreground/80"
             >
               {item.name}
-            </Link>
+            </BreadcrumbLink>
           ) : (
             <span className="min-w-0 truncate px-0.5">{item.name}</span>
           )}
@@ -129,4 +131,45 @@ function buildCrumbs(path: Node[], fallbackRootName: ReactNode): Crumb[] {
   }
 
   return items;
+}
+
+function isModifiedClick(e: MouseEvent<HTMLAnchorElement>): boolean {
+  return e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0;
+}
+
+/** 祖先跳转：无预览卡。主栏整页到达该页；右栏面包屑只改右栏栈。 */
+function BreadcrumbLink({
+  href,
+  className,
+  children,
+}: {
+  href: string;
+  className?: string;
+  children: ReactNode;
+}) {
+  const peek = useDocPeek();
+  const surface = useDocPeekSurface();
+  const router = useRouter();
+
+  return (
+    <Link
+      href={href}
+      className={className}
+      onClick={(e: MouseEvent<HTMLAnchorElement>) => {
+        if (e.defaultPrevented || isModifiedClick(e) || !peek) return;
+        e.preventDefault();
+        if (surface === 'peek') {
+          peek.openPeek(href, 'peek');
+          return;
+        }
+        if (peek.open) {
+          peek.openFullPage(href);
+          return;
+        }
+        router.push(href);
+      }}
+    >
+      {children}
+    </Link>
+  );
 }

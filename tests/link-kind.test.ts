@@ -103,24 +103,63 @@ describe('parsePeekTarget', () => {
 });
 
 describe('shouldPeekDocsLink', () => {
-  it('peeks body links in single column and when split is open', () => {
+  it('peeks body links in single column and when split is open unpinned', () => {
     assert.equal(shouldPeekDocsLink({ splitOpen: false, surface: 'main' }), true);
     assert.equal(shouldPeekDocsLink({ splitOpen: true, surface: 'main' }), true);
     assert.equal(shouldPeekDocsLink({ splitOpen: true, surface: 'peek' }), true);
   });
 
-  it('never peeks module-grid cards from the main column; hover bar opens the right pane', () => {
+  it('does not peek module-grid cards in a single column', () => {
     assert.equal(
       shouldPeekDocsLink({ splitOpen: false, surface: 'main', onlyWhenSplit: true }),
       false,
     );
+  });
+
+  it('peeks module-grid cards when split is open and unpinned', () => {
     assert.equal(
       shouldPeekDocsLink({ splitOpen: true, surface: 'main', onlyWhenSplit: true }),
-      false,
+      true,
     );
     assert.equal(
       shouldPeekDocsLink({ splitOpen: true, surface: 'peek', onlyWhenSplit: true }),
       true,
+    );
+  });
+
+  it('does not peek main-column selection when the right pane is pinned', () => {
+    assert.equal(
+      shouldPeekDocsLink({ splitOpen: true, surface: 'main', pinned: true }),
+      false,
+    );
+    assert.equal(
+      shouldPeekDocsLink({
+        splitOpen: true,
+        surface: 'main',
+        onlyWhenSplit: true,
+        pinned: true,
+      }),
+      false,
+    );
+    assert.equal(
+      shouldPeekDocsLink({ splitOpen: true, surface: 'peek', pinned: true }),
+      true,
+    );
+  });
+
+  it('ignores pinned in a single column', () => {
+    assert.equal(
+      shouldPeekDocsLink({ splitOpen: false, surface: 'main', pinned: true }),
+      true,
+    );
+    assert.equal(
+      shouldPeekDocsLink({
+        splitOpen: false,
+        surface: 'main',
+        onlyWhenSplit: true,
+        pinned: true,
+      }),
+      false,
     );
   });
 });

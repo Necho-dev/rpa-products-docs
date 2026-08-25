@@ -389,7 +389,7 @@ export function DocSplitShell({
             )}
           </PeekIconButton>
           <PeekIconButton
-            label={peek.pinned ? '取消固定' : '固定右栏'}
+            label={peek.pinned ? '取消锁定' : '锁定右栏'}
             pressed={peek.pinned}
             onClick={() => peek.togglePeekPin()}
           >

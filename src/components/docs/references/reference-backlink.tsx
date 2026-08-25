@@ -40,6 +40,7 @@ export function ReferenceBacklink({ referrer }: { referrer: Referrer }) {
       !shouldPeekDocsLink({
         splitOpen: peek.open,
         surface,
+        pinned: peek.pinned,
       })
     ) {
       router.push(href);

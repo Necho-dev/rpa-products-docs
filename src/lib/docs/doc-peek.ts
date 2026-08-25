@@ -64,16 +64,19 @@ export const PEEK_RATIO_PRESETS = [
 export type DocPeekSurfaceKind = 'main' | 'peek';
 
 /**
- * 正文 DocsLink：单栏或双栏均右栏 peek。
- * onlyWhenSplit（module-grid）：主栏点击始终走左栏路由，不打开/改右栏。
+ * 主栏文档点击是否打开/覆盖右栏。
+ * 右栏内链接始终走右栏栈。单栏正文 peek 开双栏；单栏卡片走整页。
+ * 双栏未锁定（导航）：主栏选择覆盖右栏。双栏已锁定（对照）：主栏选择改左栏。
  */
 export function shouldPeekDocsLink(input: {
   splitOpen: boolean;
   surface: DocPeekSurfaceKind;
   onlyWhenSplit?: boolean;
+  pinned?: boolean;
 }): boolean {
   if (input.surface === 'peek') return true;
-  if (input.onlyWhenSplit) return false;
+  if (!input.splitOpen) return !input.onlyWhenSplit;
+  if (input.pinned) return false;
   return true;
 }
 

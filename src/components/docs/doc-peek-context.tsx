@@ -22,7 +22,7 @@ import {
   writePeekCookie,
   type DocPeekTarget,
 } from '@/lib/docs/doc-peek';
-import { docsPathAndHashFromHref, stripTrailingSlash } from '@/lib/docs/link-kind';
+import { classifyLink, docsPathAndHashFromHref, isPureHashHref, stripTrailingSlash } from '@/lib/docs/link-kind';
 import {
   findAnchorInRoot,
   getAnchorScrollRoot,
@@ -99,6 +99,8 @@ export function DocPeekProvider({ children }: { children: ReactNode }) {
   const pathnameRef = useRef(pathname);
   const pinnedRef = useRef(false);
   const openRef = useRef(false);
+  const openPeekRef = useRef<(href: string, from?: DocPeekSurface) => void>(() => {});
+  const openFullPageRef = useRef<(href?: string) => void>(() => {});
   const lastTargetRef = useRef<DocPeekTarget | null>(null);
   const leftScrollRef = useRef(0);
   const sidebar = useSidebar();
@@ -143,9 +145,39 @@ export function DocPeekProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const onNavClick = (e: MouseEvent) => {
-      if (pinnedRef.current || openRef.current) return;
+      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       const el = e.target;
       if (!(el instanceof Element)) return;
+
+      if (openRef.current) {
+        const subnavA = el.closest('#nd-subnav a');
+        if (subnavA instanceof HTMLAnchorElement) {
+          if (subnavA.hasAttribute('download') || subnavA.target === '_blank') return;
+          const href = subnavA.getAttribute('href') || subnavA.href;
+          if (href && !isPureHashHref(href) && classifyLink(href, window.location.href) !== 'external') {
+            e.preventDefault();
+            e.stopPropagation();
+            openFullPageRef.current(href);
+            return;
+          }
+        }
+      }
+
+      if (openRef.current && !pinnedRef.current) {
+        const a = el.closest('#nd-sidebar a');
+        if (a instanceof HTMLAnchorElement) {
+          if (a.hasAttribute('download') || a.target === '_blank') return;
+          const href = a.getAttribute('href') || a.href;
+          if (href && classifyLink(href, window.location.href) === 'docs') {
+            e.preventDefault();
+            e.stopPropagation();
+            openPeekRef.current(href, 'main');
+            return;
+          }
+        }
+      }
+
+      if (openRef.current) return;
       if (!el.closest('#nd-sidebar a, #nd-subnav a')) return;
       writePeekCookie(null);
     };
@@ -157,7 +189,7 @@ export function DocPeekProvider({ children }: { children: ReactNode }) {
     const prev = pathnameRef.current;
     if (prev === pathname) return;
     pathnameRef.current = pathname;
-    if (pinnedRef.current || openRef.current) return;
+    if (openRef.current) return;
     writePeekCookie(null);
     setBlankSplit(false);
     setPinned(false);
@@ -262,6 +294,7 @@ export function DocPeekProvider({ children }: { children: ReactNode }) {
     },
     [applyTarget, pathname, resetPeekRatio, router, stack],
   );
+  openPeekRef.current = openPeek;
 
   const togglePeekPin = useCallback(() => {
     setPinned((prev) => !prev);
@@ -321,6 +354,7 @@ export function DocPeekProvider({ children }: { children: ReactNode }) {
     },
     [pathname, router, target],
   );
+  openFullPageRef.current = openFullPage;
 
   const refreshPeek = useCallback(() => {
     rememberLeftScroll();

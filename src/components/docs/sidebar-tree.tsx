@@ -17,6 +17,7 @@ import {
   useFolderDepth,
 } from 'fumadocs-ui/components/sidebar/base';
 import { cn } from '@/lib/core/cn';
+import { useDocPeek } from '@/components/docs/doc-peek-context';
 import type { SidebarFolderWithBadge, SidebarItemWithBadge } from '@/lib/docs/source/docs-entry-in-sidebar-plugin';
 import {
   folderHasMatch,
@@ -58,6 +59,14 @@ function isActiveUrl(href: string, pathname: string, nested = false) {
   const h = normalizePath(href);
   const p = normalizePath(pathname);
   return h === p || (nested && p.startsWith(`${h}/`));
+}
+
+/** 导航模式（双栏未锁定）高亮右栏当前页；对照模式跟左栏 pathname */
+function useSidebarActivePath(): string {
+  const pathname = usePathname();
+  const peek = useDocPeek();
+  if (peek?.open && !peek.pinned && peek.target) return peek.target.path;
+  return pathname;
 }
 
 function getItemOffset(depth: number) {
@@ -114,7 +123,7 @@ function DocBadge({ label, color }: { label: string; color?: string }) {
 
 /** 页面树叶子：主标题 + 可选 `entry`（由 frontmatter 经插件挂到 `description`） */
 export function DocsSidebarTreeItem({ item }: { item: Item }) {
-  const pathname = usePathname();
+  const pathname = useSidebarActivePath();
   const depth = useFolderDepth();
   const { normalizedQuery, isFiltering, isActiveMatch } = useSidebarTreeSearch();
   const forceShow = useForceShowChildren();
@@ -259,7 +268,7 @@ export function DocsSidebarTreeFolder({
   children: React.ReactNode;
 }) {
   const path = useTreePath();
-  const pathname = usePathname();
+  const pathname = useSidebarActivePath();
   const { normalizedQuery, isFiltering, isActiveMatch } = useSidebarTreeSearch();
   const parentForceShow = useForceShowChildren();
   const folderMatches = nodeMatchesQuery(item, normalizedQuery);

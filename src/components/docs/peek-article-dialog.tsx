@@ -125,7 +125,7 @@ export function PeekArticleDialog({
               {copied ? <CheckIcon className="size-4.5" /> : <CopyIcon className="size-4.5" />}
             </SheetIconButton>
             <SheetIconButton
-              label={peek.pinned ? '取消固定' : '固定右栏'}
+              label={peek.pinned ? '取消锁定' : '锁定右栏'}
               pressed={peek.pinned}
               onClick={() => peek.togglePeekPin()}
             >
