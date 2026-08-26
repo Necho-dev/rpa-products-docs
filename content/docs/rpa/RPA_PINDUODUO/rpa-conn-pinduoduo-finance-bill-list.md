@@ -33,7 +33,7 @@ estimatedDuration:
 
 | 字段          | 中文释义     | 数据类型  | 必填 | 默认值 | 说明                                                                                             |
 | ------------- | ------------ | --------- | ---- | ------ | ------------------------------------------------------------------------------------------------ |
-| `bizDate`     | 单日账单日期 | `string`  | 否   | 昨天   | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；与 `beginDate`/`endDate` 不能同时传；须落在最近 12 个自然月内且不可晚于今天 |
+| `bizDate`     | 单日账单日期 | `string`  | 否   | —      | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；与 `beginDate`/`endDate` 不能同时传；须落在最近 12 个自然月内且不可晚于今天 |
 | `beginDate`   | 区间开始日期 | `string`  | 否   | —      | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；须与 `endDate` 同时传，且 `beginDate ≤ endDate`，含首尾跨度不超过 31 天；须落在最近 12 个自然月内且不可晚于今天 |
 | `endDate`     | 区间结束日期 | `string`  | 否   | —      | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；须与 `beginDate` 同时传，且 `beginDate ≤ endDate`，含首尾跨度不超过 31 天；须落在最近 12 个自然月内且不可晚于今天 |
 
@@ -68,7 +68,7 @@ estimatedDuration:
   "properties": {
     "bizDate": {
       "type": "string",
-      "description": "单日账单日期；支持 YYYYMMDD 或 YYYY-MM-DD；默认昨天；与 beginDate/endDate 互斥；最近 12 个自然月内且不可晚于今天",
+      "description": "单日账单日期；支持 YYYYMMDD 或 YYYY-MM-DD；与 beginDate/endDate 互斥；最近 12 个自然月内且不可晚于今天",
       "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "beginDate": {
