@@ -368,7 +368,9 @@ function FolderLabelRow({
 
 /** 收起时只隐藏子树，不卸载，避免平台图标 <img> 再次请求 */
 function DocsSidebarFolderContent({ children }: { children: React.ReactNode }) {
-  const { open } = useFolder();
+  const folder = useFolder();
+  if (!folder) return null;
+  const { open } = folder;
   return (
     <div
       data-state={open ? 'open' : 'closed'}
@@ -392,11 +394,12 @@ function FolderOpenCommand({
   openAll: boolean;
   isFiltering: boolean;
 }) {
-  const { setOpen } = useFolder();
+  const folder = useFolder();
   const seenEpoch = useRef(0);
+  const setOpen = folder?.setOpen;
 
   useLayoutEffect(() => {
-    if (isFiltering || epoch === 0 || epoch === seenEpoch.current) return;
+    if (!setOpen || isFiltering || epoch === 0 || epoch === seenEpoch.current) return;
     seenEpoch.current = epoch;
     setOpen(openAll);
   }, [epoch, openAll, isFiltering, setOpen]);
