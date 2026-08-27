@@ -7,6 +7,7 @@ import {
   readCategoryNav,
   resolveCategoryNavSelection,
   sidebarNodePassesCategoryNav,
+  withCategoryNavQuery,
 } from '../src/lib/docs/source/category-nav';
 import {
   buildCategoryNavModel,
@@ -77,7 +78,6 @@ describe('category-nav', () => {
     const base = {
       keyByUrl: model.keyByUrl,
       prefix: model.prefix,
-      pathname: '/docs/rpa',
     };
     assert.equal(
       sidebarNodePassesCategoryNav({
@@ -119,7 +119,6 @@ describe('category-nav', () => {
       sidebarNodePassesCategoryNav({
         selectedKey: 'jingdong',
         nodeUrl: '/docs/rpa/RPA_QIANNIU',
-        pathname: '/docs/rpa/RPA_QIANNIU/rpa-conn-x',
         keyByUrl: model.keyByUrl,
         prefix: model.prefix,
       }),
@@ -127,22 +126,32 @@ describe('category-nav', () => {
     );
   });
 
-  it('overview uses ?nav=, concrete pages use path', () => {
+  it('selection follows ?nav= only, never the current page path', () => {
     const model = buildCategoryNavModel('rpa')!;
-    assert.equal(
-      resolveCategoryNavSelection('/docs/rpa', 'doudian', model),
-      'doudian',
-    );
-    assert.equal(
-      resolveCategoryNavSelection('/docs/rpa', 'nope', model),
-      null,
-    );
-    assert.equal(
-      resolveCategoryNavSelection('/docs/rpa/RPA_QIANNIU', 'doudian', model),
-      'taobao',
-    );
+    assert.equal(resolveCategoryNavSelection('doudian', model), 'doudian');
+    assert.equal(resolveCategoryNavSelection('nope', model), null);
+    assert.equal(resolveCategoryNavSelection(null, model), null);
     assert.equal(categoryNavHref(model, null), '/docs/rpa');
     assert.equal(categoryNavHref(model, 'doudian'), '/docs/rpa?nav=doudian');
+  });
+
+  it('keeps sidebar hrefs on the current filter without inferring from path', () => {
+    assert.equal(
+      withCategoryNavQuery('/docs/rpa/RPA_QIANNIU', 'taobao'),
+      '/docs/rpa/RPA_QIANNIU?nav=taobao',
+    );
+    assert.equal(
+      withCategoryNavQuery('/docs/rpa/RPA_QIANNIU?nav=taobao', null),
+      '/docs/rpa/RPA_QIANNIU',
+    );
+    assert.equal(
+      withCategoryNavQuery('/docs/rpa/RPA_QIANNIU#top', 'jingdong'),
+      '/docs/rpa/RPA_QIANNIU?nav=jingdong#top',
+    );
+    assert.equal(
+      withCategoryNavQuery('https://example.com/docs', 'taobao'),
+      'https://example.com/docs',
+    );
   });
 
   it('does not filter while sidebar search is active', () => {
@@ -151,7 +160,6 @@ describe('category-nav', () => {
       sidebarNodePassesCategoryNav({
         selectedKey: 'taobao',
         nodeUrl: '/docs/rpa/RPA_JDSZ',
-        pathname: '/docs/rpa',
         keyByUrl: model.keyByUrl,
         prefix: model.prefix,
         isFiltering: true,

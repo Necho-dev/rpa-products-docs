@@ -11,6 +11,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
   CATEGORY_NAV_QUERY,
   categoryNavHref,
+  inferredCategoryNavKey,
   matchCategoryNavModel,
   resolveCategoryNavSelection,
   type CategoryNavModel,
@@ -41,9 +42,9 @@ export function CategoryNavProvider({
   );
   const navQuery = searchParams.get(CATEGORY_NAV_QUERY);
   const selectedKey = model
-    ? resolveCategoryNavSelection(pathname, navQuery, model)
+    ? resolveCategoryNavSelection(navQuery, model)
     : null;
-  const inferredKey = selectedKey;
+  const inferredKey = model ? inferredCategoryNavKey(pathname, model) : null;
 
   const setSelectedKey = useCallback(
     (key: string | null) => {

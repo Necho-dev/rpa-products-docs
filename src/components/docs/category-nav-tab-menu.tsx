@@ -44,11 +44,7 @@ export function CategoryNavTabMenu({
 
   const inPartition = matchCategoryNavModel(pathname, [model]) != null;
   const selectedKey = inPartition
-    ? resolveCategoryNavSelection(
-        pathname,
-        searchParams.get(CATEGORY_NAV_QUERY),
-        model,
-      )
+    ? resolveCategoryNavSelection(searchParams.get(CATEGORY_NAV_QUERY), model)
     : null;
 
   const chevronClass =

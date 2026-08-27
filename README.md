@@ -1,8 +1,12 @@
 # HeroKnowledge
 
-基于 [Fumadocs](https://fumadocs.vercel.app/) + Next.js 构建的文档站点（HeroKnowledge），支持本地开发、静态构建与 Docker 部署。当前版本 **0.6.2**。
+基于 [Fumadocs](https://fumadocs.vercel.app/) + Next.js 构建的文档站点（HeroKnowledge），支持本地开发、静态构建与 Docker 部署。当前版本 **0.6.3**。
 
 ---
+
+## 分类导航（0.6.3）
+
+`categoryNav` 只过滤侧栏菜单，不再根据当前文档反向定位芯片。点侧栏时会带上当前 `?nav=`，筛选不会被路径推断冲掉。
 
 ## 文档目录与授权帮助（0.6.2）
 

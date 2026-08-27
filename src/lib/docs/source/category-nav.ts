@@ -76,23 +76,41 @@ export function isCategoryNavKey(
   return Boolean(key && model.items.some((row) => row.key === key));
 }
 
-/** 具体页跟路径；概览页跟 ?nav= */
+/**
+ * 分类导航只认显式 `?nav=`，不根据当前页路径反推。
+ * 否则点侧栏会把顶栏芯片带到该页所属生态，变成反向定位。
+ */
 export function resolveCategoryNavSelection(
-  pathname: string,
   navQuery: string | null,
   model: CategoryNavModel,
 ): string | null {
-  const inferred = inferredCategoryNavKey(pathname, model);
-  if (inferred != null) return inferred;
   return isCategoryNavKey(navQuery, model) ? navQuery : null;
+}
+
+/** 给站内文档 href 带上/去掉当前分类筛选，外链原样返回。 */
+export function withCategoryNavQuery(url: string, key: string | null): string {
+  if (!url || /^[a-z][a-z0-9+.-]*:/i.test(url) || url.startsWith('//')) {
+    return url;
+  }
+  const hashIndex = url.indexOf('#');
+  const hash = hashIndex >= 0 ? url.slice(hashIndex) : '';
+  const withoutHash = hashIndex >= 0 ? url.slice(0, hashIndex) : url;
+  const qIndex = withoutHash.indexOf('?');
+  const pathname = qIndex >= 0 ? withoutHash.slice(0, qIndex) : withoutHash;
+  const params = new URLSearchParams(
+    qIndex >= 0 ? withoutHash.slice(qIndex + 1) : '',
+  );
+  if (key) params.set(CATEGORY_NAV_QUERY, key);
+  else params.delete(CATEGORY_NAV_QUERY);
+  const q = params.toString();
+  return `${pathname}${q ? `?${q}` : ''}${hash}`;
 }
 
 export function categoryNavHref(
   model: CategoryNavModel,
   key: string | null,
 ): string {
-  if (!key) return model.prefix;
-  return `${model.prefix}?${CATEGORY_NAV_QUERY}=${encodeURIComponent(key)}`;
+  return withCategoryNavQuery(model.prefix, key);
 }
 
 /**
@@ -101,7 +119,6 @@ export function categoryNavHref(
 export function sidebarNodePassesCategoryNav(opts: {
   selectedKey: string | null;
   nodeUrl: string | undefined;
-  pathname: string;
   keyByUrl: Record<string, string>;
   prefix: string;
   isFiltering?: boolean;

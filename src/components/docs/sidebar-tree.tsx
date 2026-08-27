@@ -22,7 +22,10 @@ import {
 import { cn } from '@/lib/core/cn';
 import { useDocPeek } from '@/components/docs/doc-peek-context';
 import { useCategoryNav } from '@/components/docs/category-nav-context';
-import { sidebarNodePassesCategoryNav } from '@/lib/docs/source/category-nav';
+import {
+  sidebarNodePassesCategoryNav,
+  withCategoryNavQuery,
+} from '@/lib/docs/source/category-nav';
 import type { SidebarFolderWithBadge, SidebarItemWithBadge } from '@/lib/docs/source/docs-entry-in-sidebar-plugin';
 import {
   folderHasBadge,
@@ -205,7 +208,6 @@ export function DocsSidebarTreeItem({ item }: { item: Item }) {
     !sidebarNodePassesCategoryNav({
       selectedKey: categoryNav.selectedKey,
       nodeUrl: item.url,
-      pathname,
       keyByUrl: categoryNav.model.keyByUrl,
       prefix: categoryNav.model.prefix,
       isFiltering,
@@ -239,7 +241,11 @@ export function DocsSidebarTreeItem({ item }: { item: Item }) {
 
   return (
     <SidebarItem
-      href={item.url}
+      href={
+        item.external
+          ? item.url
+          : withCategoryNavQuery(item.url, categoryNav.selectedKey)
+      }
       external={item.external}
       active={isActiveUrl(item.url, pathname)}
       icon={<SidebarIconSlot>{item.icon}</SidebarIconSlot>}
@@ -281,6 +287,7 @@ function FolderLabelRow({
   matchId,
   selfMatches,
   isActive,
+  selectedKey,
 }: {
   item: Folder;
   pathname: string;
@@ -288,6 +295,7 @@ function FolderLabelRow({
   matchId: string;
   selfMatches: boolean;
   isActive: boolean;
+  selectedKey: string | null;
 }) {
   const depth = useFolderDepth();
   const folderNesting = Math.max(0, depth - 1);
@@ -307,7 +315,11 @@ function FolderLabelRow({
   if (item.index && folder.folderLink !== false) {
     return (
       <SidebarFolderLink
-        href={item.index.url}
+        href={
+          item.index.external
+            ? item.index.url
+            : withCategoryNavQuery(item.index.url, selectedKey)
+        }
         active={isActiveUrl(item.index.url, pathname)}
         external={item.index.external}
         data-sidebar-match-id={matchAttr}
@@ -429,7 +441,6 @@ export function DocsSidebarTreeFolder({
     !sidebarNodePassesCategoryNav({
       selectedKey: categoryNav.selectedKey,
       nodeUrl: item.index?.url,
-      pathname,
       keyByUrl: categoryNav.model.keyByUrl,
       prefix: categoryNav.model.prefix,
       isFiltering,
@@ -485,6 +496,7 @@ export function DocsSidebarTreeFolder({
         matchId={matchId}
         selfMatches={selfMatches}
         isActive={selfMatches && isActiveMatch(matchId)}
+        selectedKey={categoryNav.selectedKey}
       />
       <ForceShowChildrenContext.Provider value={forceShowChildren}>
         <DocsSidebarFolderContent>{children}</DocsSidebarFolderContent>
