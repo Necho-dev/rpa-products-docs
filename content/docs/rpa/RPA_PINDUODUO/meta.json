@@ -6,7 +6,7 @@
       { "key": "shop", "item": "店铺", "icon": { "comp": "Store", "color": "#0284c7" } },
       { "key": "item", "item": "商品", "icon": { "comp": "ShoppingBag", "color": "#ea580c" } },
       { "key": "finance", "item": "财务", "icon": { "comp": "Wallet", "color": "#059669" } },
-      { "key": "mms", "item": "推广平台", "icon": { "comp": "Megaphone", "color": "#9333ea" } },
+      { "key": "promotion", "item": "推广平台", "icon": { "comp": "Megaphone", "color": "#9333ea" } },
       { "key": "jinbao", "item": "多多进宝", "icon": { "comp": "Coins", "color": "#ca8a04" } }
     ]
   }
