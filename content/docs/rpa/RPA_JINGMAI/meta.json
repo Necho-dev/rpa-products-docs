@@ -1,0 +1,11 @@
+{
+  "title": "京麦商家后台",
+  "categoryAxis": {
+    "title": "业务场景",
+    "items": [
+      { "key": "finance", "item": "财务", "icon": { "comp": "Wallet", "color": "#059669" } },
+      { "key": "wl", "item": "物流", "icon": { "comp": "Truck", "color": "#2563eb" } },
+      { "key": "jh", "item": "京慧", "icon": { "comp": "BarChart3", "color": "#dc2626" } }
+    ]
+  }
+}

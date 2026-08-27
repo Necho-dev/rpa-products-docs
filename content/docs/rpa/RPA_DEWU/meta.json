@@ -1,0 +1,11 @@
+{
+  "title": "得物商家后台",
+  "categoryAxis": {
+    "title": "业务场景",
+    "items": [
+      { "key": "finance", "item": "财务", "icon": { "comp": "Wallet", "color": "#059669" } },
+      { "key": "marketing", "item": "营销", "icon": { "comp": "Megaphone", "color": "#9333ea" } },
+      { "key": "gravity", "item": "引力", "icon": { "comp": "Sparkles", "color": "#6366f1" } }
+    ]
+  }
+}

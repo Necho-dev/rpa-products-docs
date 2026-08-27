@@ -40,7 +40,7 @@ export type ModuleCardProps = {
   badge?: ModuleCardBadge;
   /** 平台/后台入口（可选，用于 connectors/index 等手写页） */
   url?: string;
-  /** ModuleGrid 封面 OG（cover.png） */
+  /** 卡片封面 OG（cover.png） */
   coverUrl?: string;
   /** 数据就绪（周期 + 时间） */
   dataReady?: DataReadyMeta;
@@ -48,25 +48,62 @@ export type ModuleCardProps = {
   estimatedDuration?: EstimatedDurationMeta;
   /** 最小调度间隔 */
   minInterval?: MinIntervalMeta;
+  /** 搜索命中高亮（已规范化小写 query） */
+  highlightQuery?: string;
+  /** 有图标时才占位；未定义不留空槽 */
+  reserveIcon?: boolean;
   className?: string;
 };
+
+const SEARCH_MARK_CLASS =
+  'rounded-[1px] bg-[#ffe566] p-0 text-inherit dark:bg-yellow-500/45';
+
+export function highlightQueryText(
+  text: string | undefined,
+  normalizedQuery: string | undefined,
+): ReactNode {
+  if (!text) return text;
+  if (!normalizedQuery) return text;
+
+  const lower = text.toLowerCase();
+  const parts: ReactNode[] = [];
+  let start = 0;
+  let index = lower.indexOf(normalizedQuery, start);
+  let key = 0;
+  if (index < 0) return text;
+
+  while (index >= 0) {
+    if (index > start) parts.push(text.slice(start, index));
+    parts.push(
+      <mark key={`m-${key++}`} className={SEARCH_MARK_CLASS}>
+        {text.slice(index, index + normalizedQuery.length)}
+      </mark>,
+    );
+    start = index + normalizedQuery.length;
+    index = lower.indexOf(normalizedQuery, start);
+  }
+  if (start < text.length) parts.push(text.slice(start));
+  return parts;
+}
 
 function ModuleCardTitleIcon({
   faviconUrl,
   icon,
+  reserve,
 }: {
   faviconUrl?: string;
   icon?: ReactNode;
+  reserve?: boolean;
 }) {
   const [faviconFailed, setFaviconFailed] = useState(false);
   const showFavicon = Boolean(faviconUrl) && !faviconFailed;
 
-  if (!showFavicon && !icon) return null;
+  if (!showFavicon && !icon && !reserve) return null;
 
   return (
     <span
       className={cn(
-        'inline-flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-fd-border/70 bg-fd-muted p-1.5 text-fd-muted-foreground',
+        'inline-flex size-10 shrink-0 aspect-square items-center justify-center overflow-hidden rounded-xl border border-fd-border/70 bg-fd-muted p-1.5 text-fd-muted-foreground',
         '[&_img]:size-full [&_img]:object-contain [&_svg]:size-full',
       )}
     >
@@ -295,6 +332,8 @@ function ModuleCardHeader({
   dataReady,
   estimatedDuration,
   minInterval,
+  highlightQuery,
+  reserveIcon,
 }: {
   icon?: ReactNode;
   faviconUrl?: string;
@@ -306,26 +345,32 @@ function ModuleCardHeader({
   dataReady?: DataReadyMeta;
   estimatedDuration?: EstimatedDurationMeta;
   minInterval?: MinIntervalMeta;
+  highlightQuery?: string;
+  reserveIcon?: boolean;
 }) {
   const content = (
     <div className="min-w-0">
       <div className="flex items-start gap-2">
-        <ModuleCardTitleIcon faviconUrl={faviconUrl} icon={icon} />
+        <ModuleCardTitleIcon
+          faviconUrl={faviconUrl}
+          icon={icon}
+          reserve={reserveIcon}
+        />
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <h3
               className="min-w-0 flex-1 truncate text-sm font-bold text-fd-foreground"
               title={title}
             >
-              {title}
+              {highlightQueryText(title, highlightQuery)}
             </h3>
             {badge ? <ModuleCardBadgePill {...badge} /> : null}
           </div>
-          {description ? (
-            <p className="mt-1.5 text-xs leading-relaxed text-fd-muted-foreground line-clamp-2">
-              {description}
-            </p>
-          ) : null}
+          <p className="mt-1.5 line-clamp-2 min-h-[2lh] text-xs leading-relaxed text-fd-muted-foreground">
+            {description
+              ? highlightQueryText(description, highlightQuery)
+              : null}
+          </p>
         </div>
       </div>
       <ModuleCardScheduleLine
@@ -363,6 +408,8 @@ export function ModuleCard({
   dataReady,
   estimatedDuration,
   minInterval,
+  highlightQuery,
+  reserveIcon,
   className,
 }: ModuleCardProps) {
   const pathname = usePathname() ?? '/';
@@ -399,6 +446,8 @@ export function ModuleCard({
         dataReady={dataReady}
         estimatedDuration={estimatedDuration}
         minInterval={minInterval}
+        highlightQuery={highlightQuery}
+        reserveIcon={reserveIcon}
       />
 
       {(code || url) ? (
@@ -416,7 +465,7 @@ export function ModuleCard({
                 className="min-w-0 flex-1 truncate font-mono text-xs font-medium text-fd-foreground"
                 title={code}
               >
-                {code}
+                {highlightQueryText(code, highlightQuery)}
               </code>
               <EntryCopyButton value={code} />
             </div>

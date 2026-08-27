@@ -262,8 +262,23 @@ export function handleDocsAnchorClick(event: MouseEvent): boolean {
     } else {
       history.replaceState(null, '', next);
     }
+    notifyDocsHashChange();
   }
 
-  smoothScrollToElement(heading, { container: scrollRoot, block: 'start' });
+  const filterPanel = heading.hasAttribute('data-category-filter-anchor')
+    ? heading.closest<HTMLElement>('[data-category-filter-layout]')
+    : null;
+  smoothScrollToElement(filterPanel ?? heading, {
+    container: scrollRoot,
+    block: 'start',
+  });
   return true;
+}
+
+/** history.pushState/replaceState 不触发 hashchange，目录与筛选靠此同步。 */
+export const DOCS_HASH_EVENT = 'docs:hashchange';
+
+export function notifyDocsHashChange(): void {
+  const Ctor = window.Event;
+  window.dispatchEvent(new Ctor(DOCS_HASH_EVENT));
 }

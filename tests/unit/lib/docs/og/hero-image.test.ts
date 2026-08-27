@@ -43,17 +43,17 @@ describe('extractMarkdownIncludeTargets', () => {
 describe('resolveHeroImageRelativePath', () => {
   it('resolves first local image relative to page', () => {
     const raw =
-      'Intro\n\n![x](../_public/images/ACCOUNT_PASSWORD/RPA_DOUDIAN/a.png)\n';
+      'Intro\n\n![x](../_public/images/YUCE_RPA/RPA_DOUDIAN/a.png)\n';
     assert.equal(
-      resolveHeroImageRelativePath('auth/ACCOUNT_PASSWORD/RPA_DOUDIAN.md', raw),
-      'auth/_public/images/ACCOUNT_PASSWORD/RPA_DOUDIAN/a.png',
+      resolveHeroImageRelativePath('auth/YUCE_RPA/RPA_DOUDIAN.md', raw),
+      'auth/_public/images/YUCE_RPA/RPA_DOUDIAN/a.png',
     );
   });
 
   it('returns null when only include is present', () => {
     assert.equal(
       resolveHeroImageRelativePath(
-        'auth/ACCOUNT_PASSWORD/RPA_ALIMM.md',
+        'auth/YUCE_RPA/RPA_ALIMM.md',
         '::include[./RPA_QIANNIU.md]\n',
       ),
       null,
@@ -70,14 +70,14 @@ title: 阿里妈妈
 ::include[./RPA_QIANNIU.md]
 `;
     const relative = await resolveHeroImageRelativePathWithIncludes(
-      'auth/ACCOUNT_PASSWORD/RPA_ALIMM.md',
+      'auth/YUCE_RPA/RPA_ALIMM.md',
       raw,
     );
 
     assert.ok(relative);
     assert.match(
       relative!,
-      /auth\/_public\/images\/ACCOUNT_PASSWORD\/RPA_QIANNIU\//,
+      /auth\/_public\/images\/YUCE_RPA\/RPA_QIANNIU\//,
     );
     assert.match(relative!, /\.png$/);
   });

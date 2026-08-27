@@ -1,17 +1,17 @@
 ---
 title: 唯品会
-icon: WEIPINHUI
-description: 覆盖唯品会营销平台财务、推广联盟、供应商结算等场景的连接器
+icon: ICO_WEIPINHUI
+description: 覆盖唯品会营销平台、供应商结算等子平台的连接器
 entry: RPA_WEIPINHUI
-module:
-  link: https://e.vip.com
-  group: weipinhui
+category:
+  slug: weipinhui
   icon:
-    comp: WEIPINHUI
+    comp: ICO_WEIPINHUI
+  link: https://e.vip.com
 ---
 
 :::meta-panel
-icon: WEIPINHUI
+icon: ICO_WEIPINHUI
 platform: 唯品会
 platformUrl: https://e.vip.com
 requireLogin: true
@@ -21,24 +21,15 @@ loginOptions:
   - type: sms
 :::
 
-## 内含连接器
+## 连接器
 
-:::module-grid
-layout: tabs
+:::category-filter
 cover: true
-yx:
-  label: 营销推广/YX
-  icon:
-    comp: Megaphone
-    color: '#ea580c'
-finance:
-  label: 财务/Finance
-  icon:
-    comp: Wallet
-    color: '#059669'
-gys:
-  label: 供应商结算/GYS
-  icon:
-    comp: Wallet
-    color: '#c71585'
+search: true
+layout: tabs
+depth: 2
+pagination:
+  enable: true
+  size: 12
+  style: button
 :::

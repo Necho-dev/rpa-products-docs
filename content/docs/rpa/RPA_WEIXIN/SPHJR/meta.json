@@ -1,0 +1,9 @@
+{
+  "title": "视频号加热平台",
+  "categoryAxis": {
+    "title": "业务场景",
+    "items": [
+      { "key": "sphjr", "item": "短视频推广", "icon": { "comp": "Video", "color": "#07C160" } }
+    ]
+  }
+}

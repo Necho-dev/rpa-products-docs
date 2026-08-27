@@ -15,7 +15,7 @@ import { source } from '@/lib/docs/source/source';
 /**
  * preview：把目标页正文 SSR 进限高滚动容器。
  * 不提供展开全文；完整阅读走悬浮工具条（分屏 / 新标签等）。
- * 不再嵌套 ReferencesOutbound，避免 A 预览 B、B 预览 A 递归。
+ * 不再嵌套出口引用块，避免 A 预览 B、B 预览 A 递归。
  */
 export function ReferencePreview({
   reference,
@@ -41,6 +41,7 @@ export function ReferencePreview({
       kind={reference.kind}
       badge={reference.badge}
       prompt={reference.prompt}
+      size={reference.size}
       updatedLabel={reference.updatedLabel}
       toc={toc}
       headingPrefix={prefix}

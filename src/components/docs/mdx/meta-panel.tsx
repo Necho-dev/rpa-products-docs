@@ -7,7 +7,6 @@ import {
   BugPlay,
   SquareArrowOutUpRight,
   Link2,
-  Package,
   ShieldCheck,
   UserLock,
   UserRoundKey,
@@ -103,34 +102,6 @@ function RowLabel({
 const metaRowClassName =
   'grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2.5 gap-y-1 sm:grid-cols-[10.5rem_minmax(0,1fr)] sm:gap-x-3';
 
-export type ConnectorBadgeStat = {
-  /** 文档 frontmatter 中的 badge.label，任意文案 */
-  label: string;
-  count: number;
-  color?: string;
-};
-
-const UNLABELED_BADGE_LABEL = '未标注';
-const DEFAULT_BADGE_DOT_COLOR = '#6366f1';
-
-function BadgeStatPill({ label, count, color }: ConnectorBadgeStat) {
-  const dotColor = color?.trim() || DEFAULT_BADGE_DOT_COLOR;
-  return (
-    <span
-      className="inline-flex items-center gap-1.5 rounded-md border border-fd-border/60 bg-fd-muted/20 px-2 py-1 text-xs font-semibold tabular-nums text-fd-foreground"
-      title={`${label}：${count}`}
-    >
-      <span
-        className="size-1.5 shrink-0 rounded-full"
-        style={{ backgroundColor: dotColor }}
-        aria-hidden
-      />
-      <span>{label}</span>
-      <span className="tabular-nums">{count}</span>
-    </span>
-  );
-}
-
 export function MetaPanel({
   platform,
   platformUrl,
@@ -138,8 +109,6 @@ export function MetaPanel({
   requireLogin = true,
   loginOptions,
   authHelpUrl,
-  connectorTotal,
-  connectorBadgeStats,
   className,
 }: {
   platform: string;
@@ -151,24 +120,9 @@ export function MetaPanel({
   loginOptions?: MetaPanelLoginOption[];
   /** 授权帮助文档链接；未配置时不展示该行 */
   authHelpUrl?: string;
-  /** 同目录连接器总数（自动扫描） */
-  connectorTotal?: number;
-  /**
-   * 按 frontmatter `badge.label` 原样聚合的分项数量。
-   * 不限定「已上线 / 待上线」等固定枚举，任意 label 都会单独成组。
-   */
-  connectorBadgeStats?: ConnectorBadgeStat[];
   className?: string;
 }) {
   const platformIconEl = icon?.trim() ? resolveDocIcon(icon.trim()) : undefined;
-  const showConnectorStats =
-    typeof connectorTotal === 'number' && connectorTotal >= 0;
-  const badgeStats = connectorBadgeStats ?? [];
-  /** 存在真实 badge.label（非「未标注」）时，总数进左侧标题，右侧只展示分项 */
-  const labeledBadgeStats = badgeStats.filter(
-    (stat) => stat.label !== UNLABELED_BADGE_LABEL,
-  );
-  const hasBadgeDesign = labeledBadgeStats.length > 0;
   const showAuthHelp = Boolean(authHelpUrl?.trim());
   const loginOptionList = (loginOptions ?? []).filter((opt) =>
     Boolean(opt.text?.trim()),
@@ -286,30 +240,6 @@ export function MetaPanel({
                 <span className="min-w-0 truncate">查看授权帮助文档</span>
                 <SquareArrowOutUpRight className="size-3.5 shrink-0 text-fd-muted-foreground" />
               </DocsLink>
-            </div>
-          </div>
-        ) : null}
-
-        {showConnectorStats ? (
-          <div className={metaRowClassName}>
-            <RowLabel
-              iconWrapperClassName="border-violet-500/20 bg-violet-500/5"
-              icon={<Package className="size-3.5 text-violet-800 dark:text-violet-200" />}
-            >
-              {hasBadgeDesign
-                ? `连接器数量(${connectorTotal})`
-                : '连接器数量'}
-            </RowLabel>
-            <div className="flex min-w-0 flex-wrap items-center gap-2">
-              {hasBadgeDesign ? (
-                labeledBadgeStats.map((stat) => (
-                  <BadgeStatPill key={stat.label} {...stat} />
-                ))
-              ) : (
-                <span className="inline-flex items-center rounded-md border border-fd-border/60 bg-fd-muted/30 px-2 py-1 text-xs font-semibold tabular-nums text-fd-foreground">
-                  共 {connectorTotal} 个
-                </span>
-              )}
             </div>
           </div>
         ) : null}

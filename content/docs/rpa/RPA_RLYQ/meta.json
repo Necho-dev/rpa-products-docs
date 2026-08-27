@@ -1,0 +1,10 @@
+{
+  "title": "热浪引擎",
+  "categoryAxis": {
+    "title": "业务场景",
+    "items": [
+      { "key": "promotion", "item": "推广数据", "icon": { "comp": "Megaphone", "color": "#9333ea" } },
+      { "key": "tcp", "item": "TCP 预估", "icon": { "comp": "LineChart", "color": "#0ea5e9" } }
+    ]
+  }
+}

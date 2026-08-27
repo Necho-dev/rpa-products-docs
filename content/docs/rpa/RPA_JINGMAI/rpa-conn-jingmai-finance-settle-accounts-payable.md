@@ -8,8 +8,7 @@ badge:
 estimatedDuration:
   sec: 120
   description: 数据量大时平台以含多个 XLSX 的压缩包形式交付，整体耗时常达约 10 分钟
-module:
-  group: finance
+category: finance
 ---
 
 | 属性             | 值                                                                                 |

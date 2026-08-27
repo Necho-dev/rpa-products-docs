@@ -109,14 +109,14 @@ describe('shouldPeekDocsLink', () => {
     assert.equal(shouldPeekDocsLink({ splitOpen: true, surface: 'peek' }), true);
   });
 
-  it('does not peek module-grid cards in a single column', () => {
+  it('does not peek listing cards in a single column', () => {
     assert.equal(
       shouldPeekDocsLink({ splitOpen: false, surface: 'main', onlyWhenSplit: true }),
       false,
     );
   });
 
-  it('peeks module-grid cards when split is open and unpinned', () => {
+  it('peeks listing cards when split is open and unpinned', () => {
     assert.equal(
       shouldPeekDocsLink({ splitOpen: true, surface: 'main', onlyWhenSplit: true }),
       true,

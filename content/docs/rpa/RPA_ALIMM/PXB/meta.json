@@ -1,0 +1,10 @@
+{
+  "title": "品销宝",
+  "categoryAxis": {
+    "title": "业务场景",
+    "items": [
+      { "key": "brand", "item": "品牌专区", "icon": { "comp": "Award", "color": "#f59e0b" } },
+      { "key": "star", "item": "明星店铺", "icon": { "comp": "Star", "color": "#eab308" } }
+    ]
+  }
+}

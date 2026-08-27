@@ -1,6 +1,7 @@
 import { readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import type { PlatformIconManifest } from '@/lib/docs/platform-favicon/types';
+import { platformIconLookupKey } from '@/lib/docs/icons/icon-code';
 import { sharedResourceUrl } from '@/lib/docs/icons/shared-resource-url';
 
 /**
@@ -67,15 +68,15 @@ export function platformIconResourceUrl(relativeFile: string): string {
 export const platformFaviconResourceUrl = platformIconResourceUrl;
 
 /**
- * 根据 platform icon CODE（如 `QIANNIU`）查找站内资源 URL。
+ * 根据 platform icon CODE（如 `ICO_QIANNIU`）查找站内资源 URL。
  */
 export function getPlatformIconUrl(
   code: string | undefined | null,
 ): string | undefined {
-  const normalized = code?.trim();
-  if (!normalized) return undefined;
+  const key = platformIconLookupKey(code);
+  if (!key) return undefined;
   const manifest = loadPlatformIconManifest();
-  const entry = manifest?.icons[normalized];
+  const entry = manifest?.icons[key];
   if (!entry?.file) return undefined;
   return platformIconResourceUrl(entry.file);
 }

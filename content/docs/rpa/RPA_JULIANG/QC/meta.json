@@ -1,0 +1,10 @@
+{
+  "title": "巨量千川",
+  "categoryAxis": {
+    "title": "业务场景",
+    "items": [
+      { "key": "brand", "item": "品牌投放", "icon": { "comp": "Flame", "color": "#fe2c55" } },
+      { "key": "material", "item": "素材分析", "icon": { "comp": "Clapperboard", "color": "#6366f1" } }
+    ]
+  }
+}

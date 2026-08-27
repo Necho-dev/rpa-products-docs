@@ -1,0 +1,11 @@
+{
+  "title": "微信",
+  "categoryAxis": {
+    "title": "子平台"
+  },
+  "pages": [
+    "./SPHJR",
+    "./SPHZS",
+    "./XD"
+  ]
+}

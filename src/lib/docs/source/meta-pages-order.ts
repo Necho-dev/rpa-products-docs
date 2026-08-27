@@ -1,5 +1,9 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
+import { parse as parseYaml } from 'yaml';
+import { compareBySlugOrder } from '@/lib/docs/source/compare-slug-order';
+
+export { compareBySlugOrder };
 
 /**
  * 将 meta.json `pages` 项规范为 slug。
@@ -11,7 +15,7 @@ export function normalizeMetaPageEntry(entry: string): string | undefined {
   if (!t || t === '...' || t === '---') return undefined;
   const cleaned = t.replace(/^\.\//, '').replace(/\/$/, '');
   if (!cleaned || cleaned === 'index') return undefined;
-  // 目录式 `./foo/bar` 取末段，与 ModuleGrid 子页 basename 对齐
+  // 目录式 `./foo/bar` 取末段，与同目录子页 basename 对齐
   const base = cleaned.includes('/')
     ? cleaned.slice(cleaned.lastIndexOf('/') + 1)
     : cleaned;
@@ -34,34 +38,76 @@ export function parseMetaPagesOrder(pages: unknown): string[] {
 }
 
 /**
- * 读取 `content/docs/{docsRelativeDir}/meta.json` 的 pages 顺序。
- * 文件不存在或解析失败时返回 []。
+ * 读取 `content/docs/{docsRelativeDir}/meta.json`。
+ * 文件不存在或解析失败时返回 null。
  */
-export function readDocsMetaPagesOrder(docsRelativeDir: string): string[] {
+export function readDocsMetaJson(
+  docsRelativeDir: string,
+): Record<string, unknown> | null {
   const rel = docsRelativeDir.replace(/^\/+|\/+$/g, '');
   const metaPath = path.join(process.cwd(), 'content', 'docs', rel, 'meta.json');
   try {
     const raw = readFileSync(metaPath, 'utf8');
-    const data = JSON.parse(raw) as { pages?: unknown };
-    return parseMetaPagesOrder(data.pages);
+    const data = JSON.parse(raw) as unknown;
+    if (!data || typeof data !== 'object' || Array.isArray(data)) return null;
+    return data as Record<string, unknown>;
   } catch {
-    return [];
+    return null;
   }
 }
 
 /**
- * 按 meta pages 顺序比较两个 slug；未出现在 order 中的排在后面，再按 localeCompare。
+ * 读取 `content/docs/{docsRelativeDir}/meta.json` 的 pages 顺序。
+ * 文件不存在或解析失败时返回 []。
  */
-export function compareBySlugOrder(
-  a: string,
-  b: string,
-  order: readonly string[],
+export function readDocsMetaPagesOrder(docsRelativeDir: string): string[] {
+  return parseMetaPagesOrder(readDocsMetaJson(docsRelativeDir)?.pages);
+}
+
+const INDEX_FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---/;
+
+/** 读取 `content/docs/{dir}/index.md(x)` 的 YAML frontmatter；没有则 null */
+export function readDocsIndexFrontmatter(
+  docsRelativeDir: string,
+): Record<string, unknown> | null {
+  const rel = docsRelativeDir.replace(/^\/+|\/+$/g, '');
+  if (!rel) return null;
+  const dir = path.join(process.cwd(), 'content', 'docs', rel);
+  for (const name of ['index.md', 'index.mdx']) {
+    try {
+      const raw = readFileSync(path.join(dir, name), 'utf8');
+      const match = INDEX_FRONTMATTER_RE.exec(raw);
+      if (!match?.[1]) continue;
+      const data = parseYaml(match[1]) as unknown;
+      if (data && typeof data === 'object' && !Array.isArray(data)) {
+        return data as Record<string, unknown>;
+      }
+    } catch {
+      continue;
+    }
+  }
+  return null;
+}
+
+/**
+ * 按侧栏目录树比较页面 slugs：每一层用该层 meta.json `pages`，没有则字典序。
+ */
+export function compareDocsSidebarOrder(
+  a: readonly string[],
+  b: readonly string[],
+  rootPrefix: readonly string[] = [],
 ): number {
-  if (order.length === 0) return a.localeCompare(b);
-  const ia = order.indexOf(a);
-  const ib = order.indexOf(b);
-  if (ia === -1 && ib === -1) return a.localeCompare(b);
-  if (ia === -1) return 1;
-  if (ib === -1) return -1;
-  return ia - ib;
+  const start = rootPrefix.length;
+  const max = Math.max(a.length, b.length);
+  for (let i = start; i < max; i++) {
+    const sa = a[i];
+    const sb = b[i];
+    if (sa == null) return -1;
+    if (sb == null) return 1;
+    if (sa === sb) continue;
+    const parentDir = a.slice(0, i).join('/');
+    const cmp = compareBySlugOrder(sa, sb, readDocsMetaPagesOrder(parentDir));
+    if (cmp !== 0) return cmp;
+  }
+  return 0;
 }

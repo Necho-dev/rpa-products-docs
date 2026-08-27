@@ -10,21 +10,17 @@ import {
   jsxExpressionAttribute,
   jsxStringAttribute,
 } from '@/lib/docs/source/mdx-jsx-ast';
-import { aggregateConnectorBadgeStats } from '@/lib/docs/source/connector-badge-stats';
-import type { ConnectorBadgeStat } from '@/lib/docs/source/connector-badge-stats';
 import {
-  collectModuleGridGroupsFromScan,
-  formatModuleGridDirectiveWithModules,
   pageSlugFromDocFile,
-  scanModuleGridModulesSync,
-  scanSiblingMarkdownModulesSync,
-} from '@/lib/docs/source/module-grid-fs-scan';
-import { parseModuleGridDirectiveYaml } from '@/lib/docs/source/module-group-config';
+  pageSlugFromDocPageFile,
+  resolveCategoryFilterTabGroups,
+} from '@/lib/docs/source/scan-sibling-docs';
+import { parseCategoryFilterDirectiveYaml } from '@/lib/docs/source/category-filter-config';
 import {
   buildTocOnlyGroupHeading,
   findPrecedingHeading,
-  shouldInjectModuleGridTocHeadings,
-} from '@/lib/docs/source/module-grid-toc';
+} from '@/lib/docs/source/doc-block-toc';
+import { referenceDirectiveSchema } from '@/lib/docs/doc-references-core';
 
 interface ContainerDirectiveNode {
   type: 'containerDirective';
@@ -156,14 +152,6 @@ const metaPanelSchema = z.object({
   authHelpUrl: z.string().optional(),
 });
 
-/** 扫描同目录连接器，按任意 badge.label 聚合（无业务枚举） */
-function scanConnectorBadgeStats(indexFilePath: string) {
-  const modules = scanSiblingMarkdownModulesSync(indexFilePath).filter((m) =>
-    Boolean(m.entry?.trim()),
-  );
-  return aggregateConnectorBadgeStats(modules.map((m) => m.badge));
-}
-
 function extractDirectiveInnerText(directive: ContainerDirectiveNode, file: VFile): string {
   const start = directive.position?.start.offset;
   const end = directive.position?.end.offset;
@@ -214,14 +202,7 @@ function parseDirectiveYaml(innerText: string, directiveName: string, filePath: 
   }
 }
 
-function parseGroupsYaml(data: unknown, filePath: string) {
-  return parseModuleGridDirectiveYaml(data, filePath).groups;
-}
-
-function buildMetaPanelJsx(
-  meta: z.infer<typeof metaPanelSchema>,
-  stats?: { connectorTotal: number; connectorBadgeStats: ConnectorBadgeStat[] },
-) {
+function buildMetaPanelJsx(meta: z.infer<typeof metaPanelSchema>) {
   const attributes: unknown[] = [jsxStringAttribute('platform', meta.platform)];
 
   if (meta.platformUrl) {
@@ -243,13 +224,6 @@ function buildMetaPanelJsx(
 
   if (meta.authHelpUrl?.trim()) {
     attributes.push(jsxStringAttribute('authHelpUrl', meta.authHelpUrl.trim()));
-  }
-
-  if (stats) {
-    attributes.push(jsxExpressionAttribute('connectorTotal', stats.connectorTotal));
-    attributes.push(
-      jsxExpressionAttribute('connectorBadgeStats', stats.connectorBadgeStats),
-    );
   }
 
   return {
@@ -291,27 +265,29 @@ const remarkMdxDocBlocks: Plugin<[], Root> = () => {
           throw new Error(`${filePath}: invalid :::meta-panel — ${msg}`);
         }
 
-        const stats =
-          filePath !== 'unknown'
-            ? scanConnectorBadgeStats(resolvedFilePath)
-            : undefined;
-
         const originalText = getOriginalDirectiveText(directive, file);
         (parent.children as unknown[])[idx] = {
-          ...buildMetaPanelJsx(parsed.data, stats),
+          ...buildMetaPanelJsx(parsed.data),
           data: { _stringify: { text: originalText } },
         };
         return;
       }
 
       if (directive.name === 'module-grid') {
+        throw new Error(
+          `${filePath}: :::module-grid is removed; use :::category-filter and put group labels in meta.json categoryAxis.items`,
+        );
+      }
+
+      if (directive.name === 'category-filter') {
         const innerText = extractDirectiveInnerText(directive, file);
-        const raw = parseDirectiveYaml(innerText, 'module-grid', filePath);
-        const { layout, cover, groups } = parseModuleGridDirectiveYaml(raw, filePath);
+        const raw = parseDirectiveYaml(innerText, 'category-filter', filePath);
+        const { cover, search, labels, depth, layout, hubs } =
+          parseCategoryFilterDirectiveYaml(raw, filePath);
         const pageSlug = pageSlugFromDocFile(resolvedFilePath);
 
         if (pageSlug == null) {
-          throw new Error(`${filePath}: cannot derive pageSlug for :::module-grid`);
+          throw new Error(`${filePath}: cannot derive pageSlug for :::category-filter`);
         }
 
         const originalText = getOriginalDirectiveText(directive, file);
@@ -319,68 +295,107 @@ const remarkMdxDocBlocks: Plugin<[], Root> = () => {
           parent.children as RootContent[],
           idx,
         );
-
+        const resolvedLayout = layout;
         const attributes: unknown[] = [
           jsxExpressionAttribute('pageSlug', pageSlug),
-          jsxExpressionAttribute('groups', groups),
-          jsxExpressionAttribute('layout', layout),
           jsxExpressionAttribute('cover', cover),
+          jsxExpressionAttribute('search', search),
+          jsxExpressionAttribute('labels', labels),
         ];
+        if (depth != null) {
+          attributes.push(jsxExpressionAttribute('depth', depth));
+        }
+        if (resolvedLayout) {
+          attributes.push(jsxStringAttribute('layout', resolvedLayout));
+        }
+        if (hubs) {
+          attributes.push(jsxExpressionAttribute('hubs', true));
+        }
 
         let injectedHeadingCount = 0;
-        let modulesMarkdownList = '';
-
-        if (filePath !== 'unknown') {
-          const modules = scanModuleGridModulesSync(resolvedFilePath);
-          const nonEmptyGroups = collectModuleGridGroupsFromScan(
-            modules,
-            groups,
-          ).filter((g) => g.modules.length > 0);
-          modulesMarkdownList = formatModuleGridDirectiveWithModules(
-            groups,
-            nonEmptyGroups,
-            layout,
-            cover,
+        if (resolvedLayout === 'tabs' && filePath !== 'unknown') {
+          const tabGroups = resolveCategoryFilterTabGroups(
+            resolvedFilePath,
+            pageSlug,
           );
-
-          // tabs 需要虚拟分组 TOC; stack 由运行时补全 TOC; flat 不展示分类故不注入
-          if (layout === 'tabs' && shouldInjectModuleGridTocHeadings(nonEmptyGroups)) {
+          if (tabGroups.length >= 1) {
             if (!precedingHeading) {
               console.warn(
-                `[remarkMdxDocBlocks] ${filePath}: :::module-grid has multiple groups but no preceding heading for TOC anchors`,
+                `[remarkMdxDocBlocks] ${filePath}: :::category-filter tabs has groups but no preceding heading for TOC anchors`,
               );
             } else {
               attributes.push(
-                jsxStringAttribute('sectionAnchorId', precedingHeading.id) as never,
+                jsxStringAttribute('sectionAnchorId', precedingHeading.id),
               );
-
-              const tocHeadings = nonEmptyGroups.map((group) =>
+              const tocHeadings = tabGroups.map((group) =>
                 buildTocOnlyGroupHeading(
                   precedingHeading.id,
                   group,
                   precedingHeading.depth,
                 ),
               );
-
               (parent.children as unknown[]).splice(idx, 0, ...tocHeadings);
               injectedHeadingCount = tocHeadings.length;
             }
           }
         }
 
-        const jsxNode = {
+        (parent.children as unknown[])[idx + injectedHeadingCount] = {
           type: 'mdxJsxFlowElement',
-          name: 'ModuleGrid',
+          name: 'CategoryFilter',
           attributes,
           children: [],
-          data: {
-            _stringify: {
-              text: modulesMarkdownList || originalText,
-            },
-          },
+          data: { _stringify: { text: originalText } },
         };
+        return;
+      }
 
-        (parent.children as unknown[])[idx + injectedHeadingCount] = jsxNode;
+      if (directive.name === 'references') {
+        const innerText = extractDirectiveInnerText(directive, file);
+        const raw = parseDirectiveYaml(innerText, 'references', filePath);
+        const parsed = referenceDirectiveSchema.safeParse(raw);
+        if (!parsed.success) {
+          const msg = parsed.error.issues.map((i) => i.message).join('; ');
+          throw new Error(`${filePath}: invalid :::references — ${msg}`);
+        }
+
+        const pageSlug = pageSlugFromDocPageFile(resolvedFilePath);
+        if (pageSlug == null) {
+          throw new Error(`${filePath}: cannot derive pageSlug for :::references`);
+        }
+
+        if (parsed.data.size && parsed.data.mode !== 'preview') {
+          console.warn(
+            `[remarkMdxDocBlocks] ${filePath}: :::references size is ignored unless mode is preview`,
+          );
+        }
+
+        const originalText = getOriginalDirectiveText(directive, file);
+        const attributes: unknown[] = [
+          jsxExpressionAttribute('pageSlug', pageSlug),
+          jsxStringAttribute('path', parsed.data.path.trim()),
+        ];
+        if (parsed.data.mode) {
+          attributes.push(jsxStringAttribute('mode', parsed.data.mode));
+        }
+        if (parsed.data.size && parsed.data.mode === 'preview') {
+          attributes.push(jsxStringAttribute('size', parsed.data.size));
+        }
+        if (parsed.data.prompt) {
+          attributes.push(jsxExpressionAttribute('prompt', parsed.data.prompt));
+        }
+        if (parsed.data.badge) {
+          attributes.push(jsxExpressionAttribute('badge', parsed.data.badge));
+        }
+
+        (parent.children as unknown[])[idx] = {
+          type: 'mdxJsxFlowElement',
+          name: 'DocReference',
+          attributes,
+          children: [],
+          data: { _stringify: { text: originalText } },
+        };
+        return;
       }
     });
   };

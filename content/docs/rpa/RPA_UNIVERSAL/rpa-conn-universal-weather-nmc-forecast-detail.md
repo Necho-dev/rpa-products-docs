@@ -8,14 +8,18 @@ badge:
 estimatedDuration:
   sec: 30
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响
-module:
-  group: weather
+category:
+  slug: weather
   icon:
-    comp: NMC
+    comp: ICO_NMC
 references:
-  - kind: fallback
-    path: /docs/rpa/RPA_UNIVERSAL/rpa-conn-universal-weather-cma-forecast-detail
+  - path: /docs/rpa/RPA_UNIVERSAL/rpa-conn-universal-weather-cma-forecast-detail
+    kind: fallback
 ---
+:::references
+path: /docs/rpa/RPA_UNIVERSAL/rpa-conn-universal-weather-cma-forecast-detail
+mode: summary
+:::
 
 :::warning[稳定性提示]
 该连接器可能存在不稳定性；若对稳定性要求较高，建议优先使用的[中国气象局7天天气预报连接器](/docs/rpa/RPA_UNIVERSAL/rpa-conn-universal-weather-cma-forecast-detail)，或两个连接器互为 fallback 备份。

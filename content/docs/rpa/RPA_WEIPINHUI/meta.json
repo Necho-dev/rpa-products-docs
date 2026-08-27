@@ -1,0 +1,10 @@
+{
+  "title": "唯品会",
+  "categoryAxis": {
+    "title": "子平台"
+  },
+  "pages": [
+    "./YX",
+    "./GYS"
+  ]
+}

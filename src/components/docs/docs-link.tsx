@@ -23,7 +23,7 @@ function isModifiedClick(e: MouseEvent<HTMLAnchorElement>): boolean {
   return e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0;
 }
 
-/** 站内文档跳转；module-grid 传 onlyWhenSplit：单栏走左栏，双栏未锁定则覆盖右栏 */
+/** 站内文档跳转；卡片传 onlyWhenSplit：单栏走左栏，双栏未锁定则覆盖右栏 */
 export function useOpenDocsHref(options?: { onlyWhenSplit?: boolean }) {
   const peek = useDocPeek();
   const surface = useDocPeekSurface();

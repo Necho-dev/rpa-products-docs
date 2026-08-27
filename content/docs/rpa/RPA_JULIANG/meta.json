@@ -1,0 +1,10 @@
+{
+  "title": "巨量引擎",
+  "categoryAxis": {
+    "title": "子平台"
+  },
+  "pages": [
+    "./QC",
+    "./YT"
+  ]
+}

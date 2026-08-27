@@ -1,0 +1,9 @@
+{
+  "title": "巨量云图",
+  "categoryAxis": {
+    "title": "业务场景",
+    "items": [
+      { "key": "yt", "item": "行业内容榜", "icon": { "comp": "Trophy", "color": "#2563eb" } }
+    ]
+  }
+}

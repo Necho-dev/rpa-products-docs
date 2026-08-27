@@ -1,26 +1,20 @@
 ---
 title: 拼多多商家后台
-icon: PINDUODUO
+icon: ICO_PINDUODUO
 description: 覆盖拼多多商家后台数据与经营的连接器
 entry: RPA_PINDUODUO
-module:
-  link: https://mms.pinduoduo.com/
-  group: pinduoduo
-  icon:
-    comp: PINDUODUO
 references:
-  - kind: dependency
-    path: /docs/auth/ACCOUNT_PASSWORD/RPA_PINDUODUO
-    mode: summary
-    badge:
-      label: 授权依赖
-    prompt:
-      label: 请提前完成授权配置
-      type: warning
+  - path: /docs/auth/YUCE_RPA/RPA_PINDUODUO
+    kind: dependency
+category:
+  slug: pinduoduo
+  icon:
+    comp: ICO_PINDUODUO
+  link: https://mms.pinduoduo.com/
 ---
 
 :::meta-panel
-icon: PINDUODUO
+icon: ICO_PINDUODUO
 platform: 拼多多商家后台
 platformUrl: https://mms.pinduoduo.com/
 requireLogin: true
@@ -30,34 +24,24 @@ loginOptions:
   - type: sms
 :::
 
+:::references
+path: /docs/auth/YUCE_RPA/RPA_PINDUODUO
+mode: summary
+badge:
+  label: 授权依赖
+prompt:
+  label: 请提前完成授权配置
+  type: warning
+:::
+
 ## 内含连接器
 
-:::module-grid
-layout: tabs
+:::category-filter
 cover: true
-shop:
-  label: 店铺/Shop
-  icon:
-    comp: Store
-    color: '#0284c7'
-item:
-  label: 商品/Item
-  icon:
-    comp: ShoppingBag
-    color: '#ea580c'
-finance:
-  label: 财务/Finance
-  icon:
-    comp: Wallet
-    color: '#059669'
-mms:
-  label: 推广平台/Promotion
-  icon:
-    comp: Megaphone
-    color: '#9333ea'
-jinbao:
-  label: 多多进宝/Jinbao
-  icon:
-    comp: Coins
-    color: '#ca8a04'
+layout: tabs
+depth: 1
+pagination:
+  enable: true
+  size: 12
+  style: button
 :::

@@ -3,11 +3,19 @@ import type { ContentStorage, LoaderPlugin, PageTreeBuilderContext } from 'fumad
 
 export type DocBadge = { label: string; color?: string };
 
-type PageFrontmatterExtras = { entry?: string; badge?: DocBadge };
+type PageFrontmatterExtras = {
+  entry?: string;
+  badge?: DocBadge;
+  sidebarFolderLink?: boolean;
+};
 
 /** 侧栏树节点上的扩展字段（非 fumadocs-core 类型声明的一部分，运行时可附加） */
 export type SidebarItemWithBadge = Item & { badge?: DocBadge };
-export type SidebarFolderWithBadge = Folder & { badge?: DocBadge };
+export type SidebarFolderWithBadge = Folder & {
+  badge?: DocBadge;
+  /** false：侧栏文件夹标题只折叠，不导航到 index */
+  folderLink?: boolean;
+};
 
 /**
  * 将页面 frontmatter 中的 `entry`（技术入口 / Code，如 rpa.conn.*）挂到侧栏树节点的 `description`；
@@ -44,6 +52,7 @@ export function docsEntryInSidebarPlugin(): LoaderPlugin<ContentStorage> {
           ...node,
           ...(entry != null && entry !== '' ? { description: String(entry) } : {}),
           ...(badge ? { badge } : {}),
+          ...(data.sidebarFolderLink === false ? { folderLink: false } : {}),
         } as Folder;
       },
     },

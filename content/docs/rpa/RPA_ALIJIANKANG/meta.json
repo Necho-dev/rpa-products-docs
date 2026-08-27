@@ -1,0 +1,9 @@
+{
+  "title": "阿里健康",
+  "categoryAxis": {
+    "title": "子平台"
+  },
+  "pages": [
+    "./TMJK"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "title": "抖店商家后台",
+  "categoryAxis": {
+    "title": "业务场景",
+    "items": [
+      { "key": "shop", "item": "店铺", "icon": { "comp": "Store", "color": "#0284c7" } },
+      { "key": "im", "item": "即时通讯", "icon": { "comp": "MessageCircle", "color": "#e11d48" } }
+    ]
+  }
+}

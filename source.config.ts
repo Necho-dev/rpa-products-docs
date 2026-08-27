@@ -14,7 +14,7 @@ import { remarkMdxFieldTree } from './src/lib/docs/source/remark-mdx-field-tree'
 import { remarkMdxDocBlocks } from './src/lib/docs/source/remark-mdx-doc-blocks';
 import { remarkMdxChangelog } from './src/lib/docs/source/remark-mdx-changelog';
 import { remarkSectionDirective } from './src/lib/docs/source/remark-section-directive';
-import { referencesSchema } from './src/lib/docs/doc-references-core'; // 含 kind / mode / badge / prompt
+import { referencesSchema } from './src/lib/docs/doc-references-core'; // 图边：仅 path / kind
 import remarkDirective from 'remark-directive';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -35,6 +35,40 @@ const moduleIconSchema = z.union([
     color: z.string().optional(),
   }),
 ]);
+
+/** 筛选芯片图标：Lucide 名 / ICO_*，或 `{ comp, color? }`（color 仅 Lucide） */
+const categoryIconSchema = moduleIconSchema;
+
+const categoryCatalogItemSchema = z.object({
+  key: z.string().trim().min(1),
+  item: z.string().trim().min(1),
+  icon: categoryIconSchema.optional(),
+});
+
+const categoryIdentitySchema = z.object({
+  slug: z.string().trim().min(1).optional(),
+  item: z.string().trim().min(1).optional(),
+  icon: categoryIconSchema.optional(),
+  link: z.string().trim().min(1).optional(),
+});
+
+const categoryAxisSchema = z.object({
+  title: z.string().trim().min(1).optional(),
+  items: z.array(categoryCatalogItemSchema).optional(),
+});
+
+/** 分区根 meta：分类导航。`header` 顶栏第二行；`select` 一级 Tab 下拉。与 :::category-filter 无关。 */
+const categoryNavSchema = z.union([z.literal(false), z.enum(['header', 'select'])]);
+
+/**
+ * 页面 `category`：本节点在父层筛选项中的身份，或叶子归属 key。
+ * - 枢纽 index：`{ slug, icon?, link?, item? }`
+ * - 连接器 / 授权页：`category: crowd` 或 `{ slug, icon? }`
+ * 筛选行名与词表写在目录 meta.json 的 `categoryAxis`。
+ */
+const categorySchema = z
+  .union([z.string().trim().min(1), categoryIdentitySchema])
+  .optional();
 
 const dataReadyCycleSchema = z
   .string()
@@ -95,22 +129,16 @@ const docsPageSchema = pageSchema.extend({
   /** 侧栏文档名右侧背景色徽章（与 `entry` 可同时存在） */
   badge: docBadgeSchema.optional(),
   /**
-   * ModuleGrid 卡片专用配置（与侧栏 `title` / `icon` 分离）。
-   * - title：可选，默认文档 title
-   * - link：卡片外链
-   * - group：父页 :::module-grid YAML 的 group key
-   * - icon：卡片图标；未写时可回退页面级 `icon`
-   * - cover：覆盖 grid `cover`，单卡强制开/关
+   * 目录 index 专用：`false` 时侧栏该层只折叠/展开，不把标题做成链接。
+   * 页面本身仍可访问（概览卡片、直链）；面包屑仍可用 folder.index。
    */
-  module: z
-    .object({
-      title: z.string().optional(),
-      link: z.string().url().optional(),
-      group: z.string().optional(),
-      icon: moduleIconSchema.optional(),
-      cover: z.boolean().optional(),
-    })
-    .optional(),
+  sidebarFolderLink: z.boolean().optional(),
+  /**
+   * 本节点在父层 category-filter 中的身份，或叶子归属 key。
+   * 行名与词表写在目录 meta.json 的 `categoryAxis`。
+   * 展示形态（layout / cover / depth）写在 :::category-filter。
+   */
+  category: categorySchema,
   /** 数据就绪（周期 + 时间）；仅 rpa.conn.* 连接器页展示 */
   dataReady: dataReadySchema,
   /** 预估执行耗时；仅 rpa.conn.* 连接器页展示 */
@@ -118,8 +146,7 @@ const docsPageSchema = pageSchema.extend({
   /** 最小调度间隔；仅 rpa.conn.* 连接器页展示 */
   minInterval: minIntervalSchema,
   /**
-   * 本页引用的其它文档（opt-in，不写则不渲染）。
-   * `inherit` 抄最近祖先目录 index 的 references；具体规则与默认值见 doc-references-core.ts。
+   * 本页引用的其它文档（图边：仅 path + kind）。展示位置与 mode 写在 :::references。
    */
   references: referencesSchema,
 });
@@ -129,12 +156,23 @@ const docsMetaSchema = metaSchema.extend({
   access: z.enum(['public', 'private']).optional(),
   /** 侧边栏 Tab 图标颜色（任意 CSS 颜色值，如 `#3b82f6`、`oklch(...)`）；仅 root: true 的分区目录生效 */
   color: z.string().optional(),
+  /**
+   * 本层筛选轴（只写 meta）：title 为行名，items 为同目录叶子词表。
+   * 本节点在父层中的芯片写在 index.md 的 `category`。
+   */
+  categoryAxis: categoryAxisSchema.optional(),
+  /**
+   * 分区根专用：把本层 `categoryAxis.items` 做成导航。
+   * `header`：顶栏第二行；`select`：一级 Tab 下拉。只过滤侧栏一级菜单。
+   */
+  categoryNav: categoryNavSchema.optional(),
 });
 
 // 文档以 .md + YAML frontmatter 为主。
 // 侧栏顺序：无 meta 的目录内 = index 优先 + 其余按路径字典序（见 fumadocs-core buildPaths）。
-// 仅需固定「整站一级」顺序时保留根目录 content/docs/meta.json；子目录（如各连接器包）不必每加一个页面就写 meta。
-// 首页等少数页面可用 .mdx（如 Cards）；需要分隔符等高级侧栏时再为对应目录加 meta.json / meta.yaml。
+// 根目录 content/docs/meta.json 固定整站一级顺序。
+// 平台 / 子平台目录的 meta.json 只承担：侧栏 pages 顺序 + categoryAxis 筛选词表。
+// 首页等少数页面可用 .mdx；需要分隔符等高级侧栏时再为对应目录加 meta.json / meta.yaml。
 // see https://fumadocs.dev/docs/mdx/collections
 export const docs = defineDocs({
   dir: 'content/docs',

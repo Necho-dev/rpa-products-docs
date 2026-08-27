@@ -1,0 +1,13 @@
+{
+  "title": "千牛商家工作台",
+  "categoryAxis": {
+    "title": "业务场景",
+    "items": [
+      { "key": "item", "item": "商品", "icon": { "comp": "ShoppingBag", "color": "#ea580c" } },
+      { "key": "shop", "item": "店铺", "icon": { "comp": "Store", "color": "#0284c7" } },
+      { "key": "logistics", "item": "物流", "icon": { "comp": "Truck", "color": "#16a34a" } },
+      { "key": "marketing", "item": "营销", "icon": { "comp": "Megaphone", "color": "#9333ea" } },
+      { "key": "finance", "item": "财务", "icon": { "comp": "Wallet", "color": "#059669" } }
+    ]
+  }
+}

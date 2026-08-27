@@ -11,16 +11,16 @@ export function buildPageCoverUrl(slugs: string[]): string {
 }
 
 export type ModuleCoverResolveOptions = {
-  /** :::module-grid 的 cover 配置，默认 false */
+  /** :::category-filter 的 cover，默认 false */
   gridCover?: boolean;
-  /** 单页 frontmatter `module.cover`，可覆盖 grid 默认 */
+  /** 单页覆盖：true 强制开，false 强制关 */
   cover?: boolean;
 };
 
 /**
- * ModuleGrid 卡片封面 OG URL（可选）。
- * - grid `cover: false`（默认）→ 无 cover，除非页级 `module.cover: true`
- * - grid `cover: true` → 有 cover，除非页级 `module.cover: false`
+ * 卡片封面 OG URL（可选）。
+ * - 列表 `cover: false`（默认）→ 无 cover，除非页级 `cover: true`
+ * - 列表 `cover: true` → 有 cover，除非页级 `cover: false`
  */
 export function resolveModuleCoverUrl(
   slugs: string[],

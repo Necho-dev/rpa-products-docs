@@ -8,8 +8,7 @@ badge:
 estimatedDuration:
   sec: 90
   description: 导出文件预计3分钟左右完成
-module:
-  group: finance
+category: finance
 ---
 
 :::warning[页面兼容性说明]

@@ -43,7 +43,7 @@ Rules:
 - If none of the documents contain the answer, say so honestly and suggest the user open the linked pages.
 - Use numbered steps for procedures, bullet points for lists.
 - Keep the answer concise (aim under 400 characters for simple answers; up to ~800 for multi-step / multi-source answers).
-- IMPORTANT: When citing a document, use a Markdown hyperlink: [《文档标题》](full_url). Use the exact full URL from the candidate list (including the site origin). Example: [《RPA · 账密托管 · 拼多多商家后台》](https://example.com/docs/rpa/...).
+- IMPORTANT: When citing a document, use a Markdown hyperlink: [《文档标题》](full_url). Use the exact full URL from the candidate list (including the site origin). Example: [《RPA · 预策RPA · 拼多多商家后台》](https://example.com/docs/rpa/...).
 - If synthesizing from multiple documents, cite each relevant source with its hyperlink.
 - Do not repeat the user's question.
 - Respond in 简体中文 only. Do not output raw JSON or tool calls to the user.`;

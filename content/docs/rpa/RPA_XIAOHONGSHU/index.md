@@ -1,17 +1,17 @@
 ---
 title: 小红书
-icon: XIAOHONGSHU
-description: 覆盖小红书千帆、蒲公英等场景的连接器
+icon: ICO_XIAOHONGSHU
+description: 覆盖小红书蒲公英、千帆、千帆投放等子平台的连接器
 entry: RPA_XIAOHONGSHU
-module:
-  link: https://www.xiaohongshu.com/
-  group: xiaohongshu
+category:
+  slug: xiaohongshu
   icon:
-    comp: XIAOHONGSHU
+    comp: ICO_XIAOHONGSHU
+  link: https://www.xiaohongshu.com/
 ---
 
 :::meta-panel
-icon: XIAOHONGSHU
+icon: ICO_XIAOHONGSHU
 platform: 小红书
 platformUrl: https://www.xiaohongshu.com/
 requireLogin: true
@@ -20,19 +20,15 @@ loginOptions:
     icon: CircleUserRound
 :::
 
-## 内含连接器
+## 连接器
 
-:::module-grid
-layout: tabs
+:::category-filter
 cover: true
-pgy:
-  label: 蒲公英/PGY
-  icon:
-    comp: XIAOHONGSHU_PGY
-    color: '#ff2442'
-qf:
-  label: 千帆/QF
-  icon:
-    comp: XIAOHONGSHU
-    color: '#ff2442'
+search: true
+layout: tabs
+depth: 2
+pagination:
+  enable: true
+  size: 12
+  style: button
 :::

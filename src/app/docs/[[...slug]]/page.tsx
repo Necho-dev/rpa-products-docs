@@ -3,7 +3,8 @@ import { getDocAccessContextFromRequest } from '@/lib/docs/access/doc-access-rea
 import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
 import { DocShareButton } from '@/components/docs/doc-share-dialog';
 import { getPageImage, getPageMarkdownUrl, getPageSharePoster, source } from '@/lib/docs/source/source';
-import { resolveModuleGridStackToc } from '@/lib/docs/source/module-grid-runtime';
+import { resolveCategoryFilterStackToc } from '@/lib/docs/source/collect-descendant-modules';
+import type { TOCItemType } from 'fumadocs-core/toc';
 import {
   DocsBody,
   DocsDescription,
@@ -27,7 +28,6 @@ import { DOC_PEEK_COOKIE, parsePeekTarget, shouldRenderPeekFromCookie } from '@/
 import { DocSplitShell } from '@/components/docs/doc-split-shell';
 import { PeekArticle, peekArticleTitle } from '@/components/docs/peek-article';
 import { DocPeekSeed } from '@/components/docs/doc-peek-seed';
-import { ReferencesOutbound } from '@/components/docs/references/references-outbound';
 import { DocAppendix } from '@/components/docs/doc-appendix';
 import { appendixTocItems } from '@/lib/docs/doc-appendix';
 import { getPageBacklinks } from '@/lib/docs/doc-references';
@@ -43,6 +43,17 @@ export const dynamic = 'force-dynamic';
  */
 const docsPageArticleClassName =
   'flex max-w-none w-full *:max-w-none min-h-[calc(var(--fd-docs-height,100dvh)-var(--fd-docs-row-3,0px))] flex-col gap-4 px-4 py-6 md:px-5 md:pt-8 xl:px-6 xl:pt-10 xl:layout:[--fd-toc-width:12.5rem]';
+
+function dedupeTocByUrl(items: TOCItemType[]): TOCItemType[] {
+  const seen = new Set<string>();
+  const out: TOCItemType[] = [];
+  for (const item of items) {
+    if (seen.has(item.url)) continue;
+    seen.add(item.url);
+    out.push(item);
+  }
+  return out;
+}
 
 export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
   const params = await props.params;
@@ -68,7 +79,7 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
 
   const lastModified = page.data.lastModified;
   const backlinks = getPageBacklinks(page, access);
-  const stackToc = await resolveModuleGridStackToc(page.slugs, access);
+  const stackToc = [...(await resolveCategoryFilterStackToc(page.slugs, access))];
   const scheduleMeta = {
     entry: page.data.entry,
     dataReady: page.data.dataReady,
@@ -81,7 +92,11 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
     citedBy: backlinks.length,
     annotations: annotations.length,
   });
-  const toc = [...(page.data.toc ?? []), ...stackToc, ...appendixToc];
+  const toc = dedupeTocByUrl([
+    ...(page.data.toc ?? []),
+    ...stackToc,
+    ...appendixToc,
+  ]);
   const cookieStore = await cookies();
   const searchParams = await props.searchParams;
   const peekFromQuery = parsePeekTarget(searchParams.peek);
@@ -133,7 +148,6 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
           posterUrl={`${origin}${getPageSharePoster(page).url}`}
         />
       </div>
-      <ReferencesOutbound page={page} access={access} />
       <DocsBody>
         <MDX
           components={getMDXComponents({

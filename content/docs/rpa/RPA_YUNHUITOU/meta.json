@@ -1,0 +1,9 @@
+{
+  "title": "云汇投",
+  "categoryAxis": {
+    "title": "业务场景",
+    "items": [
+      { "key": "report", "item": "报表", "icon": { "comp": "Sheet", "color": "#6366f1" } }
+    ]
+  }
+}

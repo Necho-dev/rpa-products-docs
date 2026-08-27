@@ -1,0 +1,10 @@
+{
+  "title": "营销平台",
+  "categoryAxis": {
+    "title": "业务场景",
+    "items": [
+      { "key": "yx", "item": "营销", "icon": { "comp": "ICO_WEIPINHUI_YX" } },
+      { "key": "finance", "item": "财务", "icon": { "comp": "Wallet", "color": "#059669" } }
+    ]
+  }
+}

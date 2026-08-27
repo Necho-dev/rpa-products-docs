@@ -12,10 +12,30 @@ import {
   type ReactNode,
 } from 'react';
 import type { Folder, Item, Node } from 'fumadocs-core/page-tree';
-import { ChevronDown, ChevronUp, Search, X } from 'lucide-react';
+import {
+  ArrowDownToLine,
+  ArrowUpToLine,
+  Check,
+  ChevronDown,
+  ChevronUp,
+  ListChevronsDownUp,
+  ListChevronsUpDown,
+  Search,
+  X,
+} from 'lucide-react';
 import { useTreeContext } from 'fumadocs-ui/contexts/tree';
 import { useSearchContext } from 'fumadocs-ui/contexts/search';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from 'fumadocs-ui/components/ui/popover';
 import { cn } from '@/lib/core/cn';
+import type {
+  DocBadge,
+  SidebarFolderWithBadge,
+  SidebarItemWithBadge,
+} from '@/lib/docs/source/docs-entry-in-sidebar-plugin';
 
 export type SidebarMatchVariant = 'match' | 'active';
 
@@ -40,6 +60,17 @@ type SidebarTreeSearchContextValue = {
   goPrev: () => void;
   /** 节点是否为当前定位命中 */
   isActiveMatch: (matchId: string) => boolean;
+  /** null = 全部 badge */
+  badgeLabel: string | null;
+  setBadgeLabel: (label: string | null) => void;
+  /**
+   * 全部展开/折叠的世代号。递增时各文件夹内部 setOpen，不 remount。
+   */
+  folderOpenEpoch: number;
+  /** 最近一次全部展开/折叠意图；epoch 为 0 时忽略 */
+  folderOpenAll: boolean;
+  expandAllFolders: () => void;
+  collapseAllFolders: () => void;
 };
 
 const SidebarTreeSearchContext = createContext<SidebarTreeSearchContextValue | null>(
@@ -60,12 +91,23 @@ const emptySearchValue: SidebarTreeSearchContextValue = {
   goNext: () => {},
   goPrev: () => {},
   isActiveMatch: () => false,
+  badgeLabel: null,
+  setBadgeLabel: () => {},
+  folderOpenEpoch: 0,
+  folderOpenAll: true,
+  expandAllFolders: () => {},
+  collapseAllFolders: () => {},
 };
 
 export function SidebarTreeSearchProvider({ children }: { children: ReactNode }) {
   const [query, setQueryState] = useState('');
   const [matchIds, setMatchIds] = useState<string[]>([]);
   const [activeIndex, setActiveIndex] = useState(-1);
+  const [badgeLabel, setBadgeLabel] = useState<string | null>(null);
+  const [folderOpenEpoch, setFolderOpenEpoch] = useState(0);
+  const [folderOpenAll, setFolderOpenAll] = useState(true);
+  const { root } = useTreeContext();
+  const rootId = root.$id ?? '';
   const normalizedQuery = query.trim().toLowerCase();
 
   const setQuery = useCallback((next: string) => {
@@ -118,6 +160,25 @@ export function SidebarTreeSearchProvider({ children }: { children: ReactNode })
     [activeMatchId],
   );
 
+  const expandAllFolders = useCallback(() => {
+    setFolderOpenAll(true);
+    setFolderOpenEpoch((n) => n + 1);
+  }, []);
+
+  const collapseAllFolders = useCallback(() => {
+    setFolderOpenAll(false);
+    setFolderOpenEpoch((n) => n + 1);
+  }, []);
+
+  // 切换文档分区时清空筛选，避免跨分区残留
+  useEffect(() => {
+    setQueryState('');
+    setActiveIndex(-1);
+    setBadgeLabel(null);
+    setFolderOpenEpoch(0);
+    setFolderOpenAll(true);
+  }, [rootId]);
+
   // 定位切换后滚入可视区
   useEffect(() => {
     if (!activeMatchId) return;
@@ -140,6 +201,12 @@ export function SidebarTreeSearchProvider({ children }: { children: ReactNode })
       goNext,
       goPrev,
       isActiveMatch,
+      badgeLabel,
+      setBadgeLabel,
+      folderOpenEpoch,
+      folderOpenAll,
+      expandAllFolders,
+      collapseAllFolders,
     }),
     [
       query,
@@ -153,6 +220,11 @@ export function SidebarTreeSearchProvider({ children }: { children: ReactNode })
       goNext,
       goPrev,
       isActiveMatch,
+      badgeLabel,
+      folderOpenEpoch,
+      folderOpenAll,
+      expandAllFolders,
+      collapseAllFolders,
     ],
   );
 
@@ -225,10 +297,99 @@ export function folderHasMatch(folder: Folder, normalizedQuery: string): boolean
   return false;
 }
 
+export type SidebarBadgeOption = {
+  label: string;
+  count: number;
+  color?: string;
+};
+
+export function getNodeBadge(node: Item | Folder): DocBadge | undefined {
+  const badge = (node as SidebarItemWithBadge | SidebarFolderWithBadge).badge;
+  const label = badge?.label?.trim();
+  if (!label) return undefined;
+  const color = badge?.color?.trim();
+  return { label, ...(color ? { color } : {}) };
+}
+
+/** 无筛选（全部）时一律通过；否则要求节点自身 badge.label 相等 */
+export function nodePassesBadge(
+  node: Item | Folder,
+  badgeLabel: string | null,
+): boolean {
+  if (!badgeLabel) return true;
+  return getNodeBadge(node)?.label === badgeLabel;
+}
+
+/** 文件夹自身或任意后代是否带指定 badge（用于决定嵌套文件夹是否保留） */
+export function folderHasBadge(
+  folder: Folder,
+  badgeLabel: string | null,
+): boolean {
+  if (!badgeLabel) return true;
+  if (nodePassesBadge(folder, badgeLabel)) return true;
+  for (const child of folder.children) {
+    if (child.type === 'separator') continue;
+    if (child.type === 'page' && nodePassesBadge(child, badgeLabel)) return true;
+    if (child.type === 'folder' && folderHasBadge(child, badgeLabel)) return true;
+  }
+  return false;
+}
+
+/** 聚合当前树中出现过的 badge.label（不含未标注） */
+export function collectSidebarBadges(root: {
+  children: Node[];
+}): SidebarBadgeOption[] {
+  const byLabel = new Map<string, { count: number; color?: string }>();
+
+  function add(node: Item | Folder) {
+    const badge = getNodeBadge(node);
+    if (!badge) return;
+    const prev = byLabel.get(badge.label);
+    if (prev) {
+      prev.count += 1;
+      if (!prev.color && badge.color) prev.color = badge.color;
+    } else {
+      byLabel.set(badge.label, { count: 1, color: badge.color });
+    }
+  }
+
+  function walk(nodes: Node[]) {
+    for (const node of nodes) {
+      if (node.type === 'separator') continue;
+      if (node.type === 'page') {
+        add(node);
+        continue;
+      }
+      add(node);
+      walk(node.children);
+    }
+  }
+
+  walk(root.children);
+  return [...byLabel.entries()]
+    .map(([label, v]) => ({ label, count: v.count, color: v.color }))
+    .sort(
+      (a, b) =>
+        b.count - a.count || a.label.localeCompare(b.label, 'zh-CN'),
+    );
+}
+
+function nodeVisibleForSearchMatch(
+  node: Item | Folder,
+  normalizedQuery: string,
+  badgeLabel: string | null,
+): boolean {
+  if (!nodeMatchesQuery(node, normalizedQuery)) return false;
+  if (!badgeLabel) return true;
+  if (node.type === 'page') return nodePassesBadge(node, badgeLabel);
+  return folderHasBadge(node, badgeLabel);
+}
+
 /** 深度优先收集自身命中的节点 id（文档序，供上下切换） */
 export function collectMatchIds(
   root: { children: Node[] },
   normalizedQuery: string,
+  badgeLabel: string | null = null,
 ): string[] {
   if (!normalizedQuery) return [];
   const ids: string[] = [];
@@ -237,12 +398,12 @@ export function collectMatchIds(
     for (const node of nodes) {
       if (node.type === 'separator') continue;
       if (node.type === 'page') {
-        if (nodeMatchesQuery(node, normalizedQuery)) {
+        if (nodeVisibleForSearchMatch(node, normalizedQuery, badgeLabel)) {
           ids.push(getSidebarMatchId(node));
         }
         continue;
       }
-      if (nodeMatchesQuery(node, normalizedQuery)) {
+      if (nodeVisibleForSearchMatch(node, normalizedQuery, badgeLabel)) {
         ids.push(getSidebarMatchId(node));
       }
       walk(node.children);
@@ -322,20 +483,15 @@ export function SidebarTreeSearchInput({ className }: { className?: string }) {
     activeIndex,
     goNext,
     goPrev,
+    badgeLabel,
   } = useSidebarTreeSearch();
   const { root } = useTreeContext();
   const { setOpenSearch, enabled: searchEnabled } = useSearchContext();
   const modKey = useModKeyLabel();
-  const rootId = root.$id ?? '';
   const hasQuery = Boolean(normalizedQuery);
   const total = matchIds.length;
   const current = total > 0 ? activeIndex + 1 : 0;
   const noMatch = hasQuery && total === 0;
-
-  // 切换文档分区时清空，避免跨分区残留无意义过滤
-  useEffect(() => {
-    setQuery('');
-  }, [rootId, setQuery]);
 
   // 同步命中列表供数量与上下定位
   useEffect(() => {
@@ -343,8 +499,8 @@ export function SidebarTreeSearchInput({ className }: { className?: string }) {
       syncMatches([]);
       return;
     }
-    syncMatches(collectMatchIds(root, normalizedQuery));
-  }, [root, normalizedQuery, syncMatches]);
+    syncMatches(collectMatchIds(root, normalizedQuery, badgeLabel));
+  }, [root, normalizedQuery, badgeLabel, syncMatches]);
 
   return (
     <div className={cn('relative z-20', className)}>
@@ -373,9 +529,9 @@ export function SidebarTreeSearchInput({ className }: { className?: string }) {
           spellCheck={false}
           aria-label="搜索目录"
           className={cn(
-            'w-full rounded-lg border border-fd-border bg-fd-secondary/50 py-1.5 pl-8',
+            'h-8 w-full rounded-lg border border-fd-border bg-fd-secondary/50 py-0 pl-8',
             hasQuery ? 'pr-29' : 'pr-8',
-            'text-[13px] text-fd-foreground placeholder:text-fd-muted-foreground/70',
+            'text-[13px] leading-8 text-fd-foreground placeholder:text-fd-muted-foreground/70',
             'outline-none transition-colors',
             'focus:border-fd-primary/40 focus:bg-fd-background focus:ring-2 focus:ring-fd-primary/15',
             // 隐藏 WebKit search 自带清除钮，统一用右侧控件
@@ -483,7 +639,191 @@ export function SidebarTreeSearchBanner({
       )}
     >
       {children}
-      <SidebarTreeSearchInput />
+      <div className="flex flex-col gap-1.5">
+        <SidebarTreeSearchInput />
+        <SidebarTreeToolbar />
+      </div>
+    </div>
+  );
+}
+
+const toolbarIconBtnClass =
+  'flex size-8 shrink-0 items-center justify-center rounded-lg border border-fd-border bg-fd-secondary/50 text-fd-muted-foreground outline-none transition-colors hover:bg-fd-accent hover:text-fd-accent-foreground focus-visible:ring-2 focus-visible:ring-fd-primary/15 disabled:cursor-not-allowed disabled:border-fd-border disabled:bg-fd-secondary/50 disabled:text-fd-muted-foreground/50 disabled:hover:bg-fd-secondary/50 disabled:hover:text-fd-muted-foreground/50 [&_svg]:size-4 [&_svg]:stroke-[2.25]';
+
+function getSidebarScrollViewport(from: HTMLElement): HTMLElement | null {
+  const aside = from.closest('#nd-sidebar, #nd-sidebar-mobile');
+  if (!(aside instanceof HTMLElement)) return null;
+  return aside.querySelector('[data-radix-scroll-area-viewport]');
+}
+
+function scrollSidebarTree(from: HTMLElement, to: 'top' | 'bottom') {
+  const vp = getSidebarScrollViewport(from);
+  if (!vp) return;
+  vp.scrollTo({
+    top: to === 'top' ? 0 : vp.scrollHeight,
+    behavior: 'smooth',
+  });
+}
+
+function SidebarBadgeFilter() {
+  const { badgeLabel, setBadgeLabel } = useSidebarTreeSearch();
+  const { root } = useTreeContext();
+  const [open, setOpen] = useState(false);
+  const options = useMemo(() => collectSidebarBadges(root), [root]);
+  const selected = options.find((o) => o.label === badgeLabel);
+  const isAll = badgeLabel == null;
+  const triggerLabel = selected?.label ?? '全部';
+
+  useEffect(() => {
+    if (badgeLabel && !options.some((o) => o.label === badgeLabel)) {
+      setBadgeLabel(null);
+    }
+  }, [badgeLabel, options, setBadgeLabel]);
+
+  return (
+    <div className="min-w-0 flex-1">
+      <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger
+        aria-label={`筛选 badge，当前：${triggerLabel}`}
+        title="按 badge 筛选"
+        className={cn(
+          'inline-flex h-8 w-full min-w-0 items-center gap-1 rounded-lg border px-2 text-left text-[12px] font-medium outline-none transition-colors',
+          'focus-visible:ring-2 focus-visible:ring-fd-primary/15',
+          isAll
+            ? 'border-fd-border bg-fd-secondary/50 text-fd-muted-foreground hover:bg-fd-accent hover:text-fd-accent-foreground'
+            : 'border-fd-primary/40 bg-fd-primary/10 text-fd-primary',
+        )}
+      >
+        {selected?.color ? (
+          <span
+            className="size-1.5 shrink-0 rounded-full"
+            style={{ backgroundColor: selected.color }}
+            aria-hidden
+          />
+        ) : null}
+        <span className="min-w-0 flex-1 truncate">{triggerLabel}</span>
+        <ChevronDown
+          className={cn(
+            'size-3.5 shrink-0 stroke-[2.25] opacity-70 transition-transform',
+            open && 'rotate-180',
+          )}
+        />
+      </PopoverTrigger>
+      <PopoverContent
+        align="start"
+        sideOffset={6}
+        className="z-50 max-h-64 min-w-0 max-w-none overflow-y-auto p-1"
+        style={{
+          width: 'var(--radix-popover-trigger-width)',
+          minWidth: 'var(--radix-popover-trigger-width)',
+          maxWidth: 'var(--radix-popover-trigger-width)',
+        }}
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
+        <button
+          type="button"
+          onClick={() => {
+            setBadgeLabel(null);
+            setOpen(false);
+          }}
+          className={cn(
+            'flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[12px] font-medium transition-colors',
+            isAll
+              ? 'bg-fd-primary/10 text-fd-primary'
+              : 'text-fd-foreground hover:bg-fd-accent',
+          )}
+        >
+          <span className="min-w-0 flex-1 truncate text-left">全部</span>
+          {isAll ? <Check className="size-3 shrink-0" /> : null}
+        </button>
+        {options.map((opt) => {
+          const active = opt.label === badgeLabel;
+          return (
+            <button
+              key={opt.label}
+              type="button"
+              onClick={() => {
+                setBadgeLabel(opt.label);
+                setOpen(false);
+              }}
+              className={cn(
+                'flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[12px] font-medium transition-colors',
+                active
+                  ? 'bg-fd-primary/10 text-fd-primary'
+                  : 'text-fd-foreground hover:bg-fd-accent',
+              )}
+            >
+              {opt.color ? (
+                <span
+                  className="size-1.5 shrink-0 rounded-full"
+                  style={{ backgroundColor: opt.color }}
+                  aria-hidden
+                />
+              ) : (
+                <span className="size-1.5 shrink-0" aria-hidden />
+              )}
+              <span className="min-w-0 flex-1 truncate text-left">
+                {opt.label}
+                <span className="tabular-nums text-fd-muted-foreground">
+                  ({opt.count})
+                </span>
+              </span>
+              {active ? <Check className="size-3 shrink-0" /> : null}
+            </button>
+          );
+        })}
+      </PopoverContent>
+    </Popover>
+    </div>
+  );
+}
+
+function SidebarTreeToolbar() {
+  const { expandAllFolders, collapseAllFolders, normalizedQuery } =
+    useSidebarTreeSearch();
+  const searchLocksFolders = Boolean(normalizedQuery);
+
+  return (
+    <div className="flex h-8 w-full items-center gap-2">
+      <SidebarBadgeFilter />
+      <button
+        type="button"
+        aria-label="全部折叠"
+        title={searchLocksFolders ? '搜索目录时无法全部折叠' : '全部折叠'}
+        disabled={searchLocksFolders}
+        onClick={collapseAllFolders}
+        className={toolbarIconBtnClass}
+      >
+        <ListChevronsDownUp />
+      </button>
+      <button
+        type="button"
+        aria-label="全部展开"
+        title={searchLocksFolders ? '搜索目录时无法全部展开' : '全部展开'}
+        disabled={searchLocksFolders}
+        onClick={expandAllFolders}
+        className={toolbarIconBtnClass}
+      >
+        <ListChevronsUpDown />
+      </button>
+      <button
+        type="button"
+        aria-label="滑到顶部"
+        title="滑到顶部"
+        onClick={(e) => scrollSidebarTree(e.currentTarget, 'top')}
+        className={toolbarIconBtnClass}
+      >
+        <ArrowUpToLine />
+      </button>
+      <button
+        type="button"
+        aria-label="滑到底部"
+        title="滑到底部"
+        onClick={(e) => scrollSidebarTree(e.currentTarget, 'bottom')}
+        className={toolbarIconBtnClass}
+      >
+        <ArrowDownToLine />
+      </button>
     </div>
   );
 }

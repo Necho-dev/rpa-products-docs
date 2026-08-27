@@ -1,0 +1,9 @@
+{
+  "title": "天猫健康",
+  "categoryAxis": {
+    "title": "业务场景",
+    "items": [
+      { "key": "tmjk", "item": "三方外投", "icon": { "comp": "HeartPulse", "color": "#ff6a00" } }
+    ]
+  }
+}

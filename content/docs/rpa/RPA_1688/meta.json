@@ -1,0 +1,10 @@
+{
+  "title": "1688",
+  "categoryAxis": {
+    "title": "子平台"
+  },
+  "pages": [
+    "./SZYX",
+    "./SJGZT"
+  ]
+}

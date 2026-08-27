@@ -131,4 +131,34 @@ describe('handleDocsAnchorClick', () => {
       },
     );
   });
+
+  it('notifies hash listeners and scrolls to the category-filter panel', () => {
+    withDom(
+      `<html><body>
+        <div id="nd-page">
+          <div data-category-filter-layout="tabs" id="filter-panel">
+            <span data-category-filter-anchor="" id="连接器-DMP"></span>
+          </div>
+        </div>
+        <nav id="nd-toc"><a id="toc-link" href="#连接器-DMP">达摩盘</a></nav>
+      </body></html>`,
+      'https://knowledge.example.com/docs/rpa/RPA_ALIMM',
+      () => {
+        const link = document.getElementById('toc-link')!;
+        let notified = 0;
+        window.addEventListener('docs:hashchange', () => {
+          notified += 1;
+        });
+        const event = new document.defaultView!.MouseEvent('click', {
+          bubbles: true,
+          button: 0,
+        });
+        Object.defineProperty(event, 'target', { value: link });
+        Object.defineProperty(event, 'preventDefault', { value: () => {} });
+        assert.equal(handleDocsAnchorClick(event), true);
+        assert.equal(notified, 1);
+        assert.equal(decodeURIComponent(window.location.hash), '#连接器-DMP');
+      },
+    );
+  });
 });

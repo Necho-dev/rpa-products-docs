@@ -19,7 +19,7 @@ describe('resolveModuleCoverUrl', () => {
     assert.match(url!, /[?&]v=\d+/);
   });
 
-  it('respects module.cover: true when grid cover is false', () => {
+  it('respects cover: true when grid cover is false', () => {
     const url = resolveModuleCoverUrl(['RPA_ALIMM'], {
       gridCover: false,
       cover: true,
@@ -27,7 +27,7 @@ describe('resolveModuleCoverUrl', () => {
     assert.ok(url?.includes('/og/docs/RPA_ALIMM/cover.png?'));
   });
 
-  it('respects module.cover: false when grid cover is true', () => {
+  it('respects cover: false when grid cover is true', () => {
     assert.equal(
       resolveModuleCoverUrl(
         ['RPA_ALIMM', 'rpa-conn-alimm-pxb-foo'],

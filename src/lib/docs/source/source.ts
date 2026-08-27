@@ -5,7 +5,7 @@ import { docIconsPlugin } from '@/lib/docs/source/doc-icons-plugin';
 import { docsEntryInSidebarPlugin } from '@/lib/docs/source/docs-entry-in-sidebar-plugin';
 import { rewriteMarkdownImagesForEmbed } from '@/lib/docs/embed/markdown';
 import { unwrapFdSteps } from '@/lib/docs/llms/unwrap-fd-steps';
-import { stripTocOnlyHeadings } from '@/lib/docs/source/module-grid-fs-scan';
+import { stripTocOnlyHeadings } from '@/lib/docs/source/scan-sibling-docs';
 
 // See https://fumadocs.dev/docs/headless/source-api for more info
 export const source = loader({

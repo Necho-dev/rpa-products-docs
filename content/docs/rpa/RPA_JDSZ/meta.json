@@ -1,0 +1,9 @@
+{
+  "title": "京东商智",
+  "categoryAxis": {
+    "title": "业务场景",
+    "items": [
+      { "key": "item", "item": "商品", "icon": { "comp": "ShoppingBag", "color": "#ea580c" } }
+    ]
+  }
+}

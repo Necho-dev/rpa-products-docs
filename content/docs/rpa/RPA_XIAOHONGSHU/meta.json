@@ -1,0 +1,11 @@
+{
+  "title": "小红书",
+  "categoryAxis": {
+    "title": "子平台"
+  },
+  "pages": [
+    "./PGY",
+    "./QF",
+    "./QFTG"
+  ]
+}

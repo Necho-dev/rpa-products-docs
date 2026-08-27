@@ -1,0 +1,12 @@
+{
+  "title": "万相台",
+  "categoryAxis": {
+    "title": "业务场景",
+    "items": [
+      { "key": "account", "item": "账户", "icon": { "comp": "Wallet", "color": "#0ea5e9" } },
+      { "key": "report", "item": "报表", "icon": { "comp": "Sheet", "color": "#6366f1" } },
+      { "key": "item", "item": "商品违规", "icon": { "comp": "ShoppingBag", "color": "#f59e0b" } },
+      { "key": "video", "item": "短视频违规", "icon": { "comp": "Video", "color": "#ec4899" } }
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "title": "供应商",
+  "categoryAxis": {
+    "title": "业务场景",
+    "items": [
+      { "key": "gys", "item": "结算销售", "icon": { "comp": "Receipt", "color": "#c41d7f" } }
+    ]
+  }
+}

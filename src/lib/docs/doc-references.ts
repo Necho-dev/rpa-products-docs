@@ -6,13 +6,16 @@ import { cache } from 'react';
 import type { DocAccessContext } from '@/lib/docs/access/doc-access';
 import {
   buildBacklinks,
+  normalizeReferencePlacement,
   normalizeReferencesInput,
+  resolvePlacedReference,
   resolveReferencesWith,
   type BacklinkEntry,
   type ReferenceBadge,
   type ReferenceKind,
   type ReferenceLookup,
   type ReferenceMode,
+  type ReferencePreviewSize,
   type ReferencePrompt,
   type Referrer,
   type ResolvedReferenceEdge,
@@ -29,10 +32,12 @@ export type ResolvedReference = {
   url: string;
   title: string;
   description?: string;
-  /** kind 默认四字徽章，可被 frontmatter badge 覆盖 */
+  /** kind 默认四字徽章，可被 :::references badge 覆盖 */
   badge: ReferenceBadge;
   /** 作者自定义提示，如「请提前完成授权配置」 */
   prompt?: ReferencePrompt;
+  /** 仅 preview：滚动区高度档 */
+  size?: ReferencePreviewSize;
   /** 原始 icon 名，由 client 卡片用 renderDocIcon 解析 */
   icon?: string;
   iconColor?: string;
@@ -72,10 +77,14 @@ const lookup: ReferenceLookup = (slugs) =>
   source.getPage(slugs.length ? slugs : undefined)?.data;
 
 function iconOf(page: DocPage): { icon?: string; iconColor?: string } {
-  const moduleIcon = page.data.module?.icon;
+  const data = page.data as {
+    icon?: string;
+    module?: { icon?: string | { comp?: string; color?: string } };
+  };
+  const moduleIcon = data.module?.icon;
   const comp = typeof moduleIcon === 'string' ? moduleIcon : moduleIcon?.comp;
   const color = typeof moduleIcon === 'string' ? undefined : moduleIcon?.color;
-  const name = (comp ?? page.data.icon)?.trim();
+  const name = (comp ?? data.icon)?.trim();
 
   const out: { icon?: string; iconColor?: string } = {};
   if (name) out.icon = name;
@@ -94,6 +103,7 @@ function toResolved(edge: ResolvedReferenceEdge, target: DocPage): ResolvedRefer
     ...iconOf(target),
   };
   if (edge.prompt) resolved.prompt = edge.prompt;
+  if (edge.size) resolved.size = edge.size;
 
   const description = target.data.description?.trim();
   if (description) resolved.description = description;
@@ -110,9 +120,24 @@ function toResolved(edge: ResolvedReferenceEdge, target: DocPage): ResolvedRefer
   return resolved;
 }
 
+function hydrateResolved(
+  page: DocPage,
+  edge: ResolvedReferenceEdge,
+  access: DocAccessContext,
+): ResolvedReference | null {
+  const target = resolveDocPage(edge.path);
+  if (!target) {
+    warnOnce(`${page.url} 引用了不存在的页面 ${edge.path}`);
+    return null;
+  }
+  if (target.url === page.url) return null;
+  if (!isDocPageAccessible(target, access)) return null;
+  return toResolved(edge, target);
+}
+
 /**
- * 本页出口引用。目标页不存在时 dev 告警并丢弃；当前访问者无权看时静默丢弃
- * （公开访客不该从卡片标题推断出存在这么一篇私有文档）。
+ * 本页图边（供 MCP / 元数据）。不含 :::references 的 mode / prompt。
+ * 目标页不存在时 dev 告警并丢弃；当前访问者无权看时静默丢弃。
  */
 export function getPageReferences(
   page: DocPage,
@@ -123,16 +148,27 @@ export function getPageReferences(
 
   const out: ResolvedReference[] = [];
   for (const edge of edges) {
-    const target = resolveDocPage(edge.path);
-    if (!target) {
-      warnOnce(`${page.url} 引用了不存在的页面 ${edge.path}`);
-      continue;
-    }
-    if (target.url === page.url) continue;
-    if (!isDocPageAccessible(target, access)) continue;
-    out.push(toResolved(edge, target));
+    const resolved = hydrateResolved(page, edge, access);
+    if (resolved) out.push(resolved);
   }
   return out;
+}
+
+/**
+ * 正文 :::references 一块：path 必须命中本页 frontmatter，否则不渲染。
+ */
+export function getPlacedReference(
+  page: DocPage,
+  access: DocAccessContext,
+  placementRaw: unknown,
+): ResolvedReference | null {
+  const placement = normalizeReferencePlacement(placementRaw);
+  if (!placement) return null;
+
+  const { edges } = normalizeReferencesInput(page.data.references);
+  const edge = resolvePlacedReference(edges, placement, warnOnce);
+  if (!edge) return null;
+  return hydrateResolved(page, edge, access);
 }
 
 /**
@@ -142,7 +178,6 @@ export function getPageReferences(
 const getBacklinkIndex = cache((): Map<string, Referrer[]> => {
   const entries: BacklinkEntry[] = [];
   for (const page of source.getPages()) {
-    // 只取显式边：inherit 展开的不进反查，否则平台授权页会被整平台连接器淹没
     const { edges } = normalizeReferencesInput(page.data.references);
     if (edges.length === 0) continue;
 

@@ -94,6 +94,36 @@ const config = {
       );
     }
 
+    const accountPasswordNested = {
+      RPA_1688_SZYX: 'RPA_1688/SZYX',
+      RPA_1688_SJGZT: 'RPA_1688/SJGZT',
+      RPA_XIAOHONGSHU_PGY: 'RPA_XIAOHONGSHU/PGY',
+      RPA_XIAOHONGSHU_QF: 'RPA_XIAOHONGSHU/QF',
+      RPA_XIAOHONGSHU_QFTG: 'RPA_XIAOHONGSHU/QFTG',
+      RPA_WEIPINHUI_GYS: 'RPA_WEIPINHUI/GYS',
+      RPA_WEIPINHUI_YX: 'RPA_WEIPINHUI/YX',
+      RPA_WEIXIN_XD: 'RPA_WEIXIN/XD',
+    };
+    for (const [from, to] of Object.entries(accountPasswordNested)) {
+      rules.push({
+        source: `/docs/auth/ACCOUNT_PASSWORD/${from}`,
+        destination: `/docs/auth/YUCE_RPA/${to}`,
+        permanent: true,
+      });
+    }
+    rules.push(
+      {
+        source: '/docs/auth/ACCOUNT_PASSWORD',
+        destination: '/docs/auth/YUCE_RPA',
+        permanent: true,
+      },
+      {
+        source: '/docs/auth/ACCOUNT_PASSWORD/:page',
+        destination: '/docs/auth/YUCE_RPA/:page',
+        permanent: true,
+      },
+    );
+
     return rules;
   },
   async rewrites() {

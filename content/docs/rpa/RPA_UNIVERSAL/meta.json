@@ -1,0 +1,9 @@
+{
+  "title": "通用连接器",
+  "categoryAxis": {
+    "title": "业务场景",
+    "items": [
+      { "key": "weather", "item": "天气", "icon": { "comp": "CloudSunRain", "color": "#0284c7" } }
+    ]
+  }
+}

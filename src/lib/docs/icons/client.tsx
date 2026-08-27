@@ -19,6 +19,7 @@ import { LayoutGrid, Package, type LucideIcon } from 'lucide-react';
 import type { PlatformIconManifest } from '@/lib/docs/platform-favicon/types';
 import type { SharedIconManifest } from '@/lib/docs/shared-icons/types';
 import type { ModuleIconConfig } from '@/lib/docs/source/module-icon-config';
+import { platformIconLookupKey } from '@/lib/docs/icons/icon-code';
 import { sharedResourceUrl } from '@/lib/docs/icons/shared-resource-url';
 import platformManifest from '../../../../content/docs/_public/_shared/platform/icons.json';
 import sharedManifest from '../../../../content/docs/_public/_shared/shared-icons.json';
@@ -55,7 +56,8 @@ export function resolveIconAssetUrl(
 ): string | undefined {
   const n = name?.trim();
   if (!n) return undefined;
-  const pf = _platform.icons?.[n]?.file;
+  const platformKey = platformIconLookupKey(n);
+  const pf = platformKey ? _platform.icons?.[platformKey]?.file : undefined;
   if (pf) return sharedResourceUrl(pf);
   const sf = _shared.icons?.[n]?.file;
   if (sf) return sharedResourceUrl(sf);
@@ -79,7 +81,7 @@ export function renderBitmapIcon(src: string, className?: string): ReactElement 
 /**
  * 解析 icon name → ReactElement，优先级：platform → shared → Lucide。
  *
- * @param name   图标名，如 `DEWU`、`MyBrand`、`Bot`
+ * @param name   图标名，如 `ICO_DEWU`、`MyBrand`、`Bot`
  * @param props  透传给 Lucide SVG（如 `className`、`style`）
  * @param color  附加颜色，仅对 Lucide 有效
  */
@@ -110,7 +112,7 @@ export function resolveGroupFallbackIcon(groupKey: string): LucideIcon {
 }
 
 /**
- * 渲染分组图标（module-grid header）：
+ * 渲染分组图标（筛选芯片 / 卡片）：
  *   1. comp 命中位图 → `<img>`
  *   2. comp 命中 Lucide → SVG
  *   3. 兜底 groupKey → Package / LayoutGrid

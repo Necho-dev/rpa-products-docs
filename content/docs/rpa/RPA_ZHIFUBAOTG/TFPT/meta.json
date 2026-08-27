@@ -1,0 +1,10 @@
+{
+  "title": "投放平台",
+  "categoryAxis": {
+    "title": "业务场景",
+    "items": [
+      { "key": "item", "item": "商品分析", "icon": { "comp": "ShoppingBag", "color": "#1677ff" } },
+      { "key": "domain", "item": "全域智投", "icon": { "comp": "Globe", "color": "#0ea5e9" } }
+    ]
+  }
+}

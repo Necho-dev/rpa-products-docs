@@ -47,6 +47,8 @@ export function SidebarCollapseRail() {
     'hover:shadow-[0_0_0_3px_var(--color-fd-background),0_2px_8px_rgba(15,23,42,0.08)]',
   );
 
+  const railTopFromSidebar = 'top-20';
+
   /* 收起：始终停在左侧（含 hover peek） */
   if (collapsed) {
     return (
@@ -57,7 +59,7 @@ export function SidebarCollapseRail() {
         className={cn(
           sharedClass,
           'fixed left-5 z-40 shadow-md',
-          'top-[calc(var(--fd-docs-row-2)+2.25rem)]',
+          'top-[calc(var(--fd-docs-row-2)+6rem)]',
         )}
       >
         {icon}
@@ -75,7 +77,8 @@ export function SidebarCollapseRail() {
       aria-label="收起侧边栏"
       className={cn(
         sharedClass,
-        'absolute top-12 inset-e-0 z-30 translate-x-1/2',
+        'absolute inset-e-0 z-30 translate-x-1/2',
+        railTopFromSidebar,
       )}
     >
       {icon}

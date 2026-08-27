@@ -19,7 +19,6 @@ import { docsRoute } from '@/lib/core/shared';
 import { inferSiteOrigin } from '@/lib/core/site-origin';
 import { headers } from 'next/headers';
 import type { DocAccessContext } from '@/lib/docs/access/doc-access';
-import { ReferencesOutbound } from '@/components/docs/references/references-outbound';
 import { DocAppendix } from '@/components/docs/doc-appendix';
 import { appendixTocItems } from '@/lib/docs/doc-appendix';
 import { getPageBacklinks } from '@/lib/docs/doc-references';
@@ -131,7 +130,6 @@ export async function PeekArticle({
             posterUrl={`${origin}${getPageSharePoster(page).url}`}
           />
         </div>
-        <ReferencesOutbound page={page} access={access} className="mt-4" />
         <DocsBody className="mt-5 flex-1">
           <MDX
             components={getMDXComponents({

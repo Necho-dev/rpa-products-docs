@@ -1,0 +1,9 @@
+{
+  "title": "千帆",
+  "categoryAxis": {
+    "title": "业务场景",
+    "items": [
+      { "key": "qf", "item": "买手数据", "icon": { "comp": "Users", "color": "#ff2442" } }
+    ]
+  }
+}

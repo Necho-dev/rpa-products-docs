@@ -88,6 +88,12 @@ async function cmdAdd(argv: string[]): Promise<void> {
     );
     process.exit(1);
   }
+  if (name.startsWith('ICO_') || name.startsWith('RPA_')) {
+    console.error(
+      `shared icon 不要使用 ICO_ / RPA_ 前缀（那是 platform 命名空间）。请用：npm run icons:platform -- add <url> ICO_…`,
+    );
+    process.exit(1);
+  }
   if (!srcFile && !srcUrl) {
     console.error('请提供本地文件路径或 --url <imageUrl>');
     process.exit(1);
@@ -204,6 +210,7 @@ Shared Icons (icons:shared)
   remove <name> [--purge]
 
 引用方式（frontmatter）：icon: MyBrand
+  平台位图请用 ICO_*：npm run icons:platform -- add <url> ICO_QIANNIU
 
 示例：
   npm run icons:shared -- add MyBrand ./assets/my-brand.svg

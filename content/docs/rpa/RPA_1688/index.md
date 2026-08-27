@@ -1,17 +1,17 @@
 ---
 title: "1688"
-icon: ALI1688
-description: 覆盖 1688 数字营销等场景的连接器
+icon: ICO_1688
+description: 覆盖 1688 数字营销、商家工作台等子平台的连接器
 entry: RPA_1688
-module:
-  link: https://www.1688.com
-  group: taobao
+category:
+  slug: taobao
   icon:
-    comp: ALI1688
+    comp: ICO_1688
+  link: https://www.1688.com
 ---
 
 :::meta-panel
-icon: ALI1688
+icon: ICO_1688
 platform: "1688"
 platformUrl: https://www.1688.com
 requireLogin: true
@@ -21,14 +21,15 @@ loginOptions:
   - type: sms
 :::
 
-## 内含连接器
+## 连接器
 
-:::module-grid
-layout: tabs
+:::category-filter
 cover: true
-szyx:
-  label: 数字营销/SZYX
-  icon:
-    comp: Wallet
-    color: '#ea580c'
+search: true
+layout: tabs
+depth: 2
+pagination:
+  enable: true
+  size: 12
+  style: button
 :::

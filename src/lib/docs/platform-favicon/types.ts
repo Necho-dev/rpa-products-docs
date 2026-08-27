@@ -1,9 +1,9 @@
 /**
  * Platform icons manifest（content/docs/_public/_shared/platform/icons.json）
- * 与 shared-icons.json 结构对齐：key 即 icon CODE（如 `DEWU`、`QIANNIU`）。
+ * 与 shared-icons.json 结构对齐：key 即 icon CODE（如 `ICO_DEWU`、`ICO_QIANNIU`）。
  */
 export type PlatformIconEntry = {
-  /** 相对 `_shared/` 的路径，如 `platform/files/DEWU.png` */
+  /** 相对 `_shared/` 的路径，如 `platform/files/ICO_DEWU.png` */
   file: string;
   /** 图标源 URL（CLI refresh 用） */
   sourceIcon?: string;

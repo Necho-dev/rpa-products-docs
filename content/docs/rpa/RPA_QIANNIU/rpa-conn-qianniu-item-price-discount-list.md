@@ -13,6 +13,7 @@ estimatedDuration:
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响；高峰期或数据量较大时可能延长至约 10分钟。
 minInterval:
   min: 5
+category: item
 ---
 
 | 属性             | 值                                                                                       |

@@ -28,6 +28,16 @@ figure.shiki pre * {
 html {
   scrollbar-gutter: stable;
   scroll-behavior: auto;
+  /*
+   * 侧栏图标 = 对应层级标题行高度（1:1），不含 CODE 副行。
+   * leading-snug=1.375，与 TruncatedLabel 一致。
+   */
+  --docs-sidebar-title-menu: 15px;
+  --docs-sidebar-title-sub: 14px;
+  --docs-sidebar-title-page: 13.5px;
+  --docs-sidebar-icon-menu: calc(var(--docs-sidebar-title-menu) * 1.375);
+  --docs-sidebar-icon-sub: calc(var(--docs-sidebar-title-sub) * 1.375);
+  --docs-sidebar-icon-page: calc(var(--docs-sidebar-title-page) * 1.375);
 }
 
 /* 原生锚点兜底空隙；实际偏移由 JS 按顶栏 getBoundingClientRect 计算，不读死高度 */
@@ -325,7 +335,15 @@ html.dark #nd-subnav::after {
 #nd-subnav [data-header-tabs] {
   align-items: center;
   gap: 0.5rem;
-  /* 与搜索行 3.5rem 合计 6.5rem，对齐下方 --fd-header-height */
+  /* 与搜索行 3.5rem 合计 6.5rem */
+  height: 3rem;
+  min-height: 3rem;
+  padding-block: 0.375rem;
+  border-bottom-width: 0 !important;
+}
+
+/* 二次导航：浅分割线 + 指向一级 Tab 的三角 */
+#nd-subnav [data-category-nav='header'] {
   height: 3rem;
   min-height: 3rem;
   padding-block: 0.375rem;
@@ -339,6 +357,16 @@ html.dark #nd-subnav::after {
 @media (width >= 64rem) {
   #nd-notebook-layout:has(#nd-subnav [data-header-tabs]) {
     --fd-header-height: 6.5rem !important; /* 3.5rem 搜索 + 3rem 分区 */
+  }
+
+  /*
+   * 选择度必须高于上一规则（:has(#nd-subnav …) 含两个 ID）。
+   * 否则侧栏仍按 6.5rem 顶对齐，二次导航会盖住「搜索目录」。
+   */
+  #nd-notebook-layout:has(#nd-subnav [data-header-tabs]):has(
+    [data-category-nav='header']
+  ) {
+    --fd-header-height: 9.5rem !important; /* +3rem 二次导航 */
   }
 }
 
@@ -356,6 +384,11 @@ html.dark #nd-subnav::after {
   background: color-mix(in oklab, var(--color-fd-accent) 80%, transparent);
 }
 
+#nd-subnav [data-header-tabs] [data-category-nav-trigger] {
+  position: relative;
+  z-index: 1;
+}
+
 #nd-subnav [data-header-tabs] a.text-fd-primary {
   background: color-mix(in oklab, var(--color-fd-primary) 12%, transparent);
 }
@@ -365,7 +398,8 @@ html.dark #nd-subnav::after {
  * 网格 inset(--fd-docs-inline-start) + 侧栏 p-4(1rem)
  */
 #nd-subnav [data-header-body],
-#nd-subnav [data-header-tabs] {
+#nd-subnav [data-header-tabs],
+#nd-subnav [data-category-nav='header'] {
   padding-inline-start: calc(var(--fd-docs-inline-start, 0px) + 1rem) !important;
   padding-inline-end: 1rem !important;
 }
@@ -381,7 +415,8 @@ html.dark #nd-subnav::after {
   }
 
   #nd-subnav [data-header-body],
-  #nd-subnav [data-header-tabs] {
+  #nd-subnav [data-header-tabs],
+  #nd-subnav [data-category-nav='header'] {
     padding-inline-end: 1.25rem !important;
   }
 }
@@ -392,7 +427,8 @@ html.dark #nd-subnav::after {
   }
 
   #nd-subnav [data-header-body],
-  #nd-subnav [data-header-tabs] {
+  #nd-subnav [data-header-tabs],
+  #nd-subnav [data-category-nav='header'] {
     padding-inline-end: 1.5rem !important;
   }
 }

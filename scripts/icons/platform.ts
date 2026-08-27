@@ -2,7 +2,7 @@
  * Platform icons CLI（icons:platform）
  *
  * manifest : content/docs/_public/_shared/platform/icons.json
- * 结构     : { "icons": { "DEWU": { "file", "sourceIcon", "origin" } } }
+ * 结构     : { "icons": { "ICO_DEWU": { "file", "sourceIcon", "origin" } } }
  * 文件目录 : content/docs/_public/_shared/platform/files/
  */
 import { createInterface } from 'node:readline/promises';
@@ -19,6 +19,10 @@ import type {
   PlatformIconEntry,
   PlatformIconManifest,
 } from '../../src/lib/docs/platform-favicon/types';
+import {
+  parsePlatformIconCode,
+  platformIconCodeError,
+} from '../../src/lib/docs/icons/icon-code';
 import { readJsonFile, relFromRoot, ROOT, writeJsonFile } from './_utils';
 
 const MANIFEST_RELATIVE =
@@ -28,7 +32,61 @@ const MANIFEST_PATH = path.join(ROOT, MANIFEST_RELATIVE);
 const PLATFORM_DIR = path.dirname(MANIFEST_PATH);
 const FILES_DIR = path.join(PLATFORM_DIR, 'files');
 
-const CODE_RE = /^[A-Z][A-Z0-9_]*$/;
+function requirePlatformIconCode(raw: string): string {
+  const code = parsePlatformIconCode(raw);
+  if (!code) {
+    console.error(platformIconCodeError(raw));
+    process.exit(1);
+    throw new Error('unreachable');
+  }
+  return code;
+}
+
+function looksLikeIconSource(raw: string): boolean {
+  return /^(https?:|\/\/|iconfont:|console:|depcloud:)/i.test(raw.trim());
+}
+
+function parseIconFlagValues(argv: string[]): string[] {
+  const values: string[] = [];
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i];
+    if (arg === '--icon') {
+      const next = argv[++i];
+      if (next && !next.startsWith('--')) values.push(next);
+      continue;
+    }
+    if (arg?.startsWith('--icon=')) values.push(arg.slice(7));
+  }
+  return values;
+}
+
+/** `--icon <url>` 或 `--icon ICO_FOO=<url>` / `--icon RPA_FOO=<url>` */
+function parseIconFlags(argv: string[]): {
+  byCode: Map<string, string>;
+  bareUrl?: string;
+} {
+  const byCode = new Map<string, string>();
+  let bareUrl: string | undefined;
+
+  for (const raw of parseIconFlagValues(argv)) {
+    const eq = raw.indexOf('=');
+    if (eq > 0) {
+      const left = raw.slice(0, eq).trim();
+      const code = parsePlatformIconCode(left);
+      if (code) {
+        byCode.set(code, raw.slice(eq + 1).trim());
+        continue;
+      }
+    }
+    if (looksLikeIconSource(raw)) {
+      bareUrl = raw.trim();
+      continue;
+    }
+    console.warn(`忽略无效 --icon（须为图标 URL，或 ICO_/RPA_CODE=url）：${raw}`);
+  }
+
+  return { byCode, bareUrl };
+}
 
 async function loadManifest(): Promise<PlatformIconManifest> {
   const data = await readJsonFile<PlatformIconManifest>(MANIFEST_PATH, {
@@ -60,7 +118,7 @@ function pickServableExt(ext: string): string | null {
 
 async function promptIconUrl(hint: string): Promise<string | null> {
   if (!input.isTTY || !output.isTTY) {
-    console.warn(`  非交互环境：请用 --icon ${hint}=<图标URL> 提供，跳过。`);
+    console.warn(`  非交互环境：请用 --icon <图标URL> 提供，跳过。`);
     return null;
   }
   const rl = createInterface({ input, output });
@@ -106,46 +164,23 @@ async function downloadAndStore(
   };
 }
 
-/** 解析 --icon <CODE>=<iconUrl> 参数 */
-function parseIconOverrides(argv: string[]): Map<string, string> {
-  const map = new Map<string, string>();
-  for (let i = 0; i < argv.length; i++) {
-    const raw =
-      argv[i] === '--icon'
-        ? argv[++i]
-        : argv[i]?.startsWith('--icon=')
-          ? argv[i]!.slice(7)
-          : null;
-    if (!raw) continue;
-    const eq = raw.indexOf('=');
-    if (eq <= 0) {
-      console.warn(`忽略无效 --icon（需 CODE=iconUrl）：${raw}`);
-      continue;
-    }
-    const code = raw.slice(0, eq).trim().toUpperCase();
-    if (!CODE_RE.test(code)) {
-      console.warn(`忽略无效 CODE：${code}`);
-      continue;
-    }
-    map.set(code, raw.slice(eq + 1).trim());
-  }
-  return map;
-}
-
 async function cmdAdd(argv: string[]): Promise<void> {
   const positionals = argv.filter((a) => !a.startsWith('--'));
   const urlRaw = positionals[0];
   const codeRaw = positionals[1];
 
   if (!urlRaw || !codeRaw) {
-    console.error('用法：add <platformUrl> <CODE> [--icon <iconUrl>] [--force]');
+    console.error(
+      '用法：add <platformUrl> <CODE> [--icon <iconUrl>] [--force]\n' +
+        '  CODE 须为 ICO_*，也可传 RPA_*（自动派生，如 RPA_QIANNIU → ICO_QIANNIU）',
+    );
     process.exit(1);
   }
 
-  const code = codeRaw.trim().toUpperCase();
-  if (!CODE_RE.test(code)) {
-    console.error(`无效 CODE（需 UPPER_SNAKE，如 QIANNIU / TAOBAO）：${codeRaw}`);
-    process.exit(1);
+  const code = requirePlatformIconCode(codeRaw);
+  const inputCode = codeRaw.trim().toUpperCase();
+  if (inputCode !== code) {
+    console.log(`  CODE ${codeRaw} → ${code}`);
   }
 
   let siteUrl: string;
@@ -158,8 +193,8 @@ async function cmdAdd(argv: string[]): Promise<void> {
   const origin = new URL(siteUrl).hostname;
 
   const force = argv.includes('--force');
-  const iconOverrides = parseIconOverrides(argv);
-  const cliIcon = iconOverrides.get(code);
+  const iconFlags = parseIconFlags(argv);
+  const cliIcon = iconFlags.byCode.get(code) ?? iconFlags.bareUrl;
 
   const manifest = await loadManifest();
   const existing = manifest.icons[code];
@@ -221,9 +256,17 @@ async function cmdList(argv: string[]): Promise<void> {
 }
 
 async function cmdRefresh(argv: string[]): Promise<void> {
-  const targetCodes = argv.filter((a) => !a.startsWith('--') && CODE_RE.test(a));
+  const targetCodes = argv
+    .filter((a) => !a.startsWith('--'))
+    .map((a) => a.trim())
+    .filter(Boolean)
+    .map((raw) => requirePlatformIconCode(raw));
   const force = argv.includes('--force');
-  const iconOverrides = parseIconOverrides(argv);
+  const iconFlags = parseIconFlags(argv);
+  const iconOverrides = iconFlags.byCode;
+  if (targetCodes.length === 1 && iconFlags.bareUrl && !iconOverrides.has(targetCodes[0]!)) {
+    iconOverrides.set(targetCodes[0]!, iconFlags.bareUrl);
+  }
 
   const manifest = await loadManifest();
   const entries = Object.entries(manifest.icons);
@@ -298,11 +341,12 @@ async function cmdRefresh(argv: string[]): Promise<void> {
 }
 
 async function cmdRemove(argv: string[]): Promise<void> {
-  const code = argv.filter((a) => !a.startsWith('--'))[0]?.trim().toUpperCase();
-  if (!code) {
+  const codeRaw = argv.filter((a) => !a.startsWith('--'))[0];
+  if (!codeRaw?.trim()) {
     console.error('用法：remove <CODE>');
     process.exit(1);
   }
+  const code = requirePlatformIconCode(codeRaw);
 
   const manifest = await loadManifest();
   const entry = manifest.icons[code];
@@ -328,11 +372,17 @@ Platform Icons (icons:platform)
   refresh [<CODE>...] [--icon <CODE>=<iconUrl>] [--force]
   remove <CODE>
 
+CODE 规则：
+  须为 ICO_*；也可传 RPA_*（自动派生，如 RPA_QIANNIU → ICO_QIANNIU）
+  磁盘文件与 manifest key 同名：platform/files/<CODE>.<ext>
+
 示例：
-  npm run icons:platform -- add https://stark.dewu.com DEWU
+  npm run icons:platform -- add https://stark.dewu.com ICO_DEWU
+  npm run icons:platform -- add https://myseller.taobao.com/ RPA_QIANNIU --icon https://example.com/favicon.png
   npm run icons:platform -- list
-  npm run icons:platform -- refresh DEWU --force
-  npm run icons:platform -- remove TAOBAO
+  npm run icons:platform -- refresh ICO_DEWU --force
+  npm run icons:platform -- refresh RPA_QIANNIU --icon ICO_QIANNIU=https://example.com/favicon.png
+  npm run icons:platform -- remove ICO_TAOBAO
 `.trim());
 }
 

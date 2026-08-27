@@ -19,7 +19,6 @@ import { ConnectorSchedulePanel } from '@/components/docs/connector-schedule-pan
 import { hasScheduleMeta } from '@/lib/docs/format-schedule-meta';
 import { createRelativeLink } from 'fumadocs-ui/mdx';
 import { DocsLink } from '@/components/docs/docs-link';
-import { ReferencesOutbound } from '@/components/docs/references/references-outbound';
 
 export const dynamic = 'force-dynamic';
 
@@ -78,8 +77,6 @@ export default async function EmbedDocPage(props: PageProps<'/embed/docs/[[...sl
             ))}
           </div>
         ) : null}
-        {/* 出口卡片进嵌入通道；入口反查属于站内导航，嵌入是单篇正文投递，不出 */}
-        <ReferencesOutbound page={page} access={access} className="mt-4 border-t border-fd-border/60 pt-4" />
         <MDX
           components={getMDXComponents({
             a: createRelativeLink(source, page, DocsLink),

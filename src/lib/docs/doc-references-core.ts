@@ -1,14 +1,13 @@
 /**
- * 文档引用关系（frontmatter `references`）的纯解析层。
+ * 文档引用：frontmatter 只存图（path + kind），:::references 只管展示。
  *
  * 不 import `source` / 任何 RSC-only 模块：`.source` 由 fumadocs-mdx 生成、带 MDX 编译产物，
  * `tsx --test` 加载不了。页面查找一律走注入的 `lookup`，绑定 source 的薄壳在 doc-references.ts。
  *
- * 三根正交轴：
- * - kind    关系语义（dependency / fallback），决定默认 mode、默认 badge、排序
- * - mode    视觉体量（link / summary / preview）
- * - prompt  可选提示（label + type），各 mode 各自展示（卡片内文案 / 悬浮提示）
- * - badge   可选覆盖默认四字标签与颜色
+ * - kind    关系语义（dependency / fallback），只写在 frontmatter，决定默认 badge / 默认 mode
+ * - mode    视觉体量（link / summary / preview），只写在 :::references
+ * - size    仅 preview：small / medium / large
+ * - prompt / badge  展示覆盖，只写在 :::references
  */
 import { z } from 'zod';
 import { isDocsPathname, stripTrailingSlash } from '@/lib/docs/link-kind';
@@ -19,17 +18,18 @@ export type ReferenceKind = (typeof REFERENCE_KINDS)[number];
 export const REFERENCE_MODES = ['link', 'summary', 'preview'] as const;
 export type ReferenceMode = (typeof REFERENCE_MODES)[number];
 
+export const REFERENCE_PREVIEW_SIZES = ['small', 'medium', 'large'] as const;
+export type ReferencePreviewSize = (typeof REFERENCE_PREVIEW_SIZES)[number];
+
 export const REFERENCE_PROMPT_TYPES = ['info', 'warning', 'success', 'error'] as const;
 export type ReferencePromptType = (typeof REFERENCE_PROMPT_TYPES)[number];
 
-/** kind 默认四字徽章；作者可用 badge.label 覆盖 */
+/** kind 默认四字徽章；作者可用 :::references badge.label 覆盖 */
 export const REFERENCE_KIND_LABEL: Record<ReferenceKind, string> = {
   dependency: '前置依赖',
   fallback: '备选方案',
 };
 
-/** inherit 最多向上两级：连接器 → 平台 index → 分区 index */
-export const MAX_INHERIT_DEPTH = 2;
 /** 提示文案上限，避免把卡片撑破 */
 export const MAX_REFERENCE_PROMPT_LENGTH = 80;
 /** 徽章文案上限（默认四字，允许「授权依赖」一类短标签） */
@@ -46,6 +46,14 @@ export function defaultModeForKind(kind: ReferenceKind): ReferenceMode {
   return DEFAULT_MODE_BY_KIND[kind];
 }
 
+export const DEFAULT_PREVIEW_SIZE: ReferencePreviewSize = 'medium';
+
+export const PREVIEW_SIZE_MAX_HEIGHT_CLASS: Record<ReferencePreviewSize, string> = {
+  small: 'max-h-64',
+  medium: 'max-h-105',
+  large: 'max-h-160',
+};
+
 const referenceBadgeSchema = z
   .object({
     label: z.string().trim().min(1).max(MAX_REFERENCE_BADGE_LABEL_LENGTH).optional(),
@@ -60,26 +68,30 @@ const referencePromptSchema = z
   })
   .strict();
 
-const referenceEdgeSchema = z
+const docsPathSchema = z.string().refine((p) => isDocsPathname(stripTrailingSlash(p.trim())), {
+  message: 'references.path 必须是站内 /docs 路径',
+});
+
+/** frontmatter：只声明图边 */
+const referenceGraphEdgeSchema = z
   .object({
     kind: z.enum(REFERENCE_KINDS),
-    path: z.string().refine((p) => isDocsPathname(stripTrailingSlash(p.trim())), {
-      message: 'references.path 必须是站内 /docs 路径',
-    }),
+    path: docsPathSchema,
+  })
+  .strict();
+
+export const referencesSchema = z.array(referenceGraphEdgeSchema).optional();
+
+/** :::references YAML：只声明展示；禁止 kind */
+export const referenceDirectiveSchema = z
+  .object({
+    path: docsPathSchema,
     mode: z.enum(REFERENCE_MODES).optional(),
+    size: z.enum(REFERENCE_PREVIEW_SIZES).optional(),
     badge: referenceBadgeSchema.optional(),
     prompt: referencePromptSchema.optional(),
   })
   .strict();
-
-const referenceInheritSchema = z.object({ inherit: z.literal(true) });
-
-export const referencesSchema = z
-  .union([
-    z.literal('inherit'),
-    z.array(z.union([referenceInheritSchema, referenceEdgeSchema])),
-  ])
-  .optional();
 
 export type ReferenceBadge = {
   label: string;
@@ -94,7 +106,12 @@ export type ReferencePrompt = {
 export type RawReferenceEdge = {
   kind: ReferenceKind;
   path: string;
+};
+
+export type ReferencePlacement = {
+  path: string;
   mode?: ReferenceMode;
+  size?: ReferencePreviewSize;
   badge?: { label?: string; color?: string };
   prompt?: { label: string; type?: ReferencePromptType };
 };
@@ -105,10 +122,10 @@ export type ResolvedReferenceEdge = {
   mode: ReferenceMode;
   badge: ReferenceBadge;
   prompt?: ReferencePrompt;
+  size?: ReferencePreviewSize;
 };
 
 export type NormalizedReferences = {
-  inherit: boolean;
   edges: RawReferenceEdge[];
 };
 
@@ -123,6 +140,12 @@ function isMode(value: unknown): value is ReferenceMode {
   return typeof value === 'string' && (REFERENCE_MODES as readonly string[]).includes(value);
 }
 
+function isPreviewSize(value: unknown): value is ReferencePreviewSize {
+  return (
+    typeof value === 'string' && (REFERENCE_PREVIEW_SIZES as readonly string[]).includes(value)
+  );
+}
+
 function isPromptType(value: unknown): value is ReferencePromptType {
   return (
     typeof value === 'string' && (REFERENCE_PROMPT_TYPES as readonly string[]).includes(value)
@@ -135,7 +158,7 @@ function normalizeHexColor(value: unknown): string | undefined {
   return HEX_COLOR.test(color) ? color : undefined;
 }
 
-function normalizeBadgeInput(value: unknown): RawReferenceEdge['badge'] | undefined {
+function normalizeBadgeInput(value: unknown): ReferencePlacement['badge'] | undefined {
   if (typeof value !== 'object' || value === null) return undefined;
   const item = value as Record<string, unknown>;
   const badge: { label?: string; color?: string } = {};
@@ -154,13 +177,13 @@ function normalizeBadgeInput(value: unknown): RawReferenceEdge['badge'] | undefi
   return badge;
 }
 
-function normalizePromptInput(value: unknown): RawReferenceEdge['prompt'] | undefined {
+function normalizePromptInput(value: unknown): ReferencePlacement['prompt'] | undefined {
   if (typeof value !== 'object' || value === null) return undefined;
   const item = value as Record<string, unknown>;
   if (typeof item.label !== 'string') return undefined;
   const label = item.label.trim();
   if (!label) return undefined;
-  const prompt: RawReferenceEdge['prompt'] = {
+  const prompt: ReferencePlacement['prompt'] = {
     label:
       label.length > MAX_REFERENCE_PROMPT_LENGTH
         ? label.slice(0, MAX_REFERENCE_PROMPT_LENGTH)
@@ -168,14 +191,6 @@ function normalizePromptInput(value: unknown): RawReferenceEdge['prompt'] | unde
   };
   if (isPromptType(item.type)) prompt.type = item.type;
   return prompt;
-}
-
-function isInheritItem(value: unknown): boolean {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    (value as { inherit?: unknown }).inherit === true
-  );
 }
 
 function toRawEdge(value: unknown): RawReferenceEdge | null {
@@ -187,70 +202,29 @@ function toRawEdge(value: unknown): RawReferenceEdge | null {
   const path = stripTrailingSlash(item.path.trim());
   if (!path || !isDocsPathname(path)) return null;
 
-  const edge: RawReferenceEdge = { kind: item.kind, path };
-  if (isMode(item.mode)) edge.mode = item.mode;
-  const badge = normalizeBadgeInput(item.badge);
-  if (badge) edge.badge = badge;
-  const prompt = normalizePromptInput(item.prompt);
-  if (prompt) edge.prompt = prompt;
-  return edge;
+  return { kind: item.kind, path };
 }
 
 /**
- * 归一 `references` 的两种 inherit 写法：整表 `references: inherit`、列表内 `{ inherit: true }`。
- * 形状不合法的条目静默丢弃（构建期 zod 已把过关的挡在外面，这里只做运行期兜底）。
+ * 归一 frontmatter `references`。形状不合法的条目静默丢弃
+ * （构建期 zod 已把过关的挡在外面，这里只做运行期兜底）。
  */
 export function normalizeReferencesInput(raw: unknown): NormalizedReferences {
-  if (raw === 'inherit') return { inherit: true, edges: [] };
-  if (!Array.isArray(raw)) return { inherit: false, edges: [] };
+  if (!Array.isArray(raw)) return { edges: [] };
 
-  let inherit = false;
   const edges: RawReferenceEdge[] = [];
   for (const item of raw) {
-    if (isInheritItem(item)) {
-      inherit = true;
-      continue;
-    }
     const edge = toRawEdge(item);
     if (edge) edges.push(edge);
   }
-  return { inherit, edges };
-}
-
-/** `['rpa','RPA_ALIMM','conn']` → `['rpa','RPA_ALIMM']`；站点根返回 null */
-export function parentIndexSlugs(slugs: string[]): string[] | null {
-  if (!Array.isArray(slugs) || slugs.length === 0) return null;
-  return slugs.slice(0, -1);
+  return { edges };
 }
 
 export type ReferenceLookup = (slugs: string[]) => { references?: unknown } | undefined;
 
-function collectRawEdges(
-  slugs: string[],
-  lookup: ReferenceLookup,
-  depth: number,
-  visited: Set<string>,
-): RawReferenceEdge[] {
-  const key = slugs.join('/');
-  if (visited.has(key)) return [];
-  visited.add(key);
-
-  const data = lookup(slugs);
-  if (!data) return [];
-
-  const { inherit, edges } = normalizeReferencesInput(data.references);
-  if (!inherit || depth >= MAX_INHERIT_DEPTH) return edges;
-
-  const parent = parentIndexSlugs(slugs);
-  if (!parent) return edges;
-
-  // 继承边排在本页显式边之前；同 path 由后面的显式边覆盖
-  return [...collectRawEdges(parent, lookup, depth + 1, visited), ...edges];
-}
-
 export function resolveBadge(
   kind: ReferenceKind,
-  badge?: RawReferenceEdge['badge'],
+  badge?: ReferencePlacement['badge'],
 ): ReferenceBadge {
   const resolved: ReferenceBadge = {
     label: badge?.label?.trim() || REFERENCE_KIND_LABEL[kind],
@@ -259,25 +233,18 @@ export function resolveBadge(
   return resolved;
 }
 
-function finalizeEdge(raw: RawReferenceEdge): ResolvedReferenceEdge {
-  const edge: ResolvedReferenceEdge = {
+function finalizeGraphEdge(raw: RawReferenceEdge): ResolvedReferenceEdge {
+  return {
     kind: raw.kind,
     path: raw.path,
-    mode: raw.mode ?? defaultModeForKind(raw.kind),
-    badge: resolveBadge(raw.kind, raw.badge),
+    mode: defaultModeForKind(raw.kind),
+    badge: resolveBadge(raw.kind),
   };
-  if (raw.prompt) {
-    edge.prompt = {
-      label: raw.prompt.label,
-      type: raw.prompt.type ?? 'info',
-    };
-  }
-  return edge;
 }
 
 /**
- * 同 path 去重：**后出现者覆盖先出现者**，即本页显式边覆盖继承来的同路径边，
- * 且保留在显式边的位置上。dependency 整体优先，其余保持声明顺序（稳定排序）。
+ * 同 path 去重：**后出现者覆盖先出现者**。
+ * dependency 整体优先，其余保持声明顺序（稳定排序）。
  */
 function dedupeAndSort(edges: ResolvedReferenceEdge[]): ResolvedReferenceEdge[] {
   const byPath = new Map<string, ResolvedReferenceEdge>();
@@ -298,8 +265,8 @@ function dedupeAndSort(edges: ResolvedReferenceEdge[]): ResolvedReferenceEdge[] 
 }
 
 /**
- * 解析某页最终生效的引用边：展开 inherit、补默认 mode、去重排序。
- * `lookup` 注入页面 frontmatter，便于在 node:test 里喂假数据。
+ * 解析某页 frontmatter 图边（无 inherit）。
+ * `lookup` 注入页面数据，便于在 node:test 里喂假数据。
  */
 export function resolveReferencesWith(
   slugs: string[],
@@ -307,9 +274,80 @@ export function resolveReferencesWith(
   warn?: ReferenceWarn,
 ): ResolvedReferenceEdge[] {
   void warn;
-  const raw = collectRawEdges(slugs, lookup, 0, new Set());
-  if (raw.length === 0) return [];
-  return dedupeAndSort(raw.map((edge) => finalizeEdge(edge)));
+  const data = lookup(slugs);
+  if (!data) return [];
+  const { edges } = normalizeReferencesInput(data.references);
+  if (edges.length === 0) return [];
+  return dedupeAndSort(edges.map((edge) => finalizeGraphEdge(edge)));
+}
+
+export function findGraphEdge(
+  edges: RawReferenceEdge[],
+  path: string,
+): RawReferenceEdge | undefined {
+  const target = stripTrailingSlash(path.trim());
+  return edges.find((edge) => edge.path === target);
+}
+
+/**
+ * 把 :::references 展示字段叠到 frontmatter 图边上。
+ * path 未声明则返回 null（调用方不渲染）。
+ */
+export function resolvePlacedReference(
+  graph: RawReferenceEdge[],
+  placement: ReferencePlacement,
+  warn?: ReferenceWarn,
+): ResolvedReferenceEdge | null {
+  const path = stripTrailingSlash(placement.path.trim());
+  const edge = findGraphEdge(graph, path);
+  if (!edge) {
+    warn?.(`:::references path ${path} 未在 frontmatter references 中声明，已忽略`);
+    return null;
+  }
+
+  const mode = placement.mode ?? defaultModeForKind(edge.kind);
+  const resolved: ResolvedReferenceEdge = {
+    kind: edge.kind,
+    path: edge.path,
+    mode,
+    badge: resolveBadge(edge.kind, placement.badge),
+  };
+
+  if (placement.prompt) {
+    resolved.prompt = {
+      label: placement.prompt.label,
+      type: placement.prompt.type ?? 'info',
+    };
+  }
+
+  if (placement.size) {
+    if (mode === 'preview') {
+      resolved.size = placement.size;
+    } else {
+      warn?.(`:::references size 仅在 mode: preview 时生效，已忽略（path ${path}）`);
+    }
+  } else if (mode === 'preview') {
+    resolved.size = DEFAULT_PREVIEW_SIZE;
+  }
+
+  return resolved;
+}
+
+export function normalizeReferencePlacement(raw: unknown): ReferencePlacement | null {
+  if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) return null;
+  const item = raw as Record<string, unknown>;
+  if (typeof item.path !== 'string') return null;
+  const path = stripTrailingSlash(item.path.trim());
+  if (!path || !isDocsPathname(path)) return null;
+
+  const placement: ReferencePlacement = { path };
+  if (isMode(item.mode)) placement.mode = item.mode;
+  if (isPreviewSize(item.size)) placement.size = item.size;
+  const badge = normalizeBadgeInput(item.badge);
+  if (badge) placement.badge = badge;
+  const prompt = normalizePromptInput(item.prompt);
+  if (prompt) placement.prompt = prompt;
+  return placement;
 }
 
 export type Referrer = {
@@ -321,16 +359,12 @@ export type Referrer = {
 };
 
 export type BacklinkEntry = Referrer & {
-  /** 只传本页**显式**声明的边；inherit 展开出来的不计入反查 */
   explicitPaths: string[];
 };
 
 /**
  * 反查索引：目标 path → 引用它的页面列表（按标题排序）。
- *
- * 只吃显式边。若 inherit 展开的边也计入，平台连接器一旦普遍写 `inherit`，
- * 该平台授权页的「被引用」会膨胀成全部连接器（几十上百条）。
- * 平台 index 的显式声明就是这批连接器在反查里的代表。
+ * 只吃 frontmatter 显式边。
  */
 export function buildBacklinks(entries: BacklinkEntry[]): Map<string, Referrer[]> {
   const map = new Map<string, Referrer[]>();

@@ -9,7 +9,8 @@ import { getLanguageIdFromPreProps, getLanguageLabel } from '@/lib/ui/code-block
 import { AIChatOpenCard } from '@/components/ai/search';
 import { CodeBlockWithDownload } from '@/components/docs/mdx/code-block-with-download';
 import { MetaPanel } from '@/components/docs/mdx/meta-panel';
-import { ModuleGrid } from '@/components/docs/mdx/module-grid';
+import { CategoryFilter } from '@/components/docs/mdx/category-filter';
+import { DocReference } from '@/components/docs/mdx/doc-reference';
 import { JsonSchema } from '@/components/docs/mdx/json-schema';
 import { Mermaid } from '@/components/docs/mdx/mermaid';
 import { ModuleCard } from '@/components/docs/mdx/module-card';
@@ -90,7 +91,8 @@ export function getMDXComponents(components?: MDXComponents) {
     AIChatOpenCard,
     ModuleCard,
     MetaPanel,
-    ModuleGrid,
+    CategoryFilter,
+    DocReference,
     FieldTreeTable,
     ChangelogTimeline,
     ChangelogEntry,

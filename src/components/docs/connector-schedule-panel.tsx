@@ -145,7 +145,7 @@ export function ConnectorSchedulePanel({
   );
 }
 
-/** ModuleGrid 卡片内紧凑调度胶囊：仅图标 + 值，悬停展示「指标名: 描述」 */
+/** 卡片内紧凑调度胶囊：仅图标 + 值，悬停展示「指标名: 描述」 */
 function CardScheduleChip({
   icon,
   value,
@@ -188,7 +188,7 @@ function CardScheduleChip({
   );
 }
 
-/** ModuleGrid 卡片内极简调度胶囊：数据就绪 + 预估耗时 + 最小间隔 */
+/** 卡片内极简调度胶囊：数据就绪 + 预估耗时 + 最小间隔 */
 export function ConnectorScheduleChips({
   dataReady,
   estimatedDuration,

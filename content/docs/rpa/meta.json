@@ -4,6 +4,21 @@
   "description": "自动化操作实现数据采集",
   "icon": "Bot",
   "color": "#0060ca",
+  "categoryNav": "header",
+  "categoryAxis": {
+    "title": "生态",
+    "items": [
+      { "key": "taobao", "item": "淘系", "icon": { "comp": "ICO_TAOBAO" } },
+      { "key": "pinduoduo", "item": "拼多多", "icon": { "comp": "ICO_PINDUODUO" } },
+      { "key": "doudian", "item": "抖店", "icon": { "comp": "ICO_DOUDIAN" } },
+      { "key": "jingdong", "item": "京东", "icon": { "comp": "ICO_JINGDONG" } },
+      { "key": "dewu", "item": "得物", "icon": { "comp": "ICO_DEWU" } },
+      { "key": "weipinhui", "item": "唯品会", "icon": { "comp": "ICO_WEIPINHUI" } },
+      { "key": "xiaohongshu", "item": "小红书", "icon": { "comp": "ICO_XIAOHONGSHU" } },
+      { "key": "weixin", "item": "微信", "icon": { "comp": "ICO_WEIXIN" } },
+      { "key": "universal", "item": "通用", "icon": { "comp": "SquareMousePointer" } }
+    ]
+  },
   "pages": [
     "index",
     "./RPA_QIANNIU",

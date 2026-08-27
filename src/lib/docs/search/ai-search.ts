@@ -134,7 +134,7 @@ REQUIRED fields:
 - "keywords": 2-8 short search terms for full-text search. Rules:
     - Keep brand/product names verbatim (千牛, 阿里妈妈, 达摩盘, DMP, 万相台, 品销宝)
     - Expand synonyms and abbreviations in both directions (DMP <-> 达摩盘)
-    - Include domain-specific phrasing users may not type but docs use (授权 -> 账密托管, 子账号, 添加授权)
+    - Include domain-specific phrasing users may not type but docs use (授权 -> 预策RPA, 子账号, 添加授权)
     - Each term 1-6 characters, NOT full sentences
     - Do NOT include bare "连接器" or "文档" unless the entire query is only about those generic terms
 - "primaryKeywords": subset of "keywords" containing only the 1-3 most essential terms that directly reflect the user's core intent. These will be pre-selected as active filter chips; remaining keywords are shown as optional expansions. Rules:

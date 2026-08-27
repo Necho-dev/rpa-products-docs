@@ -9,7 +9,16 @@ import { ReferenceKindBadge } from '@/components/docs/references/reference-kind-
 import { ReferencePromptQuiet } from '@/components/docs/references/reference-prompt';
 import { ReferencePreviewToc } from '@/components/docs/references/reference-preview-toc';
 import { ReferenceShell } from '@/components/docs/references/reference-shell';
-import type { ReferenceBadge, ReferenceKind, ReferencePrompt } from '@/lib/docs/doc-references-core';
+import type {
+  ReferenceBadge,
+  ReferenceKind,
+  ReferencePreviewSize,
+  ReferencePrompt,
+} from '@/lib/docs/doc-references-core';
+import {
+  DEFAULT_PREVIEW_SIZE,
+  PREVIEW_SIZE_MAX_HEIGHT_CLASS,
+} from '@/lib/docs/doc-references-core';
 import { cn } from '@/lib/core/cn';
 
 export function ReferencePreviewFrame({
@@ -18,6 +27,7 @@ export function ReferencePreviewFrame({
   kind,
   badge,
   prompt,
+  size = DEFAULT_PREVIEW_SIZE,
   updatedLabel,
   toc,
   headingPrefix,
@@ -28,6 +38,7 @@ export function ReferencePreviewFrame({
   kind: ReferenceKind;
   badge?: ReferenceBadge;
   prompt?: ReferencePrompt;
+  size?: ReferencePreviewSize;
   updatedLabel?: string;
   toc: TOCItemType[];
   headingPrefix: string;
@@ -61,7 +72,8 @@ export function ReferencePreviewFrame({
         <div
           data-reference-preview-scroll=""
           className={cn(
-            'max-h-105 overflow-y-auto overscroll-contain px-4 py-6 pe-12 md:px-5 md:pe-14 xl:px-6',
+            PREVIEW_SIZE_MAX_HEIGHT_CLASS[size],
+            'overflow-y-auto overscroll-contain px-4 py-6 pe-12 md:px-5 md:pe-14 xl:px-6',
             prompt ? 'pb-14' : null,
           )}
         >

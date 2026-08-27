@@ -29,7 +29,7 @@ Usage:
 Examples:
   npm run icons -- platform list
   npm run icons -- shared list
-  npm run icons:platform -- add https://myseller.taobao.com/ QIANNIU
+  npm run icons:platform -- add https://myseller.taobao.com/ ICO_QIANNIU
   npm run icons:shared -- add MyBrand ./assets/brand.svg
 
 Subcommand:

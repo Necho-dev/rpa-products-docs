@@ -1,0 +1,10 @@
+{
+  "title": "达摩盘",
+  "categoryAxis": {
+    "title": "业务场景",
+    "items": [
+      { "key": "insight", "item": "货品洞察", "icon": { "comp": "PackageSearch", "color": "#0ea5e9" } },
+      { "key": "compete", "item": "竞争态势", "icon": { "comp": "Swords", "color": "#f43f5e" } }
+    ]
+  }
+}

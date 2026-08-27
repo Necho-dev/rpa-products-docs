@@ -1,0 +1,13 @@
+{
+  "title": "品牌新享",
+  "categoryAxis": {
+    "title": "业务场景",
+    "items": [
+      { "key": "crowd", "item": "超级新品孵化", "icon": { "comp": "Sparkles", "color": "#eab308" } },
+      { "key": "memacc", "item": "超级会员加速", "icon": { "comp": "Crown", "color": "#a855f7" } },
+      { "key": "repurchase", "item": "超级复购加速", "icon": { "comp": "RefreshCw", "color": "#06b6d4" } },
+      { "key": "old", "item": "超级老客加速", "icon": { "comp": "Users", "color": "#3b82f6" } },
+      { "key": "tyroacc", "item": "超级新客加速", "icon": { "comp": "UserPlus", "color": "#22c55e" } }
+    ]
+  }
+}

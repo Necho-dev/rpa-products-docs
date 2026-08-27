@@ -1,0 +1,9 @@
+{
+  "title": "营销生态UD",
+  "categoryAxis": {
+    "title": "业务场景",
+    "items": [
+      { "key": "smart", "item": "UDSmart 报表", "icon": { "comp": "Sparkles", "color": "#a855f7" } }
+    ]
+  }
+}

@@ -1,17 +1,17 @@
 ---
 title: 阿里健康
-icon: ALIJIANKANG
-description: 覆盖天猫健康云台三方外投等场景的连接器
+icon: ICO_ALIJIANKANG
+description: 覆盖天猫健康云台等子平台的连接器
 entry: RPA_ALIJIANKANG
-module:
-  link: https://yt.taobao.com/
-  group: taobao
+category:
+  slug: taobao
   icon:
-    comp: ALIJIANKANG
+    comp: ICO_ALIJIANKANG
+  link: https://yt.taobao.com/
 ---
 
 :::meta-panel
-icon: ALIJIANKANG
+icon: ICO_ALIJIANKANG
 platform: 阿里健康
 platformUrl: https://yt.taobao.com/
 requireLogin: true
@@ -21,14 +21,15 @@ loginOptions:
   - type: sms
 :::
 
-## 内含连接器
+## 连接器
 
-:::module-grid
-layout: tabs
+:::category-filter
 cover: true
-tmjk:
-  label: 天猫健康/TMJK
-  icon:
-    comp: Activity
-    color: '#059669'
+search: true
+layout: tabs
+depth: 2
+pagination:
+  enable: true
+  size: 12
+  style: button
 :::

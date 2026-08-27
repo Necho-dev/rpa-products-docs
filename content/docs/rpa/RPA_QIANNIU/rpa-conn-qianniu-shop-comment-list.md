@@ -8,6 +8,7 @@ badge:
 estimatedDuration:
   sec: 120
   description: 根据测试运行耗时估算，每翻一页约 7s；实际运行耗时将受到数据量、调度并发、网路波动等情况影响。
+category: shop
 ---
 
 | 属性             | 值                                                                                                                |

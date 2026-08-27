@@ -19,12 +19,12 @@ export const runtime = 'nodejs';
  *   /resources/images/{relative}  →  content/docs/{relative}
  *
  * 示例：
- * - `/resources/images/_public/_shared/platform/files/DEWU.png`
- *     → `content/docs/_public/_shared/platform/files/DEWU.png`（全局共享图标）
+ * - `/resources/images/_public/_shared/platform/files/ICO_DEWU.png`
+ *     → `content/docs/_public/_shared/platform/files/ICO_DEWU.png`（全局共享图标）
  * - `/resources/images/rpa/_public/images/qianniu/foo.png`
  *     → `content/docs/rpa/_public/images/qianniu/foo.png`（rpa 项目图片）
- * - `/resources/images/auth/_public/images/ACCOUNT_PASSWORD/RPA_DOUDIAN/foo.png`
- *     → `content/docs/auth/_public/images/ACCOUNT_PASSWORD/RPA_DOUDIAN/foo.png`（auth 项目图片）
+ * - `/resources/images/auth/_public/images/YUCE_RPA/RPA_DOUDIAN/foo.png`
+ *     → `content/docs/auth/_public/images/YUCE_RPA/RPA_DOUDIAN/foo.png`（auth 项目图片）
  *
  * Markdown 中的相对图片路径（如 `../_public/images/dewu/foo.png`）经
  * resolveDocRelativeImagePath 展开后已带项目前缀，直接命中上述规则。

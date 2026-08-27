@@ -7,8 +7,7 @@ badge:
   color: "#16A34A"
 estimatedDuration:
   min: 2
-module:
-  group: marketing
+category: marketing
 ---
 
 | 属性             | 值                                                                                                            |

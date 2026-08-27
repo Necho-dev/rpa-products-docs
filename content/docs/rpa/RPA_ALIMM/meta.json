@@ -1,0 +1,15 @@
+{
+  "title": "阿里妈妈",
+  "categoryAxis": {
+    "title": "子平台"
+  },
+  "pages": [
+    "./DMP",
+    "./PPXX",
+    "./PXB",
+    "./TBLM",
+    "./UD",
+    "./WXT",
+    "./YXSTUD"
+  ]
+}

@@ -1,17 +1,17 @@
 ---
 title: 京麦商家后台
-icon: JINGMAI
+icon: ICO_JINGMAI
 description: 覆盖京麦平台财务、物流、京慧等场景的连接器
 entry: RPA_JINGMAI
-module:
-  link: https://shop.jd.com/
-  group: jingdong
+category:
+  slug: jingdong
   icon:
-    comp: JINGMAI
+    comp: ICO_JINGMAI
+  link: https://shop.jd.com/
 ---
 
 :::meta-panel
-icon: JINGMAI
+icon: ICO_JINGMAI
 platform: 京麦商家后台
 platformUrl: https://shop.jd.com/
 requireLogin: true
@@ -23,22 +23,12 @@ loginOptions:
 
 ## 内含连接器
 
-:::module-grid
-layout: tabs
+:::category-filter
 cover: true
-finance:
-  label: 财务/Finance
-  icon:
-    comp: Wallet
-    color: '#059669'
-wl:
-  label: 物流/Logistics
-  icon:
-    comp: Truck
-    color: '#2563eb'
-jh:
-  label: 京慧/Jinghui
-  icon:
-    comp: BarChart3
-    color: '#dc2626'
+layout: tabs
+depth: 1
+pagination:
+  enable: true
+  size: 12
+  style: button
 :::

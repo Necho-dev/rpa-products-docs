@@ -7,8 +7,7 @@ badge:
   color: "#16A34A"
 estimatedDuration:
   min: 1
-module:
-  group: item
+category: item
 ---
 
 | 属性             | 值                                                                                                  |

@@ -1,0 +1,9 @@
+{
+  "title": "蒲公英",
+  "categoryAxis": {
+    "title": "业务场景",
+    "items": [
+      { "key": "pgy", "item": "订单报告", "icon": { "comp": "FileSpreadsheet", "color": "#ff2442" } }
+    ]
+  }
+}

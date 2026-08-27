@@ -1,127 +1,222 @@
 {
-  "updatedAt": "2026-08-24T15:17:26.099Z",
+  "updatedAt": "2026-08-26T14:50:50.436Z",
   "icons": {
-    "ALI1688": {
-      "file": "platform/files/ALI1688.ico",
-      "sourceIcon": "https://cbu01.alicdn.com/favicon.ico?_=2024",
+    "ICO_1688": {
+      "file": "platform/files/ICO_1688.svg",
+      "sourceIcon": "iconfont:1688",
       "origin": "www.1688.com"
     },
-    "ALIJIANKANG": {
-      "file": "platform/files/ALIJIANKANG.png",
+    "ICO_1688_SJGZT": {
+      "file": "platform/files/ICO_1688_SJGZT.svg",
+      "sourceIcon": "iconfont:1688",
+      "origin": "work.1688.com"
+    },
+    "ICO_1688_SZYX": {
+      "file": "platform/files/ICO_1688_SZYX.svg",
+      "sourceIcon": "iconfont:1688",
+      "origin": "szyx.1688.com"
+    },
+    "ICO_ALIJIANKANG": {
+      "file": "platform/files/ICO_ALIJIANKANG.png",
       "sourceIcon": "https://img.alicdn.com/imgextra/i4/O1CN0117NCM01Di5UobJfqG_!!6000000000249-2-tps-100-100.png",
       "origin": "yt.taobao.com"
     },
-    "ALIMM": {
-      "file": "platform/files/ALIMM.png",
+    "ICO_ALIJIANKANG_TMJK": {
+      "file": "platform/files/ICO_ALIJIANKANG_TMJK.png",
+      "sourceIcon": "https://img.alicdn.com/imgextra/i4/O1CN0117NCM01Di5UobJfqG_!!6000000000249-2-tps-100-100.png",
+      "origin": "yt.taobao.com"
+    },
+    "ICO_ALIMM": {
+      "file": "platform/files/ICO_ALIMM.png",
       "sourceIcon": "https://img.alicdn.com/imgextra/i3/O1CN01Wp37a71mYTZB6acBX_!!6000000004966-2-tps-50-50.png",
       "origin": "www.alimama.com"
     },
-    "CMA": {
-      "file": "platform/files/CMA.ico",
+    "ICO_ALIMM_DMP": {
+      "file": "platform/files/ICO_ALIMM_DMP.png",
+      "sourceIcon": "https://img.alicdn.com/tfs/TB1YpxpaRFR4u4jSZFPXXanzFXa-59-60.png",
+      "origin": "dmp.taobao.com"
+    },
+    "ICO_ALIMM_PPXX": {
+      "file": "platform/files/ICO_ALIMM_PPXX.png",
+      "sourceIcon": "https://img.alicdn.com/imgextra/i3/O1CN01Wp37a71mYTZB6acBX_!!6000000004966-2-tps-50-50.png",
+      "origin": "ppxk.tmall.com"
+    },
+    "ICO_ALIMM_PXB": {
+      "file": "platform/files/ICO_ALIMM_PXB.png",
+      "sourceIcon": "https://img.alicdn.com/tps/TB1BcPaKXXXXXbGXFXXXXXXXXXX-16-16.png",
+      "origin": "branding.taobao.com"
+    },
+    "ICO_ALIMM_TBLM": {
+      "file": "platform/files/ICO_ALIMM_TBLM.ico",
+      "sourceIcon": "https://img.alicdn.com/tfs/TB18kfPHQY2gK0jSZFgXXc5OFXa-64-64.ico",
+      "origin": "ad.alimama.com"
+    },
+    "ICO_ALIMM_UD": {
+      "file": "platform/files/ICO_ALIMM_UD.png",
+      "sourceIcon": "https://img.alicdn.com/imgextra/i2/O1CN015MMVw31qRO2OJizN8_!!6000000005492-2-tps-48-48.png",
+      "origin": "ud.alimama.com"
+    },
+    "ICO_ALIMM_WXT": {
+      "file": "platform/files/ICO_ALIMM_WXT.png",
+      "sourceIcon": "https://img.alicdn.com/imgextra/i2/O1CN015MMVw31qRO2OJizN8_!!6000000005492-2-tps-48-48.png",
+      "origin": "one.alimama.com"
+    },
+    "ICO_ALIMM_YXSTUD": {
+      "file": "platform/files/ICO_ALIMM_YXSTUD.png",
+      "sourceIcon": "https://img.alicdn.com/imgextra/i2/O1CN015MMVw31qRO2OJizN8_!!6000000005492-2-tps-48-48.png",
+      "origin": "ud.alimama.com"
+    },
+    "ICO_CMA": {
+      "file": "platform/files/ICO_CMA.ico",
       "sourceIcon": "https://www.cma.gov.cn/favicon.ico",
       "origin": "weather.cma.cn"
     },
-    "DEWU": {
-      "file": "platform/files/DEWU.png",
-      "sourceIcon": "https://h5static.dewu.com/stark-web/5.77.4/favicon.ico",
+    "ICO_DEWU": {
+      "file": "platform/files/ICO_DEWU.svg",
+      "sourceIcon": "iconfont:dewu",
       "origin": "stark.dewu.com"
     },
-    "DOUDIAN": {
-      "file": "platform/files/DOUDIAN.ico",
+    "ICO_DOUDIAN": {
+      "file": "platform/files/ICO_DOUDIAN.ico",
       "sourceIcon": "https://fxg.jinritemai.com/favicon.ico",
       "origin": "fxg.jinritemai.com"
     },
-    "JDSZ": {
-      "file": "platform/files/JDSZ.ico",
+    "ICO_JDSZ": {
+      "file": "platform/files/ICO_JDSZ.ico",
       "sourceIcon": "https://storage.360buyimg.com/sz-resource/szweb/static/img/favicon-29929a73.ico",
       "origin": "jdsz.jd.com"
     },
-    "JINGDONG": {
-      "file": "platform/files/JINGDONG.ico",
+    "ICO_JINGDONG": {
+      "file": "platform/files/ICO_JINGDONG.ico",
       "sourceIcon": "https://storage.360buyimg.com/retail-mall/mall-common-component/favicon.ico",
       "origin": "www.jd.com"
     },
-    "JINGMAI": {
-      "file": "platform/files/JINGMAI.png",
+    "ICO_JINGMAI": {
+      "file": "platform/files/ICO_JINGMAI.png",
       "sourceIcon": "https://shop.jd.com/jdm/favicon.ico",
       "origin": "shop.jd.com"
     },
-    "JULIANG": {
-      "file": "platform/files/JULIANG.png",
+    "ICO_JULIANG": {
+      "file": "platform/files/ICO_JULIANG.png",
       "sourceIcon": "https://p6-addone.byteimg.com/tos-cn-i-hhc0kcolqq/ad_growth/c3a9bb92ccd571eb305e5c93c5bbc6ec.ico~tplv-hhc0kcolqq-image.image",
       "origin": "www.oceanengine.com"
     },
-    "NMC": {
-      "file": "platform/files/NMC.ico",
+    "ICO_JULIANG_QC": {
+      "file": "platform/files/ICO_JULIANG_QC.svg",
+      "sourceIcon": "iconfont:juliang-qianchuan",
+      "origin": "qianchuan.jinritemai.com"
+    },
+    "ICO_JULIANG_YT": {
+      "file": "platform/files/ICO_JULIANG_YT.ico",
+      "sourceIcon": "console:https://yuntu.oceanengine.com/",
+      "origin": "yuntu.oceanengine.com"
+    },
+    "ICO_NMC": {
+      "file": "platform/files/ICO_NMC.ico",
       "sourceIcon": "https://image.nmc.cn/assets/favicon.ico",
       "origin": "www.nmc.cn"
     },
-    "PINDUODUO": {
-      "file": "platform/files/PINDUODUO.ico",
+    "ICO_PINDUODUO": {
+      "file": "platform/files/ICO_PINDUODUO.ico",
       "sourceIcon": "https://mms.pinduoduo.com/login/favicon.ico",
       "origin": "mms.pinduoduo.com"
     },
-    "QIANNIU": {
-      "file": "platform/files/QIANNIU.png",
+    "ICO_QIANNIU": {
+      "file": "platform/files/ICO_QIANNIU.png",
       "sourceIcon": "https://g.alicdn.com/qn/qn-login-page/0.0.18/favicon.png",
       "origin": "myseller.taobao.com"
     },
-    "RLYQ": {
-      "file": "platform/files/RLYQ.png",
+    "ICO_RLYQ": {
+      "file": "platform/files/ICO_RLYQ.png",
       "sourceIcon": "https://img.alicdn.com/imgextra/i2/O1CN019hFYtF1eN0ifa17bJ_!!6000000003858-2-tps-32-32.png",
       "origin": "hot.taobao.com"
     },
-    "SYCM": {
-      "file": "platform/files/SYCM.ico",
+    "ICO_SYCM": {
+      "file": "platform/files/ICO_SYCM.ico",
       "sourceIcon": "https://img.alicdn.com/tps/TB14m1NKFXXXXXMaXXXXXXXXXXX-48-48.ico",
       "origin": "sycm.taobao.com"
     },
-    "TAOBAO": {
-      "file": "platform/files/TAOBAO.png",
-      "sourceIcon": "https://img.alicdn.com/tps/i3/T1OjaVFl4dXXa.JOZB-114-114.png",
+    "ICO_TAOBAO": {
+      "file": "platform/files/ICO_TAOBAO.png",
+      "sourceIcon": "https://depcloud-prod.oss-cn-hangzhou.aliyuncs.com/20250924/911a144725d14bb9acdbe56214573614.png",
       "origin": "www.taobao.com"
     },
-    "WANGDIANTONG": {
-      "file": "platform/files/WANGDIANTONG.png",
+    "ICO_WANGDIANTONG": {
+      "file": "platform/files/ICO_WANGDIANTONG.png",
       "sourceIcon": "https://www.wangdian.cn/favicon.ico",
       "origin": "www.wangdian.cn"
     },
-    "WEIPINHUI": {
-      "file": "platform/files/WEIPINHUI.png",
+    "ICO_WEIPINHUI": {
+      "file": "platform/files/ICO_WEIPINHUI.png",
       "sourceIcon": "https://vfs.vip.com/favicon.ico",
       "origin": "vfs.vip.com"
     },
-    "WEIXIN_SPHJR": {
-      "file": "platform/files/WEIXIN_SPHJR.ico",
-      "sourceIcon": "https://res.wx.qq.com/t/wx_fed/finder/helper/finder-helper-web/res/favicon.ico",
-      "origin": "channels.weixin.qq.com"
+    "ICO_WEIPINHUI_GYS": {
+      "file": "platform/files/ICO_WEIPINHUI_GYS.ico",
+      "sourceIcon": "https://vfs.vip.com/static/robot/images/favicon.ico",
+      "origin": "vfs.vip.com"
     },
-    "WEIXIN_SPHZS": {
-      "file": "platform/files/WEIXIN_SPHZS.png",
+    "ICO_WEIPINHUI_YX": {
+      "file": "platform/files/ICO_WEIPINHUI_YX.ico",
+      "sourceIcon": "https://e.vip.com/favicon.ico",
+      "origin": "e.vip.com"
+    },
+    "ICO_WEIXIN": {
+      "file": "platform/files/ICO_WEIXIN.png",
+      "sourceIcon": "depcloud:a60f09e502504a59826c3ac32da550d1.png",
+      "origin": "weixin.qq.com"
+    },
+    "ICO_WEIXIN_SPHJR": {
+      "file": "platform/files/ICO_WEIXIN_SPHJR.png",
       "sourceIcon": "https://res.wx.qq.com/t/wx_fed/finder/helper/finder-helper-web/res/favicon-v2.ico",
       "origin": "channels.weixin.qq.com"
     },
-    "WEIXIN_XD": {
-      "file": "platform/files/WEIXIN_XD.svg",
+    "ICO_WEIXIN_SPHZS": {
+      "file": "platform/files/ICO_WEIXIN_SPHZS.png",
+      "sourceIcon": "https://res.wx.qq.com/t/wx_fed/finder/helper/finder-helper-web/res/favicon-v2.ico",
+      "origin": "channels.weixin.qq.com"
+    },
+    "ICO_WEIXIN_XD": {
+      "file": "platform/files/ICO_WEIXIN_XD.svg",
       "sourceIcon": "https://mmec.wxqcloud.qq.com.cn/shop/public/2024-10-29/64476828-8db5-4359-a648-c0755c28197e.svg",
       "origin": "store.weixin.qq.com"
     },
-    "XIAOHONGSHU": {
-      "file": "platform/files/XIAOHONGSHU.ico",
+    "ICO_XIAOHONGSHU": {
+      "file": "platform/files/ICO_XIAOHONGSHU.ico",
       "sourceIcon": "https://fe-video-qc.xhscdn.com/fe-platform/ed8fe781ce9e16c1bfac2cd962f0721edabe2e49.ico",
       "origin": "www.xiaohongshu.com"
     },
-    "XIAOHONGSHU_PGY": {
-      "file": "platform/files/XIAOHONGSHU_PGY.png",
+    "ICO_XIAOHONGSHU_PGY": {
+      "file": "platform/files/ICO_XIAOHONGSHU_PGY.png",
       "sourceIcon": "https://fe-platform.xhscdn.com/platform/104101l031lmak7uolm76agg1088g0000000006f6fub8g.png",
       "origin": "pgy.xiaohongshu.com"
     },
-    "YUNHUITOU": {
-      "file": "platform/files/YUNHUITOU.png",
+    "ICO_XIAOHONGSHU_QF": {
+      "file": "platform/files/ICO_XIAOHONGSHU_QF.png",
+      "sourceIcon": "console:https://arkad.xiaohongshu.com/",
+      "origin": "customer.xiaohongshu.com"
+    },
+    "ICO_XIAOHONGSHU_QFTG": {
+      "file": "platform/files/ICO_XIAOHONGSHU_QFTG.png",
+      "sourceIcon": "console:https://arkad.xiaohongshu.com/",
+      "origin": "arkad.xiaohongshu.com"
+    },
+    "ICO_YUNHUITOU": {
+      "file": "platform/files/ICO_YUNHUITOU.png",
       "origin": "yun-ma.tmallalipayuc.com"
     },
-    "ZHIFUBAOTG": {
-      "file": "platform/files/ZHIFUBAOTG.ico",
+    "ICO_ZHIFUBAOTG": {
+      "file": "platform/files/ICO_ZHIFUBAOTG.ico",
+      "sourceIcon": "https://gw.alipayobjects.com/zos/bmw-prod/9243fded-00c5-45bd-8e37-b12b806550c3.ico",
+      "origin": "adops.alipay.com"
+    },
+    "ICO_ZHIFUBAOTG_DLS": {
+      "file": "platform/files/ICO_ZHIFUBAOTG_DLS.ico",
+      "sourceIcon": "https://gw.alipayobjects.com/zos/bmw-prod/9243fded-00c5-45bd-8e37-b12b806550c3.ico",
+      "origin": "adops.alipay.com"
+    },
+    "ICO_ZHIFUBAOTG_TFPT": {
+      "file": "platform/files/ICO_ZHIFUBAOTG_TFPT.ico",
       "sourceIcon": "https://gw.alipayobjects.com/zos/bmw-prod/9243fded-00c5-45bd-8e37-b12b806550c3.ico",
       "origin": "adops.alipay.com"
     }

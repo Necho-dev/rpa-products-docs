@@ -1,8 +1,20 @@
 # HeroKnowledge
 
-基于 [Fumadocs](https://fumadocs.vercel.app/) + Next.js 构建的文档站点（HeroKnowledge），支持本地开发、静态构建与 Docker 部署。当前版本 **0.6.1**。
+基于 [Fumadocs](https://fumadocs.vercel.app/) + Next.js 构建的文档站点（HeroKnowledge），支持本地开发、静态构建与 Docker 部署。当前版本 **0.6.2**。
 
 ---
+
+## 文档目录与授权帮助（0.6.2）
+
+连接器与授权帮助按**平台 CODE / 子平台**分层，列表页用 `:::category-filter` 筛选（不再用模块网格）。
+
+| 能力 | 行为 |
+|------|------|
+| RPA 目录 | 有子平台的站点用文件夹 + `meta.json` / `index.md` 划分（如 `RPA_1688/SZYX`）；路径可由平台 CODE 推导 |
+| 授权帮助 | 原「账密托管」改为 **预策RPA**（`YUCE_RPA`）；概览为「授权类型 + 平台」两级，卡片直达授权正文 |
+| 登录 badge | 预策RPA 叶子页为「账密登录」或「扫码登录」（目前仅微信小店为扫码） |
+| 旧链 | `/docs/auth/ACCOUNT_PASSWORD/...` 308 到 `/docs/auth/YUCE_RPA/...` |
+| 平台图标 | 资源文件统一 `ICO_` 前缀 |
 
 ## 阅读体验（0.6.1）
 
@@ -22,7 +34,7 @@
 
 | 能力 | 行为 |
 |------|------|
-| 文档引用 | frontmatter `references`：平台首页或连接器页展示授权依赖等卡片；`本文被引用` 出现在页底 Tab。小红书 / 唯品会 / 1688 等多入口授权挂在具体连接器上，不堆在平台首页 |
+| 文档引用 | frontmatter `references` 只声明 `path` + `kind`（供「本文被引用」反查）；正文用 `:::references` 控制位置、`mode`、`prompt`。未放置则不出卡片。 |
 | 页底元信息 | 「指标注释」「本文被引用」同一 Tab 模块；右侧目录同级列出并带数量，中间短线靠左向右淡出 |
 | 链接预览 | 站内 hover 卡：正文无首图时不显示预览图区域 |
 | LLM 导出 | `/llms.mdx` 去掉 `fd-steps` 包装，还原 `1.` / `2.` 标题 |
@@ -51,7 +63,7 @@ documents/
 │       └── auth/                # 授权帮助（Git Submodule → connectors-auth-docs）
 │           ├── index.mdx
 │           ├── meta.json
-│           ├── ACCOUNT_PASSWORD/
+│           ├── YUCE_RPA/
 │           ├── ISV/
 │           ├── SELF_DEVELOPED/
 │           └── _public/

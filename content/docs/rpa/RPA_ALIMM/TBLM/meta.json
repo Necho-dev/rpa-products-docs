@@ -1,0 +1,10 @@
+{
+  "title": "淘宝联盟",
+  "categoryAxis": {
+    "title": "业务场景",
+    "items": [
+      { "key": "merchant", "item": "商家中心", "icon": { "comp": "Store", "color": "#f97316" } },
+      { "key": "analysis", "item": "数据分析", "icon": { "comp": "LineChart", "color": "#6366f1" } }
+    ]
+  }
+}

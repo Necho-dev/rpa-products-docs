@@ -1,41 +1,34 @@
 ---
-title: 微信/视频号
-icon: WEIXIN_XD
-description: 覆盖微信小店、微信视频号助手/加热平台等场景的连接器
+title: 微信
+icon: ICO_WEIXIN
+description: 覆盖微信视频号加热平台、视频号助手、微信小店等子平台的连接器
 entry: RPA_WEIXIN
-module:
-  link: https://store.weixin.qq.com/
-  group: weixin
+category:
+  slug: weixin
   icon:
-    comp: WEIXIN_SPHZS
-references:
-  - kind: dependency
-    path: /docs/auth/ACCOUNT_PASSWORD/RPA_WEIXIN_XD
-    mode: summary
-    badge:
-      label: 授权依赖
-    prompt:
-      label: 请提前完成授权配置
-      type: warning
+    comp: ICO_WEIXIN
+    color: "#07C160"
+  link: https://www.weixin.qq.com/
 ---
 
 :::meta-panel
-icon: WEIXIN_XD
-platform: 微信/视频号
-platformUrl: https://store.weixin.qq.com/
+icon: ICO_WEIXIN
+platform: 微信
+platformUrl: https://www.weixin.qq.com/
 requireLogin: true
 loginOptions:
   - type: qrcode
 :::
 
-## 内含连接器
+## 连接器
 
-:::module-grid
-layout: tabs
+:::category-filter
 cover: true
-sphjr:
-  label: 视频号加热/SPHJR
-  icon:
-    comp: WEIXIN_SPHJR
-    color: '#07C160'
+search: true
+layout: tabs
+depth: 2
+pagination:
+  enable: true
+  size: 12
+  style: button
 :::

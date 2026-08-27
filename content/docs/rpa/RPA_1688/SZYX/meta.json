@@ -1,0 +1,9 @@
+{
+  "title": "数字营销",
+  "categoryAxis": {
+    "title": "业务场景",
+    "items": [
+      { "key": "szyx", "item": "账户中心", "icon": { "comp": "Wallet", "color": "#f97316" } }
+    ]
+  }
+}

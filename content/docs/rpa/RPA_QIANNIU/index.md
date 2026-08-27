@@ -1,25 +1,20 @@
 ---
 title: 千牛商家工作台
-icon: QIANNIU
+icon: ICO_QIANNIU
 description: 覆盖千牛店铺、商品、物流、营销等场景的连接器
 entry: RPA_QIANNIU
-module:
-  link: https://myseller.taobao.com
-  group: taobao
-  icon:
-    comp: QIANNIU
 references:
-  - path: /docs/auth/ACCOUNT_PASSWORD/RPA_QIANNIU
+  - path: /docs/auth/YUCE_RPA/RPA_QIANNIU
     kind: dependency
-    badge:
-      label: 授权依赖
-    prompt:
-      label: 请提前完成授权配置
-      type: warning
+category:
+  slug: taobao
+  icon:
+    comp: ICO_QIANNIU
+  link: https://myseller.taobao.com
 ---
 
 :::meta-panel
-icon: QIANNIU
+icon: ICO_QIANNIU
 platform: 千牛商家工作台
 platformUrl: https://myseller.taobao.com
 requireLogin: true
@@ -29,34 +24,24 @@ loginOptions:
   - type: sms
 :::
 
+:::references
+path: /docs/auth/YUCE_RPA/RPA_QIANNIU
+mode: summary
+badge:
+  label: 授权依赖
+prompt:
+  label: 请提前完成授权配置
+  type: warning
+:::
+
 ## 内含连接器
 
-:::module-grid
-layout: tabs
+:::category-filter
 cover: true
-item:
-  label: 商品/Item
-  icon:
-    comp: ShoppingBag
-    color: '#ea580c'
-shop:
-  label: 店铺/Shop
-  icon:
-    comp: Store
-    color: '#0284c7'
-logistics:
-  label: 物流/Logistics
-  icon:
-    comp: Truck
-    color: '#16a34a'
-marketing:
-  label: 营销/Marketing
-  icon:
-    comp: Megaphone
-    color: '#9333ea'
-finance:
-  label: 财务/Finance
-  icon:
-    comp: Wallet
-    color: '#059669'
+layout: tabs
+depth: 1
+pagination:
+  enable: true
+  size: 12
+  style: button
 :::

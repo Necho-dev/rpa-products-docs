@@ -1,0 +1,10 @@
+{
+  "title": "UD智汇投",
+  "categoryAxis": {
+    "title": "业务场景",
+    "items": [
+      { "key": "smart", "item": "UDSmart 报表", "icon": { "comp": "Sparkles", "color": "#a855f7" } },
+      { "key": "item", "item": "商品营销数据", "icon": { "comp": "ShoppingBag", "color": "#f59e0b" } }
+    ]
+  }
+}
