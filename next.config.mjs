@@ -124,22 +124,6 @@ const config = {
       },
     );
 
-    const pinduoduoMmsToPromotion = {
-      'rpa-conn-pinduoduo-mms-goods-report-download':
-        'rpa-conn-pinduoduo-promotion-goods-report-download',
-      'rpa-conn-pinduoduo-mms-live-report-download':
-        'rpa-conn-pinduoduo-promotion-live-report-download',
-      'rpa-conn-pinduoduo-mms-star-report-download':
-        'rpa-conn-pinduoduo-promotion-star-report-download',
-    };
-    for (const [from, to] of Object.entries(pinduoduoMmsToPromotion)) {
-      rules.push({
-        source: `/docs/rpa/RPA_PINDUODUO/${from}`,
-        destination: `/docs/rpa/RPA_PINDUODUO/${to}`,
-        permanent: true,
-      });
-    }
-
     return rules;
   },
   async rewrites() {
