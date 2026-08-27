@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import { parsePrecedingCategoryFilterHeadingId } from '@/lib/docs/source/doc-block-toc';
+import { resolveDocsContentPath } from '@/lib/docs/source/docs-content-path';
 import { DEFAULT_CATEGORY_FILTER_PAGE_SIZE } from '@/lib/docs/source/category-filter-pagination';
 import type {
   CategoryFilterLayout,
@@ -231,19 +232,17 @@ export function readPrecedingCategoryFilterHeadingIdFromDocsPath(
 }
 
 function readDocsPathRaw(docsRelativePath: string): string | null {
-  const rel = docsRelativePath.replace(/^\/+/, '');
-  const candidates = path.isAbsolute(docsRelativePath)
-    ? [docsRelativePath]
-    : [
-        path.join(process.cwd(), 'content', 'docs', rel),
-        path.join(process.cwd(), rel),
-      ];
-  for (const abs of candidates) {
-    try {
-      return readFileSync(abs, 'utf8');
-    } catch {
-      continue;
-    }
+  const abs = path.isAbsolute(docsRelativePath)
+    ? docsRelativePath
+    : resolveDocsContentPath(
+        docsRelativePath
+          .replace(/^\/+/, '')
+          .replace(/^(?:\.\/)?content\/docs\//, ''),
+      );
+  if (!abs) return null;
+  try {
+    return readFileSync(abs, 'utf8');
+  } catch {
+    return null;
   }
-  return null;
 }

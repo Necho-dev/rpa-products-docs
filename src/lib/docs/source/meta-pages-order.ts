@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
-import path from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import { compareBySlugOrder } from '@/lib/docs/source/compare-slug-order';
+import { resolveDocsContentPath } from '@/lib/docs/source/docs-content-path';
 
 export { compareBySlugOrder };
 
@@ -45,7 +45,8 @@ export function readDocsMetaJson(
   docsRelativeDir: string,
 ): Record<string, unknown> | null {
   const rel = docsRelativeDir.replace(/^\/+|\/+$/g, '');
-  const metaPath = path.join(process.cwd(), 'content', 'docs', rel, 'meta.json');
+  const metaPath = resolveDocsContentPath(rel, 'meta.json');
+  if (!metaPath) return null;
   try {
     const raw = readFileSync(metaPath, 'utf8');
     const data = JSON.parse(raw) as unknown;
@@ -72,10 +73,11 @@ export function readDocsIndexFrontmatter(
 ): Record<string, unknown> | null {
   const rel = docsRelativeDir.replace(/^\/+|\/+$/g, '');
   if (!rel) return null;
-  const dir = path.join(process.cwd(), 'content', 'docs', rel);
-  for (const name of ['index.md', 'index.mdx']) {
+  for (const name of ['index.md', 'index.mdx'] as const) {
+    const filePath = resolveDocsContentPath(rel, name);
+    if (!filePath) continue;
     try {
-      const raw = readFileSync(path.join(dir, name), 'utf8');
+      const raw = readFileSync(filePath, 'utf8');
       const match = INDEX_FRONTMATTER_RE.exec(raw);
       if (!match?.[1]) continue;
       const data = parseYaml(match[1]) as unknown;
