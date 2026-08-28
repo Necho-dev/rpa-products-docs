@@ -8,8 +8,7 @@ badge:
 estimatedDuration:
   sec: 60
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。
-module:
-  group: wxt
+category: insight
 ---
 
 | 属性             | 值                                                                 |
@@ -29,7 +28,7 @@ module:
 >
 > **取数链接**：[https://one.alimama.com/index.html#!/insight/search/traffic-analysis/index](https://one.alimama.com/index.html#!/insight/search/traffic-analysis/index)
 
-![阿里妈妈—万相台关键词流量分析竞争透视](../_public/images/alimm/wxt_traffic_analysis_perspective_detail_20260827.png)
+![阿里妈妈—万相台关键词流量分析竞争透视](../../_public/images/alimm/wxt_traffic_analysis_perspective_detail_20260827.png)
 
 
 ### 业务入参

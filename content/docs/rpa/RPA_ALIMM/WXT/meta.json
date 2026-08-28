@@ -5,6 +5,7 @@
     "items": [
       { "key": "account", "item": "账户", "icon": { "comp": "Wallet", "color": "#0ea5e9" } },
       { "key": "report", "item": "报表", "icon": { "comp": "Sheet", "color": "#6366f1" } },
+      { "key": "insight", "item": "流量分析", "icon": { "comp": "LineChart", "color": "#8b5cf6" } },
       { "key": "item", "item": "商品违规", "icon": { "comp": "ShoppingBag", "color": "#f59e0b" } },
       { "key": "video", "item": "短视频违规", "icon": { "comp": "Video", "color": "#ec4899" } }
     ]
