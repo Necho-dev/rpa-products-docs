@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-28T13:38:00.000Z",
+  "updatedAt": "2026-08-28T13:55:00.000Z",
   "icons": {
     "ICO_1688": {
       "file": "platform/files/ICO_1688.svg",
@@ -92,8 +92,8 @@
       "origin": "jdsz.jd.com"
     },
     "ICO_JINGDONG": {
-      "file": "platform/files/ICO_JINGDONG.ico",
-      "sourceIcon": "https://storage.360buyimg.com/retail-mall/mall-common-component/favicon.ico",
+      "file": "platform/files/ICO_JINGDONG.png",
+      "sourceIcon": "iconfont:jingdong",
       "origin": "www.jd.com"
     },
     "ICO_JINGMAI": {
