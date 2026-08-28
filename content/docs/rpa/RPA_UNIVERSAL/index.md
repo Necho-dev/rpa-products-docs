@@ -4,7 +4,7 @@ icon: SquareMousePointer
 description: 覆盖气象等跨平台通用场景的连接器
 entry: RPA_UNIVERSAL
 category:
-  slug: universal
+  slug: zonghe
   icon:
     comp: SquareMousePointer
 ---

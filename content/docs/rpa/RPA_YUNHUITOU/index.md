@@ -4,7 +4,7 @@ icon: ICO_YUNHUITOU
 description: 覆盖云汇投汇总报表等场景的连接器
 entry: RPA_YUNHUITOU
 category:
-  slug: taobao
+  slug: zonghe
   icon:
     comp: ICO_YUNHUITOU
   link: https://yun-ma.tmallalipayuc.com

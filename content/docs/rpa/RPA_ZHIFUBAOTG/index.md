@@ -4,7 +4,7 @@ icon: ICO_ZHIFUBAOTG
 description: 覆盖支付宝投放平台、代理商等子平台的连接器
 entry: RPA_ZHIFUBAOTG
 category:
-  slug: taobao
+  slug: zhifubao
   icon:
     comp: ICO_ZHIFUBAOTG
   link: https://adops.alipay.com

@@ -32,7 +32,13 @@ describe('category-nav', () => {
     assert.equal(model.prefix, '/docs/rpa');
     assert.ok(model.items.some((row) => row.key === 'taobao' && row.item === '淘系'));
     assert.equal(model.keyByUrl['/docs/rpa/RPA_QIANNIU'], 'taobao');
+    assert.ok(model.items.some((row) => row.key === 'zhifubao' && row.item === '支付宝'));
+    assert.equal(model.keyByUrl['/docs/rpa/RPA_ZHIFUBAOTG'], 'zhifubao');
     assert.equal(model.keyByUrl['/docs/rpa/RPA_JDSZ'], 'jingdong');
+    assert.ok(model.items.some((row) => row.key === 'doudian' && row.item === '抖音'));
+    assert.ok(model.items.some((row) => row.key === 'zonghe' && row.item === '综合'));
+    assert.equal(model.keyByUrl['/docs/rpa/RPA_YUNHUITOU'], 'zonghe');
+    assert.equal(model.keyByUrl['/docs/rpa/RPA_UNIVERSAL'], 'zonghe');
     assert.equal(model.keyByUrl['/docs/rpa/RPA_JULIANG'], 'doudian');
   });
 

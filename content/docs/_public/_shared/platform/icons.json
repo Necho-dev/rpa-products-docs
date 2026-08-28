@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-26T14:50:50.436Z",
+  "updatedAt": "2026-08-28T13:38:00.000Z",
   "icons": {
     "ICO_1688": {
       "file": "platform/files/ICO_1688.svg",
@@ -80,6 +80,11 @@
       "file": "platform/files/ICO_DOUDIAN.ico",
       "sourceIcon": "https://fxg.jinritemai.com/favicon.ico",
       "origin": "fxg.jinritemai.com"
+    },
+    "ICO_DOUYIN": {
+      "file": "platform/files/ICO_DOUYIN.png",
+      "sourceIcon": "iconfont:douyin",
+      "origin": "www.douyin.com"
     },
     "ICO_JDSZ": {
       "file": "platform/files/ICO_JDSZ.ico",
@@ -204,6 +209,11 @@
     "ICO_YUNHUITOU": {
       "file": "platform/files/ICO_YUNHUITOU.png",
       "origin": "yun-ma.tmallalipayuc.com"
+    },
+    "ICO_ZHIFUBAO": {
+      "file": "platform/files/ICO_ZHIFUBAO.png",
+      "sourceIcon": "iconfont:zhifubao",
+      "origin": "www.alipay.com"
     },
     "ICO_ZHIFUBAOTG": {
       "file": "platform/files/ICO_ZHIFUBAOTG.ico",
