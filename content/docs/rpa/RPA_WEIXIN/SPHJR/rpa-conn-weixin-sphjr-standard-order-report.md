@@ -29,9 +29,9 @@ module:
 >
 > **取数链接**：[https://channels.weixin.qq.com/promote/pages/platform/order-list?tab=standard](https://channels.weixin.qq.com/promote/pages/platform/order-list?tab=standard)
 
-![视频号加热—标准订单列表](../_public/images/weixin/sphjr_standard_order_report_20260828.png)
+![视频号加热—标准订单列表](../../_public/images/weixin/sphjr_standard_order_report_20260828.png)
 
-![视频号加热—标准订单下载明细](../_public/images/weixin/sphjr_standard_order_report_download_20260828.png)
+![视频号加热—标准订单下载明细](../../_public/images/weixin/sphjr_standard_order_report_download_20260828.png)
 
 ### 业务入参
 
