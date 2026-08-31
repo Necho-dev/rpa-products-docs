@@ -41,12 +41,12 @@ category: flow
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
 | `selfItemId` | 商品 ID | `String` | 是 | — | 10~15 位数字字符串 |
-| `date_type` | 统计时间类型 | `String` | 否 | `day` | 可选值：`recent7`（7天）/ `recent30`（30天）/ `day`（日）/ `week`（周）/ `month`（月）。**不支持** `today` |
-| `biz_date` | 业务日期 | `String` | 条件必填 | `day` 缺省 T-1 | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`。`date_type=week/month` 时必填；`day` 未传时默认 T-1；`date_type` 与 `biz_date` 都未传时等价于 `day` + T-1；`recent7`/`recent30` 忽略本字段。`week`/`month` 传入任意落在目标周/月内的日期即可，连接器归一化为整周/整月区间 |
+| `date_type` | 统计时间类型 | `String` | 否 | `day` | 控制取数时间范围。未传时按「按日、取昨天」处理。可选：`day`（按日）/ `recent7`（近 7 天）/ `recent30`（近 30 天）/ `week`（按自然周）/ `month`（按自然月）。不支持 `today`（当天页面无趋势下载入口） |
+| `biz_date` | 业务日期 | `String` | 条件必填 | 按日时不传则取昨天 | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`，须配合 `date_type` 使用。**按日**（`day`）：可传具体日期，不传则取**昨天**。**近 7/30 天**（`recent7`/`recent30`）：无需传，传了也会忽略。**按周/按月**（`week`/`month`）：**必填**；传该周或该月内任意一天即可，连接器自动扩展为整周或整月区间 |
 
 ### 入参样例
 
-仅商品 ID（`date_type`、`biz_date` 都未传 → 默认 `day` + 昨天 T-1）：
+仅商品 ID（不传时间参数，默认取昨天单日）：
 
 ```json
 {
@@ -54,7 +54,7 @@ category: flow
 }
 ```
 
-按商品 + 默认昨天（等价于上例）：
+按商品 + 昨天（与上例等价，显式指定 `date_type=day`）：
 
 ```json
 {
@@ -133,7 +133,7 @@ category: flow
     },
     "biz_date": {
       "type": "string",
-      "description": "业务日期。date_type=week/month 时必填；day 未传默认 T-1；date_type 与 biz_date 都未传时等价 day+T-1；recent7/recent30 忽略。week/month 须落在对应自然周/月内（归一化为整周/整月）。格式 YYYYMMDD 或 YYYY-MM-DD",
+      "description": "业务日期，格式 YYYYMMDD 或 YYYY-MM-DD。按日（day）时不传则取昨天；按周/按月（week/month）时必填，传该周/月内任意一天并归一化为整周/整月；近 7/30 天（recent7/recent30）时无需传",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
