@@ -1,5 +1,5 @@
 ---
-title: 流量-商品来源-付费推广流量趋势
+title: 流量-商品来源-流量来源付费推广
 description: 按商品 ID 与统计时间下载生意参谋商品来源页「付费推广」流量趋势明细，输出按日拆分的访客、浏览、加购、支付等指标
 entry: rpa.conn.sycm.flow.item.source.trends.report
 badge:
