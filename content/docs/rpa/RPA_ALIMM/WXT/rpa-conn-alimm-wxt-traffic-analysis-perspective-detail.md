@@ -8,8 +8,7 @@ badge:
 estimatedDuration:
   sec: 60
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。
-module:
-  group: wxt
+category: insight
 ---
 
 | 属性             | 值                                                                 |
@@ -156,9 +155,7 @@ module:
 | `impression` | 展现量 | `Number` | 是 | 页面解析 | `10000` |
 | `click` | 点击量 | `Number` | 是 | 页面解析 | `500` |
 
-@define 类目明细
-| `key_word` | 关键词 | `String` | 否 | 附加，来自入参 | `女童裤` |
-| `dateType` | 统计周期 | `String` | 否 | 附加，来自入参 date_type | `LAST_7_DAYS` |
+@define 类目指标
 | `competitionPerspective` @竞争透视指标 | 竞争透视 | `List[Dict]` | 是 | 页面解析 | 见数据样例 |
 | `searchTimeDistribution` @搜索时段分布指标 | 搜索时段分布 | `List[Dict]` | 是 | 页面解析 | 见数据样例 |
 | `regionDistribution` @地域分布指标 | 地域分布 | `List[Dict]` | 是 | 页面解析 | 见数据样例 |
@@ -166,10 +163,12 @@ module:
 
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
-| `data[0]` | 类目映射 | `Dict` | 否 | 页面解析 | 见数据样例 |
-| `data[0].(类目名称)` @类目明细 | 单个行业类目结果 | `Dict` 或 `String` | 否 | 页面解析；键为页面 radio 文案 | 成功为对象；失败为 `未找到类目` 或 `未获取到数据` |
-| `bizDate` | 业务日期 | `String` | 否 | 附加，写入每个成功类目对象 | `20260827` |
-| `accountId` | 授权 ID | `String` | 否 | 附加，写入每个成功类目对象 | `1****8` (已脱敏) |
+| `categoryName` | 行业类目名称 | `String` | 否 | 页面解析 | `童装/婴儿装/亲子装 裤子` |
+| `keyWord` | 关键词 | `String` | 否 | 附加，来自入参 key_word | `女童裤` |
+| `dateType` | 统计周期 | `String` | 否 | 附加，来自入参 date_type | `LAST_7_DAYS` |
+| `value` @类目指标 | 该类目四块透视数据 | `Dict` 或 `String` | 否 | 页面解析；失败时为 `未找到类目` 或 `未获取到数据` | 见数据样例 |
+| `bizDate` | 业务日期 | `String` | 否 | 附加 | `20260827` |
+| `accountId` | 授权 ID | `String` | 否 | 附加 | `1****8` (已脱敏) |
 :::
 
 ### 数据样例
@@ -177,9 +176,10 @@ module:
 ```json
 [
   {
-    "童装/婴儿装/亲子装 裤子": {
-      "key_word": "女童裤",
-      "dateType": "LAST_7_DAYS",
+    "categoryName": "童装/婴儿装/亲子装 裤子",
+    "keyWord": "女童裤",
+    "dateType": "LAST_7_DAYS",
+    "value": {
       "competitionPerspective": [
         {
           "priceInterval": "100-200",
@@ -228,11 +228,10 @@ module:
           "impression": 10000,
           "click": 500
         }
-      ],
-      "bizDate": "20260827",
-      "accountId": "1****8"
+      ]
     },
-    "不存在的类目": "未找到类目"
+    "bizDate": "20260827",
+    "accountId": "1****8"
   }
 ]
 ```
