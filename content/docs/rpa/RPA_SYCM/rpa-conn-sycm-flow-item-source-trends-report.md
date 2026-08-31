@@ -1,6 +1,6 @@
 ---
 title: 流量-商品来源-流量来源付费推广
-description: 按商品 ID 与统计时间下载生意参谋商品来源页「付费推广」流量趋势明细，输出按日拆分的访客、浏览、加购、支付等指标
+description: 按商品 ID 与统计时间下载生意参谋「流量-商品来源-流量来源付费推广」数据，输出按日拆分的访客、浏览、加购、支付等指标
 entry: rpa.conn.sycm.flow.item.source.trends.report
 badge:
   label: 待上线
@@ -22,17 +22,17 @@ category: flow
 | **连接器代码**   | `rpa.conn.sycm.flow.item.source.trends.report`                     |
 | **操作类型**     | `文件导出`                                                         |
 | **目标网页**     | `https://sycm.taobao.com/flow/monitor/itemsource`                |
-| **适用场景**     | 按商品 ID 与统计时间下载生意参谋商品来源页「付费推广」流量趋势明细，输出按日拆分的访客、浏览、加购、支付等指标 |
+| **适用场景**     | 按商品 ID 与统计时间下载生意参谋「流量-商品来源-流量来源付费推广」数据，输出按日拆分的访客、浏览、加购、支付等指标 |
 | **数据表名**     | `ods_rpa_sycm_flow_item_source_trends_report_du`                   |
 | **业务表名**     | `ODS_流量商品来源流量趋势明细报表(生意参谋RPA)`                    |
 
 ### 目标页面
 
-> **取数路径**：生意参谋—流量—商品来源—付费推广—流量趋势
+> **取数路径**：生意参谋—流量—商品来源—流量来源付费推广
 >
 > **取数链接**：[https://sycm.taobao.com/flow/monitor/itemsource](https://sycm.taobao.com/flow/monitor/itemsource)
 
-![生意参谋—商品来源—付费推广流量趋势](../_public/images/sycm/flow_item_source_trends_report_20260825.png)
+![生意参谋—流量—商品来源—流量来源付费推广](../_public/images/sycm/flow_item_source_trends_report_20260825.png)
 
 未订购生意参谋标准包的账号、当前商品无「付费推广」来源行或趋势入口不可见时，连接器返回空数据，属正常现象：分别对应 `success=true`、`message=当前账号未订购生意参谋标准包，返回空数据` 或 `message=当前商品无可用付费推广趋势入口，返回空数据`、`data=[]`。采集成功时 `message=商品来源流量趋势采集完成, 共计 N 条记录`（N 为实际条数）。不支持 `date_type=today`（当天页面无趋势下载入口）。
 
@@ -40,7 +40,7 @@ category: flow
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `selfItemId` | 商品 ID | `String` | 是 | — | 10~15 位数字字符串 |
+| `item_id` | 商品 ID | `String` | 是 | — | 10~25 位数字字符串 |
 | `date_type` | 统计时间类型 | `String` | 否 | `day` | 控制取数时间范围。未传时按「按日、取昨天」。可选：`day`（按日）/ `recent7`（近 7 天）/ `recent30`（近 30 天）/ `week`（按自然周）/ `month`（按自然月）。不支持 `today`（当天页面无趋势下载入口） |
 | `biz_date` | 业务日期 | `String` | 条件必填 | 按日时不传则取昨天 | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`，须配合 `date_type` 使用。**按日**（`day`）：可传具体日期，不传则取**昨天**。**近 7/30 天**（`recent7`/`recent30`）：无需传，传了也会忽略。**按周/按月**（`week`/`month`）：**必填**；传该周或该月内任意一天即可，连接器自动扩展为整周或整月区间 |
 
@@ -50,7 +50,7 @@ category: flow
 
 ```json
 {
-  "selfItemId": "826562939262"
+  "item_id": "826562939262"
 }
 ```
 
@@ -58,7 +58,7 @@ category: flow
 
 ```json
 {
-  "selfItemId": "826562939262",
+  "item_id": "826562939262",
   "date_type": "day"
 }
 ```
@@ -67,7 +67,7 @@ category: flow
 
 ```json
 {
-  "selfItemId": "826562939262",
+  "item_id": "826562939262",
   "date_type": "day",
   "biz_date": "2026-08-24"
 }
@@ -77,7 +77,7 @@ category: flow
 
 ```json
 {
-  "selfItemId": "826562939262",
+  "item_id": "826562939262",
   "date_type": "recent7"
 }
 ```
@@ -86,7 +86,7 @@ category: flow
 
 ```json
 {
-  "selfItemId": "826562939262",
+  "item_id": "826562939262",
   "date_type": "recent30"
 }
 ```
@@ -95,7 +95,7 @@ category: flow
 
 ```json
 {
-  "selfItemId": "826562939262",
+  "item_id": "826562939262",
   "date_type": "week",
   "biz_date": "2026-08-20"
 }
@@ -105,7 +105,7 @@ category: flow
 
 ```json
 {
-  "selfItemId": "826562939262",
+  "item_id": "826562939262",
   "date_type": "month",
   "biz_date": "2026-01-27"
 }
@@ -116,14 +116,14 @@ category: flow
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "生意参谋-商品来源-付费推广流量趋势 - 查询入参",
-  "description": "按商品 ID 与统计时间下载生意参谋商品来源页「付费推广」流量趋势明细，输出按日拆分的访客、浏览、加购、支付等指标",
+  "title": "生意参谋-流量-商品来源-流量来源付费推广 - 查询入参",
+  "description": "按商品 ID 与统计时间下载生意参谋「流量-商品来源-流量来源付费推广」数据，输出按日拆分的访客、浏览、加购、支付等指标",
   "type": "object",
   "properties": {
-    "selfItemId": {
+    "item_id": {
       "type": "string",
-      "description": "商品 ID，10~15 位数字字符串",
-      "pattern": "^\\d{10,15}$"
+      "description": "商品 ID，10~25 位数字字符串",
+      "pattern": "^\\d{10,25}$"
     },
     "date_type": {
       "type": "string",
@@ -137,7 +137,7 @@ category: flow
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
-  "required": ["selfItemId"],
+  "required": ["item_id"],
   "additionalProperties": false,
   "allOf": [
     {
@@ -165,7 +165,7 @@ category: flow
 | `payAmt` | 支付金额 | `String` | 是 | `XLS.0.支付金额` | `-` |
 | `avgPrice` | 客单价 | `String` | 是 | `XLS.0.客单价` | `-` |
 | `payItemCnt` | 支付件数 | `String` | 是 | `XLS.0.支付件数` | `-` |
-| `selfItemId` | 商品 ID | `String` | 否 | 附加，来自入参 | `826****262` (已脱敏) |
+| `itemId` | 商品 ID | `String` | 否 | 附加，来自入参 `item_id` | `826****262` (已脱敏) |
 | `dateType` | 统计时间类型 | `String` | 否 | 附加，来自入参 `date_type` | `day` |
 | `dateRangeStart` | 统计区间起始日 | `String` | 否 | 附加 | `2026-08-24` |
 | `dateRangeEnd` | 统计区间结束日 | `String` | 否 | 附加 | `2026-08-24` |
@@ -189,7 +189,7 @@ category: flow
     "payItemCnt": "-",
     "bizDate": "20260824",
     "accountId": "1****1",
-    "selfItemId": "826****262",
+    "itemId": "826****262",
     "dateType": "day",
     "dateRangeStart": "2026-08-24",
     "dateRangeEnd": "2026-08-24"
