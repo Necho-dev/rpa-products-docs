@@ -3,8 +3,8 @@ title: 万相台-流量分析-竞争透视明细
 description: 按关键词与统计周期采集万相台流量分析页竞争流量透视、搜索时段分布、地域分布与流量透视数据，支持按行业类目全采或指定类目
 entry: rpa.conn.alimm.wxt.traffic.analysis.perspective.detail
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 60
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

@@ -3,8 +3,8 @@ title: 视频号加热-推广订单-标准订单明细
 description: 导出视频号加热平台「标准订单」明细 CSV；筛选后自动全选展示项再下载
 entry: rpa.conn.weixin.sphjr.standard.order.report
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 60
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

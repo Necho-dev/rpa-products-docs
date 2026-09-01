@@ -3,8 +3,8 @@ title: 流量-商品来源-来源渠道
 description: 按商品 ID、统计时间与流量来源名称下载生意参谋「流量—商品来源—来源渠道」明细
 entry: rpa.conn.sycm.flow.item.source.trends.report
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 dataReady:
   time: 09:00:00
   cycle: daily
