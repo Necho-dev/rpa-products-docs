@@ -66,7 +66,8 @@ export function SearchScopeTabs({
               sideOffset={6}
               avoidCollisions={false}
               className={cn(
-                'z-50 min-w-[120px] rounded-md border border-fd-border bg-fd-popover p-1 shadow-md',
+                // Portal 挂到 body，须高于搜索弹层 z-80，否则会落到 backdrop-blur 后面
+                'z-90 min-w-30 rounded-md border border-fd-border bg-fd-popover p-1 shadow-md',
                 'animate-in fade-in-0 zoom-in-95',
               )}
               onOpenAutoFocus={(e) => e.preventDefault()}

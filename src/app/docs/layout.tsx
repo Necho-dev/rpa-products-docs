@@ -24,12 +24,14 @@ import { DocSelectionProvider } from '@/components/docs/selection/selection-prov
 import { ExcerptCollectionProvider } from '@/components/docs/selection/excerpt-collection-context';
 import { ExcerptCollectionDrawer } from '@/components/docs/selection/excerpt-collection-drawer';
 import { ExcerptAiToolsBridge } from '@/components/docs/selection/excerpt-ai-tools-bridge';
+import { OpenDocAiToolsBridge } from '@/components/docs/open-doc-ai-tools-bridge';
 import { DocFeedbackProvider } from '@/components/docs/feedback/doc-feedback-context';
 import { isDocFeedbackEnabled } from '@/lib/docs/feedback/config';
 import { AppUpdateSentinel } from '@/components/observability/app-update-sentinel';
+import { getLlmModelDisplayName } from '@/lib/ai/llm';
 
 export default async function Layout({ children }: LayoutProps<'/docs'>) {
-  const modelDisplayName = process.env.LLM_MODEL?.trim() || undefined;
+  const modelDisplayName = getLlmModelDisplayName();
   const access = await getDocAccessContextFromRequest();
   const tree = filterPageTreeForAccess(source.getPageTree(), access);
   const categoryNavModels = listCategoryNavModels();
@@ -139,6 +141,7 @@ export default async function Layout({ children }: LayoutProps<'/docs'>) {
         <DocFeedbackProvider enabled={feedbackEnabled}>
           <ExcerptCollectionProvider>
             <ExcerptAiToolsBridge />
+            <OpenDocAiToolsBridge />
             <AISearchPanel />
             <ExcerptCollectionDrawer />
             <SidebarCollapseRail />

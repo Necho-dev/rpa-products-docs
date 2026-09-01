@@ -8,7 +8,7 @@ import {
   getPageToolDescription,
   ListDocumentationPagesInputSchema,
   listDocumentationPages,
-  listPagesToolDescription,
+  buildListPagesToolDescription,
   SearchDocumentationInputSchema,
   searchDocumentation,
   buildSearchDocsToolDescription,
@@ -23,6 +23,10 @@ import {
   SearchExcerptsInputSchema,
   searchExcerptsToolDescription,
 } from '@/lib/docs/selection/excerpt-ai-tools';
+import {
+  OpenDocumentationPageInputSchema,
+  openDocumentationPageToolDescription,
+} from '@/lib/docs/open-doc-ai-tools';
 import { getDocAccessContext } from '@/lib/docs/access/doc-access';
 import { inferSiteOrigin } from '@/lib/core/site-origin';
 import { createLlmProvider } from '@/lib/ai/llm';
@@ -62,6 +66,7 @@ export async function POST(req: Request, _ctx: RouteContext<"/api/chat">) {
   const access = getDocAccessContext(req);
   const searchTags = getSearchTags();
   const searchDocsDescription = buildSearchDocsToolDescription(searchTags);
+  const listPagesDescription = buildListPagesToolDescription(searchTags);
 
   const result = streamText({
     model: openai(process.env.LLM_MODEL ?? ''),
@@ -75,7 +80,9 @@ export async function POST(req: Request, _ctx: RouteContext<"/api/chat">) {
 When the user asks about documentation, topics, connectors, apps, or anything that may be covered in the site docs, you MUST use the documentation tools to read real catalog, search hits, or page content — do not guess paths or invent content.
 Client Context describes the user's current docs view. location is the browser URL of the left/main page. layout "single" means one document (left). layout "split" means desktop dual-pane: left is the main article, right is the peeked article. layout "sheet" means the right document is a mobile overlay on top of left. left/right objects include path, title, and url. When the user says 这篇 / 左边 / 右边 / 当前打开的 / 右栏, map to the corresponding pane and prefer getDocumentationPage with that pane's path. If ambiguous, consider both panes and say which one you used.
 When Client Context includes a selection field, prioritize answering about that selected excerpt while using documentation tools if needed for broader context.
-Prefer searchDocumentationPages when the user is vague or keyword-driven; use listDocumentationPages to browse the full catalog; use getDocumentationPageMeta before getDocumentationPage when you only need headings/TOC; use getDocumentationPage for full body text.
+Prefer searchDocumentationPages when the user is vague or keyword-driven; use listDocumentationPages with tag and/or prefix to browse a partition or path prefix (do not dump the full catalog unless asked); use getDocumentationPageMeta before getDocumentationPage when you only need headings, TOC, entry/badge, schedule fields (dataReady / estimatedDuration / minInterval), or prerequisites (references, kind=dependency is 前置依赖); use getDocumentationPage for full body text.
+
+openDocumentationPage runs in the user's browser and requires explicit confirmation — it may open a right-pane preview or navigate away. Use it only when the user asks to open/jump to a page. Prefer target=peek. Do not use it to read content.
 
 Excerpt tools (listExcerpts, searchExcerpts, addExcerpt, deleteExcerpt) run in the user's browser against local IndexedDB — use them when the user asks about their saved highlights/excerpts collection. They do NOT bypass document access control; they only read or write local highlights for pages the user can open.
 For addExcerpt, prefer the user's current selection from Client Context when present; otherwise use tool parameters and the current page path from Client Context location. deleteExcerpt requires explicit user confirmation in the UI — do not assume deletion succeeded until tool output confirms it.
@@ -87,10 +94,10 @@ After every tool call, you MUST continue and write a clear reply in the same lan
         inputSchema: ProvideLinksToolSchema,
       },
       listDocumentationPages: tool({
-        description: listPagesToolDescription,
+        description: listPagesDescription,
         inputSchema: ListDocumentationPagesInputSchema,
-        execute: async ({ locale }) => {
-          const r = await listDocumentationPages(siteOrigin, locale, access);
+        execute: async ({ locale, tag, prefix }) => {
+          const r = await listDocumentationPages(siteOrigin, locale, access, { tag, prefix });
           return r.text;
         },
       }),
@@ -138,6 +145,11 @@ After every tool call, you MUST continue and write a clear reply in the same lan
       deleteExcerpt: tool({
         description: deleteExcerptToolDescription,
         inputSchema: DeleteExcerptInputSchema,
+        needsApproval: true,
+      }),
+      openDocumentationPage: tool({
+        description: openDocumentationPageToolDescription,
+        inputSchema: OpenDocumentationPageInputSchema,
         needsApproval: true,
       }),
     },

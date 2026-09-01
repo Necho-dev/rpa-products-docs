@@ -102,7 +102,9 @@ Step 4: 回答/执行 → 基于内容完成任务
 **优先级规则** ( 更省 Tokens 消耗):
 - 已知路径: 跳过 \`list_docs\`，直接 \`get_docs_meta\` → \`get_docs_content\`
 - 已知关键词: 用 \`search_docs\` 代替 \`list_docs\`，检索结果更准确
-- \`list_docs\` 仅在需要全局浏览时使用 ( 例如: 用户询问 "有哪些页面"、"目录结构" 等全局信息时使用 )
+- \`list_docs\` 浏览目录时务必带 \`tag\`（分区 slug）和/或 \`prefix\`（路径前缀），避免拉全站目录
+- 连接器调度与前置依赖（entry / badge / dataReady / estimatedDuration / minInterval / references）用 \`get_docs_meta\`，不要另造摘要工具
+- \`list_docs\` 仅在需要浏览某分区或某前缀下页面时使用 ( 例如: 用户询问 "有哪些页面"、"目录结构" 等 )
 - **严禁**：有 MCP 时不要 fetch \`/skills/references/full.md\` ( 全量文本, Tokens 消耗极大 )
 
 ---

@@ -108,6 +108,17 @@ export function SidebarTreeSearchProvider({ children }: { children: ReactNode })
   const [folderOpenAll, setFolderOpenAll] = useState(true);
   const { root } = useTreeContext();
   const rootId = root.$id ?? '';
+  const [scopedRootId, setScopedRootId] = useState(rootId);
+  // 分区切换时在渲染期重置，避免 effect 内同步 setState 造成级联渲染
+  if (rootId !== scopedRootId) {
+    setScopedRootId(rootId);
+    setQueryState('');
+    setMatchIds([]);
+    setActiveIndex(-1);
+    setBadgeLabel(null);
+    setFolderOpenEpoch(0);
+    setFolderOpenAll(true);
+  }
   const normalizedQuery = query.trim().toLowerCase();
 
   const setQuery = useCallback((next: string) => {
@@ -169,15 +180,6 @@ export function SidebarTreeSearchProvider({ children }: { children: ReactNode })
     setFolderOpenAll(false);
     setFolderOpenEpoch((n) => n + 1);
   }, []);
-
-  // 切换文档分区时清空筛选，避免跨分区残留
-  useEffect(() => {
-    setQueryState('');
-    setActiveIndex(-1);
-    setBadgeLabel(null);
-    setFolderOpenEpoch(0);
-    setFolderOpenAll(true);
-  }, [rootId]);
 
   // 定位切换后滚入可视区
   useEffect(() => {
@@ -712,7 +714,7 @@ function SidebarBadgeFilter() {
       <PopoverContent
         align="start"
         sideOffset={6}
-        className="z-50 max-h-64 min-w-0 max-w-none overflow-y-auto p-1"
+        className="z-80 max-h-64 min-w-0 max-w-none overflow-y-auto p-1"
         style={{
           width: 'var(--radix-popover-trigger-width)',
           minWidth: 'var(--radix-popover-trigger-width)',

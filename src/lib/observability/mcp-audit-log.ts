@@ -68,6 +68,7 @@ const TOOL_ARG_KEYS = new Set([
   'limit',
   'tag',
   'scope',
+  'prefix',
 ]);
 
 function trimEnv(key: string): string | undefined {

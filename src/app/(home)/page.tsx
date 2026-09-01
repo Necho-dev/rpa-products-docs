@@ -12,9 +12,11 @@ import {
   SparklesIcon,
 } from 'lucide-react';
 import { AISearch, AISearchPanel, AISearchTrigger } from '@/components/ai/search';
+import { OpenDocAiToolsBridge } from '@/components/docs/open-doc-ai-tools-bridge';
 import { DocsFloatingAnchors } from '@/components/docs/floating-anchors';
 import { cn } from '@/lib/core/cn';
 import { docsRoute, getSiteDescription, getSiteName } from '@/lib/core/shared';
+import { getLlmModelDisplayName } from '@/lib/ai/llm';
 
 const cards = [
   {
@@ -48,12 +50,13 @@ const cards = [
 ] as const;
 
 export default function HomePage() {
-  const modelDisplayName = process.env.LLM_MODEL?.trim() || undefined;
+  const modelDisplayName = getLlmModelDisplayName();
   const siteName = getSiteName();
   const siteDescription = getSiteDescription();
 
   return (
     <AISearch modelDisplayName={modelDisplayName}>
+      <OpenDocAiToolsBridge />
       <AISearchPanel />
       <main className="flex min-h-0 flex-1 flex-col">
         <section className="relative flex flex-col items-center px-6 pt-16 pb-10 text-center sm:pt-20 sm:pb-12">

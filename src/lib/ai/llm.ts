@@ -24,6 +24,14 @@ export function getLlmModel() {
   return createLlmProvider()(process.env.LLM_MODEL ?? '');
 }
 
+/** 页面展示用模型名：优先 `LLM_MODEL_DISPLAY`，否则回退 `LLM_MODEL` */
+export function getLlmModelDisplayName(): string | undefined {
+  const display = process.env.LLM_MODEL_DISPLAY?.trim();
+  if (display) return display;
+  const model = process.env.LLM_MODEL?.trim();
+  return model || undefined;
+}
+
 /** AI 搜索语义理解：json_object 模式 + 客户端 Zod 校验，避免 generateObject 的 schema warning */
 export function getLlmJsonModel() {
   return createLlmProvider({ jsonObject: true })(process.env.LLM_MODEL ?? '');

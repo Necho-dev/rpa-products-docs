@@ -7,6 +7,7 @@ import { filterSearchByScope, type SearchScope } from '@/lib/docs/search/search-
 import { getLLMText, source } from '@/lib/docs/source/source';
 import { getPageBacklinks, getPageReferences } from '@/lib/docs/doc-references';
 import { docsRoute } from '@/lib/core/shared';
+import { matchesListPageFilters } from '@/lib/docs/list-page-filters';
 
 /** referencedBy 截断上限，避免热门授权页把 meta payload 撑爆 */
 const MAX_REFERENCED_BY = 20;
@@ -57,13 +58,31 @@ export function resolveDocPage(path: string) {
   return source.getPage(slugs.length ? slugs : undefined);
 }
 
-export const listPagesToolDescription = `Lists all available documentation pages with their categories and basic information.
+export function buildListPagesToolDescription(searchTags: SearchTag[] = []): string {
+  const tagHint =
+    searchTags.length > 0
+      ? ` Optional tag filters by documentation partition slug: ${searchTags
+          .map((t) => `"${t.value}" (${t.label})`)
+          .join(', ')}.`
+      : ' Optional tag is the first URL segment under /docs (e.g. "rpa", "auth").';
 
-WHEN TO USE: Use this tool when you need to EXPLORE or BROWSE documentation but don't know the exact page path.
+  return `Lists documentation pages with title, description, and path.
 
-WHEN NOT TO USE: If you already know the specific page path (e.g. "${docsRoute}/getting-started"), use get_docs_content directly instead. If you have a keyword or topic, prefer search_docs.
+WHEN TO USE: Explore or browse the catalog when you do not know an exact page path. Prefer tag and/or prefix to avoid dumping the entire site.
 
-WORKFLOW: Returns title, description, and path (page URL). Then use get_docs_content for full content.`;
+WHEN NOT TO USE: If you already know the specific page path (e.g. "${docsRoute}/getting-started"), use get_docs_content / get_docs_meta instead. If you have a keyword or topic, prefer search_docs.
+
+Filters (combine with AND when both are set):
+- tag: partition slug.${tagHint}
+- prefix: docs path prefix (e.g. "${docsRoute}/rpa/RPA_QIANNIU") — includes that page and descendants.
+
+WORKFLOW: Returns title, description, and path. Then use get_docs_meta or get_docs_content.`;
+}
+
+/** @deprecated Prefer buildListPagesToolDescription(getSearchTags()) */
+export const listPagesToolDescription = buildListPagesToolDescription();
+
+export { matchesListPageFilters } from '@/lib/docs/list-page-filters';
 
 export const getPageToolDescription = `Retrieves the full content and details of a specific documentation page.
 
@@ -80,6 +99,7 @@ export async function listDocumentationPages(
   siteOrigin: string,
   locale: string | undefined,
   access: DocAccessContext,
+  filters?: { tag?: string | null; prefix?: string | null },
 ): Promise<DocToolTextResult> {
   const languages = source.getLanguages();
   let pages =
@@ -101,7 +121,9 @@ export async function listDocumentationPages(
     };
   }
 
-  pages = pages.filter((p) => isDocPageAccessible(p, access));
+  pages = pages.filter(
+    (p) => isDocPageAccessible(p, access) && matchesListPageFilters(p.url, filters ?? {}),
+  );
 
   const list = pages.map((page) => ({
     title: page.data.title,
@@ -164,6 +186,18 @@ export const ListDocumentationPagesInputSchema = z.object({
     .string()
     .optional()
     .describe('When the site uses i18n, filter by language code (e.g. "en"). Otherwise ignored.'),
+  tag: z
+    .string()
+    .optional()
+    .describe(
+      'Optional documentation partition slug (first URL segment under /docs, e.g. "rpa" or "auth"). Limits the catalog to that partition.',
+    ),
+  prefix: z
+    .string()
+    .optional()
+    .describe(
+      `Optional docs path prefix (e.g. "${docsRoute}/rpa/RPA_QIANNIU"). Returns that page and its descendants.`,
+    ),
 });
 
 export const GetDocumentationPageInputSchema = z.object({
@@ -196,13 +230,18 @@ export const searchDocsToolDescription = buildSearchDocsToolDescription();
 
 export const getPageMetaToolDescription = `Returns page metadata and table of contents without the full body (token-efficient).
 
-Includes title, description, path, url, entry (technical id), tags, badge (status label/color), toc, lastModified, and the page's document relationships.
+Always includes title, description, path, url, entry (technical id, e.g. rpa.conn.*), tags, badge (status label/color), toc, lastModified, and document relationships.
+
+Connector / page schedule fields from frontmatter (null when unset; typical on RPA connector pages — do not invent a second tool for these):
+- dataReady: when data is expected to be ready ({ time?, cycle?, description? })
+- estimatedDuration: typical run duration ({ sec?, min?, hour?, description? })
+- minInterval: recommended minimum interval between runs ({ sec?, min?, hour?, description? })
 
 Relationships (both are access-filtered and may be empty arrays):
-- references: pages this page points to, as { kind, path, title, badge?: { label, color? }, prompt?: { label, type } }. kind "dependency" means the target must be satisfied first (most often an authorization page); kind "fallback" means the target is an alternative to switch to when this one fails. badge defaults to a four-character kind label (前置依赖 / 备选方案). prompt is an optional author-written hint whose type is info | warning | success | error.
+- references: pages this page points to, as { kind, path, title, badge?: { label, color? }, prompt?: { label, type } }. kind "dependency" is 前置依赖 (the target must be satisfied first, most often an authorization page); kind "fallback" is 备选方案 (switch here when this one fails). badge defaults to a four-character kind label (前置依赖 / 备选方案). prompt is an optional author-written hint whose type is info | warning | success | error.
 - referencedBy: pages that explicitly point here, as { path, title }, capped at ${MAX_REFERENCED_BY}.
 
-WHEN TO USE: You need structure, headings, links, or prerequisites before loading full content.
+WHEN TO USE: Structure, headings, entry/badge, schedule (dataReady / estimatedDuration / minInterval), or prerequisites (references) before loading full content.
 
 WHEN NOT TO USE: When you need the complete document text — use get_docs_content instead.`;
 

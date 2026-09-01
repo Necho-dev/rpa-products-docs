@@ -143,7 +143,7 @@ export function DocsThemeToolbar({ className }: { className?: string }) {
           side="bottom"
           sideOffset={8}
           className={cn(
-            'w-44 min-w-0 max-w-[calc(100vw-1rem)] overflow-hidden rounded-lg border border-fd-border/80 p-1 shadow-md',
+            'z-80 w-44 min-w-0 max-w-[calc(100vw-1rem)] overflow-hidden rounded-lg border border-fd-border/80 p-1 shadow-md',
             'bg-fd-popover text-fd-popover-foreground',
           )}
         >

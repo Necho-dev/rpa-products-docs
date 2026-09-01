@@ -192,7 +192,7 @@ export function DocsLinkHoverCard({
 
   return createPortal(
     <div
-        className="pointer-events-auto fixed z-200"
+        className="pointer-events-auto fixed z-70"
       style={{
         top: pos?.top ?? -9999,
         left: pos?.left ?? -9999,

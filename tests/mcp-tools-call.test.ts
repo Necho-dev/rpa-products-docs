@@ -87,6 +87,14 @@ describe('mcp tools/call 审计', () => {
     assert.deepEqual(metas[0]?.params, { locale: 'zh' });
   });
 
+  it('extractMcpRpcMeta 解析 list_docs tag 与 prefix', () => {
+    const metas = extractMcpRpcMeta(
+      toolsCallBody('list_docs', { tag: 'rpa', prefix: '/docs/rpa/RPA_QIANNIU' }),
+    );
+    assert.equal(metas[0]?.tool, 'list_docs');
+    assert.deepEqual(metas[0]?.params, { tag: 'rpa', prefix: '/docs/rpa/RPA_QIANNIU' });
+  });
+
   it('extractMcpRpcMeta 仅保留白名单参数，丢弃正文等字段', () => {
     const metas = extractMcpRpcMeta(
       toolsCallBody('search_docs', {

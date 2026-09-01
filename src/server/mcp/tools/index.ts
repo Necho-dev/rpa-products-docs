@@ -14,7 +14,7 @@ export function registerDocsMcpTools(
   access: DocAccessContext,
   searchTags: SearchTag[] = [],
 ): void {
-  registerListDocsTool(server, siteOrigin, access);
+  registerListDocsTool(server, siteOrigin, access, searchTags);
   registerSearchDocsTool(server, siteOrigin, access, searchTags);
   registerGetDocsMetaTool(server, siteOrigin, access);
   registerGetDocsContentTool(server, siteOrigin, access);

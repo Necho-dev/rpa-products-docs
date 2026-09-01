@@ -19,6 +19,7 @@ import { Card } from 'fumadocs-ui/components/card';
 import type { InkeepUIMessage } from '@/lib/ai/chat-types';
 import { getExcerptToolExecutors } from '@/lib/docs/selection/excerpt-ai-tools-registry';
 import { isExcerptClientToolName } from '@/lib/docs/selection/excerpt-ai-tools';
+import { isOpenDocClientToolName } from '@/lib/docs/open-doc-ai-tools';
 import type { SessionListItem } from '@/lib/ai/chat-idb';
 import {
   deriveTitleFromMessages,
@@ -51,7 +52,7 @@ export function AISearch({
   modelDisplayName,
 }: {
   children: ReactNode;
-  /** 与 `LLM_MODEL` 一致；须由服务端传入，客户端无法读取未公开的 env */
+  /** 页面展示名（`LLM_MODEL_DISPLAY` 优先，否则 `LLM_MODEL`）；须由服务端传入 */
   modelDisplayName?: string;
 }) {
   const [open, setOpen] = useState(false);
@@ -171,6 +172,8 @@ export function AISearch({
       lastAssistantMessageIsCompleteWithToolCalls({ messages }),
     onToolCall: ({ toolCall }) => {
       // onToolCall 在 Chat SerialJobExecutor 内同步触发；此处 await addToolOutput 会死锁并卡在「即将执行」。
+      // deleteExcerpt / openDocumentationPage 需用户确认，不自动执行。
+      if (isOpenDocClientToolName(toolCall.toolName)) return;
       void runExcerptClientTool(toolCall);
     },
     onFinish: ({ messages }) => {

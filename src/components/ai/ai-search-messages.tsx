@@ -12,10 +12,16 @@ import { Markdown } from '@/components/docs/markdown';
 import type { InkeepUIMessage } from '@/lib/ai/chat-types';
 import { getExcerptToolExecutors } from '@/lib/docs/selection/excerpt-ai-tools-registry';
 import { isExcerptClientToolName, type DeleteExcerptInput } from '@/lib/docs/selection/excerpt-ai-tools';
+import { getOpenDocToolExecutors } from '@/lib/docs/open-doc-ai-tools-registry';
+import {
+  resolveOpenDocumentationHref,
+  type OpenDocumentationPageInput,
+} from '@/lib/docs/open-doc-ai-tools';
 import { ExcerptDeleteConfirmPanel } from '@/components/docs/selection/excerpt-delete-confirm-panel';
 import { idbGetHighlightById, type DocHighlight } from '@/lib/docs/selection/highlight-idb';
 import { useAISearchContext } from '@/components/ai/ai-search-context';
 import { AISearchWelcome } from '@/components/ai/ai-search-welcome';
+import { useDocPeek } from '@/components/docs/doc-peek-context';
 
 /** 行内 code（排除 pre 代码块），字号略小于正文以协调等宽字体视觉偏大 */
 const aiChatInlineCodeClass = cn(
@@ -223,6 +229,7 @@ const toolDisplayName: Record<string, string> = {
   searchExcerpts: '搜索摘录',
   addExcerpt: '添加摘录',
   deleteExcerpt: '删除摘录',
+  openDocumentationPage: '打开文档页',
 };
 
 const mcpAlias: Record<string, string> = {
@@ -353,6 +360,108 @@ function DeleteExcerptApprovalBlock({
   );
 }
 
+function OpenDocumentationPageApprovalBlock({
+  path,
+  target,
+  toolCallId,
+  approvalId,
+}: {
+  path: string;
+  target?: 'peek' | 'main';
+  toolCallId: string;
+  approvalId: string;
+}) {
+  const { chat } = useAISearchContext();
+  const { addToolOutput, addToolApprovalResponse } = chat;
+  const peek = useDocPeek();
+  const [busy, setBusy] = useState(false);
+  const requested = target ?? 'peek';
+  const href = resolveOpenDocumentationHref(path);
+  const willPeek = requested === 'peek' && Boolean(peek) && Boolean(href);
+  const actionLabel = !href
+    ? '路径无效，无法打开'
+    : willPeek
+      ? '在右侧预览打开（当前正文保留）'
+      : requested === 'main'
+        ? '跳转到该文档（替换当前页）'
+        : '跳转到该文档（当前没有右侧预览）';
+
+  const handleApproval = async (approved: boolean) => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      if (approved) {
+        const executors = getOpenDocToolExecutors();
+        if (!executors) {
+          await addToolApprovalResponse({ id: approvalId, approved: false, reason: '打开页面工具未就绪' });
+          await addToolOutput({
+            tool: 'openDocumentationPage',
+            toolCallId,
+            state: 'output-error',
+            errorText: '打开页面工具未就绪，请刷新后重试',
+          });
+          return;
+        }
+        const result = await executors.openDocumentationPage({ path, target });
+        await addToolApprovalResponse({ id: approvalId, approved: true });
+        await addToolOutput({
+          tool: 'openDocumentationPage',
+          toolCallId,
+          output: result,
+        });
+      } else {
+        await addToolApprovalResponse({ id: approvalId, approved: false, reason: '用户取消' });
+        await addToolOutput({
+          tool: 'openDocumentationPage',
+          toolCallId,
+          state: 'output-error',
+          errorText: '您取消了打开页面',
+        });
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div
+      className="mt-2 min-w-0 overflow-hidden rounded-lg border border-fd-primary/30 bg-fd-primary/4"
+      role="dialog"
+      aria-label="确认打开文档页"
+    >
+      <div className="px-3 pt-3">
+        <p className="text-xs leading-snug text-fd-foreground">{actionLabel}</p>
+        <p className="mt-1.5 font-mono text-[11px] leading-snug wrap-break-word text-fd-muted-foreground">
+          {href ?? path}
+        </p>
+      </div>
+      <div className="excerpt-delete-confirm-inline mx-3 mb-2.5 mt-2 border-t border-fd-border/25 pt-2">
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-xs leading-snug text-fd-foreground">确认后才会打开，可随时取消</span>
+          <div className="excerpt-delete-confirm-actions shrink-0">
+            <button
+              type="button"
+              className="excerpt-delete-confirm-btn excerpt-delete-confirm-btn-default"
+              disabled={busy}
+              onClick={() => void handleApproval(false)}
+            >
+              取消
+            </button>
+            <button
+              type="button"
+              className="excerpt-delete-confirm-btn excerpt-delete-confirm-btn-primary"
+              disabled={busy || !href}
+              onClick={() => void handleApproval(true)}
+            >
+              {busy ? '打开中…' : '打开'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ToolTraceCard({ part }: { part: ToolUIPart | DynamicToolUIPart }) {
   const name = getToolName(part);
   const label = toolDisplayName[name] ?? name;
@@ -403,15 +512,28 @@ function ToolTraceCard({ part }: { part: ToolUIPart | DynamicToolUIPart }) {
   const deleteInput =
     name === 'deleteExcerpt' && input && typeof input.id === 'string' ? (input as DeleteExcerptInput) : null;
 
+  const openInput =
+    name === 'openDocumentationPage' && input && typeof input.path === 'string'
+      ? (input as OpenDocumentationPageInput)
+      : null;
+
   const showDeleteApproval = name === 'deleteExcerpt' && state === 'approval-requested' && deleteInput;
+  const showOpenApproval =
+    name === 'openDocumentationPage' && state === 'approval-requested' && openInput;
+
+  const approvalUi = showDeleteApproval || showOpenApproval;
 
   // 是否有可展开的详情（调用参数 or 返回结果）
   const hasDetails =
-    showDeleteApproval ||
-    (input !== undefined && Object.keys(input).length > 0 && !showDeleteApproval) ||
+    approvalUi ||
+    (input !== undefined && Object.keys(input).length > 0 && !approvalUi) ||
     (state === 'output-available' && output !== undefined);
 
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(approvalUi);
+
+  useEffect(() => {
+    if (approvalUi) setExpanded(true);
+  }, [approvalUi]);
 
   return (
     <div
@@ -419,6 +541,7 @@ function ToolTraceCard({ part }: { part: ToolUIPart | DynamicToolUIPart }) {
         'min-w-0 rounded-lg border border-fd-border bg-fd-muted/40 text-xs',
         state === 'output-error' && 'border-red-500/40 bg-red-500/5',
         showDeleteApproval && 'border-destructive/25 bg-destructive/[0.02]',
+        showOpenApproval && 'border-fd-primary/25 bg-fd-primary/3',
       )}
     >
       {/* 单行主体 */}
@@ -466,7 +589,7 @@ function ToolTraceCard({ part }: { part: ToolUIPart | DynamicToolUIPart }) {
       {/* 可展开的详情区 */}
       {expanded && hasDetails ? (
         <div className="border-t border-fd-border/50 px-2.5 pb-2.5 pt-2 flex flex-col gap-1.5">
-          {input !== undefined && Object.keys(input).length > 0 && !showDeleteApproval ? (
+          {input !== undefined && Object.keys(input).length > 0 && !approvalUi ? (
             <div>
               <p className="mb-1 text-fd-muted-foreground">调用参数</p>
               <pre className="max-h-40 overflow-auto rounded-lg border border-fd-border/80 bg-fd-background p-2.5 font-mono text-[11px] leading-snug whitespace-pre-wrap wrap-break-word">
@@ -486,6 +609,15 @@ function ToolTraceCard({ part }: { part: ToolUIPart | DynamicToolUIPart }) {
             <DeleteExcerptApprovalBlock
               key={`${part.toolCallId}:${deleteInput.id}`}
               excerptId={deleteInput.id}
+              toolCallId={part.toolCallId}
+              approvalId={approval.id}
+            />
+          ) : null}
+          {showOpenApproval && openInput && approval ? (
+            <OpenDocumentationPageApprovalBlock
+              key={`${part.toolCallId}:${openInput.path}`}
+              path={openInput.path}
+              target={openInput.target}
               toolCallId={part.toolCallId}
               approvalId={approval.id}
             />
