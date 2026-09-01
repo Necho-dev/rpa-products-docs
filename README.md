@@ -1,10 +1,10 @@
 # HeroKnowledge
 
-基于 [Fumadocs](https://fumadocs.vercel.app/) + Next.js 构建的文档站点（HeroKnowledge），支持本地开发、静态构建与 Docker 部署。当前版本 **0.6.4**。
+基于 [Fumadocs](https://fumadocs.vercel.app/) + Next.js 构建的文档站点（HeroKnowledge），支持本地开发、静态构建与 Docker 部署。当前版本 **0.6.5**。
 
 ---
 
-## 对话与 MCP 工具（0.6.4）
+## 对话与 MCP 工具（0.6.4 / 0.6.5）
 
 - Chat 可按确认打开文档：`openDocumentationPage` 默认右侧预览（`target=peek`），也可左侧整页（`target=main`）
 - `list_docs` / `listDocumentationPages` 支持 `tag`（分区）与 `prefix`（路径前缀）

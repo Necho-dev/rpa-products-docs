@@ -521,7 +521,7 @@ function ToolTraceCard({ part }: { part: ToolUIPart | DynamicToolUIPart }) {
   const showOpenApproval =
     name === 'openDocumentationPage' && state === 'approval-requested' && openInput;
 
-  const approvalUi = showDeleteApproval || showOpenApproval;
+  const approvalUi = Boolean(showDeleteApproval || showOpenApproval);
 
   // 是否有可展开的详情（调用参数 or 返回结果）
   const hasDetails =
