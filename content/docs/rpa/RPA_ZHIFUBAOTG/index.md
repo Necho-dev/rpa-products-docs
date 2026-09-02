@@ -1,7 +1,7 @@
 ---
 title: 支付宝数字推广平台
 icon: ICO_ZHIFUBAOTG
-description: 覆盖支付宝投放平台、代理商等子平台的连接器
+description: 覆盖支付宝广告组、代理商等子平台的连接器
 entry: RPA_ZHIFUBAOTG
 category:
   slug: zhifubao
@@ -18,6 +18,8 @@ requireLogin: true
 loginOptions:
   - text: 账号+密码
     icon: CircleUserRound
+  - text: 子账户ID
+    icon: Binary
 :::
 
 ## 连接器

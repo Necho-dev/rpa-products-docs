@@ -1,18 +1,18 @@
 ---
-title: 投放平台
-icon: ICO_ZHIFUBAOTG_TFPT
-description: 覆盖支付宝数字推广投放平台全域智投、商品分析等场景的连接器
-entry: RPA_ZHIFUBAOTG_TFPT
+title: 广告组
+icon: ICO_ZHIFUBAOTG
+description: 覆盖支付宝数字推广广告组全域智投、商品分析等场景的连接器
+entry: RPA_ZHIFUBAOTG_GGZ
 category:
-  slug: tfpt
+  slug: ggz
   icon:
-    comp: ICO_ZHIFUBAOTG_TFPT
+    comp: ICO_ZHIFUBAOTG
   link: https://adops.alipay.com/
 ---
 
 :::meta-panel
-icon: ICO_ZHIFUBAOTG_TFPT
-platform: 投放平台
+icon: ICO_ZHIFUBAOTG
+platform: 广告组
 platformUrl: https://adops.alipay.com/
 requireLogin: true
 loginOptions:

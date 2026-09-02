@@ -1,7 +1,7 @@
 ---
 title: 代理商
 icon: ICO_ZHIFUBAOTG_DLS
-description: 覆盖支付宝数字推广代理商等场景的连接器
+description: 覆盖支付宝数字推广代理商商品分析、全域智投等场景的连接器
 entry: RPA_ZHIFUBAOTG_DLS
 category:
   slug: dls
