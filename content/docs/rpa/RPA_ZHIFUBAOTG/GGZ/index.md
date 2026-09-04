@@ -1,7 +1,7 @@
 ---
-title: 广告组
+title: 广告主
 icon: ICO_ZHIFUBAOTG
-description: 覆盖支付宝数字推广广告组全域智投、商品分析等场景的连接器
+description: 覆盖支付宝数字推广广告主全域智投、商品分析等场景的连接器
 entry: RPA_ZHIFUBAOTG_GGZ
 category:
   slug: ggz
@@ -12,7 +12,7 @@ category:
 
 :::meta-panel
 icon: ICO_ZHIFUBAOTG
-platform: 广告组
+platform: 广告主
 platformUrl: https://adops.alipay.com/
 requireLogin: true
 loginOptions:
