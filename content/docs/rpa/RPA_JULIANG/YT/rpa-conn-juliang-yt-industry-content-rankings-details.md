@@ -6,7 +6,7 @@ badge:
   label: 待上线
   color: "#EA580C"
 estimatedDuration:
-  sec: 60
+  sec: 120
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响
 category: yt
 ---
@@ -122,7 +122,6 @@ category: yt
 
 ### 数据字段
 
-每次采集返回单条记录，包含视频链接与五个详情区块：`coreData`（核心数据）、`audiencePortrait`（人群画像）、`secondTrend`（秒级拆解，含点赞/流失/点击/互动/评论五类指数）、`contentFormula`（内容公式）、`creativeBreakdown`（创意元素拆解）。`bizDate` 格式为 `YYYYMMDD`。
 
 :::field-tree
 @define 关联商品
