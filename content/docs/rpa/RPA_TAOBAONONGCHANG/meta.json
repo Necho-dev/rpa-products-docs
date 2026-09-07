@@ -1,0 +1,9 @@
+{
+  "title": "淘宝农场",
+  "categoryAxis": {
+    "title": "业务场景",
+    "items": [
+      { "key": "item", "item": "商品", "icon": { "comp": "ShoppingBag", "color": "#ea580c" } }
+    ]
+  }
+}

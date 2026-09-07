@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-28T13:55:00.000Z",
+  "updatedAt": "2026-09-07T09:42:19.050Z",
   "icons": {
     "ICO_1688": {
       "file": "platform/files/ICO_1688.svg",
@@ -145,6 +145,11 @@
       "file": "platform/files/ICO_TAOBAO.png",
       "sourceIcon": "https://depcloud-prod.oss-cn-hangzhou.aliyuncs.com/20250924/911a144725d14bb9acdbe56214573614.png",
       "origin": "www.taobao.com"
+    },
+    "ICO_TAOBAONONGCHANG": {
+      "file": "platform/files/ICO_TAOBAONONGCHANG.ico",
+      "sourceIcon": "https://mmc.tmall.com/favicon.ico",
+      "origin": "mmc.tmall.com"
     },
     "ICO_WANGDIANTONG": {
       "file": "platform/files/ICO_WANGDIANTONG.png",
