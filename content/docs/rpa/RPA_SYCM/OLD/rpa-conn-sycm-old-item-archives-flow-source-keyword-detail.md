@@ -1,7 +1,7 @@
 ---
-title: 商品360-流量来源-关键词详情(旧版)
-description: 在生意参谋商品360旧版流量来源页，按来源类型进入关键词详情弹窗，翻页采集所选指标数据
-entry: rpa.conn.sycm.item.archives.flow.source.keyword.detail.old.page
+title: 商品-商品360-流量来源详情
+description: 在生意参谋商品360流量来源页，按来源类型进入关键词详情弹窗，翻页采集所选指标数据
+entry: rpa.conn.sycm.old.item.archives.flow.source.keyword.detail
 badge:
   label: 待上线
   color: "#EA580C"
@@ -13,20 +13,18 @@ estimatedDuration:
   sec: 60
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。
 category: item
-module:
-  group: item
 ---
 
 | 属性             | 值                  |
 | ---------------- | ------------------- |
 | **连接器类型**   | `RPA 连接器`|
-| **连接器名称**   | `ODS_商品360流量来源关键词详情旧版页面(生意参谋RPA)`|
-| **连接器代码**   | `rpa.conn.sycm.item.archives.flow.source.keyword.detail.old.page`|
+| **连接器名称**   | `ODS_商品360流量来源详情(生意参谋RPA)`|
+| **连接器代码**   | `rpa.conn.sycm.old.item.archives.flow.source.keyword.detail`|
 | **操作类型**     | `页面解析`|
 | **目标网页**     | `https://sycm.taobao.com/cc/item_archives`|
-| **适用场景**     | 在生意参谋商品360旧版流量来源页，按来源类型进入关键词详情弹窗，翻页采集所选指标数据|
-| **数据表名**     | `ods_rpa_sycm_item_archives_flow_source_keyword_detail_old_page_du`|
-| **业务表名**     | `ODS_商品360流量来源关键词详情旧版页面(生意参谋RPA)`|
+| **适用场景**     | 在生意参谋商品360流量来源页，按来源类型进入关键词详情弹窗，翻页采集所选指标数据|
+| **数据表名**     | `ods_rpa_sycm_old_item_archives_flow_source_keyword_detail_du`|
+| **业务表名**     | `ODS_商品360流量来源详情(生意参谋RPA)`|
 
 ### 目标页面
 
@@ -34,9 +32,9 @@ module:
 >
 > **取数链接**：[https://sycm.taobao.com/cc/item_archives](https://sycm.taobao.com/cc/item_archives?activeKey=flow)
 
-![生意参谋—商品360—流量来源—关键词详情（旧版页）](../_public/images/sycm/item_archives_flow_source_keyword_detail_old_page_20260827.png)
+![生意参谋—商品360—流量来源详情](../../_public/images/sycm/item_archives_flow_source_keyword_detail_old_page_20260827.png)
 
-![生意参谋—商品360—流量来源—关键词详情弹窗](../_public/images/sycm/item_archives_flow_source_keyword_detail_old_page_modal_20260827.png)
+![生意参谋—商品360—流量来源详情弹窗](../../_public/images/sycm/item_archives_flow_source_keyword_detail_old_page_modal_20260827.png)
 
 
 ### 业务入参
@@ -46,14 +44,14 @@ module:
 | `item_id` | 商品 ID | `String` | 是 | — | 10~25 位数字 |
 | `traffic_source` | 来源类型 | `List[String]` \| `String` | 是 | — | 最多 2 个；支持 JSON 数组或英文逗号分隔。可选值：`TAOBAO_SEARCH`（手淘搜索）/ `TAOBAO_SEARCH_PRODUCT_AND_OTHER`（手淘搜索-商品及其他）/ `TAOBAO_SEARCH_LIVE`（手淘搜索-直播）/ `TAOBAO_SEARCH_SHORT_VIDEO`（手淘搜索-短视频）/ `KEYWORD_PROMOTION`（关键词推广）/ `SHOP_SUPER_LINK`（店铺超链）/ `TAO_INTERNAL_UNCLASSIFIED`（淘内待分类） |
 | `date_type` | 统计时间类型 | `String` | 否 | `day` | 可选值：`today`（今天）/ `recent7`（7天）/ `recent30`（30天）/ `day`（日）/ `week`（周）/ `month`（月） |
-| `biz_date` | 统计日期 | `String` | 条件必填 | — | `date_type` 为 `week` / `month` 时必填；`day` 且未传时默认 T-1；`today` / `recent7` / `recent30` 时忽略。格式：`YYYYMMDD` 或 `YYYY-MM-DD` |
+| `biz_date` | 统计日期 | `String` | 条件必填 | — | `date_type` 为 `week` / `month` 时必填；`date_type` 为day时且此值未传时默认 T-1；`today` / `recent7` / `recent30` 时忽略。格式：`YYYYMMDD` 或 `YYYY-MM-DD` |
 | `device_type` | 终端 | `String` | 否 | — | 可选值：`WIRELESS`（无线端）/ `PC`（PC端）；未传则保持页面默认 |
 | `conversion_attribution` | 转化归属 | `String` | 否 | — | 可选值：`EVERY_VISIT`（每一次访问来源）/ `FIRST_VISIT`（第一次访问来源）/ `LAST_VISIT`（最后一次访问来源）；未传则保持页面默认 |
 | `detail_metrics` | 详情弹窗指标 | `List[String]` \| `String` | 否 | — | 最多 6 个；支持 JSON 数组或英文逗号分隔；未传则保持页面默认勾选（访客数、加购人数、支付买家数）。可选值：`UV`（访客数）/ `ORDER_BUYER_CNT`（下单买家数）/ `ORDER_CVR`（下单转化率）/ `PV`（浏览量（占比））/ `IN_STORE_JUMP_UV`（店内跳转人数）/ `BOUNCE_UV`（跳出本店人数）/ `FAVORITE_UV`（收藏人数）/ `ADD_CART_UV`（加购人数）/ `PAY_ITEM_CNT`（支付件数）/ `PAY_BUYER_CNT`（支付买家数）/ `PAY_CVR`（支付转化率）/ `DIRECT_PAY_BUYER_CNT`（直接支付买家数）/ `FAVORITE_PAY_BUYER_CNT`（收藏商品-支付买家数）/ `FAN_PAY_BUYER_CNT`（粉丝支付买家数）/ `ADD_CART_PAY_BUYER_CNT`（加购商品-支付买家数）。**输出 `value` 内的键名与所选指标中文名一致，未选指标不会出现在输出中** |
 
 ### 入参样例
 
-与 `.mock.json` 默认调试入参一致（未传 `detail_metrics`，沿用页面默认三指标）：
+**按日统计 + 两个来源：**
 
 ```json
 {
@@ -64,13 +62,37 @@ module:
 }
 ```
 
+**今天快捷时间 + 单个来源：**
+
+```json
+{
+  "item_id": "947****749",
+  "date_type": "today",
+  "traffic_source": "TAOBAO_SEARCH"
+}
+```
+
+**按周统计 + 终端 / 转化归属 / 自定义指标：**
+
+```json
+{
+  "item_id": "947****749",
+  "date_type": "week",
+  "biz_date": "2026-08-24",
+  "traffic_source": ["SHOP_SUPER_LINK"],
+  "device_type": "WIRELESS",
+  "conversion_attribution": "EVERY_VISIT",
+  "detail_metrics": ["UV", "ADD_CART_UV", "PAY_BUYER_CNT"]
+}
+```
+
 ### 入参校验
 
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "生意参谋-商品360流量来源关键词详情（旧版页） - 查询入参",
-  "description": "在生意参谋商品360旧版流量来源页，按来源类型进入关键词详情弹窗，翻页采集所选指标数据",
+  "title": "生意参谋-商品360流量来源详情 - 查询入参",
+  "description": "在生意参谋商品360流量来源页，按来源类型进入关键词详情弹窗，翻页采集所选指标数据",
   "type": "object",
   "properties": {
     "item_id": {
