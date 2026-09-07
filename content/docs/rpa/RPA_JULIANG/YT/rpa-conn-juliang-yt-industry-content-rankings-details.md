@@ -1,5 +1,5 @@
 ---
-title: 云图-行业灵感-素材详情
+title: 云图-行业内容榜-素材详情
 description: 采集巨量云图行业内容榜指定素材的核心数据、人群画像、秒级拆解、内容公式与创意元素拆解
 entry: rpa.conn.juliang.yt.industry.content.rankings.details
 badge:
@@ -196,9 +196,9 @@ category: yt
 | `highQualityMaterialEffectCostRate` | 优质素材效果消耗占比 | `Number` | 是 | 页面解析 | `0` |
 
 @define 人群画像
-| `八大人群` | 八大人群标签 | `List[String]` | 是 | 页面解析 | `["新锐白领", "小镇青年"]` |
-| `年龄特征` | 年龄区间 | `List[String]` | 是 | 页面解析 | `["36-40", "41-45"]` |
-| `性别特征` | 性别 | `List[String]` | 是 | 页面解析 | `["男"]` |
+| `eightCrowds` | 八大人群标签 | `List[String]` | 是 | 页面解析 | `["新锐白领", "小镇青年"]` |
+| `ageFeatures` | 年龄区间 | `List[String]` | 是 | 页面解析 | `["36-40", "41-45"]` |
+| `genderFeatures` | 性别 | `List[String]` | 是 | 页面解析 | `["男"]` |
 
 @define 曲线点
 | `x` | 时间轴位置（秒） | `Number` | 否 | 页面解析 | `0` |
@@ -222,11 +222,11 @@ category: yt
 | `trendType` | 指数类型编号（1–5） | `Number` | 否 | 页面解析 | `1` |
 
 @define 秒级拆解
-| `点赞指数` @秒级指数 | 点赞指数曲线 | `Dict` | 否 | 页面解析 | 见数据样例 |
-| `流失指数` @秒级指数 | 流失指数曲线 | `Dict` | 否 | 页面解析 | 见数据样例 |
-| `点击指数` @秒级指数 | 点击指数曲线 | `Dict` | 否 | 页面解析 | 见数据样例 |
-| `互动指数` @秒级指数 | 互动指数曲线 | `Dict` | 否 | 页面解析 | 见数据样例 |
-| `评论指数` @秒级指数 | 评论指数曲线 | `Dict` | 否 | 页面解析 | 见数据样例 |
+| `likeIndex` @秒级指数 | 点赞指数曲线 | `Dict` | 否 | 页面解析 | 见数据样例 |
+| `lossIndex` @秒级指数 | 流失指数曲线 | `Dict` | 否 | 页面解析 | 见数据样例 |
+| `clickIndex` @秒级指数 | 点击指数曲线 | `Dict` | 否 | 页面解析 | 见数据样例 |
+| `interactIndex` @秒级指数 | 互动指数曲线 | `Dict` | 否 | 页面解析 | 见数据样例 |
+| `commentIndex` @秒级指数 | 评论指数曲线 | `Dict` | 否 | 页面解析 | 见数据样例 |
 
 @define 内容公式标签
 | `level_1_label` | 一级标签 ID | `Number` | 否 | 页面解析 | `15` |
@@ -240,20 +240,20 @@ category: yt
 | `text` | 文本内容 | `String` | 是 | 页面解析 | `****` (已脱敏) |
 
 @define 内容公式
-| `本视频内容公式` @本视频内容公式 | 本视频内容公式结构 | `Dict` | 是 | 页面解析 | 见数据样例 |
-| `视频标题` @公式文本块 | 视频标题及命中标签 | `Dict` | 是 | 页面解析 | 见数据样例 |
-| `视频画面` @公式文本块 | 视频画面 OCR 文本及命中标签 | `Dict` | 是 | 页面解析 | 见数据样例 |
-| `视频脚本` @公式文本块 | 视频口播文本及命中标签 | `Dict` | 是 | 页面解析 | 见数据样例 |
+| `videoContentFormula` @本视频内容公式 | 本视频内容公式结构 | `Dict` | 是 | 页面解析 | 见数据样例 |
+| `videoTitle` @公式文本块 | 视频标题及命中标签 | `Dict` | 是 | 页面解析 | 见数据样例 |
+| `videoVisual` @公式文本块 | 视频画面 OCR 文本及命中标签 | `Dict` | 是 | 页面解析 | 见数据样例 |
+| `videoScript` @公式文本块 | 视频口播文本及命中标签 | `Dict` | 是 | 页面解析 | 见数据样例 |
 
 @define 创意元素拆解
-| `品牌印象` | 品牌印象标签 | `List[String]` | 是 | 页面解析 | `["****"]` (已脱敏) |
-| `适用人群` | 适用人群标签 | `List[String]` | 是 | 页面解析 | `[]` |
-| `用户痛点` | 用户痛点标签 | `List[String]` | 是 | 页面解析 | `[]` |
-| `商品卖点` | 商品卖点标签 | `List[String]` | 是 | 页面解析 | `["活菌", "益生菌配方"]` |
-| `使用场景` | 使用场景标签 | `List[String]` | 是 | 页面解析 | `["每天使用", "出差", "旅行出门"]` |
-| `营销活动` | 营销活动标签 | `List[String]` | 是 | 页面解析 | `[]` |
-| `在什么场景拍` | 拍摄场景 | `List[String]` | 是 | 页面解析 | `["其他场景"]` |
-| `用什么形式呈现` | 呈现形式 | `List[String]` | 是 | 页面解析 | `["商品展示(有语音)"]` |
+| `brandImpression` | 品牌印象标签 | `List[String]` | 是 | 页面解析 | `["****"]` (已脱敏) |
+| `targetAudience` | 适用人群标签 | `List[String]` | 是 | 页面解析 | `[]` |
+| `userPainPoints` | 用户痛点标签 | `List[String]` | 是 | 页面解析 | `[]` |
+| `productSellingPoints` | 商品卖点标签 | `List[String]` | 是 | 页面解析 | `["活菌", "益生菌配方"]` |
+| `usageScenarios` | 使用场景标签 | `List[String]` | 是 | 页面解析 | `["每天使用", "出差", "旅行出门"]` |
+| `marketingCampaigns` | 营销活动标签 | `List[String]` | 是 | 页面解析 | `[]` |
+| `shootingScene` | 拍摄场景 | `List[String]` | 是 | 页面解析 | `["其他场景"]` |
+| `presentationForm` | 呈现形式 | `List[String]` | 是 | 页面解析 | `["商品展示(有语音)"]` |
 
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
@@ -352,12 +352,12 @@ category: yt
     "highQualityMaterialEffectCostRate": 0
   },
   "audiencePortrait": {
-    "八大人群": ["新锐白领", "小镇青年"],
-    "年龄特征": ["36-40", "41-45"],
-    "性别特征": ["男"]
+    "eightCrowds": ["新锐白领", "小镇青年"],
+    "ageFeatures": ["36-40", "41-45"],
+    "genderFeatures": ["男"]
   },
   "secondTrend": {
-    "点赞指数": {
+    "likeIndex": {
       "tendList": [
         { "x": 0, "y": 0.3263157895 },
         { "x": 1, "y": 1 },
@@ -370,7 +370,7 @@ category: yt
       "videoDurationType": 3,
       "trendType": 1
     },
-    "流失指数": {
+    "lossIndex": {
       "tendList": [
         { "x": 0, "y": 1 },
         { "x": 1, "y": 0.6880911819 },
@@ -383,7 +383,7 @@ category: yt
       "videoDurationType": 3,
       "trendType": 2
     },
-    "点击指数": {
+    "clickIndex": {
       "tendList": [
         { "x": 0, "y": 0.4217791411 },
         { "x": 1, "y": 0.9325153374 },
@@ -396,7 +396,7 @@ category: yt
       "videoDurationType": 3,
       "trendType": 3
     },
-    "互动指数": {
+    "interactIndex": {
       "tendList": [
         { "x": 0, "y": 0.3265306122 },
         { "x": 1, "y": 1 },
@@ -409,7 +409,7 @@ category: yt
       "videoDurationType": 3,
       "trendType": 4
     },
-    "评论指数": {
+    "commentIndex": {
       "tendList": [
         { "x": 0, "y": 0 },
         { "x": 1, "y": 0 },
@@ -424,18 +424,18 @@ category: yt
     }
   },
   "contentFormula": {
-    "本视频内容公式": {
+    "videoContentFormula": {
       "labels": [
         { "level_1_label": 15, "level_2_labels": [87] },
         { "level_1_label": 10, "level_2_labels": [40] },
         { "level_1_label": 9, "level_2_labels": [42, 34] }
       ]
     },
-    "视频标题": {
+    "videoTitle": {
       "detail": { "40": ["****"], "42": ["益生菌"] },
       "text": "****"
     },
-    "视频画面": {
+    "videoVisual": {
       "detail": {
         "34": ["补充优质活菌"],
         "40": ["****"],
@@ -444,7 +444,7 @@ category: yt
       },
       "text": "****"
     },
-    "视频脚本": {
+    "videoScript": {
       "detail": {
         "34": ["补充优质活菌"],
         "40": ["****"],
@@ -455,14 +455,14 @@ category: yt
     }
   },
   "creativeBreakdown": {
-    "品牌印象": ["****"],
-    "适用人群": [],
-    "用户痛点": [],
-    "商品卖点": ["活菌", "益生菌配方", "有活菌", "高含量活菌", "活性益生菌"],
-    "使用场景": ["每天使用", "出差", "旅行出门"],
-    "营销活动": [],
-    "在什么场景拍": ["其他场景"],
-    "用什么形式呈现": ["商品展示(有语音)"]
+    "brandImpression": ["****"],
+    "targetAudience": [],
+    "userPainPoints": [],
+    "productSellingPoints": ["活菌", "益生菌配方", "有活菌", "高含量活菌", "活性益生菌"],
+    "usageScenarios": ["每天使用", "出差", "旅行出门"],
+    "marketingCampaigns": [],
+    "shootingScene": ["其他场景"],
+    "presentationForm": ["商品展示(有语音)"]
   },
   "bizDate": "20260903",
   "accountId": "1****4"
