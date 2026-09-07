@@ -3,8 +3,8 @@ title: 商品-商品推广-推广中
 description: 登录淘宝农场后进入商业托管商品推广页，按可选筛选项采集推广中商品的推广明细
 entry: rpa.conn.taobaonongchang.item.promotion.report
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 60
   description: 根据测试运行耗时估算，每翻一页约 3s；实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

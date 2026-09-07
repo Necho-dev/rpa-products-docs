@@ -3,8 +3,8 @@ title: 云图-行业内容榜-素材详情
 description: 采集巨量云图行业内容榜指定素材的核心数据、人群画像、秒级拆解、内容公式与创意元素拆解
 entry: rpa.conn.juliang.yt.industry.content.rankings.details
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 120
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响
