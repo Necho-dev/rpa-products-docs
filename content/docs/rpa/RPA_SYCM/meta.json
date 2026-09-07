@@ -8,10 +8,5 @@
       { "key": "market", "item": "市场", "icon": { "comp": "TrendingUp", "color": "#0d9488" } },
       { "key": "shop", "item": "店铺", "icon": { "comp": "Store", "color": "#0284c7" } }
     ]
-  },
-  "pages": [
-    "index",
-    "rpa-conn-sycm-item-rank-all-runtime",
-    "./OLD"
-  ]
+  }
 }
