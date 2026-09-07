@@ -1,16 +1,13 @@
 ---
-title: 商品-商品排行-实时全部商品
+title: 商品-商品排行-全部商品(实时)
 description: 采集生意参谋商品排行「全部商品」实时列表的支付转化、加购收藏、访客浏览及支付等指标；
-entry: rpa.conn.sycm.item.rank.all.api
+entry: rpa.conn.sycm.item.rank.all.runtime
 badge:
   label: 待上线
   color: "#EA580C"
 estimatedDuration:
-  sec: 60
+  sec: 120
   description: 根据测试运行耗时估算，每翻一页约 3s；实际运行耗时将受到数据量、调度并发、网路波动等情况影响。
-dataReady:
-  cycle: realtime
-  description: 采集生意参谋商品排行实时态当天数据，随页面统计时间刷新
 category: item
 ---
 
@@ -18,11 +15,11 @@ category: item
 | ---------------- | -------------------------------------------------------------------------------------- |
 | **连接器类型**   | `RPA 连接器`                                                                           |
 | **连接器名称**   | `ODS_商品排行全部商品数据(生意参谋RPA)`                                                |
-| **连接器代码**   | `rpa.conn.sycm.item.rank.all.api`                                                      |
+| **连接器代码**   | `rpa.conn.sycm.item.rank.all.runtime`                                                   |
 | **操作类型**     | `页面解析`                                                                             |
 | **目标网页**     | `https://sycm.taobao.com/cc/item_rank`                                                 |
 | **适用场景**     | 采集生意参谋商品排行「全部商品」实时列表的支付转化、加购收藏、访客浏览及支付等指标 |
-| **数据表名**     | `ods_rpa_sycm_item_rank_all_api_du`                                                    |
+| **数据表名**     | `ods_rpa_sycm_item_rank_all_runtime_du`                                                |
 | **业务表名**     | `ODS_商品排行全部商品数据(生意参谋RPA)`                                                |
 
 ### 目标页面
@@ -39,7 +36,7 @@ category: item
 | ---- | -------- | -------- | ---- | ------ | ---- |
 | `sort_field` | 排序列 | `String` | 否 | — | 可选值：`PAY_AMT`（支付金额）/ `PAY_ITM_CNT`（支付件数）/ `PAY_RATE`（支付转化率）。不填则沿用页面当前排序列（默认支付金额）。不可同时传入多个值 |
 | `sort_order` | 排序方向 | `String` | 否 | — | 可选值：`DESC`（倒序，从大到小）/ `ASC`（正序，从小到大）。不填则沿用页面当前排序方向（默认倒序） |
-| `collect_limit` | 采集条数上限 | `Number` | 否 | — | 范围 1~1000。不填则采至 1000 条上限或列表实际条数 |
+| `collect_limit` | 采集条数上限 | `Number` | 否 | — | 根据这个值计算页数进行翻页 |
 
 ### 入参样例
 
@@ -112,7 +109,6 @@ category: item
 
 ### 数据字段
 
-按入参 `collect_limit` 翻页采集；未传时采至 1000 条上限或列表实际条数。达到上限或无更多数据时停止。多数指标以对象形式返回；`bizDate` 格式为 `YYYYMMDD`。
 
 :::field-tree
 @define 商品信息
