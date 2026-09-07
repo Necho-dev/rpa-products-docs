@@ -1,6 +1,6 @@
 ---
 title: 商品-商品排行-全部商品实时
-description: 采集生意参谋商品排行「全部商品」实时列表的支付转化、加购收藏、访客浏览及支付等指标
+description: 按支付金额正序或倒序，采集生意参谋商品排行「全部商品」实时列表指定条数的支付转化、加购收藏、访客浏览及支付等指标
 entry: rpa.conn.sycm.item.rank.all.api
 badge:
   label: 待上线
@@ -21,7 +21,7 @@ category: item
 | **连接器代码**   | `rpa.conn.sycm.item.rank.all.api`                                                      |
 | **操作类型**     | `页面解析`                                                                             |
 | **目标网页**     | `https://sycm.taobao.com/cc/item_rank`                                                 |
-| **适用场景**     | 采集生意参谋商品排行「全部商品」实时列表的支付转化、加购收藏、访客浏览及支付等指标     |
+| **适用场景**     | 按支付金额正序或倒序，采集生意参谋商品排行「全部商品」实时列表指定条数的支付转化、加购收藏、访客浏览及支付等指标 |
 | **数据表名**     | `ods_rpa_sycm_item_rank_all_api_du`                                                    |
 | **业务表名**     | `ODS_商品排行全部商品数据(生意参谋RPA)`                                                |
 
@@ -37,16 +37,58 @@ category: item
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
+| `sort_order` | 支付金额排序 | `String` | 是 | — | 可选值：`DESC`（倒序，从大到小）/ `ASC`（正序，从小到大）。页面默认倒序 |
+| `collect_limit` | 采集条数上限 | `Number` | 是 | — | 范围 1~1000；实际不足上限时采完全部并成功 |
 
 ### 入参样例
 
+支付金额倒序，采集不超过 100 条：
+
 ```json
-{}
+{
+  "sort_order": "DESC",
+  "collect_limit": 100
+}
+```
+
+支付金额正序，采集不超过 12 条：
+
+```json
+{
+  "sort_order": "ASC",
+  "collect_limit": 12
+}
+```
+
+### 入参校验
+
+```json-schema collapsed
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "生意参谋-商品排行全部商品实时 - 查询入参",
+  "description": "按支付金额正序或倒序，采集生意参谋商品排行「全部商品」实时列表指定条数的支付转化、加购收藏、访客浏览及支付等指标",
+  "type": "object",
+  "properties": {
+    "sort_order": {
+      "type": "string",
+      "description": "支付金额排序。可选值：DESC（倒序，从大到小）/ ASC（正序，从小到大）",
+      "enum": ["DESC", "ASC"]
+    },
+    "collect_limit": {
+      "type": "integer",
+      "description": "采集条数上限。范围 1~1000；实际不足上限时采完全部并成功",
+      "minimum": 1,
+      "maximum": 1000
+    }
+  },
+  "required": ["sort_order", "collect_limit"],
+  "additionalProperties": false
+}
 ```
 
 ### 数据字段
 
-实时列表按页采集，接口返回多少条就采多少条。多数指标以对象形式返回（含指标值，部分带环比）；`item` 为商品对象，嵌套结构不拆平。`bizDate` 格式为 `YYYYMMDD`。
+按入参 `collect_limit` 翻页采集，达到上限或无更多数据时停止。多数指标以对象形式返回（含指标值，部分带环比）；`item` 为商品对象，嵌套结构不拆平。`bizDate` 格式为 `YYYYMMDD`。
 
 :::field-tree
 @define 商品信息
