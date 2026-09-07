@@ -1,6 +1,6 @@
 ---
-title: 商品-商品排行-全部商品实时
-description: 按支付金额正序或倒序，采集生意参谋商品排行「全部商品」实时列表指定条数的支付转化、加购收藏、访客浏览及支付等指标
+title: 商品-商品排行-实时全部商品
+description: 采集生意参谋商品排行「全部商品」实时列表的支付转化、加购收藏、访客浏览及支付等指标；
 entry: rpa.conn.sycm.item.rank.all.api
 badge:
   label: 待上线
@@ -21,7 +21,7 @@ category: item
 | **连接器代码**   | `rpa.conn.sycm.item.rank.all.api`                                                      |
 | **操作类型**     | `页面解析`                                                                             |
 | **目标网页**     | `https://sycm.taobao.com/cc/item_rank`                                                 |
-| **适用场景**     | 按支付金额正序或倒序，采集生意参谋商品排行「全部商品」实时列表指定条数的支付转化、加购收藏、访客浏览及支付等指标 |
+| **适用场景**     | 采集生意参谋商品排行「全部商品」实时列表的支付转化、加购收藏、访客浏览及支付等指标 |
 | **数据表名**     | `ods_rpa_sycm_item_rank_all_api_du`                                                    |
 | **业务表名**     | `ODS_商品排行全部商品数据(生意参谋RPA)`                                                |
 
@@ -37,26 +37,45 @@ category: item
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `sort_order` | 支付金额排序 | `String` | 是 | — | 可选值：`DESC`（倒序，从大到小）/ `ASC`（正序，从小到大）。页面默认倒序 |
-| `collect_limit` | 采集条数上限 | `Number` | 是 | — | 范围 1~1000；实际不足上限时采完全部并成功 |
+| `sort_field` | 排序列 | `String` | 否 | — | 可选值：`PAY_AMT`（支付金额）/ `PAY_ITM_CNT`（支付件数）/ `PAY_RATE`（支付转化率）。不填则沿用页面当前排序列（默认支付金额）。不可同时传入多个值 |
+| `sort_order` | 排序方向 | `String` | 否 | — | 可选值：`DESC`（倒序，从大到小）/ `ASC`（正序，从小到大）。不填则沿用页面当前排序方向（默认倒序） |
+| `collect_limit` | 采集条数上限 | `Number` | 否 | — | 范围 1~1000。不填则采至 1000 条上限或列表实际条数 |
 
 ### 入参样例
 
-支付金额倒序，采集不超过 100 条：
+不填排序与条数，沿用页面默认（支付金额倒序，最多 1000 条）：
+
+```json
+{}
+```
+
+按支付金额倒序，采集不超过 100 条：
 
 ```json
 {
+  "sort_field": "PAY_AMT",
   "sort_order": "DESC",
   "collect_limit": 100
 }
 ```
 
-支付金额正序，采集不超过 12 条：
+按支付件数倒序，采集不超过 12 条：
 
 ```json
 {
-  "sort_order": "ASC",
+  "sort_field": "PAY_ITM_CNT",
+  "sort_order": "DESC",
   "collect_limit": 12
+}
+```
+
+按支付转化率正序，采集不超过 10 条：
+
+```json
+{
+  "sort_field": "PAY_RATE",
+  "sort_order": "ASC",
+  "collect_limit": 10
 }
 ```
 
@@ -66,29 +85,34 @@ category: item
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "生意参谋-商品排行全部商品实时 - 查询入参",
-  "description": "按支付金额正序或倒序，采集生意参谋商品排行「全部商品」实时列表指定条数的支付转化、加购收藏、访客浏览及支付等指标",
+  "description": "采集生意参谋商品排行「全部商品」实时列表的支付转化、加购收藏、访客浏览及支付等指标；可不填排序与条数（沿用页面默认：支付金额倒序，最多 1000 条），也可指定支付金额、支付件数或支付转化率及正序/倒序",
   "type": "object",
   "properties": {
+    "sort_field": {
+      "type": "string",
+      "description": "排序列（单值，可选）。可选值：PAY_AMT（支付金额）/ PAY_ITM_CNT（支付件数）/ PAY_RATE（支付转化率）。不填则沿用页面当前排序列。不可同时传入多个值",
+      "enum": ["PAY_AMT", "PAY_ITM_CNT", "PAY_RATE"]
+    },
     "sort_order": {
       "type": "string",
-      "description": "支付金额排序。可选值：DESC（倒序，从大到小）/ ASC（正序，从小到大）",
+      "description": "排序方向（可选）。可选值：DESC（倒序，从大到小）/ ASC（正序，从小到大）。不填则沿用页面当前排序方向",
       "enum": ["DESC", "ASC"]
     },
     "collect_limit": {
       "type": "integer",
-      "description": "采集条数上限。范围 1~1000；实际不足上限时采完全部并成功",
+      "description": "采集条数上限（可选）。范围 1~1000；不填则采至 1000 条上限或列表实际条数",
       "minimum": 1,
       "maximum": 1000
     }
   },
-  "required": ["sort_order", "collect_limit"],
+  "required": [],
   "additionalProperties": false
 }
 ```
 
 ### 数据字段
 
-按入参 `collect_limit` 翻页采集，达到上限或无更多数据时停止。多数指标以对象形式返回（含指标值，部分带环比）；`item` 为商品对象，嵌套结构不拆平。`bizDate` 格式为 `YYYYMMDD`。
+按入参 `collect_limit` 翻页采集；未传时采至 1000 条上限或列表实际条数。达到上限或无更多数据时停止。多数指标以对象形式返回；`bizDate` 格式为 `YYYYMMDD`。
 
 :::field-tree
 @define 商品信息
