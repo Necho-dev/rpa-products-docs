@@ -1,6 +1,6 @@
 ---
 title: 商品-商品排行-全部商品(实时)
-description: 采集生意参谋商品排行「全部商品」实时列表的支付转化、加购收藏、访客浏览及支付等指标；
+description: 采集生意参谋商品排行「全部商品」实时列表的支付转化、加购收藏、访客浏览及支付等指标
 entry: rpa.conn.sycm.item.rank.all.runtime
 badge:
   label: 待上线
@@ -28,7 +28,7 @@ category: item
 >
 > **取数链接**：[https://sycm.taobao.com/cc/item_rank](https://sycm.taobao.com/cc/item_rank)
 
-![生意参谋—商品排行全部商品实时](../_public/images/sycm/item_rank_all_api_20260903.png)
+![生意参谋—商品排行全部商品实时](../_public/images/sycm/item_rank_all_runtime_20260903.png)
 
 ### 业务入参
 
