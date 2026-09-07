@@ -6,8 +6,11 @@ badge:
   label: 已上线
   color: "#16A34A"
 estimatedDuration:
-  sec: 90
-  description: 导出文件预计3分钟左右完成
+  sec: 120
+  description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。
+dataReady:
+  time: "09:30:00"
+  cycle: daily
 category: finance
 ---
 
