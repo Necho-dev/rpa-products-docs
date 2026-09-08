@@ -3,8 +3,8 @@ title: 商品-商品360-流量来源详情
 description: 在生意参谋商品360流量来源页，按来源类型进入关键词详情弹窗，翻页采集所选指标数据
 entry: rpa.conn.sycm.old.item.archives.flow.source.keyword.detail
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 dataReady:
   time: "09:00:00"
   cycle: daily
