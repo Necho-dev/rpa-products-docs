@@ -211,7 +211,7 @@ category: item
 | ---- | -------- | -------- | ------ | -------- | ---- |
 | `id` | 行序号 | `Number` | 否 | 序号从 1 递增 | 1 |
 | `value` | 详情行数据 | `Dict` | 否 | 页面解析（键名为页面中文表头） | 见数据样例 `value` |
-| `trafficSource` | 来源类型 | `String` | 否 | 按采集时的来源类型回填 | `TAOBAO_SEARCH` |
+| `trafficSource` | 来源类型 | `String` | 否 | 根据入参「流量来源」写入 | `TAOBAO_SEARCH` |
 | `taskId` | 任务 ID | `String` | 否 | 附加 | `dev****f02` (已脱敏) |
 | `bizDate` | 业务日期 | `String` | 否 | 附加 | `20260831` |
 | `accountId` | 授权 ID | `String` | 否 | 附加 | `1****8` (已脱敏) |
