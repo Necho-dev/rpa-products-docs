@@ -18,13 +18,13 @@ category: item
 | 属性             | 值                  |
 | ---------------- | ------------------- |
 | **连接器类型**   | `RPA 连接器`|
-| **连接器名称**   | `ODS_商品360流量来源详情(生意参谋RPA)`|
+| **连接器名称**   | `ODS_商品360流量来源详情(生意参谋旧版RPA)`|
 | **连接器代码**   | `rpa.conn.sycm.old.item.archives.flow.source.keyword.detail`|
 | **操作类型**     | `页面解析`|
 | **目标网页**     | `https://sycm.taobao.com/cc/item_archives`|
 | **适用场景**     | 在生意参谋商品360流量来源页，按来源类型进入关键词详情弹窗，翻页采集所选指标数据|
 | **数据表名**     | `ods_rpa_sycm_old_item_archives_flow_source_keyword_detail_du`|
-| **业务表名**     | `ODS_商品360流量来源详情(生意参谋RPA)`|
+| **业务表名**     | `ODS_商品360流量来源详情(生意参谋旧版RPA)`|
 
 ### 目标页面
 
