@@ -211,6 +211,7 @@ category: item
 | ---- | -------- | -------- | ------ | -------- | ---- |
 | `id` | 行序号 | `Number` | 否 | 序号从 1 递增 | 1 |
 | `value` | 详情行数据 | `Dict` | 否 | 页面解析（键名为页面中文表头） | 见数据样例 `value` |
+| `traffic_source` | 来源类型 | `String` | 否 | 按采集时的来源类型回填 | `TAOBAO_SEARCH` |
 | `taskId` | 任务 ID | `String` | 否 | 附加 | `dev****f02` (已脱敏) |
 | `bizDate` | 业务日期 | `String` | 否 | 附加 | `20260831` |
 | `accountId` | 授权 ID | `String` | 否 | 附加 | `1****8` (已脱敏) |
@@ -228,6 +229,7 @@ category: item
       "加购人数": 4,
       "支付买家数": 0
     },
+    "traffic_source": "TAOBAO_SEARCH",
     "bizDate": "20260831",
     "accountId": "1****8",
     "taskId": "dev****f02"
