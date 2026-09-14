@@ -34,25 +34,19 @@ category: item
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `date_type` | 统计时间类型 | `String` | 否 | — | 未传则沿用页面当前统计时间。可选值：`TODAY`（今日）/ `YESTERDAY`（昨日）/ `LAST_7_DAYS`（近7天）/ `LAST_WEEK`（上周）/ `LAST_15_DAYS`（近15天）/ `THIS_MONTH`（本月）/ `LAST_30_DAYS`（近30天）/ `LAST_MONTH`（上月）/ `LAST_90_DAYS`（近90天）/ `CUSTOM`（自定义） |
-| `custom_start_date` | 自定义起始日期 | `String` | 条件必填 | — | 仅 `date_type=CUSTOM` 时必填。格式：`YYYYMMDD` 或 `YYYY-MM-DD`；不得晚于结束日期；含起止共不超过 179 天；最早为今天往前 179 天，最晚为昨日 |
-| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | — | 仅 `date_type=CUSTOM` 时必填。格式：`YYYYMMDD` 或 `YYYY-MM-DD`；不得早于起始日期；含起止共不超过 179 天；最早为今天往前 179 天，最晚为昨日 |
-| `item_ids` | 商品 ID | `String` / `List[String]` | 否 | — | 未传则跳过。支持英文逗号分隔字符串或 JSON 数组；每个 ID 须为 10~25 位数字 |
-| `item_level` | 商品层级 | `String` | 否 | — | 未传则跳过。可选值：`F0级商品` / `F1级商品` / `F2级商品` / `F3级商品` |
-| `promote_status` | 推广状态 | `String` | 否 | — | 未传则跳过。可选值：`推广异常` / `待暂停/已暂停` / `待推广` / `推广中` |
-| `on_shelf_status` | 在架状态 | `String` | 否 | — | 未传则跳过。可选值：`已上架` / `已下架` |
-| `is_super_link` | 是否超链 | `String` | 否 | — | 未传则跳过。可选值：`是` / `否` |
-| `ju_dan_status` | 聚单状态 | `String` | 否 | — | 未传则跳过。可选值：`聚单生效中` / `聚单待生效` / `聚单待入池` / `聚单退出预警` |
-| `high_priority_scene` | 高优场景 | `String` | 否 | — | 未传则跳过。可选值：`供货价不达标` / `应季爆发` / `供货价恶化` / `大促TR下调` / `高预算使用率` / `F23品支出率超出` / `爆品流失` / `低TR商品TR拉升` / `GMV上涨` / `商品搜索排名上升` / `F01纯TR加码` / `F层级跃迁` / `jbp激励` / `F01品支出率超出` / `限时扶持补贴` / `超链平台消费券-TR提升` / `普链平台消费券-TR提升` |
-| `delivery_restrict_warning` | 投流受限预警 | `String` | 否 | — | 未传则跳过。可选值：`充值失败` / `投流受限` / `紧急预警` |
+| `date_type` | 统计时间类型 | `String` | 是 | `-` | 可选值：`TODAY`（今日）/ `YESTERDAY`（昨日）/ `LAST_7_DAYS`（近 7 天）/ `LAST_WEEK`（上周）/ `LAST_15_DAYS`（近 15 天）/ `THIS_MONTH`（本月）/ `LAST_30_DAYS`（近 30 天）/ `LAST_MONTH`（上月）/ `LAST_90_DAYS`（近 90 天）/ `CUSTOM`（自定义区间） |
+| `custom_start_date` | 自定义起始日期 | `String` | 条件必填 | `-` | 仅 `date_type=CUSTOM` 时必填。格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不得晚于结束日期；含起止共不超过 179 天；最早为今天往前 179 天，最晚为昨日 |
+| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `-` | 仅 `date_type=CUSTOM` 时必填。格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不得早于起始日期；含起止共不超过 179 天；最早为今天往前 179 天，最晚为昨日 |
+| `item_ids` | 商品 ID | `String` / `List[String]` | 否 | `-` | 均未传则不填页面筛选。英文逗号分隔字符串或 JSON 数组；每个 ID 须为 10~25 位数字 |
+| `item_level` | 商品层级 | `String` | 否 | `-` | 均未传则不填页面筛选。可选值：`F0级商品` / `F1级商品` / `F2级商品` / `F3级商品` |
+| `promote_status` | 推广状态 | `String` | 否 | `-` | 均未传则不填页面筛选。可选值：`推广异常` / `待暂停/已暂停` / `待推广` / `推广中` |
+| `on_shelf_status` | 在架状态 | `String` | 否 | `-` | 均未传则不填页面筛选。可选值：`已上架` / `已下架` |
+| `is_super_link` | 是否超链 | `String` | 否 | `-` | 均未传则不填页面筛选。可选值：`是` / `否` |
+| `ju_dan_status` | 聚单状态 | `String` | 否 | `-` | 均未传则不填页面筛选。可选值：`聚单生效中` / `聚单待生效` / `聚单待入池` / `聚单退出预警` |
+| `high_priority_scene` | 高优场景 | `String` | 否 | `-` | 均未传则不填页面筛选。可选值：`供货价不达标` / `应季爆发` / `供货价恶化` / `大促TR下调` / `高预算使用率` / `F23品支出率超出` / `爆品流失` / `低TR商品TR拉升` / `GMV上涨` / `商品搜索排名上升` / `F01纯TR加码` / `F层级跃迁` / `jbp激励` / `F01品支出率超出` / `限时扶持补贴` / `超链平台消费券-TR提升` / `普链平台消费券-TR提升` |
+| `delivery_restrict_warning` | 投流受限预警 | `String` | 否 | `-` | 均未传则不填页面筛选。可选值：`充值失败` / `投流受限` / `紧急预警` |
 
 ### 入参样例
-
-不传筛选项，沿用页面当前条件：
-
-```json
-{}
-```
 
 近 7 天 + 推广状态 / 在架状态：
 
@@ -86,12 +80,12 @@ category: item
   "properties": {
     "date_type": {
       "type": "string",
-      "enum": ["TODAY", "YESTERDAY", "LAST_7_DAYS", "LAST_WEEK", "LAST_15_DAYS", "THIS_MONTH", "LAST_30_DAYS", "LAST_MONTH", "LAST_90_DAYS", "CUSTOM", ""],
-      "description": "统计时间类型；空字符串视为未传，沿用页面当前统计时间。可选值：TODAY（今日）/ YESTERDAY（昨日）/ LAST_7_DAYS（近7天）/ LAST_WEEK（上周）/ LAST_15_DAYS（近15天）/ THIS_MONTH（本月）/ LAST_30_DAYS（近30天）/ LAST_MONTH（上月）/ LAST_90_DAYS（近90天）/ CUSTOM（自定义）"
+      "enum": ["TODAY", "YESTERDAY", "LAST_7_DAYS", "LAST_WEEK", "LAST_15_DAYS", "THIS_MONTH", "LAST_30_DAYS", "LAST_MONTH", "LAST_90_DAYS", "CUSTOM"],
+      "description": "统计时间类型。可选值：TODAY（今日）/ YESTERDAY（昨日）/ LAST_7_DAYS（近 7 天）/ LAST_WEEK（上周）/ LAST_15_DAYS（近 15 天）/ THIS_MONTH（本月）/ LAST_30_DAYS（近 30 天）/ LAST_MONTH（上月）/ LAST_90_DAYS（近 90 天）/ CUSTOM（自定义区间）"
     },
     "custom_start_date": {
       "type": "string",
-      "description": "自定义起始日期，仅 date_type=CUSTOM 时必填；支持 YYYYMMDD 或 YYYY-MM-DD；含起止共不超过 179 天，最早为今天往前 179 天，最晚为昨日",
+      "description": "自定义起始日期，仅 date_type=CUSTOM 时必填；格式 YYYYMMDD 或 YYYY-MM-DD；含起止共不超过 179 天，最早为今天往前 179 天，最晚为昨日",
       "anyOf": [
         { "const": "" },
         { "pattern": "^\\d{8}$" },
@@ -100,7 +94,7 @@ category: item
     },
     "custom_end_date": {
       "type": "string",
-      "description": "自定义结束日期，仅 date_type=CUSTOM 时必填；支持 YYYYMMDD 或 YYYY-MM-DD；含起止共不超过 179 天，最早为今天往前 179 天，最晚为昨日",
+      "description": "自定义结束日期，仅 date_type=CUSTOM 时必填；格式 YYYYMMDD 或 YYYY-MM-DD；含起止共不超过 179 天，最早为今天往前 179 天，最晚为昨日",
       "anyOf": [
         { "const": "" },
         { "pattern": "^\\d{8}$" },
@@ -108,7 +102,7 @@ category: item
       ]
     },
     "item_ids": {
-      "description": "商品 ID，支持英文逗号分隔字符串或 JSON 数组；每个 ID 须为 10~25 位数字；空字符串视为未传",
+      "description": "商品 ID。均未传则不填页面筛选。英文逗号分隔字符串或 JSON 数组；每个 ID 须为 10~25 位数字",
       "oneOf": [
         { "type": "string" },
         {
@@ -123,40 +117,40 @@ category: item
     "item_level": {
       "type": "string",
       "enum": ["F0级商品", "F1级商品", "F2级商品", "F3级商品", ""],
-      "description": "商品层级；空字符串视为未传。可选值：F0级商品 / F1级商品 / F2级商品 / F3级商品"
+      "description": "商品层级。均未传则不填页面筛选。可选值：F0级商品 / F1级商品 / F2级商品 / F3级商品"
     },
     "promote_status": {
       "type": "string",
       "enum": ["推广异常", "待暂停/已暂停", "待推广", "推广中", ""],
-      "description": "推广状态；空字符串视为未传。可选值：推广异常 / 待暂停/已暂停 / 待推广 / 推广中"
+      "description": "推广状态。均未传则不填页面筛选。可选值：推广异常 / 待暂停/已暂停 / 待推广 / 推广中"
     },
     "on_shelf_status": {
       "type": "string",
       "enum": ["已上架", "已下架", ""],
-      "description": "在架状态；空字符串视为未传。可选值：已上架 / 已下架"
+      "description": "在架状态。均未传则不填页面筛选。可选值：已上架 / 已下架"
     },
     "is_super_link": {
       "type": "string",
       "enum": ["是", "否", ""],
-      "description": "是否超链；空字符串视为未传。可选值：是 / 否"
+      "description": "是否超链。均未传则不填页面筛选。可选值：是 / 否"
     },
     "ju_dan_status": {
       "type": "string",
       "enum": ["聚单生效中", "聚单待生效", "聚单待入池", "聚单退出预警", ""],
-      "description": "聚单状态；空字符串视为未传。可选值：聚单生效中 / 聚单待生效 / 聚单待入池 / 聚单退出预警"
+      "description": "聚单状态。均未传则不填页面筛选。可选值：聚单生效中 / 聚单待生效 / 聚单待入池 / 聚单退出预警"
     },
     "high_priority_scene": {
       "type": "string",
       "enum": ["供货价不达标", "应季爆发", "供货价恶化", "大促TR下调", "高预算使用率", "F23品支出率超出", "爆品流失", "低TR商品TR拉升", "GMV上涨", "商品搜索排名上升", "F01纯TR加码", "F层级跃迁", "jbp激励", "F01品支出率超出", "限时扶持补贴", "超链平台消费券-TR提升", "普链平台消费券-TR提升", ""],
-      "description": "高优场景；空字符串视为未传。可选值：供货价不达标 / 应季爆发 / 供货价恶化 / 大促TR下调 / 高预算使用率 / F23品支出率超出 / 爆品流失 / 低TR商品TR拉升 / GMV上涨 / 商品搜索排名上升 / F01纯TR加码 / F层级跃迁 / jbp激励 / F01品支出率超出 / 限时扶持补贴 / 超链平台消费券-TR提升 / 普链平台消费券-TR提升"
+      "description": "高优场景。均未传则不填页面筛选。可选值：供货价不达标 / 应季爆发 / 供货价恶化 / 大促TR下调 / 高预算使用率 / F23品支出率超出 / 爆品流失 / 低TR商品TR拉升 / GMV上涨 / 商品搜索排名上升 / F01纯TR加码 / F层级跃迁 / jbp激励 / F01品支出率超出 / 限时扶持补贴 / 超链平台消费券-TR提升 / 普链平台消费券-TR提升"
     },
     "delivery_restrict_warning": {
       "type": "string",
       "enum": ["充值失败", "投流受限", "紧急预警", ""],
-      "description": "投流受限预警；空字符串视为未传。可选值：充值失败 / 投流受限 / 紧急预警"
+      "description": "投流受限预警。均未传则不填页面筛选。可选值：充值失败 / 投流受限 / 紧急预警"
     }
   },
-  "required": [],
+  "required": ["date_type"],
   "additionalProperties": false,
   "allOf": [
     {

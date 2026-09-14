@@ -46,9 +46,9 @@ prompt:
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `date_type` | 日期类型 | `String` | 是 | — | 可选值：`YESTERDAY`（昨天）/ `LAST_7_DAYS`（近7天）/ `LAST_15_DAYS`（近15天）/ `LAST_30_DAYS`（近30天）/ `THIS_MONTH`（本月）/ `LAST_MONTH`（上个月）/ `CUSTOM`（自定义） |
-| `custom_start_date` | 自定义起始日期 | `String` | 条件必填 | — | `date_type=CUSTOM` 时必填；支持格式：`YYYYMMDD` / `YYYY-MM-DD`；不能晚于 `custom_end_date` |
-| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | — | `date_type=CUSTOM` 时必填；支持格式：`YYYYMMDD` / `YYYY-MM-DD`；不能早于 `custom_start_date` |
+| `date_type` | 日期类型 | `String` | 是 | `-` | 可选值：`YESTERDAY`（昨日）/ `LAST_7_DAYS`（近 7 天）/ `LAST_15_DAYS`（近 15 天）/ `LAST_30_DAYS`（近 30 天）/ `THIS_MONTH`（本月）/ `LAST_MONTH`（上月）/ `CUSTOM`（自定义区间） |
+| `custom_start_date` | 自定义起始日期 | `String` | 条件必填 | `-` | `date_type=CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不能晚于 `custom_end_date` |
+| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `-` | `date_type=CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不能早于 `custom_start_date` |
 | `product_type` | 产品类型 | `String` | 否 | `ALL` | 可选值：`ALL`（全部账户类型）；本期仅支持 `ALL`，其余预留 |
 
 ### 入参样例
@@ -73,7 +73,7 @@ prompt:
 }
 ```
 
-昨天（省略产品类型，默认全部账户类型）：
+昨日（省略产品类型，默认全部账户类型）：
 
 ```json
 {
@@ -91,7 +91,7 @@ prompt:
   "type": "object",
   "properties": {
     "date_type": {
-      "description": "日期类型。可选值：YESTERDAY（昨天）/ LAST_7_DAYS（近7天）/ LAST_15_DAYS（近15天）/ LAST_30_DAYS（近30天）/ THIS_MONTH（本月）/ LAST_MONTH（上个月）/ CUSTOM（自定义）",
+      "description": "日期类型。可选值：YESTERDAY（昨日）/ LAST_7_DAYS（近 7 天）/ LAST_15_DAYS（近 15 天）/ LAST_30_DAYS（近 30 天）/ THIS_MONTH（本月）/ LAST_MONTH（上月）/ CUSTOM（自定义区间）",
       "type": "string",
       "enum": [
         "YESTERDAY",
@@ -104,12 +104,12 @@ prompt:
       ]
     },
     "custom_start_date": {
-      "description": "自定义起始日期；date_type=CUSTOM 时必填；支持 YYYYMMDD 或 YYYY-MM-DD；不能晚于 custom_end_date",
+      "description": "自定义起始日期；date_type=CUSTOM 时必填；格式 YYYYMMDD 或 YYYY-MM-DD；不能晚于 custom_end_date",
       "type": "string",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_end_date": {
-      "description": "自定义结束日期；date_type=CUSTOM 时必填；支持 YYYYMMDD 或 YYYY-MM-DD；不能早于 custom_start_date",
+      "description": "自定义结束日期；date_type=CUSTOM 时必填；格式 YYYYMMDD 或 YYYY-MM-DD；不能早于 custom_start_date",
       "type": "string",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },

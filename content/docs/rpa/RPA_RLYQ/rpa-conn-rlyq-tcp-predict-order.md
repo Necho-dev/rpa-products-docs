@@ -34,10 +34,10 @@ category: tcp
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `order_status` | 订单状态 | `String` | 是 | — | 可选值：`ALL`（全部订单）/ `ORDER_PAID`（订单已支付）/ `ORDER_CONFIRMED`（订单已确认收货）/ `ORDER_CANCELLED`（订单已取消）/ `ORDER_REFUNDED`（订单有退款）。与 `date_type=CONFIRM_RECEIPT_TIME` 组合时，不可为 `ORDER_PAID` 或 `ORDER_CANCELLED` |
-| `date_type` | 日期类型 | `String` | 是 | — | 可选值：`PAYMENT_TIME`（支付时间）/ `CONFIRM_RECEIPT_TIME`（确认收货时间） |
-| `custom_start_date` | 开始时间 | `String` | 是 | — | 支持 `YYYYMMDD` / `YYYY-MM-DD` / `YYYY-MM-DD HH:mm:ss`；无时分秒时默认 `00:00:00`。可选区间：最早为上月 1 日 `00:00:00`，最晚为本月最后一天 `00:00:00`；且不得晚于 `custom_end_date` |
-| `custom_end_date` | 结束时间 | `String` | 是 | — | 格式同 `custom_start_date`；须不早于开始时间，且落在上述可选区间内。同一账号成功提交后 5 分钟内不可再次提交下载申请 |
+| `order_status` | 订单状态 | `String` | 是 | `-` | 可选值：`ALL`（全部订单）/ `ORDER_PAID`（订单已支付）/ `ORDER_CONFIRMED`（订单已确认收货）/ `ORDER_CANCELLED`（订单已取消）/ `ORDER_REFUNDED`（订单有退款）。与 `date_type=CONFIRM_RECEIPT_TIME` 组合时，不可为 `ORDER_PAID` 或 `ORDER_CANCELLED` |
+| `date_type` | 日期类型 | `String` | 是 | `-` | 可选值：`PAYMENT_TIME`（支付时间）/ `CONFIRM_RECEIPT_TIME`（确认收货时间） |
+| `custom_start_date` | 开始时间 | `String` | 是 | `-` | 支持 `YYYYMMDD` / `YYYY-MM-DD` / `YYYY-MM-DD HH:mm:ss`；无时分秒时默认 `00:00:00`。可选区间：最早为上月 1 日 `00:00:00`，最晚为本月最后一天 `23:59:59`；且不得晚于 `custom_end_date` |
+| `custom_end_date` | 结束时间 | `String` | 是 | `-` | 格式同 `custom_start_date`；无时分秒时默认 `23:59:59`；须不早于开始时间，且落在上述可选区间内。同一账号成功提交后 5 分钟内不可再次提交下载申请 |
 
 ### 入参样例
 
@@ -109,7 +109,7 @@ category: tcp
     },
     "custom_end_date": {
       "type": "string",
-      "description": "结束时间；格式同 custom_start_date；须不早于开始时间，且在页面可选区间内",
+      "description": "结束时间；格式同 custom_start_date；无时分秒默认 23:59:59；须不早于开始时间，且在页面可选区间内",
       "anyOf": [
         { "pattern": "^\\d{8}$" },
         { "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },

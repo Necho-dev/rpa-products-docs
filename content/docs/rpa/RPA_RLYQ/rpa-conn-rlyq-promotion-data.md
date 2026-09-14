@@ -36,39 +36,33 @@ category: promotion
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `stat_time` | 统计时间 | `String` | 否 | `YESTERDAY` | 可选值：`LAST_7_DAYS`（近7天）/ `LAST_30_DAYS`（近30天）/ `THIS_MONTH`（本月）/ `YESTERDAY`（昨天） |
+| `date_type` | 统计时间 | `String` | 是 | `-` | 可选值：`LAST_7_DAYS`（近 7 天）/ `LAST_30_DAYS`（近 30 天）/ `THIS_MONTH`（本月）/ `YESTERDAY`（昨日） |
 | `detail_type` | 明细类型 | `String` | 否 | `DAILY` | 可选值：`DAILY`（分日数据明细）/ `ITEM`（分商品数据明细）/ `ANCHOR`（分主播数据明细）；决定导出区块与返回维度列 |
-| `stat_end_date` | 统计截止日期 | `String` | 否 | — | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`。**导航前校验**：不传或传空 → 默认**昨天**，不操作页面日期控件，设置筛选项后回读 picker 须等于昨天；有传 → 格式非法或**晚于昨天** →「输入参数错误」；不晚于昨天的更早日期允许，有传时在页面上点选该日期。对应明细区块表格 placeholder 为「暂无数据」或无数据行时任务成功返回「暂无数据」（`data=[]`）；成功导出且有明细行时每条附加 `statEndDate`（有入参则为规范化入参值，未传则为昨天，格式 `YYYYMMDD`） |
+| `biz_date` | 统计截止日期 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不可晚于昨天 |
 
 ### 入参样例
 
 ```json
 {
-  "stat_time": "YESTERDAY",
-  "detail_type": "DAILY"
+  "date_type": "YESTERDAY",
+  "detail_type": "DAILY",
+  "biz_date": "2026-07-02"
 }
 ```
 
 ```json
 {
-  "stat_time": "LAST_7_DAYS",
+  "date_type": "LAST_7_DAYS",
   "detail_type": "ITEM",
-  "stat_end_date": "20260725"
+  "biz_date": "20260725"
 }
 ```
 
 ```json
 {
+  "date_type": "THIS_MONTH",
   "detail_type": "ANCHOR",
-  "stat_time": "THIS_MONTH"
-}
-```
-
-```json
-{
-  "stat_time": "YESTERDAY",
-  "detail_type": "ANCHOR",
-  "stat_end_date": "2023-04-13"
+  "biz_date": "2026-07-02"
 }
 ```
 尽量输入今年的日期，过早日期大概率没有数据
@@ -81,11 +75,10 @@ category: promotion
   "description": "校验统计时间与统计截止日期（最大可选日为昨天）后，打开推广数据总览页设置筛选项并回读校验，再下载分日/分商品/分主播明细报表",
   "type": "object",
   "properties": {
-    "stat_time": {
+    "date_type": {
       "type": "string",
       "enum": ["LAST_7_DAYS", "LAST_30_DAYS", "THIS_MONTH", "YESTERDAY"],
-      "default": "YESTERDAY",
-      "description": "统计时间"
+      "description": "统计时间：LAST_7_DAYS（近 7 天）/ LAST_30_DAYS（近 30 天）/ THIS_MONTH（本月）/ YESTERDAY（昨日）"
     },
     "detail_type": {
       "type": "string",
@@ -93,17 +86,16 @@ category: promotion
       "default": "DAILY",
       "description": "明细类型：分日 / 分商品 / 分主播"
     },
-    "stat_end_date": {
+    "biz_date": {
       "type": "string",
-      "description": "统计截止日期，YYYYMMDD 或 YYYY-MM-DD；空字符串视为未传。导航前校验：未传则默认昨天且不操作页面日期控件，设置后回读须等于昨天；不可晚于昨天；可早于昨天",
+      "description": "统计截止日期，YYYYMMDD 或 YYYY-MM-DD；不可晚于昨天",
       "anyOf": [
-        { "const": "" },
         { "pattern": "^\\d{8}$" },
         { "pattern": "^\\d{4}-\\d{2}-\\d{2}$" }
       ]
     }
   },
-  "required": [],
+  "required": ["date_type", "biz_date"],
   "additionalProperties": false
 }
 ```

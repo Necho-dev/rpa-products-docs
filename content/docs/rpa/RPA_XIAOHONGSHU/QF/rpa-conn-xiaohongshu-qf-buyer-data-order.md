@@ -50,8 +50,8 @@ prompt:
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `custom_start_date` | 导出开始日期 | `String` | 是 | — | 支持格式：`YYYYMMDD`、`YYYY-MM-DD`；须在近 1 年内；不能晚于 `custom_end_date`。下载时间间隔为近 1 年 |
-| `custom_end_date` | 导出结束日期 | `String` | 是 | — | 支持格式：`YYYYMMDD`、`YYYY-MM-DD`；须在近 1 年内且不能早于 `custom_start_date`。下载时间间隔为近 1 年 |
+| `custom_start_date` | 导出开始日期 | `String` | 是 | `-` | 支持格式：`YYYYMMDD`、`YYYY-MM-DD`；须在近 1 年内；不能晚于 `custom_end_date` |
+| `custom_end_date` | 导出结束日期 | `String` | 是 | `-` | 支持格式：`YYYYMMDD`、`YYYY-MM-DD`；须在近 1 年内；不能早于 `custom_start_date` |
 
 ### 入参样例
 
@@ -59,8 +59,8 @@ prompt:
 
 ```json
 {
-  "custom_start_date": "2025-08-20",
-  "custom_end_date": "2026-08-11"
+  "custom_start_date": "2026-08-15",
+  "custom_end_date": "2026-09-10"
 }
 ```
 
@@ -85,12 +85,12 @@ prompt:
     "custom_start_date": {
       "type": "string",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$",
-      "description": "导出开始日期，YYYYMMDD 或 YYYY-MM-DD；须在近 1 年内，且不能晚于 custom_end_date。下载时间间隔为近 1 年"
+      "description": "导出开始日期，YYYYMMDD 或 YYYY-MM-DD；须在近 1 年内，且不能晚于 custom_end_date"
     },
     "custom_end_date": {
       "type": "string",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$",
-      "description": "导出结束日期，YYYYMMDD 或 YYYY-MM-DD；须在近 1 年内，且不能早于 custom_start_date。下载时间间隔为近 1 年"
+      "description": "导出结束日期，YYYYMMDD 或 YYYY-MM-DD；须在近 1 年内，且不能早于 custom_start_date"
     }
   },
   "required": ["custom_start_date", "custom_end_date"],

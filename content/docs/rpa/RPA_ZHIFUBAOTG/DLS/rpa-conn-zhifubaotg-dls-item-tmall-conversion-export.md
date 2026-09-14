@@ -36,11 +36,11 @@ category: item
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `custom_start_date` | 自定义起始日期 | `String` | 否 | — | 对应抽屉「交易日期」开始。须与 `custom_end_date` 成对传入；不传则跳过点选，读取页面当前起止日。格式：`YYYYMMDD` 或 `YYYY-MM-DD`；不得晚于结束日 |
-| `custom_end_date` | 自定义结束日期 | `String` | 否 | — | 对应抽屉「交易日期」结束。须与 `custom_start_date` 成对传入；不传则跳过点选，读取页面当前起止日。格式：`YYYYMMDD` 或 `YYYY-MM-DD` |
-| `trade_no` | 交易号 | `String` | 否 | — | 不传则跳过填写。须为纯数字，长度 25–35 位 |
-| `acquire_pid` | 收单 PID | `String` | 否 | — | 不传则跳过填写。须为纯数字，长度 10–20 位 |
-| `attribution_period` | 归因效期 | `String` | 否 | — | 不传则跳过点选，读取页面当前值回传。可选值：`ONE_DAY`（1天）/ `THREE_DAYS`（3天）/ `SEVEN_DAYS`（7天） |
+| `custom_start_date` | 自定义起始日期 | `String` | 是 | `-` | 对应抽屉「交易日期」开始。格式：`YYYYMMDD` 或 `YYYY-MM-DD`；不得晚于结束日 |
+| `custom_end_date` | 自定义结束日期 | `String` | 是 | `-` | 对应抽屉「交易日期」结束。格式：`YYYYMMDD` 或 `YYYY-MM-DD`；不得早于开始日期 |
+| `trade_no` | 交易号 | `String` | 否 | `-` | 不传则跳过填写。须为纯数字，长度 25–35 位 |
+| `acquire_pid` | 收单 PID | `String` | 否 | `-` | 不传则跳过填写。须为纯数字，长度 10–20 位 |
+| `attribution_period` | 归因效期 | `String` | 否 | `-` | 均未传则不填页面筛选。可选值：`ONE_DAY`（1天）/ `THREE_DAYS`（3天）/ `SEVEN_DAYS`（7天） |
 
 ### 入参样例
 
@@ -65,12 +65,6 @@ category: item
 }
 ```
 
-不传筛选项，使用抽屉当前值：
-
-```json
-{}
-```
-
 ### 入参校验
 
 ```json-schema collapsed
@@ -82,25 +76,23 @@ category: item
   "properties": {
     "custom_start_date": {
       "type": "string",
-      "description": "自定义起始日期（交易日期开始），YYYYMMDD 或 YYYY-MM-DD；空字符串视为未传。须与 custom_end_date 成对",
+      "description": "自定义起始日期（交易日期开始），YYYYMMDD 或 YYYY-MM-DD",
       "anyOf": [
-        { "const": "" },
         { "pattern": "^\\d{8}$" },
         { "pattern": "^\\d{4}-\\d{2}-\\d{2}$" }
       ]
     },
     "custom_end_date": {
       "type": "string",
-      "description": "自定义结束日期（交易日期结束），YYYYMMDD 或 YYYY-MM-DD；空字符串视为未传。须与 custom_start_date 成对",
+      "description": "自定义结束日期（交易日期结束），YYYYMMDD 或 YYYY-MM-DD；不得早于开始日期",
       "anyOf": [
-        { "const": "" },
         { "pattern": "^\\d{8}$" },
         { "pattern": "^\\d{4}-\\d{2}-\\d{2}$" }
       ]
     },
     "trade_no": {
       "type": "string",
-      "description": "交易号；空字符串视为未传。须为纯数字，长度 25–35 位",
+      "description": "交易号。须为纯数字，长度 25–35 位",
       "anyOf": [
         { "const": "" },
         { "pattern": "^\\d{25,35}$" }
@@ -108,7 +100,7 @@ category: item
     },
     "acquire_pid": {
       "type": "string",
-      "description": "收单 PID；空字符串视为未传。须为纯数字，长度 10–20 位",
+      "description": "收单 PID。须为纯数字，长度 10–20 位",
       "anyOf": [
         { "const": "" },
         { "pattern": "^\\d{10,20}$" }
@@ -117,15 +109,11 @@ category: item
     "attribution_period": {
       "type": "string",
       "enum": ["ONE_DAY", "THREE_DAYS", "SEVEN_DAYS", ""],
-      "description": "归因效期；空字符串视为未传，读取页面当前值。可选值：ONE_DAY（1天）/ THREE_DAYS（3天）/ SEVEN_DAYS（7天）"
+      "description": "归因效期。均未传则不填页面筛选。可选值：ONE_DAY（1天）/ THREE_DAYS（3天）/ SEVEN_DAYS（7天）"
     }
   },
-  "required": [],
-  "additionalProperties": false,
-  "dependentRequired": {
-    "custom_start_date": ["custom_end_date"],
-    "custom_end_date": ["custom_start_date"]
-  }
+  "required": ["custom_start_date", "custom_end_date"],
+  "additionalProperties": false
 }
 ```
 

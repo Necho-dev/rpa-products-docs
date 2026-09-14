@@ -34,23 +34,13 @@ category: im
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `biz_date` | 查询日期 | `string` | 否 | 昨天 | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；不能晚于当天 |
+| `biz_date` | 查询日期 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不可晚于当天 |
 
 ### 入参样例
 
-`YYYYMMDD`：
-
 ```json
 {
-    "biz_date": "20260424"
-}
-```
-
-`YYYY-MM-DD`：
-
-```json
-{
-    "biz_date": "2026-04-24"
+  "biz_date": "2026-04-24"
 }
 ```
 
@@ -65,11 +55,11 @@ category: im
   "properties": {
     "biz_date": {
       "type": "string",
-      "description": "查询日期，支持 YYYYMMDD 或 YYYY-MM-DD；不能晚于当天；缺省时查询昨天",
+      "description": "格式 YYYYMMDD 或 YYYY-MM-DD；不可晚于当天",
       "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
-  "required": [],
+  "required": ["biz_date"],
   "additionalProperties": false
 }
 ```

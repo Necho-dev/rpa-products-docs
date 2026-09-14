@@ -38,23 +38,17 @@ category: sphjr
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `order_type` | 订单类型 | `String` | 否 | `ALL` | 可选值：`ALL`（全部订单）、`PENDING_PAY`（待支付）、`HEATING`（加热中）、`COMPLETED`（已完成）、`ENDED`（已结束）、`UNDER_REVIEW`（审核中）、`REVIEW_FAILED`（审核未通过）、`REFUNDING`（退款中）、`SETTLING`（结算中）、`PENDING_HEAT`（待加热）、`PAUSED`（已暂停） |
-| `author` | 作者昵称 | `String` | 否 | `""`（全部作者） | 空串或 `ALL` 表示全部作者；有值须与页面作者下拉选项完全匹配 |
-| `videos` | 视频标题 | `string` \| `list[string]` | 否 | `""`（全部视频） | 支持英文逗号分隔字符串或字符串数组；空串 / `ALL` 表示全部视频；建议先指定 `author` 再筛选视频；有值须与页面视频选项标题匹配 |
-| `creator` | 创建人昵称 | `String` | 否 | `""`（全部创建人） | 空串或 `ALL` 表示全部创建人；有值须与页面创建人下拉选项完全匹配 |
-| `custom_start_date` | 查询起始日期 | `String` | 条件必填 | 昨日往前共 8 天的首日（与结束日期同时省略时） | 支持 `YYYYMMDD` / `YYYY-MM-DD`；与 `custom_end_date` 须同时传入或同时省略；不得晚于昨日；与结束日期组成闭区间，跨度 ≤ 8 天 |
-| `custom_end_date` | 查询结束日期 | `String` | 条件必填 | 昨日（与起始日期同时省略时） | 支持 `YYYYMMDD` / `YYYY-MM-DD`；与 `custom_start_date` 须同时传入或同时省略；不得晚于昨日；不得早于起始日期；闭区间跨度 ≤ 8 天 |
-| `metric_fields` | 数据明细指标 | `string` \| `list[string]` | 否 | 默认 12 项（见说明） | 支持英文逗号分隔字符串或字符串数组；最多 12 项；可选值：`COST`（消耗金额）、`WECOIN_COST`（消耗微信豆金额）、`PLAY`（播放）、`PRODUCT_CLICK`（商品点击数）、`PRODUCT_CTR`（商品点击率）、`PRODUCT_ORDER`（商品成交数）、`PRODUCT_NET_ORDER`（商品净成交数）、`PRODUCT_CVR`（商品成交率）、`PRODUCT_GMV`（商品 GMV）、`PRODUCT_NET_GMV`（商品净成交金额）、`PRODUCT_ROI`（商品 ROI）、`PRODUCT_NET_ROI`（商品净成交ROI）、`HEART_LIKE`（爱心赞数）、`THUMB_LIKE`（拇指赞数）、`COMMENT`（评论数）、`SHARE`（分享）、`FOLLOW`（关注）、`COMPONENT_CLICK`（组件点击）、`PAID_USER`（付费人数）、`LIVE_RESERVE`（直播预约数）。默认：`COST,WECOIN_COST,PLAY,PRODUCT_CLICK,PRODUCT_CTR,PRODUCT_ORDER,PRODUCT_NET_ORDER,PRODUCT_CVR,PRODUCT_GMV,PRODUCT_NET_GMV,PRODUCT_ROI,PRODUCT_NET_ROI` |
+| `order_type` | 订单类型 | `String` | 否 | `ALL` | 可选值：`ALL`（全部订单）/ `PENDING_PAY`（待支付）/ `HEATING`（加热中）/ `COMPLETED`（已完成）/ `ENDED`（已结束）/ `UNDER_REVIEW`（审核中）/ `REVIEW_FAILED`（审核未通过）/ `REFUNDING`（退款中）/ `SETTLING`（结算中）/ `PENDING_HEAT`（待加热）/ `PAUSED`（已暂停） |
+| `author` | 作者昵称 | `String` | 否 | `-` | 空串或 `ALL` 表示全部作者；有值须与页面作者下拉选项完全匹配 |
+| `videos` | 视频标题 | `String` \| `String[]` | 否 | `-` | 英文逗号分隔字符串或字符串数组；空串 / `ALL` 表示全部视频；建议先指定 `author` 再筛选视频；有值须与页面视频选项标题匹配 |
+| `creator` | 创建人昵称 | `String` | 否 | `-` | 空串或 `ALL` 表示全部创建人；有值须与页面创建人下拉选项完全匹配 |
+| `custom_start_date` | 查询起始日期 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不可选今日及以后；与结束日期组成闭区间，跨度 ≤ 8 天 |
+| `custom_end_date` | 查询结束日期 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不可选今日及以后；不得早于起始日期；闭区间跨度 ≤ 8 天 |
+| `metric_fields` | 数据明细指标 | `String` \| `String[]` | 否 | `COST,WECOIN_COST,PLAY,PRODUCT_CLICK,PRODUCT_CTR,PRODUCT_ORDER,PRODUCT_NET_ORDER,PRODUCT_CVR,PRODUCT_GMV,PRODUCT_NET_GMV,PRODUCT_ROI,PRODUCT_NET_ROI` | 英文逗号分隔字符串或字符串数组；最多 12 项；可选值：`COST`（消耗金额）/ `WECOIN_COST`（消耗微信豆金额）/ `PLAY`（播放）/ `PRODUCT_CLICK`（商品点击数）/ `PRODUCT_CTR`（商品点击率）/ `PRODUCT_ORDER`（商品成交数）/ `PRODUCT_NET_ORDER`（商品净成交数）/ `PRODUCT_CVR`（商品成交率）/ `PRODUCT_GMV`（商品 GMV）/ `PRODUCT_NET_GMV`（商品净成交金额）/ `PRODUCT_ROI`（商品 ROI）/ `PRODUCT_NET_ROI`（商品净成交ROI）/ `HEART_LIKE`（爱心赞数）/ `THUMB_LIKE`（拇指赞数）/ `COMMENT`（评论数）/ `SHARE`（分享）/ `FOLLOW`（关注）/ `COMPONENT_CLICK`（组件点击）/ `PAID_USER`（付费人数）/ `LIVE_RESERVE`（直播预约数） |
 
 ### 入参样例
 
-默认最近 8 天（含昨日、不含今日），全部订单 + 默认明细指标：
-
-```json
-{}
-```
-
-按日期区间与订单类型导出（两端均不得晚于昨日，闭区间跨度 ≤ 8 天）：
+按日期区间与订单类型导出（两端均不可选今日及以后，闭区间跨度 ≤ 8 天）：
 
 ```json
 {
@@ -107,11 +101,10 @@ category: sphjr
     },
     "author": {
       "description": "作者昵称。空串或 ALL 表示全部作者；有值须与页面作者下拉选项完全匹配",
-      "type": "string",
-      "default": ""
+      "type": "string"
     },
     "videos": {
-      "description": "视频标题多选。支持英文逗号分隔字符串或字符串数组；空串/ALL 表示全部视频；建议先指定 author",
+      "description": "视频标题多选。英文逗号分隔字符串或字符串数组；空串/ALL 表示全部视频；建议先指定 author；有值须与页面视频选项标题匹配",
       "oneOf": [
         {
           "type": "string"
@@ -123,25 +116,21 @@ category: sphjr
             "minLength": 1
           }
         }
-      ],
-      "default": ""
+      ]
     },
     "creator": {
       "description": "创建人昵称。空串或 ALL 表示全部创建人；有值须与页面创建人下拉选项完全匹配",
-      "type": "string",
-      "default": ""
+      "type": "string"
     },
     "custom_start_date": {
-      "description": "查询起始日期。支持 YYYYMMDD 或 YYYY-MM-DD；与 custom_end_date 须同时传入或同时省略；不得晚于昨日；闭区间跨度≤8天；同时省略时默认最近8天首日",
+      "description": "查询起始日期。格式 YYYYMMDD 或 YYYY-MM-DD；不可选今日及以后；与结束日期组成闭区间，跨度≤8天",
       "type": "string",
-      "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})?$",
-      "default": ""
+      "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_end_date": {
-      "description": "查询结束日期。支持 YYYYMMDD 或 YYYY-MM-DD；与 custom_start_date 须同时传入或同时省略；不得晚于昨日；不得早于起始日期；闭区间跨度≤8天；同时省略时默认昨日",
+      "description": "查询结束日期。格式 YYYYMMDD 或 YYYY-MM-DD；不可选今日及以后；不得早于起始日期；闭区间跨度≤8天",
       "type": "string",
-      "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})?$",
-      "default": ""
+      "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "metric_fields": {
       "title": "数据明细指标",
@@ -164,52 +153,8 @@ category: sphjr
       ]
     }
   },
-  "required": [],
-  "additionalProperties": false,
-  "allOf": [
-    {
-      "if": {
-        "properties": {
-          "custom_start_date": {
-            "type": "string",
-            "minLength": 1
-          }
-        },
-        "required": ["custom_start_date"]
-      },
-      "then": {
-        "properties": {
-          "custom_end_date": {
-            "type": "string",
-            "minLength": 1,
-            "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
-          }
-        },
-        "required": ["custom_end_date"]
-      }
-    },
-    {
-      "if": {
-        "properties": {
-          "custom_end_date": {
-            "type": "string",
-            "minLength": 1
-          }
-        },
-        "required": ["custom_end_date"]
-      },
-      "then": {
-        "properties": {
-          "custom_start_date": {
-            "type": "string",
-            "minLength": 1,
-            "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
-          }
-        },
-        "required": ["custom_start_date"]
-      }
-    }
-  ]
+  "required": ["custom_start_date", "custom_end_date"],
+  "additionalProperties": false
 }
 ```
 

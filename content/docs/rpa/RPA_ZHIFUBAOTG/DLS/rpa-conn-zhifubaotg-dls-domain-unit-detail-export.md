@@ -36,43 +36,28 @@ category: domain
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `custom_date` | 日期类型 | `String` | 否 | — | 不传则跳过点选，读取页面默认起止日。与 `custom_start_date` / `custom_end_date` 同时传入时以本字段为准。可选值：`TODAY`（今日）/ `YESTERDAY`（昨日）/ `LAST_7_DAYS`（近7日）/ `LAST_30_DAYS`（近30日）/ `LAST_90_DAYS`（近90日）/ `CUSTOM`（自定义） |
-| `custom_start_date` | 自定义起始日期 | `String` | 条件必填 | — | 仅 `custom_date` 为空或 `CUSTOM` 时生效。须与 `custom_end_date` 成对传入。格式：`YYYYMMDD` 或 `YYYY-MM-DD`；不得晚于结束日 |
-| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | — | 仅 `custom_date` 为空或 `CUSTOM` 时生效。须与 `custom_start_date` 成对传入。格式：`YYYYMMDD` 或 `YYYY-MM-DD`；不得晚于今天；起止跨度不超过 90 天（含起止日） |
+| `date_type` | 日期类型 | `String` | 是 | `-` | 可选值：`TODAY`（今日）/ `YESTERDAY`（昨日）/ `LAST_7_DAYS`（近 7 天）/ `LAST_30_DAYS`（近 30 天）/ `LAST_90_DAYS`（近 90 天）/ `CUSTOM`（自定义） |
+| `custom_start_date` | 自定义起始日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填。须与 `custom_end_date` 成对传入。格式：`YYYYMMDD` 或 `YYYY-MM-DD`；不得晚于结束日 |
+| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填。须与 `custom_start_date` 成对传入。格式：`YYYYMMDD` 或 `YYYY-MM-DD`；不得晚于今天；起止跨度不超过 90 天（含起止日） |
 
 ### 入参样例
 
-快捷项（近 90 日）：
+快捷项（近 90 天）：
 
 ```json
 {
-  "custom_date": "LAST_90_DAYS"
+  "date_type": "LAST_90_DAYS"
 }
 ```
 
-快捷项与自定义日期同时传入（以快捷项为准）：
+自定义日期：
 
 ```json
 {
-  "custom_date": "LAST_90_DAYS",
-  "custom_start_date": "20260516",
-  "custom_end_date": "2026-08-13"
-}
-```
-
-仅自定义日期：
-
-```json
-{
+  "date_type": "CUSTOM",
   "custom_start_date": "20260827",
   "custom_end_date": "2026-09-02"
 }
-```
-
-不传日期，使用页面当前区间：
-
-```json
-{}
 ```
 
 ### 入参校验
@@ -84,14 +69,14 @@ category: domain
   "description": "使用代理商账号登录支付宝数字推广平台后进入全域智投报表，切换到单元 Tab 并按分天粒度，按可选时间范围经任务中心导出单元分天明细 CSV；明细区暂无数据时直接返回空结果",
   "type": "object",
   "properties": {
-    "custom_date": {
+    "date_type": {
       "type": "string",
-      "enum": ["TODAY", "YESTERDAY", "LAST_7_DAYS", "LAST_30_DAYS", "LAST_90_DAYS", "CUSTOM", ""],
-      "description": "日期类型；空字符串视为未传。与自定义日期同时传入时以本字段为准。可选值：TODAY（今日）/ YESTERDAY（昨日）/ LAST_7_DAYS（近7日）/ LAST_30_DAYS（近30日）/ LAST_90_DAYS（近90日）/ CUSTOM（自定义）"
+      "enum": ["TODAY", "YESTERDAY", "LAST_7_DAYS", "LAST_30_DAYS", "LAST_90_DAYS", "CUSTOM"],
+      "description": "日期类型：TODAY（今日）/ YESTERDAY（昨日）/ LAST_7_DAYS（近 7 天）/ LAST_30_DAYS（近 30 天）/ LAST_90_DAYS（近 90 天）/ CUSTOM（自定义）"
     },
     "custom_start_date": {
       "type": "string",
-      "description": "自定义起始日期，YYYYMMDD 或 YYYY-MM-DD；空字符串视为未传。仅 custom_date 为空或 CUSTOM 时生效，须与 custom_end_date 成对",
+      "description": "自定义起始日期，YYYYMMDD 或 YYYY-MM-DD；date_type 为 CUSTOM 时必填，须与 custom_end_date 成对",
       "anyOf": [
         { "const": "" },
         { "pattern": "^\\d{8}$" },
@@ -100,7 +85,7 @@ category: domain
     },
     "custom_end_date": {
       "type": "string",
-      "description": "自定义结束日期，YYYYMMDD 或 YYYY-MM-DD；空字符串视为未传。仅 custom_date 为空或 CUSTOM 时生效，须与 custom_start_date 成对；不得晚于今天，跨度不超过 90 天",
+      "description": "自定义结束日期，YYYYMMDD 或 YYYY-MM-DD；date_type 为 CUSTOM 时必填；不得晚于今天，跨度不超过 90 天",
       "anyOf": [
         { "const": "" },
         { "pattern": "^\\d{8}$" },
@@ -108,39 +93,21 @@ category: domain
       ]
     }
   },
-  "required": [],
+  "required": ["date_type"],
   "additionalProperties": false,
   "allOf": [
     {
       "if": {
         "properties": {
-          "custom_date": { "const": "CUSTOM" }
+          "date_type": { "const": "CUSTOM" }
         },
-        "required": ["custom_date"]
+        "required": ["date_type"]
       },
       "then": {
         "required": ["custom_start_date", "custom_end_date"],
         "properties": {
           "custom_start_date": { "type": "string", "minLength": 1 },
           "custom_end_date": { "type": "string", "minLength": 1 }
-        }
-      }
-    },
-    {
-      "if": {
-        "anyOf": [
-          { "not": { "required": ["custom_date"] } },
-          {
-            "properties": {
-              "custom_date": { "enum": [""] }
-            }
-          }
-        ]
-      },
-      "then": {
-        "dependentRequired": {
-          "custom_start_date": ["custom_end_date"],
-          "custom_end_date": ["custom_start_date"]
         }
       }
     }
