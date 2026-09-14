@@ -27,6 +27,8 @@ category: keyword
 > **取数路径**：万相台—关键词推广—关键词—添加关键词
 >
 > **取数链接**：[https://one.alimama.com/index.html#!/manage/search-detail?bizCode=onebpSearch&tab=bidword](https://one.alimama.com/index.html#!/manage/search-detail?bizCode=onebpSearch&tab=bidword)
+>
+> **空数据与失败**：某 Tab 接口空列表不产出词行，该来源写 `[]`（真没数据），词对象缺字段保留 `null`，继续后续 Tab，不把该 Tab 当失败。某单元失败则立即停止：已成功单元 `collectStatus` 为 `SUCCESS` 照常返回；失败单元仍返回一行，`collectStatus` 为 `FAILED`，`errorMessage` 为失败原因，已采集来源为 `null`；尚未执行的后续单元不采集、不返回。未采集的来源不输出该字段。
 
 ![阿里妈妈—万相台关键词推广详情](../../_public/images/alimm/wxt_keyword_promotion_detail_20260910.png)
 
@@ -40,7 +42,7 @@ category: keyword
 | `custom_start_date` | 自定义开始日期 | `String` | 条件必填 | — | 仅 `date_type=CUSTOM` 时必填。支持格式：`YYYYMMDD`、`YYYY-MM-DD` |
 | `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | — | 仅 `date_type=CUSTOM` 时必填。支持格式：`YYYYMMDD`、`YYYY-MM-DD` |
 | `plan_id` | 计划 ID | `String` | 是 | — | 须为 10～25 位数字 |
-| `unit_id` | 单元 ID | `String` / `List[String]` | 是 | — | 每个单元 ID 须为 10～25 位数字，最多 5 个。 |
+| `unit_id` | 单元 ID | `String` / `List[String]` | 是 | — | 每个单元 ID 须为 10～25 位数字，最多 10 个。 |
 | `keyword_source` | 选词来源 | `String` / `List[String]` | 否 | — | 可选值：`TRAFFIC_SMART`（流量智选）/ `KEYWORD_COMBINATION`（关键词组合）/ `KEYWORD_RECOMMEND`（关键词推荐，并采集全部 5 个子 Tab）/ `AI_XIAOWAN`（AI 小万选词）。不传时只采集侧栏默认的 AI 小万选词 |
 
 ### 入参样例
@@ -105,12 +107,12 @@ category: keyword
       "pattern": "^\\d{10,25}$"
     },
     "unit_id": {
-      "description": "单元 ID，必填。每个须为 10～25 位数字，最多 5 个。支持英文/中文逗号分隔字符串或字符串数组",
+      "description": "单元 ID，必填。每个须为 10～25 位数字，最多 10 个。支持英文/中文逗号分隔字符串或字符串数组",
       "oneOf": [
         {
           "type": "string",
           "minLength": 1,
-          "pattern": "^\\d{10,25}([,，]\\d{10,25}){0,4}$"
+          "pattern": "^\\d{10,25}([,，]\\d{10,25}){0,9}$"
         },
         {
           "type": "array",
@@ -119,7 +121,7 @@ category: keyword
             "pattern": "^\\d{10,25}$"
           },
           "minItems": 1,
-          "maxItems": 5
+          "maxItems": 10
         }
       ]
     },
@@ -259,24 +261,24 @@ category: keyword
 | `status` | 状态 | `Number` | 是 | 页面解析 | `1` |
 
 @define 关键词推荐
-| `overallRecommend` @推荐词 | 综合推荐词 | `List[Dict]` | 是 | 页面解析 | — |
-| `shopExclusive` @推荐词 | 店铺专有词 | `List[Dict]` | 是 | 页面解析 | — |
-| `categoryPrecise` @推荐词 | 类目精准词 | `List[Dict]` | 是 | 页面解析 | — |
-| `industryHot` @推荐词 | 行业热门词 | `List[Dict]` | 是 | 页面解析 | — |
-| `trendOpportunity` @推荐词 | 趋势机会词 | `List[Dict]` | 是 | 页面解析 | — |
-
-@define 单元选词结果
-| `aiXiaowan` @推荐词 | AI小万选词 | `List[Dict]` | 是 | 页面解析 | 见数据样例 |
-| `keywordRecommend` @关键词推荐 | 关键词推荐 | `Dict` | 是 | 页面解析 | — |
-| `keywordCombination` @词包 | 关键词组合 | `List[Dict]` | 是 | 页面解析 | — |
-| `trafficSmart` @词包 | 流量智选 | `List[Dict]` | 是 | 页面解析 | — |
+| `overallRecommend` @推荐词 | 综合推荐词 | `List[Dict]` | 否 | 页面解析 | — |
+| `shopExclusive` @推荐词 | 店铺专有词 | `List[Dict]` | 否 | 页面解析 | — |
+| `categoryPrecise` @推荐词 | 类目精准词 | `List[Dict]` | 否 | 页面解析 | — |
+| `industryHot` @推荐词 | 行业热门词 | `List[Dict]` | 否 | 页面解析 | — |
+| `trendOpportunity` @推荐词 | 趋势机会词 | `List[Dict]` | 否 | 页面解析 | — |
 
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
 | `startTime` | 开始日期 | `String` | 否 | 页面解析 | `2026-09-03` |
 | `endTime` | 结束日期 | `String` | 否 | 页面解析 | `2026-09-09` |
 | `campaignId` | 计划 ID | `String` | 否 | 页面解析 | `687****488` (已脱敏) |
-| `unit_id` @单元选词结果 | 单元ID | `Dict` | 是 | 页面解析 | 见数据样例 |
+| `unitId` | 单元 ID | `String` | 否 | 根据输入单元 ID 取值 | `688****944` (已脱敏) |
+| `collectStatus` | 采集状态 | `String` | 否 | `SUCCESS` 成功 / `FAILED` 失败 | `SUCCESS` |
+| `errorMessage` | 失败原因 | `String` | 是 | 仅 `collectStatus=FAILED` 时有值 | — |
+| `aiXiaowan` @推荐词 | AI小万选词 | `List[Dict]` | 是 | 页面解析；空列表为无词，null 为该单元失败 | 见数据样例 |
+| `keywordRecommend` @关键词推荐 | 关键词推荐 | `Dict` | 是 | 页面解析；子 Tab 空列表为无词，null 为该单元失败 | — |
+| `keywordCombination` @词包 | 关键词组合 | `List[Dict]` | 是 | 页面解析；空列表为无词，null 为该单元失败 | — |
+| `trafficSmart` @词包 | 流量智选 | `List[Dict]` | 是 | 页面解析；空列表为无词，null 为该单元失败 | — |
 | `bizDate` | 业务日期 | `String` | 否 | 附加 | `20260910` |
 | `accountId` | 授权 ID | `String` | 否 | 附加 | `1****1` (已脱敏) |
 :::
@@ -291,8 +293,10 @@ category: keyword
     "startTime": "2026-09-03",
     "endTime": "2026-09-09",
     "campaignId": "687****488",
-    "688****944": {
-      "aiXiaowan": [
+    "unitId": "688****944",
+    "collectStatus": "SUCCESS",
+    "errorMessage": null,
+    "aiXiaowan": [
         {
           "mtaRoi": 0.0,
           "presentMPenetrationRateRank": "数据量过小",
@@ -408,7 +412,17 @@ category: keyword
           "word": "****"
         }
       ]
-    }
+  },
+  {
+    "bizDate": "20260910",
+    "accountId": "1****1",
+    "startTime": "2026-09-03",
+    "endTime": "2026-09-09",
+    "campaignId": "687****488",
+    "unitId": "802****225",
+    "collectStatus": "FAILED",
+    "errorMessage": "打开添加关键词侧栏失败",
+    "aiXiaowan": null
   }
 ]
 ```
