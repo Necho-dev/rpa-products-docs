@@ -40,27 +40,28 @@ category: flow
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `item_id` | 商品 ID | `String` | 是 | — | 10~25 位数字字符串 |
-| `date_type` | 统计时间类型 | `String` | 否 | `day` | 控制取数时间范围。未传时按「按日、取昨天」。可选：`day`（按日）/ `recent7`（近 7 天）/ `recent30`（近 30 天）/ `week`（按自然周）/ `month`（按自然月）。不支持 实时（实时页面无趋势下载入口） |
-| `biz_date` | 业务日期 | `String` | 条件必填 | — | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`，须配合 `date_type` 使用。**按日**（`day`）：可传具体日期，不传则取**昨天**。**近 7/30 天**（`recent7`/`recent30`）：无需传，传了会忽略。**按周/按月**（`week`/`month`）：**必填**；传该周或该月内任意一天即可，连接器自动扩展为整周或整月区间 |
-| `flow_source` | 流量来源 | `String` | 否 | `付费推广` | 输入来源渠道中有的（如 `付费推广`、`淘宝直播`、`购物车`）。未传时默认 `付费推广`。没有该名称或下载入口不可见时返回空数据 |
+| `item_id` | 商品 ID | `String` | 是 | `-` | 10~25 位数字字符串 |
+| `date_type` | 统计时间类型 | `String` | 是 | `-` | 允许值：`LAST_7_DAYS`（近 7 天）/ `LAST_30_DAYS`（近 30 天）/ `DAY`（按日）/ `WEEK`（自然周）/ `MONTH`（自然月） |
+| `biz_date` | 业务日期 | `String` | 条件必填 | `-` | `date_type` 为 `DAY`/`WEEK`/`MONTH` 时必填；始终填一天，格式 `YYYYMMDD` 或 `YYYY-MM-DD`；`LAST_7_DAYS`/`LAST_30_DAYS` 时忽略。`DAY` 不可选今日及以后；`WEEK`/`MONTH` 用这一天定位所在周/月，不可选本周/本月的日期；`DAY`/`WEEK` 最早 today-800；`MONTH` 最早约本年 1 月 |
+| `flow_source` | 流量来源 | `String` | 否 | `付费推广` | 填写来源列表名称；未匹配到则返回空数据 |
 
 ### 入参样例
 
-仅商品 ID（不传时间参数，默认取昨天单日）：
-
-```json
-{
-  "item_id": "826562939262"
-}
-```
-
-按商品 + 昨天（与上例等价，显式指定 `date_type=day`）：
+近 7 天：
 
 ```json
 {
   "item_id": "826562939262",
-  "date_type": "day"
+  "date_type": "LAST_7_DAYS"
+}
+```
+
+近 30 天：
+
+```json
+{
+  "item_id": "826562939262",
+  "date_type": "LAST_30_DAYS"
 }
 ```
 
@@ -69,55 +70,38 @@ category: flow
 ```json
 {
   "item_id": "826562939262",
-  "date_type": "day",
+  "date_type": "DAY",
   "biz_date": "2026-08-24"
 }
 ```
 
-近 7 天（忽略 `biz_date`）：
+按周：
 
 ```json
 {
   "item_id": "826562939262",
-  "date_type": "recent7"
-}
-```
-
-近 30 天（忽略 `biz_date`）：
-
-```json
-{
-  "item_id": "826562939262",
-  "date_type": "recent30"
-}
-```
-
-按周（`biz_date` 落在该周内任意一天即可）：
-
-```json
-{
-  "item_id": "826562939262",
-  "date_type": "week",
+  "date_type": "WEEK",
   "biz_date": "2026-08-20"
 }
 ```
 
-按月（`biz_date` 落在该月内任意一天即可）：
+按月：
 
 ```json
 {
   "item_id": "826562939262",
-  "date_type": "month",
+  "date_type": "MONTH",
   "biz_date": "2026-01-27"
 }
 ```
 
-指定流量来源（精确匹配来源树行名）：
+指定流量来源：
 
 ```json
 {
   "item_id": "826562939262",
-  "date_type": "day",
+  "date_type": "DAY",
+  "biz_date": "2026-08-24",
   "flow_source": "淘宝直播"
 }
 ```
@@ -138,28 +122,27 @@ category: flow
     },
     "date_type": {
       "type": "string",
-      "description": "统计时间类型，未传默认 day。可选值：recent7（7天）/ recent30（30天）/ day（日）/ week（周）/ month（月）。不支持 today",
-      "enum": ["recent7", "recent30", "day", "week", "month"],
-      "default": "day"
+      "description": "统计时间类型。允许值：LAST_7_DAYS（近 7 天）/ LAST_30_DAYS（近 30 天）/ DAY（按日）/ WEEK（自然周）/ MONTH（自然月）",
+      "enum": ["LAST_7_DAYS", "LAST_30_DAYS", "DAY", "WEEK", "MONTH"]
     },
     "biz_date": {
       "type": "string",
-      "description": "业务日期，格式 YYYYMMDD 或 YYYY-MM-DD。按日（day）时不传则取昨天；按周/按月（week/month）时必填，传该周/月内任意一天并归一化为整周/整月；近 7/30 天（recent7/recent30）时无需传",
+      "description": "业务日期；date_type 为 DAY/WEEK/MONTH 时必填；始终填一天；LAST_7_DAYS/LAST_30_DAYS 时忽略。格式 YYYYMMDD 或 YYYY-MM-DD；DAY 不可选今日及以后；WEEK/MONTH 用这一天定位所在周/月，不可选本周/本月的日期；DAY/WEEK 最早 today-800；MONTH 最早约本年 1 月",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "flow_source": {
       "type": "string",
-      "description": "流量来源名称，与来源树行名精确匹配。未传默认付费推广；未匹配到则返回空数据",
+      "description": "流量来源名称，填写来源列表名称。未匹配到则返回空数据",
       "default": "付费推广",
       "minLength": 1
     }
   },
-  "required": ["item_id"],
+  "required": ["item_id", "date_type"],
   "additionalProperties": false,
   "allOf": [
     {
       "if": {
-        "properties": { "date_type": { "enum": ["week", "month"] } },
+        "properties": { "date_type": { "enum": ["DAY", "WEEK", "MONTH"] } },
         "required": ["date_type"]
       },
       "then": { "required": ["biz_date"] }
@@ -183,7 +166,7 @@ category: flow
 | `avgPrice` | 客单价 | `String` | 是 | `XLS.0.客单价` | `-` |
 | `payItemCnt` | 支付件数 | `String` | 是 | `XLS.0.支付件数` | `-` |
 | `itemId` | 商品 ID | `String` | 否 | 附加，来自入参 `item_id` | `826****262` (已脱敏) |
-| `dateType` | 统计时间类型 | `String` | 否 | 附加，来自入参 `date_type` | `day` |
+| `dateType` | 统计时间类型 | `String` | 否 | 附加，来自入参 `date_type` | `DAY` |
 | `flowSource` | 流量来源 | `String` | 否 | 附加，来自入参 `flow_source` | `淘宝直播` |
 | `dateRangeStart` | 统计区间起始日 | `String` | 否 | 附加 | `2026-08-24` |
 | `dateRangeEnd` | 统计区间结束日 | `String` | 否 | 附加 | `2026-08-24` |
@@ -208,7 +191,7 @@ category: flow
     "bizDate": "20260824",
     "accountId": "1****1",
     "itemId": "826****262",
-    "dateType": "day",
+    "dateType": "DAY",
     "flowSource": "淘宝直播",
     "dateRangeStart": "2026-08-24",
     "dateRangeEnd": "2026-08-24"

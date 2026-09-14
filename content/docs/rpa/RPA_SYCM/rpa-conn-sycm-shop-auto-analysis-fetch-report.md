@@ -1,5 +1,5 @@
 ---
-title: 店铺-自助分析-取数报表下载
+title: 自助分析-分析空间-取数报表
 description: 在生意参谋自助分析「分析空间」中按报表名称精确匹配并下载取数报表，逐行输出 Excel 表头与数据
 entry: rpa.conn.sycm.shop.auto.analysis.fetch.report
 badge:

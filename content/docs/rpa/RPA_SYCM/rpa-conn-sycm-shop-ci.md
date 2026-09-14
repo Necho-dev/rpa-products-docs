@@ -1,5 +1,5 @@
 ---
-title: 市场-竞争-竞店对比
+title: 市场-竞店分析-竞店对比
 description: 采集生意参谋竞店对比的销售/来源/客群分析；支持只采本店，并按 Tab 选择性采集
 entry: rpa.conn.sycm.shop.ci
 badge:
@@ -38,52 +38,58 @@ category: shop
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `rival_shop_keywords` | 竞店关键字 | `String` / `List[String]` | 否 | — | 不传或空字符串/`[]` 时只采集本店；传值时支持英文/中文逗号分隔或字符串数组，最多 2 个；按关键字在监控列表中搜索点选，任一未命中则任务失败 |
-| `analysis_tabs` | 分析主 Tab | `String` / `List[String]` | 否 | 全选 | 可选值：`sale`（销售分析）/ `flow`（来源分析）/ `customer`（客群分析）；支持逗号分隔或数组；不传/空/`ALL` 表示三个 Tab 全采；未选中的模块输出空结构 |
-| `date_type` | 统计时间类型 | `String` | 否 | `today` | 可选值：`today`（实时）/ `recent7`（近7天）/ `recent30`（近30天）/ `day`（日）/ `week`（周）/ `month`（月）；兼容别名 `实时`→`today`；销售/来源/客群分析共用该时间 |
-| `stat_date` | 统计锚定日 | `String` | 条件必填 | — | `date_type` 为 `day` / `week` / `month` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；日=当日，周=锚定日所在自然周，月=锚定日所在自然月 |
+| `rival_shop_keywords` | 竞店关键字 | `String` / `List[String]` | 否 | `-` | 不传或空字符串/`[]` 时只采集本店；传值时支持英文/中文逗号分隔或字符串数组，最多 2 个；按关键字在监控列表中搜索点选，任一未命中则任务失败 |
+| `analysis_tabs` | 分析主 Tab | `String` / `List[String]` | 否 | `-` | 允许值：`sale`（销售分析）/ `flow`（来源分析）/ `customer`（客群分析）；支持逗号分隔或数组；不传/空/`ALL` 表示三个 Tab 全采；未选中的模块输出空结构 |
+| `date_type` | 统计时间类型 | `String` | 是 | `-` | 允许值：`REALTIME`（实时）/ `LAST_7_DAYS`（近 7 天）/ `LAST_30_DAYS`（近 30 天）/ `DAY`（按日）/ `WEEK`（自然周）/ `MONTH`（自然月）。`analysis_tabs` 含 `customer` 时不允许 `REALTIME` |
+| `biz_date` | 业务日期 | `String` | 条件必填 | `-` | `date_type` 为 `DAY`/`WEEK`/`MONTH` 时必填；始终填一天，格式 `YYYYMMDD` 或 `YYYY-MM-DD`；`REALTIME`/`LAST_7_DAYS`/`LAST_30_DAYS` 时忽略。`DAY` 不可选今日及以后；`WEEK`/`MONTH` 用这一天定位所在周/月，不可选本周/本月的日期；`DAY`/`WEEK` 最早 today-90；`MONTH` 最早约 today 往前 3 个月 |
 
 ### 入参样例
 
-只采本店 + 仅销售分析：
+只采本店 + 仅销售 + 实时：
 
 ```json
 {
-  "rival_shop_keywords": "",
   "analysis_tabs": "sale",
-  "date_type": "day",
-  "stat_date": "2026-08-09"
+  "date_type": "REALTIME"
 }
 ```
 
-只采本店 + 来源与客群（数组写法）：
+近 7 天：
 
 ```json
 {
-  "rival_shop_keywords": "",
-  "analysis_tabs": ["flow", "customer"],
-  "date_type": "day",
-  "stat_date": "2026-08-09"
-}
-```
-
-近 7 天，对比 2 个竞店（不传 `analysis_tabs` = 三 Tab 全采）：
-
-```json
-{
-  "rival_shop_keywords": "示例竞店A,示例竞店B",
-  "date_type": "recent7"
-}
-```
-
-指定自然月，带竞店 + 仅销售：
-
-```json
-{
-  "rival_shop_keywords": "示例竞店A",
   "analysis_tabs": "sale",
-  "date_type": "month",
-  "stat_date": "2026-06-15"
+  "date_type": "LAST_7_DAYS"
+}
+```
+
+指定自然日（`YYYYMMDD`）：
+
+```json
+{
+  "analysis_tabs": "sale",
+  "date_type": "DAY",
+  "biz_date": "20260905"
+}
+```
+
+按周：
+
+```json
+{
+  "analysis_tabs": "sale",
+  "date_type": "WEEK",
+  "biz_date": "2026-08-31"
+}
+```
+
+按月：
+
+```json
+{
+  "analysis_tabs": "sale",
+  "date_type": "MONTH",
+  "biz_date": "20260801"
 }
 ```
 
@@ -92,7 +98,7 @@ category: shop
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "生意参谋-市场竞店对比 - 查询入参",
+  "title": "生意参谋-市场-竞店分析-竞店对比 - 查询入参",
   "description": "采集生意参谋竞店对比的销售/来源/客群分析；支持只采本店，并按 Tab 选择性采集",
   "type": "object",
   "properties": {
@@ -112,7 +118,7 @@ category: shop
       ]
     },
     "analysis_tabs": {
-      "description": "分析主 Tab；不传/空/ALL=全选。可选值：sale（销售分析）/ flow（来源分析）/ customer（客群分析）",
+      "description": "分析主 Tab；不传/空/ALL=三 Tab 全采。允许值：sale（销售分析）/ flow（来源分析）/ customer（客群分析）",
       "oneOf": [
         {
           "type": "string"
@@ -130,29 +136,28 @@ category: shop
     },
     "date_type": {
       "type": "string",
-      "description": "统计时间类型，未传时默认 today（实时）。可选值：today（实时）/ recent7（近7天）/ recent30（近30天）/ day（日）/ week（周）/ month（月）；兼容别名「实时」",
-      "enum": ["today", "recent7", "recent30", "day", "week", "month", "实时"],
-      "default": "today"
+      "description": "统计时间类型。允许值：REALTIME（实时）/ LAST_7_DAYS（近 7 天）/ LAST_30_DAYS（近 30 天）/ DAY（按日）/ WEEK（自然周）/ MONTH（自然月）。analysis_tabs 含 customer 时不允许 REALTIME",
+      "enum": ["REALTIME", "LAST_7_DAYS", "LAST_30_DAYS", "DAY", "WEEK", "MONTH"]
     },
-    "stat_date": {
+    "biz_date": {
       "type": "string",
-      "description": "统计锚定日；date_type 为 day/week/month 时必填。格式 YYYYMMDD 或 YYYY-MM-DD",
+      "description": "业务日期；date_type 为 DAY/WEEK/MONTH 时必填；始终填一天；REALTIME/LAST_7_DAYS/LAST_30_DAYS 时忽略。格式 YYYYMMDD 或 YYYY-MM-DD。DAY 不可选今日及以后；WEEK/MONTH 用这一天定位所在周/月，不可选本周/本月的日期；DAY/WEEK 最早 today-90；MONTH 最早约 today 往前 3 个月",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
-  "required": [],
+  "required": ["date_type"],
   "allOf": [
     {
       "if": {
         "properties": {
           "date_type": {
-            "enum": ["day", "week", "month"]
+            "enum": ["DAY", "WEEK", "MONTH"]
           }
         },
         "required": ["date_type"]
       },
       "then": {
-        "required": ["stat_date"]
+        "required": ["biz_date"]
       }
     }
   ],

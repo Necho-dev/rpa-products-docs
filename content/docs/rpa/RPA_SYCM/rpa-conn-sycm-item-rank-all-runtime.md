@@ -34,9 +34,9 @@ category: item
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `sort_field` | 排序列 | `String` | 否 | — | 可选值：`PAY_AMT`（支付金额）/ `PAY_ITM_CNT`（支付件数）/ `PAY_RATE`（支付转化率）。不填则沿用页面当前排序列（默认支付金额）。不可同时传入多个值 |
-| `sort_order` | 排序方向 | `String` | 否 | — | 可选值：`DESC`（倒序，从大到小）/ `ASC`（正序，从小到大）。不填则沿用页面当前排序方向（默认倒序） |
-| `collect_limit` | 采集条数上限 | `Number` | 否 | — | 根据这个值计算页数进行翻页 |
+| `sort_field` | 排序列 | `String` | 否 | `-` | 允许值：`PAY_AMT`（支付金额）/ `PAY_ITM_CNT`（支付件数）/ `PAY_RATE`（支付转化率）。不传则沿用页面当前排序列。只能传入一个值 |
+| `sort_order` | 排序方向 | `String` | 否 | `-` | 允许值：`DESC`（倒序，从大到小）/ `ASC`（正序，从小到大）。不传则沿用页面当前排序方向 |
+| `collect_limit` | 采集条数上限 | `Integer` | 否 | `1000` | 范围 `1`~`1000` |
 
 ### 入参样例
 
@@ -87,19 +87,20 @@ category: item
   "properties": {
     "sort_field": {
       "type": "string",
-      "description": "排序列（单值，可选）。可选值：PAY_AMT（支付金额）/ PAY_ITM_CNT（支付件数）/ PAY_RATE（支付转化率）。不填则沿用页面当前排序列。不可同时传入多个值",
+      "description": "排序列（单值）。允许值：PAY_AMT（支付金额）/ PAY_ITM_CNT（支付件数）/ PAY_RATE（支付转化率）。不传则沿用页面当前排序列",
       "enum": ["PAY_AMT", "PAY_ITM_CNT", "PAY_RATE"]
     },
     "sort_order": {
       "type": "string",
-      "description": "排序方向（可选）。可选值：DESC（倒序，从大到小）/ ASC（正序，从小到大）。不填则沿用页面当前排序方向",
+      "description": "排序方向。允许值：DESC（倒序，从大到小）/ ASC（正序，从小到大）。不传则沿用页面当前排序方向",
       "enum": ["DESC", "ASC"]
     },
     "collect_limit": {
       "type": "integer",
-      "description": "采集条数上限（可选）。范围 1~1000；不填则采至 1000 条上限或列表实际条数",
+      "description": "采集条数上限。范围 1~1000",
       "minimum": 1,
-      "maximum": 1000
+      "maximum": 1000,
+      "default": 1000
     }
   },
   "required": [],

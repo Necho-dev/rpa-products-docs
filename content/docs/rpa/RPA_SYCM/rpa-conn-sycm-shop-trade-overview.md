@@ -34,8 +34,8 @@ category: shop
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `date_type` | 交易总览日期类型 | `String` | 是 | — | 可选值：`LAST_1_DAY`（最近1天）、`LAST_7_DAYS`（最近7天）、`LAST_30_DAYS`（最近30天）、`DAY`（日）、`WEEK`（周）、`MONTH`（月） |
-| `custom_start_date` | 自定义锚点日期 | `String` | 条件必填 | — | `date_type` 为 `DAY`/`WEEK`/`MONTH` 时必填；支持 `YYYYMMDD` 或 `YYYY-MM-DD`；`DAY`/`WEEK` 时不能晚于昨天 |
+| `date_type` | 交易总览日期类型 | `String` | 是 | `-` | 允许值：`LAST_1_DAY`（近 1 天）/ `LAST_7_DAYS`（近 7 天）/ `LAST_30_DAYS`（近 30 天）/ `DAY`（按日）/ `WEEK`（自然周）/ `MONTH`（自然月） |
+| `biz_date` | 业务日期 | `String` | 条件必填 | `-` | `date_type` 为 `DAY`/`WEEK`/`MONTH` 时必填；始终填一天，格式 `YYYYMMDD` 或 `YYYY-MM-DD`。`DAY` 不可选今日及以后；`WEEK`/`MONTH` 用这一天定位所在周/月，不可选本周/本月的日期 |
 
 ### 入参样例
 
@@ -52,7 +52,7 @@ category: shop
 ```json
 {
   "date_type": "DAY",
-  "custom_start_date": "20260601"
+  "biz_date": "20260601"
 }
 ```
 
@@ -67,12 +67,12 @@ category: shop
   "properties": {
     "date_type": {
       "type": "string",
-      "description": "交易总览日期类型。可选值：LAST_1_DAY（最近1天）、LAST_7_DAYS（最近7天）、LAST_30_DAYS（最近30天）、DAY（日）、WEEK（周）、MONTH（月）",
+      "description": "交易总览日期类型。允许值：LAST_1_DAY（近 1 天）、LAST_7_DAYS（近 7 天）、LAST_30_DAYS（近 30 天）、DAY（按日）、WEEK（自然周）、MONTH（自然月）",
       "enum": ["LAST_1_DAY", "LAST_7_DAYS", "LAST_30_DAYS", "DAY", "WEEK", "MONTH"]
     },
-    "custom_start_date": {
+    "biz_date": {
       "type": "string",
-      "description": "面板点选锚点日期；date_type 为 DAY/WEEK/MONTH 时必填；支持 YYYYMMDD 或 YYYY-MM-DD；DAY/WEEK 时不能晚于昨天",
+      "description": "业务日期；date_type 为 DAY/WEEK/MONTH 时必填；始终填一天。格式 YYYYMMDD 或 YYYY-MM-DD。DAY 不可选今日及以后；WEEK/MONTH 用这一天定位所在周/月，不可选本周/本月的日期",
       "pattern": "^(\\d{4}-\\d{2}-\\d{2}|\\d{8})$"
     }
   },
@@ -89,7 +89,7 @@ category: shop
         "required": ["date_type"]
       },
       "then": {
-        "required": ["custom_start_date"]
+        "required": ["biz_date"]
       }
     }
   ]

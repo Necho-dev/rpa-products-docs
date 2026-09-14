@@ -41,13 +41,13 @@ category: item
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `item_id` | 商品 ID | `String` | 是 | — | 10~25 位数字 |
-| `traffic_source` | 流量来源 | `List[String]` \| `String` | 是 | — | 最多 2 个；支持 JSON 数组或英文逗号分隔。可选值：`TAOBAO_SEARCH`（手淘搜索）/ `TAOBAO_SEARCH_PRODUCT_AND_OTHER`（手淘搜索-商品及其他）/ `TAOBAO_SEARCH_LIVE`（手淘搜索-直播）/ `TAOBAO_SEARCH_SHORT_VIDEO`（手淘搜索-短视频）/ `KEYWORD_PROMOTION`（关键词推广）/ `SHOP_SUPER_LINK`（店铺超链）/ `TAO_INTERNAL_UNCLASSIFIED`（淘内待分类） |
-| `date_type` | 统计时间类型 | `String` | 否 | `day` | 可选值：`today`（今天）/ `recent7`（7天）/ `recent30`（30天）/ `day`（日）/ `week`（周）/ `month`（月） |
-| `biz_date` | 统计日期 | `String` | 条件必填 | — | `date_type` 为 `week` / `month` 时必填；`date_type` 为 day 时且此值未传时默认 T-1；`today` / `recent7` / `recent30` 时忽略。格式：`YYYYMMDD` 或 `YYYY-MM-DD` |
-| `terminal` | 终端 | `String` | 否 | — | 可选值：`WIRELESS`（无线端）/ `PC`（PC端）；未传则保持页面默认 |
-| `conversion_attribution` | 转化归属 | `String` | 否 | — | 可选值：`EVERY_VISIT`（每一次访问来源）/ `FIRST_VISIT`（第一次访问来源）/ `LAST_VISIT`（最后一次访问来源）；未传则保持页面默认 |
-| `detail_metrics` | 详情弹窗指标 | `List[String]` \| `String` | 否 | — | 最多 6 个；支持 JSON 数组或英文逗号分隔；未传则保持页面默认勾选（访客数、加购人数、支付买家数）。可选值：`UV`（访客数）/ `ORDER_BUYER_CNT`（下单买家数）/ `ORDER_CVR`（下单转化率）/ `PV`（浏览量（占比））/ `IN_STORE_JUMP_UV`（店内跳转人数）/ `BOUNCE_UV`（跳出本店人数）/ `FAVORITE_UV`（收藏人数）/ `ADD_CART_UV`（加购人数）/ `PAY_ITEM_CNT`（支付件数）/ `PAY_BUYER_CNT`（支付买家数）/ `PAY_CVR`（支付转化率）/ `DIRECT_PAY_BUYER_CNT`（直接支付买家数）/ `FAVORITE_PAY_BUYER_CNT`（收藏商品-支付买家数）/ `FAN_PAY_BUYER_CNT`（粉丝支付买家数）/ `ADD_CART_PAY_BUYER_CNT`（加购商品-支付买家数）。**输出 `value` 内的键名与所选指标中文名一致，未选指标不会出现在输出中** |
+| `item_id` | 商品 ID | `String` | 是 | `-` | 10~25 位数字 |
+| `traffic_source` | 流量来源 | `String` / `List[String]` | 是 | `-` | 最多 2 个；英文逗号分隔或字符串数组。允许值：`TAOBAO_SEARCH`（手淘搜索）/ `TAOBAO_SEARCH_PRODUCT_AND_OTHER`（手淘搜索-商品及其他）/ `TAOBAO_SEARCH_LIVE`（手淘搜索-直播）/ `TAOBAO_SEARCH_SHORT_VIDEO`（手淘搜索-短视频）/ `KEYWORD_PROMOTION`（关键词推广）/ `SHOP_SUPER_LINK`（店铺超链）/ `TAO_INTERNAL_UNCLASSIFIED`（淘内待分类） |
+| `date_type` | 统计时间类型 | `String` | 是 | `-` | 允许值：`TODAY`（今日）/ `LAST_7_DAYS`（近 7 天）/ `LAST_30_DAYS`（近 30 天）/ `DAY`（按日）/ `WEEK`（自然周）/ `MONTH`（自然月） |
+| `biz_date` | 业务日期 | `String` | 条件必填 | `-` | `date_type` 为 `DAY`/`WEEK`/`MONTH` 时必填；始终填一天，格式 `YYYYMMDD` 或 `YYYY-MM-DD`；`TODAY`/`LAST_7_DAYS`/`LAST_30_DAYS` 时忽略。`DAY` 不可选今日及以后；`WEEK`/`MONTH` 用这一天定位所在周/月，不可选本周/本月的日期；`DAY`/`WEEK` 最早 today-800；`MONTH` 最早约本年 1 月 |
+| `terminal` | 终端 | `String` | 否 | `-` | 允许值：`WIRELESS`（无线端）/ `PC`（PC端）；不传则沿用页面当前终端 |
+| `conversion_attribution` | 转化归属 | `String` | 否 | `-` | 允许值：`EVERY_VISIT`（每一次访问来源）/ `FIRST_VISIT`（第一次访问来源）/ `LAST_VISIT`（最后一次访问来源）；不传则沿用页面当前转化归属 |
+| `detail_metrics` | 详情弹窗指标 | `String` / `List[String]` | 否 | `-` | 最多 6 个；英文逗号分隔或字符串数组；不传则沿用页面当前勾选。允许值：`UV`（访客数）/ `ORDER_BUYER_CNT`（下单买家数）/ `ORDER_CVR`（下单转化率）/ `PV`（浏览量（占比））/ `IN_STORE_JUMP_UV`（店内跳转人数）/ `BOUNCE_UV`（跳出本店人数）/ `FAVORITE_UV`（收藏人数）/ `ADD_CART_UV`（加购人数）/ `PAY_ITEM_CNT`（支付件数）/ `PAY_BUYER_CNT`（支付买家数）/ `PAY_CVR`（支付转化率）/ `DIRECT_PAY_BUYER_CNT`（直接支付买家数）/ `FAVORITE_PAY_BUYER_CNT`（收藏商品-支付买家数）/ `FAN_PAY_BUYER_CNT`（粉丝支付买家数）/ `ADD_CART_PAY_BUYER_CNT`（加购商品-支付买家数） |
 
 ### 入参样例
 
@@ -56,18 +56,18 @@ category: item
 ```json
 {
   "item_id": "947****749",
-  "date_type": "day",
+  "date_type": "DAY",
   "biz_date": "2026-08-26",
   "traffic_source": ["TAOBAO_SEARCH", "KEYWORD_PROMOTION"]
 }
 ```
 
-**今天快捷时间 + 单个来源：**
+**今日 + 单个来源：**
 
 ```json
 {
   "item_id": "947****749",
-  "date_type": "today",
+  "date_type": "TODAY",
   "traffic_source": "TAOBAO_SEARCH"
 }
 ```
@@ -77,7 +77,7 @@ category: item
 ```json
 {
   "item_id": "947****749",
-  "date_type": "week",
+  "date_type": "WEEK",
   "biz_date": "2026-08-24",
   "traffic_source": ["SHOP_SUPER_LINK"],
   "terminal": "WIRELESS",
@@ -101,7 +101,7 @@ category: item
       "pattern": "^\\d{10,25}$"
     },
     "traffic_source": {
-      "description": "流量来源，最多 2 个；支持字符串（英文逗号分隔）或字符串数组",
+      "description": "流量来源，最多 2 个；支持字符串（英文逗号分隔）或字符串数组。允许值：TAOBAO_SEARCH（手淘搜索）/ TAOBAO_SEARCH_PRODUCT_AND_OTHER（手淘搜索-商品及其他）/ TAOBAO_SEARCH_LIVE（手淘搜索-直播）/ TAOBAO_SEARCH_SHORT_VIDEO（手淘搜索-短视频）/ KEYWORD_PROMOTION（关键词推广）/ SHOP_SUPER_LINK（店铺超链）/ TAO_INTERNAL_UNCLASSIFIED（淘内待分类）",
       "oneOf": [
         {
           "type": "string",
@@ -129,27 +129,26 @@ category: item
     },
     "date_type": {
       "type": "string",
-      "description": "统计时间类型",
-      "enum": ["today", "recent7", "recent30", "day", "week", "month"],
-      "default": "day"
+      "description": "统计时间类型。允许值：TODAY（今日）/ LAST_7_DAYS（近 7 天）/ LAST_30_DAYS（近 30 天）/ DAY（按日）/ WEEK（自然周）/ MONTH（自然月）",
+      "enum": ["TODAY", "LAST_7_DAYS", "LAST_30_DAYS", "DAY", "WEEK", "MONTH"]
     },
     "biz_date": {
       "type": "string",
-      "description": "统计日期；week/month 时必填；day 未传默认 T-1",
+      "description": "业务日期；date_type 为 DAY/WEEK/MONTH 时必填；始终填一天；TODAY/LAST_7_DAYS/LAST_30_DAYS 时忽略。格式 YYYYMMDD 或 YYYY-MM-DD；DAY 不可选今日及以后；WEEK/MONTH 用这一天定位所在周/月，不可选本周/本月的日期；DAY/WEEK 最早 today-800；MONTH 最早约本年 1 月",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "terminal": {
       "type": "string",
-      "description": "终端",
+      "description": "终端。允许值：WIRELESS（无线端）/ PC（PC端）。不传则沿用页面当前终端",
       "enum": ["WIRELESS", "PC"]
     },
     "conversion_attribution": {
       "type": "string",
-      "description": "转化归属",
+      "description": "转化归属。允许值：EVERY_VISIT（每一次访问来源）/ FIRST_VISIT（第一次访问来源）/ LAST_VISIT（最后一次访问来源）。不传则沿用页面当前转化归属",
       "enum": ["EVERY_VISIT", "FIRST_VISIT", "LAST_VISIT"]
     },
     "detail_metrics": {
-      "description": "详情弹窗指标，最多 6 个；支持字符串（英文逗号分隔）或字符串数组",
+      "description": "详情弹窗指标，最多 6 个；支持字符串（英文逗号分隔）或字符串数组。不传则沿用页面当前勾选",
       "oneOf": [
         {
           "type": "string",
@@ -184,13 +183,13 @@ category: item
       ]
     }
   },
-  "required": ["item_id", "traffic_source"],
+  "required": ["item_id", "traffic_source", "date_type"],
   "allOf": [
     {
       "if": {
         "properties": {
           "date_type": {
-            "enum": ["week", "month"]
+            "enum": ["DAY", "WEEK", "MONTH"]
           }
         },
         "required": ["date_type"]

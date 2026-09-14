@@ -38,28 +38,27 @@ category: item
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `item_id` | 商品 ID | `string` | 是 | — | 商品 ID |
-| `date_type` | 统计时间类型 | `String` | 否 | `day` | 可选值：`recent7`（7天）/ `recent30`（30天）/ `day`（日）/ `week`（周）/ `month`（月）。不开放实时 |
-| `biz_date` | 业务日期 | `String` | 条件必填 | `day` 都空则昨日 T-1 | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`。`week`/`month` 必填；`recent7`/`recent30` 忽略本参数。日不可选今日及以后；周只接受已结束的完整周（周一至周日）；月只接受已结束的完整月 |
+| `item_id` | 商品 ID | `String` | 是 | `-` | |
+| `date_type` | 统计时间类型 | `String` | 是 | `-` | 允许值：`LAST_7_DAYS`（近 7 天）/ `LAST_30_DAYS`（近 30 天）/ `DAY`（按日）/ `WEEK`（自然周）/ `MONTH`（自然月） |
+| `biz_date` | 业务日期 | `String` | 条件必填 | `-` | `date_type` 为 `DAY`/`WEEK`/`MONTH` 时必填；始终填一天，格式 `YYYYMMDD` 或 `YYYY-MM-DD`；`LAST_7_DAYS`/`LAST_30_DAYS` 时忽略。`DAY` 不可选今日及以后；`WEEK`/`MONTH` 用这一天定位所在周/月，不可选本周/本月的日期；最早约 2024-07-01 |
 
 ### 入参样例
 
-按商品 + 默认昨天：
+近 7 天：
 
 ```json
 {
-  "item_id": "826562939262",
-  "date_type": "day"
+  "item_id": "752102501302",
+  "date_type": "LAST_7_DAYS"
 }
 ```
 
-指定自然日（`YYYY-MM-DD`）：
+近 30 天：
 
 ```json
 {
-  "item_id": "826562939262",
-  "date_type": "day",
-  "biz_date": "2026-08-05"
+  "item_id": "752102501302",
+  "date_type": "LAST_30_DAYS"
 }
 ```
 
@@ -67,28 +66,29 @@ category: item
 
 ```json
 {
-  "item_id": "826562939262",
-  "date_type": "day",
-  "biz_date": "20260305"
+  "item_id": "752102501302",
+  "date_type": "DAY",
+  "biz_date": "20260905"
 }
 ```
 
-近 7 天：
+指定自然日（`YYYY-MM-DD`）：
 
 ```json
 {
-  "item_id": "826562939262",
-  "date_type": "recent7"
+  "item_id": "752102501302",
+  "date_type": "DAY",
+  "biz_date": "2026-08-05"
 }
 ```
 
-按周（传入该周内任意一天）：
+按周：
 
 ```json
 {
-  "item_id": "826562939262",
-  "date_type": "week",
-  "biz_date": "2025-11-05"
+  "item_id": "752102501302",
+  "date_type": "WEEK",
+  "biz_date": "2026-08-31"
 }
 ```
 
@@ -96,9 +96,9 @@ category: item
 
 ```json
 {
-  "item_id": "826562939262",
-  "date_type": "month",
-  "biz_date": "2025-06-15"
+  "item_id": "752102501302",
+  "date_type": "MONTH",
+  "biz_date": "2026-08-01"
 }
 ```
 
@@ -117,24 +117,23 @@ category: item
     },
     "date_type": {
       "type": "string",
-      "description": "统计时间类型，未传默认 day。可选值：recent7（7天）/ recent30（30天）/ day（日）/ week（周）/ month（月）。不开放实时",
-      "enum": ["recent7", "recent30", "day", "week", "month"],
-      "default": "day"
+      "description": "统计时间类型。允许值：LAST_7_DAYS（近 7 天）/ LAST_30_DAYS（近 30 天）/ DAY（按日）/ WEEK（自然周）/ MONTH（自然月）",
+      "enum": ["LAST_7_DAYS", "LAST_30_DAYS", "DAY", "WEEK", "MONTH"]
     },
     "biz_date": {
       "type": "string",
-      "description": "业务日期；week/month 时必填；day 都空则昨日 T-1；recent7/recent30 时忽略。格式 YYYYMMDD 或 YYYY-MM-DD",
+      "description": "业务日期；date_type 为 DAY/WEEK/MONTH 时必填；始终填一天；LAST_7_DAYS/LAST_30_DAYS 时忽略。格式 YYYYMMDD 或 YYYY-MM-DD；DAY 不可选今日及以后；WEEK/MONTH 用这一天定位所在周/月，不可选本周/本月的日期；最早约 2024-07-01",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
-  "required": ["item_id"],
+  "required": ["item_id", "date_type"],
   "additionalProperties": false,
   "allOf": [
     {
       "if": {
         "properties": {
           "date_type": {
-            "enum": ["week", "month"]
+            "enum": ["DAY", "WEEK", "MONTH"]
           }
         },
         "required": ["date_type"]
@@ -164,11 +163,11 @@ category: item
 | `payAmt`               | 支付金额   | `string`              | 否     | `XLS.0.支付金额`   | 3,299.00 |
 | `avgPrice`             | 客单价     | `string`              | 否     | `XLS.0.客单价`     | 3,299.00 |
 | `payItemCnt`           | 支付件数   | `string`              | 否     | `XLS.0.支付件数`   | 1 |
-| `itemId`               | 商品 ID    | `string`              | 否     | 来自入参           | 826562939262 |
-| `dateType`             | 统计时间类型 | `String`            | 否     | 附加，来自入参 `date_type` | `day` |
-| `dateRangeStart`       | 统计区间起始日 | `String`          | 否     | 附加 | `2026-08-05` |
-| `dateRangeEnd`         | 统计区间结束日 | `String`          | 否     | 附加 | `2026-08-05` |
-| `bizDate`              | 业务日期   | `string`              | 否     | 附加，取区间结束日 `YYYYMMDD` | `20260805` |
+| `itemId`               | 商品 ID    | `string`              | 否     | 来自入参           | 752102501302 |
+| `dateType`             | 统计时间类型 | `String`            | 否     | 附加，来自入参 `date_type` | `DAY` |
+| `dateRangeStart`       | 统计区间起始日 | `String`          | 否     | 附加 | `2026-09-05` |
+| `dateRangeEnd`         | 统计区间结束日 | `String`          | 否     | 附加 | `2026-09-05` |
+| `bizDate`              | 业务日期   | `string`              | 否     | 附加，取区间结束日 `YYYYMMDD` | `20260905` |
 | `accountId`            | 授权 ID    | `string`              | 否     | 附加 | |
 
 ### 数据样例
@@ -189,11 +188,11 @@ category: item
     "payAmt": "3,299.00",
     "avgPrice": "3,299.00",
     "payItemCnt": "1",
-    "itemId": "826562939262",
-    "dateType": "day",
-    "dateRangeStart": "2026-08-05",
-    "dateRangeEnd": "2026-08-05",
-    "bizDate": "20260805",
+    "itemId": "752102501302",
+    "dateType": "DAY",
+    "dateRangeStart": "2026-09-05",
+    "dateRangeEnd": "2026-09-05",
+    "bizDate": "20260905",
     "accountId": "101"
   }
 ]

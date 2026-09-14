@@ -40,27 +40,19 @@ category: item
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `keyword` | 商品关键词 | `String` | 是 | — | 支持商品 ID、标题、货号或商品 URL；搜索后取第一条命中商品进入详情分析；未搜索到商品时报错退出 |
-| `date_type` | 统计时间类型 | `String` | 否 | `RECENT7` | 可选值：`RECENT7`（7天）/ `RECENT30`（30天）/ `DAY`（日）/ `WEEK`（周）/ `MONTH`（月）/ `CUSTOM`（自定义）；未传时默认近 7 天；非 `CUSTOM` 时点击对应按钮并采用页面默认区间 |
-| `custom_start_date` | 自定义起始日 | `String` | 条件必填 | — | `date_type=CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD` |
-| `custom_end_date` | 自定义结束日 | `String` | 条件必填 | — | `date_type=CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与起始日跨度不超过 31 天 |
+| `keyword` | 商品关键词 | `String` | 是 | `-` | 支持商品 ID、标题、货号或商品 URL；搜索后取第一条命中商品进入详情分析；未搜索到商品时报错退出 |
+| `date_type` | 统计时间类型 | `String` | 是 | `-` | 允许值: `LAST_7_DAYS`(近 7 天) / `LAST_30_DAYS`(近 30 天) / `DAY`(按日) / `WEEK`(自然周) / `MONTH`(自然月) / `CUSTOM`(自定义区间) |
+| `custom_start_date` | 自定义起始日 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD` |
+| `custom_end_date` | 自定义结束日 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与起始日跨度不超过 31 天 |
 
 ### 入参样例
-
-仅传商品关键词（统计时间默认近 7 天）：
-
-```json
-{
-  "keyword": "1051310889905"
-}
-```
 
 按商品 ID 查询近 7 天：
 
 ```json
 {
   "keyword": "1051310889905",
-  "date_type": "RECENT7"
+  "date_type": "LAST_7_DAYS"
 }
 ```
 
@@ -69,7 +61,7 @@ category: item
 ```json
 {
   "keyword": "示例品牌2026夏季新款连衣裙",
-  "date_type": "RECENT30"
+  "date_type": "LAST_30_DAYS"
 }
 ```
 
@@ -100,9 +92,8 @@ category: item
     },
     "date_type": {
       "type": "string",
-      "description": "统计时间类型，未传时默认 RECENT7（近 7 天）。可选值：RECENT7（7天）/ RECENT30（30天）/ DAY（日）/ WEEK（周）/ MONTH（月）/ CUSTOM（自定义）",
-      "enum": ["RECENT7", "RECENT30", "DAY", "WEEK", "MONTH", "CUSTOM"],
-      "default": "RECENT7"
+      "description": "统计时间类型。允许值：LAST_7_DAYS（近 7 天）/ LAST_30_DAYS（近 30 天）/ DAY（按日）/ WEEK（自然周）/ MONTH（自然月）/ CUSTOM（自定义区间）",
+      "enum": ["LAST_7_DAYS", "LAST_30_DAYS", "DAY", "WEEK", "MONTH", "CUSTOM"]
     },
     "custom_start_date": {
       "type": "string",
@@ -115,7 +106,7 @@ category: item
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
-  "required": ["keyword"],
+  "required": ["keyword", "date_type"],
   "allOf": [
     {
       "if": {
@@ -176,7 +167,7 @@ category: item
 | ---- | -------- | -------- | ------ | -------- | ---- |
 | `itemId` | 商品 ID | `String` | 否 | 搜索接口命中商品 | `105****905` (已脱敏) |
 | `itemName` | 商品名称 | `String` | 否 | 搜索接口命中商品 | `示例品牌2026夏季新款碎花拼接格纹连衣裙休闲宽松连衣裙` |
-| `dateType` | 统计时间类型 | `String` | 否 | 来自入参 `date_type` | `RECENT7` |
+| `dateType` | 统计时间类型 | `String` | 否 | 来自入参 `date_type` | `LAST_7_DAYS` |
 | `dateRangeStart` | 实际统计区间起始日 | `String` | 否 | 页面统计时间控件 | `2026-07-14` |
 | `dateRangeEnd` | 实际统计区间结束日 | `String` | 否 | 页面统计时间控件 | `2026-07-20` |
 | `detailList` @商品详情项 | 商品详情表格数据 | `List[Dict]` | 是 | 商品详情卡「表格」→「下载」导出文件 | 见数据样例 |
@@ -190,7 +181,7 @@ category: item
   {
     "itemId": "105****905",
     "itemName": "示例品牌2026夏季新款碎花拼接格纹连衣裙休闲宽松连衣裙",
-    "dateType": "RECENT7",
+    "dateType": "LAST_7_DAYS",
     "dateRangeStart": "2026-07-14",
     "dateRangeEnd": "2026-07-20",
     "detailList": [
