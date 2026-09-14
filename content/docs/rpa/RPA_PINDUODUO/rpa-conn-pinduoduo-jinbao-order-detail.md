@@ -32,41 +32,117 @@ category: jinbao
 
 ### 业务入参
 
-| 字段               | 中文释义       | 数据类型  | 必填 | 默认值     | 说明                                                                                       |
-| ------------------ | -------------- | --------- | ---- | ---------- | ------------------------------------------------------------------------------------------ |
-| `order_sn`         | 订单ID         | `string`  | 否   | `""`       | —                                                                                          |
-| `cps_type`         | 推广类型       | `string`  | 否   | `"全部"`   | 可选值：`全部` / `通用推广` / `专属推广` / `招商推广` / `全店推广`                           |
-| `activity_id`      | 活动ID         | `string`  | 否   | `""`       | —                                                                                          |
-| `promotion_status` | 状态           | `string`  | 否   | `"全部"`   | 可选值：`全部` / `推广成功` / `推广失败` / `进行中`                                         |
-| `time_range`       | 快速时间选择   | `string`  | 否   | `"过去7天"` | 可选值：`今天` / `昨天` / `过去7天` / `过去30天` / `过去60天` / `过去90天`；与自定义日期互斥 |
-| `start_date`       | 自定义开始日期 | `string`  | 否   | `""`       | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；须与 `end_date` 同时传，不能早于近 90 天前 |
-| `end_date`         | 自定义结束日期 | `string`  | 否   | `""`       | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；须与 `start_date` 同时传，不能晚于今天 |
+| 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
+| ---- | -------- | -------- | ---- | ------ | ---- |
+| `order_sn` | 订单ID | `String` | 否 | `-` | — |
+| `cps_type` | 推广类型 | `String` | 否 | `-` | 允许值：`ALL`（全部）/ `GENERAL_PROMOTION`（通用推广）/ `EXCLUSIVE_PROMOTION`（专属推广）/ `MERCHANT_PROMOTION`（招商推广）/ `STOREWIDE_PROMOTION`（全店推广） |
+| `activity_id` | 活动ID | `String` | 否 | `-` | — |
+| `promotion_status` | 状态 | `String` | 否 | `-` | 允许值：`ALL`（全部）/ `PROMOTION_SUCCESS`（推广成功）/ `PROMOTION_FAILED`（推广失败）/ `IN_PROGRESS`（进行中） |
+| `date_type` | 时间范围 | `String` | 是 | `-` | 允许值：`TODAY`（今日）/ `YESTERDAY`（昨日）/ `LAST_7_DAYS`（近 7 天）/ `LAST_30_DAYS`（近 30 天）/ `LAST_60_DAYS`（近 60 天）/ `LAST_90_DAYS`（近 90 天）/ `CUSTOM`（自定义区间） |
+| `custom_start_date` | 自定义开始日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` / `YYYY-MM-DD`；最早约 today-90 |
+| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` / `YYYY-MM-DD`；不可晚于今天 |
 
 ### 入参样例
 
-快速时间选择（默认过去 7 天）：
-
-```json
-{}
-```
-
-自定义日期（`YYYY-MM-DD`）：
+近 7 天：
 
 ```json
 {
-  "cps_type": "全店推广",
-  "start_date": "2026-04-01",
-  "end_date": "2026-04-30"
+  "date_type": "LAST_7_DAYS",
+  "custom_start_date": "",
+  "custom_end_date": ""
 }
 ```
 
-自定义日期（`YYYYMMDD`）：
+自定义区间（两种日期格式均可）：
 
 ```json
 {
-  "cps_type": "全店推广",
-  "start_date": "20260401",
-  "end_date": "20260430"
+  "date_type": "CUSTOM",
+  "custom_start_date": "20260901",
+  "custom_end_date": "2026-09-07"
+}
+```
+
+### 入参校验
+
+```json-schema collapsed
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "拼多多-多多进宝-推广效果-订单明细 - 查询入参",
+  "description": "date_type 必填；允许值 TODAY（今日）/ YESTERDAY（昨日）/ LAST_7_DAYS（近 7 天）/ LAST_30_DAYS（近 30 天）/ LAST_60_DAYS（近 60 天）/ LAST_90_DAYS（近 90 天）/ CUSTOM（自定义区间）；CUSTOM 时 custom_start_date / custom_end_date 条件必填；最早约 today-90；不可晚于今天",
+  "type": "object",
+  "required": ["date_type"],
+  "additionalProperties": false,
+  "properties": {
+    "order_sn": {
+      "type": "string",
+      "description": "订单ID"
+    },
+    "cps_type": {
+      "type": "string",
+      "description": "推广类型；允许值：ALL（全部）/ GENERAL_PROMOTION（通用推广）/ EXCLUSIVE_PROMOTION（专属推广）/ MERCHANT_PROMOTION（招商推广）/ STOREWIDE_PROMOTION（全店推广）",
+      "enum": [
+        "ALL",
+        "GENERAL_PROMOTION",
+        "EXCLUSIVE_PROMOTION",
+        "MERCHANT_PROMOTION",
+        "STOREWIDE_PROMOTION"
+      ]
+    },
+    "activity_id": {
+      "type": "string",
+      "description": "活动ID"
+    },
+    "promotion_status": {
+      "type": "string",
+      "description": "状态；允许值：ALL（全部）/ PROMOTION_SUCCESS（推广成功）/ PROMOTION_FAILED（推广失败）/ IN_PROGRESS（进行中）",
+      "enum": [
+        "ALL",
+        "PROMOTION_SUCCESS",
+        "PROMOTION_FAILED",
+        "IN_PROGRESS"
+      ]
+    },
+    "date_type": {
+      "type": "string",
+      "description": "时间范围；允许值：TODAY（今日）/ YESTERDAY（昨日）/ LAST_7_DAYS（近 7 天）/ LAST_30_DAYS（近 30 天）/ LAST_60_DAYS（近 60 天）/ LAST_90_DAYS（近 90 天）/ CUSTOM（自定义区间）",
+      "enum": [
+        "TODAY",
+        "YESTERDAY",
+        "LAST_7_DAYS",
+        "LAST_30_DAYS",
+        "LAST_60_DAYS",
+        "LAST_90_DAYS",
+        "CUSTOM"
+      ]
+    },
+    "custom_start_date": {
+      "type": "string",
+      "description": "自定义开始日期；date_type 为 CUSTOM 时必填；格式 YYYYMMDD / YYYY-MM-DD；最早约 today-90",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    },
+    "custom_end_date": {
+      "type": "string",
+      "description": "自定义结束日期；date_type 为 CUSTOM 时必填；格式 YYYYMMDD / YYYY-MM-DD；不可晚于今天",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "date_type": {
+            "const": "CUSTOM"
+          }
+        },
+        "required": ["date_type"]
+      },
+      "then": {
+        "required": ["custom_start_date", "custom_end_date"]
+      }
+    }
+  ]
 }
 ```
 

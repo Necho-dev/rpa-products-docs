@@ -1,5 +1,5 @@
 ---
-title: 财务-营销结算-结算批次列表
+title: 营销活动-结算批次信息
 description: 采集拼多多商家后台营销活动结算批次列表数据，支持按批次号、商品ID、结算状态筛选
 entry: rpa.conn.pinduoduo.finance.settlement.batch.list
 badge:
@@ -24,27 +24,59 @@ category: finance
 
 ### 目标页面
 
-> **取数路径**：拼多多商家后台—营销结算
+> **取数路径**：拼多多商家后台—营销结算—结算批次信息
 >
 > **取数链接**：[https://mms.pinduoduo.com/finance/expense](https://mms.pinduoduo.com/finance/expense)
 
-![拼多多—营销结算批次列表](../_public/images/pinduoduo/settlement_batch_list_20260513.png)
+![拼多多商家后台—营销结算—结算批次信息](../_public/images/pinduoduo/settlement_batch_list_20260513.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `expense_batch_sn` | 结算批次号 | `string` | 否 | `""` | — |
-| `goods_id` | 商品ID | `string` | 否 | `""` | 纯数字 |
-| `status` | 结算状态 | `string` | 否 | `""` | 可选值：`reviewing`（审核中） / `pending_invoice`（待填写发票信息） / `released_pending_invoice`（已释放待填写发票信息） / `pending_verification`（待系统验证） / `verification_failed`（系统验证失败） / `pending_shipping_info`（待填写寄票信息） / `pending_ticket_check`（待验票） / `pending_payment`（待打款） / `settled`（结算成功） / `revoked`（已撤销） |
+| `expense_batch_sn` | 结算批次号 | `String` | 否 | `-` | — |
+| `goods_id` | 商品 ID | `String` | 否 | `-` | 纯数字 |
+| `status` | 结算状态 | `String` | 否 | `-` | 允许值：`REVIEWING`（审核中）/ `PENDING_INVOICE`（待填写发票信息）/ `RELEASED_PENDING_INVOICE`（已释放待填写发票信息）/ `PENDING_VERIFICATION`（待系统验证）/ `VERIFICATION_FAILED`（系统验证失败）/ `PENDING_SHIPPING_INFO`（待填写寄票信息）/ `PENDING_TICKET_CHECK`（待验票）/ `PENDING_PAYMENT`（待打款）/ `SETTLED`（结算成功）/ `REVOKED`（已撤销） |
 
 ### 入参样例
 
 ```json
 {
-    "expense_batch_sn": "",
-    "goods_id": "",
-    "status": "settled"
+  "expense_batch_sn": "",
+  "goods_id": "",
+  "status": "SETTLED"
+}
+```
+
+### 入参校验
+
+```json-schema collapsed
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "拼多多-营销活动-结算批次信息 - 查询入参",
+  "description": "status 可选；允许值 REVIEWING（审核中）/ PENDING_INVOICE（待填写发票信息）/ RELEASED_PENDING_INVOICE（已释放待填写发票信息）/ PENDING_VERIFICATION（待系统验证）/ VERIFICATION_FAILED（系统验证失败）/ PENDING_SHIPPING_INFO（待填写寄票信息）/ PENDING_TICKET_CHECK（待验票）/ PENDING_PAYMENT（待打款）/ SETTLED（结算成功）/ REVOKED（已撤销）；goods_id 纯数字",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "expense_batch_sn": { "type": "string", "description": "结算批次号" },
+    "goods_id": { "type": "string", "description": "商品 ID；纯数字" },
+    "status": {
+      "type": "string",
+      "description": "结算状态；允许值：REVIEWING（审核中）/ PENDING_INVOICE（待填写发票信息）/ RELEASED_PENDING_INVOICE（已释放待填写发票信息）/ PENDING_VERIFICATION（待系统验证）/ VERIFICATION_FAILED（系统验证失败）/ PENDING_SHIPPING_INFO（待填写寄票信息）/ PENDING_TICKET_CHECK（待验票）/ PENDING_PAYMENT（待打款）/ SETTLED（结算成功）/ REVOKED（已撤销）",
+      "enum": [
+        "REVIEWING",
+        "PENDING_INVOICE",
+        "RELEASED_PENDING_INVOICE",
+        "PENDING_VERIFICATION",
+        "VERIFICATION_FAILED",
+        "PENDING_SHIPPING_INFO",
+        "PENDING_TICKET_CHECK",
+        "PENDING_PAYMENT",
+        "SETTLED",
+        "REVOKED"
+      ]
+    }
+  }
 }
 ```
 

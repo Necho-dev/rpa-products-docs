@@ -33,10 +33,10 @@ category: item
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `goods_ids` | 商品 ID | `String \| List[String]` | 否 | — | 支持英文逗号分隔字符串或 JSON 数组；多个查询时用空格或逗号隔开依次输入；不传则不按商品 ID 筛选 |
-| `goods_codes` | 商品编码 | `String \| List[String]` | 否 | — | 支持英文逗号分隔字符串或 JSON 数组；多个查询时用空格或逗号隔开依次输入；不传则不按商品编码筛选 |
-| `goods_name` | 商品名称 | `String` | 否 | — | 商品名称关键字；不传则不按商品名称筛选 |
-| `operation_type` | 操作类型 | `String` | 否 | `ALL` | 可选值：`ALL`（全部）、`PUBLISH`（发布）、`EDIT`（编辑） |
+| `goods_ids` | 商品 ID | `String \| List[String]` | 否 | `-` | 英文逗号分隔或列表 |
+| `goods_codes` | 商品编码 | `String \| List[String]` | 否 | `-` | 英文逗号分隔或列表 |
+| `goods_name` | 商品名称 | `String` | 否 | `-` | — |
+| `operation_type` | 操作类型 | `String` | 否 | `ALL` | 允许值：`ALL`（全部）/ `PUBLISH`（发布）/ `EDIT`（编辑） |
 
 ### 入参样例
 
@@ -76,7 +76,7 @@ category: item
   "type": "object",
   "properties": {
     "goods_ids": {
-      "description": "商品 ID，支持英文逗号分隔字符串或 JSON 数组；不传则不按商品 ID 筛选",
+      "description": "商品 ID；英文逗号分隔或列表",
       "oneOf": [
         {
           "type": "string"
@@ -90,7 +90,7 @@ category: item
       ]
     },
     "goods_codes": {
-      "description": "商品编码，支持英文逗号分隔字符串或 JSON 数组；不传则不按商品编码筛选",
+      "description": "商品编码；英文逗号分隔或列表",
       "oneOf": [
         {
           "type": "string"
@@ -105,14 +105,12 @@ category: item
     },
     "goods_name": {
       "type": "string",
-      "description": "商品名称关键字；不传则不按商品名称筛选",
-      "default": ""
+      "description": "商品名称"
     },
     "operation_type": {
       "type": "string",
-      "description": "操作类型，可选全部、发布或编辑",
-      "enum": ["ALL", "PUBLISH", "EDIT"],
-      "default": "ALL"
+      "description": "操作类型；允许值：ALL（全部）/ PUBLISH（发布）/ EDIT（编辑）",
+      "enum": ["ALL", "PUBLISH", "EDIT"]
     }
   },
   "required": [],

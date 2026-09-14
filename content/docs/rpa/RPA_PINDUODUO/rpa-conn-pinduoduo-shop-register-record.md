@@ -1,5 +1,5 @@
 ---
-title: 店铺-营销活动-报名记录
+title: 店铺-营销活动-营销报名记录
 description: 采集拼多多商家后台营销活动报名记录数据，支持按状态标签、活动类型、活动状态、商品名称/ID、提交时间筛选
 entry: rpa.conn.pinduoduo.shop.register.record
 badge:
@@ -34,15 +34,15 @@ category: shop
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `status_tab` | 状态标签 | `string` | 否 | `全部` | 可选项：`全部`、`待处理`、`审核中`、`活动中`、`已结束` |
-| `activity_type` | 活动类型 | `string` | 否 | — | 活动类型英文 code，如 `BILLION_SUBSIDY`（百亿补贴）；可选项见下方枚举 |
-| `activity_status` | 活动状态 | `List[str]` 或 `string` | 否 | `[]` | 活动状态英文 code 列表，或英文逗号分隔字符串；`ALL` 表示全选（仅支持单值，不可与其它状态多选）；可选项见下方枚举 |
-| `goods_name` | 商品名称 | `string` | 否 | — | 按商品名称模糊筛选 |
-| `goods_id` | 商品 ID | `List[str]` 或 `string` | 否 | — | 英文逗号分隔字符串或列表；单个 ID 最长 17 位 |
-| `submit_time_start` | 提交开始时间 | `string` | 与 `submit_time_end` 成对传入时必填 | — | 格式：`yyyyMMdd` / `yyyy-MM-dd` / `yyyyMMdd HH:mm:ss` / `yyyy-MM-dd HH:mm:ss`；纯日期自动补 `00:00:00` |
-| `submit_time_end` | 提交结束时间 | `string` | 与 `submit_time_start` 成对传入时必填 | — | 格式同 `submit_time_start`；与开始时间范围不得超过 30 天 |
+| `status_tab` | 状态标签 | `String` | 否 | `-` | 允许值：`ALL`（全部）/ `PENDING`（待处理）/ `REVIEWING`（审核中）/ `IN_PROGRESS`（活动中）/ `ENDED`（已结束） |
+| `activity_type` | 活动类型 | `String` | 否 | `-` | 允许值见下方枚举 |
+| `activity_status` | 活动状态 | `String \| List[String]` | 否 | `-` | 允许值见下方枚举；`ALL`（全选）仅支持单值，不可与其它状态多选 |
+| `goods_name` | 商品名称 | `String` | 否 | `-` | — |
+| `goods_id` | 商品 ID | `String \| List[String]` | 否 | `-` | 英文逗号分隔或列表；单个最长 17 位 |
+| `submit_start_date` | 提交开始时间 | `String` | 条件必填 | `-` | 与 `submit_end_date` 成对；均未传则不填页面时间筛选；格式 `YYYYMMDD` / `YYYY-MM-DD` / `YYYYMMDD HH:mm:ss` / `YYYY-MM-DD HH:mm:ss`；纯日期自动补 `00:00:00` |
+| `submit_end_date` | 提交结束时间 | `String` | 条件必填 | `-` | 与 `submit_start_date` 成对；格式同开始；跨度不超过 30 天 |
 
-**`activity_type` 可选项：**
+**`activity_type` 允许值：**
 
 ```json
 {
@@ -84,7 +84,7 @@ category: shop
 }
 ```
 
-**`activity_status` 可选项：**
+**`activity_status` 允许值：**
 
 ```json
 {
@@ -116,17 +116,76 @@ category: shop
 }
 ```
 
-> **提示**：`status_tab` 选的不是 `全部` 时，部分 `activity_status` 在当前状态标签下不可设置；若传入了不可选的状态，连接器将返回空数据，并在结果消息中说明哪些状态不可选，例如：`当前状态标签「待处理」下活动状态「审核通过」不可选择`。
+> **提示**：`status_tab` 选的不是 `ALL` 时，部分 `activity_status` 在当前状态标签下不可设置；若传入了不可选的状态，连接器将返回空数据，并在结果消息中说明哪些状态不可选，例如：`当前状态标签「待处理」下活动状态「审核通过」不可选择`。
 
 ### 入参样例
 
 ```json
 {
-    "status_tab": "全部",
-    "activity_type": "BILLION_SUBSIDY",
-    "activity_status": "REVIEW_PASSED,CANCELLED,ACTIVITY_OFFLINE",
-    "submit_time_start": "2026-04-28 01:00:00",
-    "submit_time_end": "2026-05-01 21:49:59"
+  "status_tab": "ALL",
+  "activity_type": "",
+  "activity_status": [],
+  "goods_name": "",
+  "goods_id": [],
+  "submit_start_date": "",
+  "submit_end_date": ""
+}
+```
+
+成对传入提交时间（两种日期格式均可）：
+
+```json
+{
+  "status_tab": "PENDING",
+  "submit_start_date": "20260901",
+  "submit_end_date": "2026-09-07 21:49:59"
+}
+```
+
+### 入参校验
+
+```json-schema collapsed
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "拼多多-店铺-营销活动-营销报名记录 - 查询入参",
+  "description": "status_tab 可选；允许值 ALL（全部）/ PENDING（待处理）/ REVIEWING（审核中）/ IN_PROGRESS（活动中）/ ENDED（已结束）；submit_start_date / submit_end_date 成对可选，均未传则不填页面时间筛选；跨度不超过 30 天",
+  "type": "object",
+  "required": [],
+  "additionalProperties": false,
+  "properties": {
+    "status_tab": {
+      "type": "string",
+      "description": "状态标签；允许值：ALL（全部）/ PENDING（待处理）/ REVIEWING（审核中）/ IN_PROGRESS（活动中）/ ENDED（已结束）",
+      "enum": ["ALL", "PENDING", "REVIEWING", "IN_PROGRESS", "ENDED"]
+    },
+    "activity_type": {
+      "type": "string",
+      "description": "活动类型；允许值见文档枚举"
+    },
+    "activity_status": {
+      "type": "array",
+      "description": "活动状态；允许值见文档枚举；ALL（全选）仅支持单值，不可与其它状态多选",
+      "items": { "type": "string" }
+    },
+    "goods_name": { "type": "string", "description": "商品名称" },
+    "goods_id": {
+      "type": "array",
+      "description": "商品 ID；单个最长 17 位",
+      "items": { "type": "string" }
+    },
+    "submit_start_date": {
+      "type": "string",
+      "description": "提交开始时间；与 submit_end_date 成对；均未传则不填页面时间筛选；格式 YYYYMMDD / YYYY-MM-DD / YYYYMMDD HH:mm:ss / YYYY-MM-DD HH:mm:ss；纯日期自动补 00:00:00"
+    },
+    "submit_end_date": {
+      "type": "string",
+      "description": "提交结束时间；与 submit_start_date 成对；跨度不超过 30 天"
+    }
+  },
+  "dependentRequired": {
+    "submit_start_date": ["submit_end_date"],
+    "submit_end_date": ["submit_start_date"]
+  }
 }
 ```
 

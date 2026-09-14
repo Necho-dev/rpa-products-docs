@@ -32,17 +32,17 @@ category: shop
 
 ### 业务入参
 
-| 字段         | 中文释义       | 数据类型 | 必填 | 默认值 | 说明                                         |
-| ------------ | -------------- | -------- | ---- | ------ | -------------------------------------------- |
-| `goods_id`   | 商品 ID        | `string` | 否   | —      | 最多 10 个，英文逗号分隔；也支持 JSON 数组格式 |
-| `goods_name` | 商品名称关键词 | `string` | 否   | —      | —                                            |
+| 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
+| ---- | -------- | -------- | ---- | ------ | ---- |
+| `goods_id` | 商品 ID | `String \| List[String]` | 否 | `-` | 最多 10 个，英文逗号分隔或列表 |
+| `goods_name` | 商品名称关键词 | `String` | 否 | `-` | — |
 
 ### 入参样例
 
 ```json
 {
-    "goods_id": "290328842701,290328842702",
-    "goods_name": "咖啡"
+  "goods_id": "",
+  "goods_name": ""
 }
 ```
 
@@ -52,20 +52,22 @@ category: shop
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "拼多多-商品领航员 - 查询入参",
-  "description": "采集拼多多商家后台商品领航员列表数据，包含综合分、考核指标排名及商品表现等维度",
+  "description": "goods_id 最多 10 个，英文逗号分隔或列表",
   "type": "object",
+  "additionalProperties": false,
   "properties": {
     "goods_id": {
-      "type": "string",
-      "description": "商品 ID，最多 10 个，英文逗号分隔；也支持 JSON 数组格式"
+      "description": "商品 ID；最多 10 个，英文逗号分隔或列表",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
     },
     "goods_name": {
       "type": "string",
       "description": "商品名称关键词"
     }
-  },
-  "required": [],
-  "additionalProperties": false
+  }
 }
 ```
 
