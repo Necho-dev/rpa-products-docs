@@ -46,34 +46,21 @@ prompt:
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `report_template_name` | 报表模板名称 | `String` | 是 | — | 与列表「报表模板名称」列精确匹配；0 条或多条匹配会失败 |
-| `time_granularity` | 时间粒度 | `String` | 是 | — | 英文 code。可选值：`HOURLY`（分小时）/ `DAILY`（分天）/ `SUMMARY`（汇总） |
-| `date_type` | 日期类型 | `String` | 否 | `YESTERDAY` | 英文 code。快捷优先于自定义：与自定义同时传入时按快捷、忽略自定义。走自定义必须传 `CUSTOM`。不传且起止皆空时默认 `YESTERDAY`。可选值：`YESTERDAY`（昨天）/ `LAST_7_DAYS`（最近7天）/ `LAST_15_DAYS`（最近15天）/ `LAST_1_MONTH`（最近1个月）/ `LAST_3_MONTHS`（最近3个月）/ `CUSTOM`（自定义）。快捷白名单随粒度：`HOURLY` 仅昨天+最近7天；`DAILY`/`SUMMARY` 含全部快捷；三种粒度均可 `CUSTOM` |
-| `custom_start_date` | 自定义起始日期 | `String` | 条件必填 | `None` | 仅 `YYYYMMDD` / `YYYY-MM-DD`；须与 `custom_end_date` 成对；**仅** `date_type=CUSTOM` 时生效；须 ≥ 三年前 1 月 1 日；空串视为未传；`HOURLY` 自定义跨度不超过 7 天（含起止） |
-| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `None` | 仅 `YYYYMMDD` / `YYYY-MM-DD`；须与 `custom_start_date` 成对；**仅** `date_type=CUSTOM` 时生效；须 ≤ 昨天；空串视为未传 |
+| `report_template_name` | 报表模板名称 | `String` | 是 | `-` | 与列表「报表模板名称」列精确匹配；0 条或多条匹配会失败 |
+| `time_granularity` | 时间粒度 | `String` | 是 | `-` | 允许值：`HOURLY`（分小时）/ `DAILY`（分天）/ `SUMMARY`（汇总） |
+| `date_type` | 日期类型 | `String` | 是 | `-` | 允许值：`YESTERDAY`（昨日）/ `LAST_7_DAYS`（近 7 天）/ `LAST_15_DAYS`（近 15 天）/ `LAST_1_MONTH`（近 1 个月）/ `LAST_3_MONTHS`（近 3 个月）/ `CUSTOM`（自定义）。与自定义同时传入时按快捷、忽略自定义。`HOURLY` 仅 `YESTERDAY` / `LAST_7_DAYS` / `CUSTOM`；`DAILY` / `SUMMARY` 含全部快捷与 `CUSTOM` |
+| `custom_start_date` | 自定义起始日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；须与 `custom_end_date` 成对；须 ≥ 三年前 1 月 1 日；`HOURLY` 跨度不超过 7 天（含起止） |
+| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；须与 `custom_start_date` 成对；须 ≤ 昨日 |
 
 ### 入参样例
 
-分天 + 最近 7 天：
-
 ```json
 {
-  "report_template_name": "投放效果报表",
+  "report_template_name": "7天-分天",
   "time_granularity": "DAILY",
   "date_type": "LAST_7_DAYS"
 }
 ```
-
-分小时 + 昨天（默认日期）：
-
-```json
-{
-  "report_template_name": "投放效果报表",
-  "time_granularity": "HOURLY"
-}
-```
-
-自定义区间：
 
 ```json
 {
@@ -82,18 +69,6 @@ prompt:
   "date_type": "CUSTOM",
   "custom_start_date": "2026-07-01",
   "custom_end_date": "2026-07-31"
-}
-```
-
-快捷优先（同时传自定义会被忽略）：
-
-```json
-{
-  "report_template_name": "投放效果报表",
-  "time_granularity": "SUMMARY",
-  "date_type": "LAST_15_DAYS",
-  "custom_start_date": "20260701",
-  "custom_end_date": "20260731"
 }
 ```
 
@@ -112,12 +87,12 @@ prompt:
       "minLength": 1
     },
     "time_granularity": {
-      "description": "时间粒度英文 code。可选值：HOURLY（分小时）/ DAILY（分天）/ SUMMARY（汇总）",
+      "description": "允许值：HOURLY（分小时）/ DAILY（分天）/ SUMMARY（汇总）",
       "type": "string",
       "enum": ["HOURLY", "DAILY", "SUMMARY"]
     },
     "date_type": {
-      "description": "日期类型英文 code，默认 YESTERDAY（昨天）。可选值：YESTERDAY（昨天）/ LAST_7_DAYS（最近7天）/ LAST_15_DAYS（最近15天）/ LAST_1_MONTH（最近1个月）/ LAST_3_MONTHS（最近3个月）/ CUSTOM（自定义）。与自定义同时传入时按快捷忽略自定义；走自定义必须传 CUSTOM；不传且起止皆空时按 YESTERDAY。HOURLY 仅允许 YESTERDAY、LAST_7_DAYS、CUSTOM；DAILY/SUMMARY 允许全部快捷与 CUSTOM",
+      "description": "允许值：YESTERDAY（昨日）/ LAST_7_DAYS（近 7 天）/ LAST_15_DAYS（近 15 天）/ LAST_1_MONTH（近 1 个月）/ LAST_3_MONTHS（近 3 个月）/ CUSTOM（自定义）。与自定义同时传入时按快捷、忽略自定义。HOURLY 仅 YESTERDAY / LAST_7_DAYS / CUSTOM；DAILY / SUMMARY 含全部快捷与 CUSTOM",
       "type": "string",
       "enum": [
         "YESTERDAY",
@@ -129,34 +104,19 @@ prompt:
       ]
     },
     "custom_start_date": {
-      "description": "自定义起始日期，仅 YYYYMMDD 或 YYYY-MM-DD；须与 custom_end_date 成对；仅 date_type=CUSTOM 时生效；须 ≥ 三年前1月1日；HOURLY 自定义跨度不超过7天；空串视为未传",
+      "description": "date_type 为 CUSTOM 时必填。格式 YYYYMMDD 或 YYYY-MM-DD；须与 custom_end_date 成对；须 ≥ 三年前 1 月 1 日；HOURLY 跨度不超过 7 天（含起止）",
       "type": "string",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_end_date": {
-      "description": "自定义结束日期，仅 YYYYMMDD 或 YYYY-MM-DD；须与 custom_start_date 成对；须 ≤ 昨天；空串视为未传",
+      "description": "date_type 为 CUSTOM 时必填。格式 YYYYMMDD 或 YYYY-MM-DD；须与 custom_start_date 成对；须 ≤ 昨日",
       "type": "string",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
-  "required": ["report_template_name", "time_granularity"],
+  "required": ["report_template_name", "time_granularity", "date_type"],
   "additionalProperties": false,
   "allOf": [
-    {
-      "if": {
-        "anyOf": [
-          { "required": ["custom_start_date"] },
-          { "required": ["custom_end_date"] }
-        ],
-        "not": { "required": ["date_type"] }
-      },
-      "then": {
-        "required": ["date_type"],
-        "properties": {
-          "date_type": { "const": "CUSTOM" }
-        }
-      }
-    },
     {
       "if": {
         "properties": { "date_type": { "const": "CUSTOM" } },

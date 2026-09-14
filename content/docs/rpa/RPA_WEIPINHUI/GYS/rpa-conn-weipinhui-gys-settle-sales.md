@@ -46,25 +46,15 @@ prompt:
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `custom_start_date` | 事务发生期间开始日 | `String` | 否 | `20260501` | 支持格式：`YYYYMMDD`、`YYYY-MM-DD`；不能晚于 `custom_end_date`；页面按月生效 |
-| `custom_end_date` | 事务发生期间结束日 | `String` | 否 | 昨天 | 支持格式：`YYYYMMDD`、`YYYY-MM-DD`；不能早于 `custom_start_date`；页面按月生效 |
+| `custom_start_date` | 事务发生期间开始日 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不能晚于 `custom_end_date`；页面按月生效 |
+| `custom_end_date` | 事务发生期间结束日 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不能早于 `custom_start_date`；页面按月生效 |
 
 ### 入参样例
-
-按事务发生期间导出（默认起止可省略）：
 
 ```json
 {
   "custom_start_date": "20260111",
-  "custom_end_date": "20260723"
-}
-```
-
-仅指定开始日（结束日默认昨天）：
-
-```json
-{
-  "custom_start_date": "2026-05-01"
+  "custom_end_date": "20260823"
 }
 ```
 
@@ -79,17 +69,16 @@ prompt:
   "properties": {
     "custom_start_date": {
       "type": "string",
-      "description": "事务发生期间开始日。支持 YYYYMMDD 或 YYYY-MM-DD；不能晚于 custom_end_date；页面按月生效",
-      "pattern": "^(\\d{4}-\\d{2}-\\d{2}|\\d{8})$",
-      "default": "20260501"
+      "description": "事务发生期间开始日。格式 YYYYMMDD 或 YYYY-MM-DD；不能晚于 custom_end_date；页面按月生效",
+      "pattern": "^(\\d{4}-\\d{2}-\\d{2}|\\d{8})$"
     },
     "custom_end_date": {
       "type": "string",
-      "description": "事务发生期间结束日。支持 YYYYMMDD 或 YYYY-MM-DD；默认昨天；不能早于 custom_start_date；页面按月生效",
+      "description": "事务发生期间结束日。格式 YYYYMMDD 或 YYYY-MM-DD；不能早于 custom_start_date；页面按月生效",
       "pattern": "^(\\d{4}-\\d{2}-\\d{2}|\\d{8})$"
     }
   },
-  "required": [],
+  "required": ["custom_start_date", "custom_end_date"],
   "additionalProperties": false
 }
 ```
