@@ -1,0 +1,10 @@
+{
+  "title": "天猫超市",
+  "categoryAxis": {
+    "title": "业务场景",
+    "items": [
+      { "key": "item", "item": "商品", "icon": { "comp": "ShoppingBag", "color": "#ea580c" } },
+      { "key": "refund", "item": "退款", "icon": { "comp": "Undo2", "color": "#ea580c" } }
+    ]
+  }
+}

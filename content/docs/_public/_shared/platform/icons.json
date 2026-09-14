@@ -156,6 +156,11 @@
       "sourceIcon": "local:ICO_TAOBAO",
       "origin": "tgc.tmall.com"
     },
+    "ICO_TIANMAOCHAOSHI": {
+      "file": "platform/files/ICO_TIANMAOCHAOSHI.png",
+      "sourceIcon": "local:ICO_TAOBAO",
+      "origin": "web.txcs.tmall.com"
+    },
     "ICO_WANGDIANTONG": {
       "file": "platform/files/ICO_WANGDIANTONG.png",
       "sourceIcon": "https://www.wangdian.cn/favicon.ico",
