@@ -38,8 +38,8 @@ category: finance
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `custom_start_date` | 订单下单开始时间 | `String` | 是 | — | 支持格式：YYYYMMDD、YYYY-MM-DD、YYYY-MM-DD HH:mm:ss、YYYYMMDD HH:mm:ss；不含时分秒时自动补 `00:00:00` |
-| `custom_end_date` | 订单下单结束时间 | `String` | 是 | — | 格式同 `custom_start_date`；不含时分秒时自动补 `23:59:59`；不能早于 `custom_start_date`；不能晚于当天；与 `custom_start_date` 间隔不超过 31 个自然日（含起止日） |
+| `custom_start_date` | 订单下单开始时间 | `String` | 是 | `-` | 支持格式：YYYYMMDD、YYYY-MM-DD、YYYY-MM-DD HH:mm:ss、YYYYMMDD HH:mm:ss；不含时分秒时自动补 `00:00:00` |
+| `custom_end_date` | 订单下单结束时间 | `String` | 是 | `-` | 格式同 `custom_start_date`；不含时分秒时自动补 `23:59:59`；不能早于 `custom_start_date`；不能晚于当天；与 `custom_start_date` 间隔不超过 31 个自然日（含起止日） |
 
 ### 入参样例
 

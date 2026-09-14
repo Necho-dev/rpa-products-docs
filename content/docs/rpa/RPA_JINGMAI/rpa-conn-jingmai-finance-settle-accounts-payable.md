@@ -34,9 +34,9 @@ category: finance
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `custom_start_date` | 单据日期开始 | `String` | 是 | — | 支持格式：`YYYYMMDD`、`YYYY-MM-DD`；不能早于近一年（相对当天） |
-| `custom_end_date` | 单据日期结束 | `String` | 是 | — | 支持格式：`YYYYMMDD`、`YYYY-MM-DD`；不能晚于当天；不能早于 `custom_start_date` |
-| `bill_statuses` | 单据状态 | `String` \| `List[String]` | 否 | — | 多选；可选值：`UNSETTLED`（未结算）、`APPLYING`（申请中）、`APPROVED`（审核通过）、`SETTLED`（已结算）；字符串形式为英文逗号分隔 |
+| `custom_start_date` | 单据日期开始 | `String` | 是 | `-` | 支持格式：`YYYYMMDD`、`YYYY-MM-DD`；不能早于近一年（相对当天） |
+| `custom_end_date` | 单据日期结束 | `String` | 是 | `-` | 支持格式：`YYYYMMDD`、`YYYY-MM-DD`；不能晚于当天；不能早于 `custom_start_date` |
+| `bill_statuses` | 单据状态 | `String` \| `List[String]` | 否 | `-` | 多选；可选值：`UNSETTLED`（未结算）、`APPLYING`（申请中）、`APPROVED`（审核通过）、`SETTLED`（已结算）；字符串形式为英文逗号分隔 |
 
 ### 入参样例
 
