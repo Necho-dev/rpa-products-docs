@@ -1,5 +1,5 @@
 ---
-title: 品牌新享-超级老客加速-数据导出
+title: 数据中心-超级老客加速-店铺维度
 description: 采集阿里妈妈品牌新享数据中心「超级老客加速」模块的老客数据指标
 entry: rpa.conn.alimm.ppxx.data.center.old.index
 badge:
@@ -24,18 +24,18 @@ category: old
 
 ### 目标页面
 
-> **取数路径**：阿里妈妈—品牌新享—数据中心—超级老客加速
+> **取数路径**：品牌新享—数据中心—超级老客加速—店铺维度
 >
 > **取数链接**：[https://ppxk.tmall.com/new/index.htm#!/data-center/old/index](https://ppxk.tmall.com/new/index.htm#!/data-center/old/index)
 
-![阿里妈妈—品牌新享超级老客加速数据](../../_public/images/alimm/data_center_old_index_20260512.png)
+![品牌新享—数据中心—超级老客加速—店铺维度](../../_public/images/alimm/data_center_old_index_20260512.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `custom_start_date` | 起始日期 | `string` | 否 | 昨天 | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；须与 `custom_end_date` 同时提供或同时缺省 |
-| `custom_end_date` | 结束日期 | `string` | 否 | 昨天 | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；须与 `custom_start_date` 同时提供或同时缺省；不能超过今天 |
+| `custom_start_date` | 起始日期 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不能晚于 `custom_end_date` |
+| `custom_end_date` | 结束日期 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不能晚于今天 |
 
 ### 入参样例
 
@@ -62,26 +62,22 @@ category: old
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "品牌新享-超级老客加速-数据导出 - 查询入参",
+  "title": "数据中心-超级老客加速-店铺维度 - 查询入参",
   "description": "采集阿里妈妈品牌新享数据中心「超级老客加速」模块的老客数据指标",
   "type": "object",
   "properties": {
     "custom_start_date": {
       "type": "string",
-      "description": "起始日期，支持 YYYYMMDD 或 YYYY-MM-DD；与结束日期同时缺省时默认昨天",
+      "description": "起始日期，格式 YYYYMMDD 或 YYYY-MM-DD；不能晚于 custom_end_date",
       "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_end_date": {
       "type": "string",
-      "description": "结束日期，支持 YYYYMMDD 或 YYYY-MM-DD；不能早于起始日期或晚于今天；与起始日期同时缺省时默认昨天",
+      "description": "结束日期，格式 YYYYMMDD 或 YYYY-MM-DD；不能晚于今天",
       "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
-  "required": [],
-  "dependentRequired": {
-    "custom_start_date": ["custom_end_date"],
-    "custom_end_date": ["custom_start_date"]
-  },
+  "required": ["custom_start_date", "custom_end_date"],
   "additionalProperties": false
 }
 ```

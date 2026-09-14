@@ -1,5 +1,5 @@
 ---
-title: 淘宝联盟-数据分析-推广概览
+title: 数据分析-推广概览-数据汇总
 description: 按时间范围、数据维度与数据内容导出淘宝联盟推广概览报表，支持分天或汇总、按计划/活动类型或店铺整体维度采集推广效果指标
 entry: rpa.conn.alimm.tblm.data.analysis.promotion.overview
 badge:
@@ -28,21 +28,21 @@ category: analysis
 
 ### 目标页面
 
-> **取数路径**：阿里妈妈—淘宝联盟—报表—推广概览
+> **取数路径**：淘宝联盟—数据分析—推广概览—数据汇总
 >
 > **取数链接**：[https://ad.alimama.com/portal/v2/report/promotionDataPage.htm](https://ad.alimama.com/portal/v2/report/promotionDataPage.htm)
 
-![阿里妈妈—淘宝联盟—推广概览](../../_public/images/alimm/tblm_data_analysis_promotion_overview_20260728.png)
+![淘宝联盟—数据分析—推广概览—数据汇总](../../_public/images/alimm/tblm_data_analysis_promotion_overview_20260728.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `date_type` | 时间类型 | `String` | 是 | — | 可选值：`TODAY_REALTIME`（今日）、`YESTERDAY`（昨日）、`LAST_7_DAYS`（近7天）、`LAST_15_DAYS`（近15天）、`LAST_30_DAYS`（近30天）、`CUSTOM`（自定义） |
-| `custom_start_date` | 自定义起始日期 | `String` | 条件必填 | — | 格式：`YYYYMMDD` 或 `YYYY-MM-DD`；仅 `date_type=CUSTOM` 时必填；不能早于近 400 天 |
-| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | — | 格式：`YYYYMMDD` 或 `YYYY-MM-DD`；仅 `date_type=CUSTOM` 时必填；不能晚于当天；与起始日期间隔不超过 31 天 |
-| `data_dimension` | 数据维度 | `String` | 是 | — | 可选值：`BY_DAY`（分天）、`SUMMARY`（汇总） |
-| `data_content` | 数据内容 | `String` | 是 | — | 可选值：`BY_PLAN_TYPE`（按计划/活动类型）、`BY_SHOP`（按店铺整体） |
+| `date_type` | 时间类型 | `String` | 是 | `-` | 允许值：`TODAY`（今日）/ `YESTERDAY`（昨日）/ `LAST_7_DAYS`（近 7 天）/ `LAST_15_DAYS`（近 15 天）/ `LAST_30_DAYS`（近 30 天）/ `CUSTOM`（自定义区间） |
+| `custom_start_date` | 自定义起始日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不能早于近 400 天 |
+| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不能晚于当天；与起始日期间隔不超过 31 天 |
+| `data_dimension` | 数据维度 | `String` | 是 | `-` | 允许值：`BY_DAY`（分天）/ `SUMMARY`（汇总） |
+| `data_content` | 数据内容 | `String` | 是 | `-` | 允许值：`BY_PLAN_TYPE`（按计划/活动类型）/ `BY_SHOP`（按店铺整体） |
 
 ### 入参样例
 
@@ -73,15 +73,15 @@ category: analysis
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "阿里妈妈-淘宝联盟推广概览 - 查询入参",
+  "title": "数据分析-推广概览-数据汇总 - 查询入参",
   "description": "按时间范围、数据维度与数据内容导出淘宝联盟推广概览报表，支持分天或汇总、按计划/活动类型或店铺整体维度采集推广效果指标",
   "type": "object",
   "properties": {
     "date_type": {
       "type": "string",
-      "description": "时间类型",
+      "description": "时间类型，允许值 TODAY（今日）/ YESTERDAY（昨日）/ LAST_7_DAYS（近 7 天）/ LAST_15_DAYS（近 15 天）/ LAST_30_DAYS（近 30 天）/ CUSTOM（自定义区间）",
       "enum": [
-        "TODAY_REALTIME",
+        "TODAY",
         "YESTERDAY",
         "LAST_7_DAYS",
         "LAST_15_DAYS",

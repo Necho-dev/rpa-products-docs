@@ -1,6 +1,6 @@
 ---
-title: 达摩盘-竞争态势-竞争商品分析
-description: 采集达摩盘竞争态势分析页中本品与竞品的基础分析（含竞争控比）、流量分析（付免/无界投资结构占比、广告域/全域归因渠道明细）及客群画像；四段自定义日期均填时启用自定义周期，均未填时默认近7天；本品或竞品未搜到时返回空数据
+title: 市场-竞争态势分析-竞争商品分析
+description: 采集达摩盘竞争态势分析页中本品与竞品的基础分析（含竞争控比）、流量分析（付免/无界投资结构占比、广告域/全域归因渠道明细）及客群画像；本品或竞品未搜到时返回空数据
 entry: rpa.conn.alimm.dmp.compete.situation.item
 badge:
   label: 已上线
@@ -18,89 +18,66 @@ category: compete
 | **连接器代码**   | `rpa.conn.alimm.dmp.compete.situation.item`|
 | **操作类型**     | `页面解析`|
 | **目标网页**     | `https://dmp.taobao.com/index_new.html#!/compete/compete-situation`|
-| **适用场景**     | 采集达摩盘竞争态势分析页中本品与竞品的基础分析（含竞争控比）、流量分析（付免/无界投资结构占比、广告域/全域归因渠道明细）及客群画像；四段自定义日期均填时启用自定义周期，均未填时默认近7天；本品或竞品未搜到时返回空数据|
+| **适用场景**     | 采集达摩盘竞争态势分析页中本品与竞品的基础分析（含竞争控比）、流量分析（付免/无界投资结构占比、广告域/全域归因渠道明细）及客群画像；本品或竞品未搜到时返回空数据|
 | **数据表名**     | `ods_rpa_alimm_dmp_compete_situation_item_du`|
 | **业务表名**     | `ODS_达摩盘竞争态势竞争商品分析信息表(阿里妈妈RPA)`|
 
 ### 目标页面
 
-> **取数路径**：阿里妈妈达摩盘—市场—竞争分析—竞争态势分析—竞争商品分析
+> **取数路径**：达摩盘—市场—竞争态势分析—竞争商品分析
 >
 > **取数链接**：[https://dmp.taobao.com/index_new.html#!/compete/compete-situation](https://dmp.taobao.com/index_new.html#!/compete/compete-situation)
 
-![阿里妈妈达摩盘—竞争商品分析](../../_public/images/alimm/dmp_compete_situation_item_20260706.png)
+![达摩盘—市场—竞争态势分析—竞争商品分析](../../_public/images/alimm/dmp_compete_situation_item_20260706.png)
 
 ### 业务入参
 
-| 字段                       | 中文释义     | 数据类型                    | 必填   | 默认值       | 说明                                                                                                               |
-| ------------------------ | -------- | ----------------------- | ---- | --------- | ---------------------------------------------------------------------------------------------------------------- |
-| `self_item_id`           | 本店商品 ID  | `String`                | 是    | —         | 不可与 `rival_item_ids` 中任一 ID 重复                                                                                   |
-| `rival_item_ids`         | 竞争商品 ID  | `String \| List[String]` | 是    | —         | 英文逗号分隔字符串或 JSON 数组；中文逗号自动转换；最多 3 个；示例 `"123,456"` 或 `["123","456"]`                                              |
-| `custom_start_date`      | 分析开始日期   | `String`                | 否    | —         | 与 `custom_end_date`、`custom_peer_start_date`、`custom_peer_end_date` **须同时填写**才启用自定义周期；四段均未填时沿用页面刷新后的默认 recent7 展示值；支持格式：YYYYMMDD、YYYY-MM-DD；静态校验：不能晚于昨日、四段整体跨度不超过 90 天、不能早于 N-1 起算的最近 90 天最早可能日期；最终是否可选由页面日历点选决定，灰色不可选时返回业务失败 |
-| `custom_end_date`        | 分析结束日期   | `String`                | 否    | —         | 须与另外三段自定义日期同时填写；支持格式：YYYYMMDD、YYYY-MM-DD；静态校验规则同上；不可早于 `custom_start_date` |
-| `custom_peer_start_date` | 对比周期开始日期 | `String`                | 否    | —         | 须与另外三段自定义日期同时填写；支持格式：YYYYMMDD、YYYY-MM-DD；静态校验规则同上 |
-| `custom_peer_end_date`   | 对比周期结束日期 | `String`                | 否    | —         | 须与另外三段自定义日期同时填写；支持格式：YYYYMMDD、YYYY-MM-DD；静态校验规则同上；不可早于 `custom_peer_start_date`；分析周期与对比周期允许重叠 |
-| `customer_time_window`   | 分析对象客群时间周期 | `String`            | 否    | `recent7` | 可选值：`recent7`（最近7天）、`recent15`（最近15天）、`recent30`（最近30天）、`recent90`（最近90天） |
-| `compare_customer_time_window` | 对比对象客群时间周期 | `String`      | 否    | 同 `customer_time_window` | 可选值同上 |
-| `customer_behavior_types` | 分析对象客群行为 | `String \| List[String]` | 否 | 全选 | 英文 code：`browse`（浏览）、`favorite`（收藏）、`add_cart`（加购）、`purchase`（购买）、`search`（搜索）；英文逗号或 JSON 数组 |
-| `compare_customer_behavior_types` | 对比对象客群行为 | `String \| List[String]` | 否 | 全选 | 可选值同上 |
+| 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
+| ---- | -------- | -------- | ---- | ------ | ---- |
+| `self_item_id` | 本店商品 ID | `String` | 是 | `-` | 不可与 `rival_item_ids` 中任一 ID 重复 |
+| `rival_item_ids` | 竞争商品 ID | `String \| List[String]` | 是 | `-` | 最多 3 个 |
+| `analysis_start_date` | 分析开始日期 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD` |
+| `analysis_end_date` | 分析结束日期 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不能晚于昨日 |
+| `compare_start_date` | 对比周期开始日期 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD` |
+| `compare_end_date` | 对比周期结束日期 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD` |
+| `customer_date_type` | 分析对象客群时间周期 | `String` | 是 | `-` | 允许值：`LAST_7_DAYS`（近 7 天）/ `LAST_15_DAYS`（近 15 天）/ `LAST_30_DAYS`（近 30 天）/ `LAST_90_DAYS`（近 90 天） |
+| `compare_customer_date_type` | 对比对象客群时间周期 | `String` | 是 | `-` | 允许值同上 |
+| `customer_behavior_types` | 分析对象客群行为 | `String \| List[String]` | 否 | `-` | 允许值：`BROWSE`（浏览）/ `FAVORITE`（收藏）/ `ADD_CART`（加购）/ `PURCHASE`（购买）/ `SEARCH`（搜索）；未传或空则页面全选 |
+| `compare_customer_behavior_types` | 对比对象客群行为 | `String \| List[String]` | 否 | `-` | 允许值同上；未传或空则页面全选 |
 
 ### 入参样例
 
-**默认近 7 天** — 只传本品与竞品 ID；四段日期均未填，沿用页面默认分析/对比周期。
+`YYYYMMDD`：
 
 ```json
 {
-  "self_item_id": "897425691792",
-  "rival_item_ids": "1057000824998,1044235732163,1019326026903"
+    "self_item_id": "897425691792",
+    "rival_item_ids": "1057000824998,1044235732163,1019326026903",
+    "analysis_start_date": "20260801",
+    "analysis_end_date": "20260807",
+    "compare_start_date": "20260720",
+    "compare_end_date": "20260726",
+    "customer_date_type": "LAST_7_DAYS",
+    "compare_customer_date_type": "LAST_7_DAYS",
+    "customer_behavior_types": "",
+    "compare_customer_behavior_types": ""
 }
 ```
 
-**自定义周期（横线日期）** — 四段自定义日期须同时填写，格式 `YYYY-MM-DD`。
+`YYYY-MM-DD`：
 
 ```json
 {
-  "self_item_id": "897425691792",
-  "rival_item_ids": "1057000824998",
-  "custom_start_date": "2026-06-10",
-  "custom_end_date": "2026-06-20",
-  "custom_peer_start_date": "2026-06-05",
-  "custom_peer_end_date": "2026-06-15"
-}
-```
-
-**自定义周期（紧凑日期）** — 同上，日期亦支持 `YYYYMMDD`。
-
-```json
-{
-  "self_item_id": "897425691792",
-  "rival_item_ids": "1057000824998",
-  "custom_start_date": "20260610",
-  "custom_end_date": "20260620",
-  "custom_peer_start_date": "20260605",
-  "custom_peer_end_date": "20260615"
-}
-```
-
-**指定客群行为（单行为）** — 分析对象与对比对象均只采集「浏览」。
-
-```json
-{
-  "self_item_id": "897425691792",
-  "rival_item_ids": "1057000824998",
-  "customer_time_window": "recent7",
-  "customer_behavior_types": "browse",
-  "compare_customer_behavior_types": "browse"
-}
-```
-
-**指定客群行为（多行为）** — 分析对象全选；对比对象未传时默认亦全选。
-
-```json
-{
-  "self_item_id": "897425691792",
-  "rival_item_ids": "1057000824998",
-  "customer_behavior_types": ["browse", "favorite", "add_cart", "purchase", "search"]
+    "self_item_id": "897425691792",
+    "rival_item_ids": "1057000824998",
+    "analysis_start_date": "2026-08-01",
+    "analysis_end_date": "2026-08-07",
+    "compare_start_date": "2026-07-20",
+    "compare_end_date": "2026-07-26",
+    "customer_date_type": "LAST_7_DAYS",
+    "compare_customer_date_type": "LAST_15_DAYS",
+    "customer_behavior_types": "BROWSE",
+    "compare_customer_behavior_types": "BROWSE"
 }
 ```
 
@@ -109,88 +86,88 @@ category: compete
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "阿里妈妈达摩盘-竞争商品分析 - 查询入参",
-  "description": "采集达摩盘竞争态势分析页中本品与竞品的基础分析（含竞争控比）、流量分析（付免/无界投资结构占比、广告域/全域归因渠道明细）及客群画像；四段自定义日期均填时启用自定义周期，均未填时默认近7天；本品或竞品未搜到时返回空数据",
+  "title": "市场-竞争态势分析-竞争商品分析 - 查询入参",
+  "description": "采集达摩盘竞争态势分析页中本品与竞品的基础分析、流量分析及客群画像",
   "type": "object",
   "properties": {
     "self_item_id": {
       "type": "string",
-      "description": "本店商品 ID；不可与 rival_item_ids 中任一 ID 重复"
+      "description": "本店商品 ID，不可与 rival_item_ids 中任一 ID 重复"
     },
     "rival_item_ids": {
-      "description": "竞争商品 ID；英文逗号分隔字符串或字符串数组；中文逗号自动转换；最多 3 个",
+      "description": "竞争商品 ID，最多 3 个",
       "oneOf": [
         { "type": "string" },
         { "type": "array", "items": { "type": "string" }, "maxItems": 3 }
       ]
     },
-    "custom_start_date": {
+    "analysis_start_date": {
       "type": "string",
-      "description": "分析开始日期；须与另外三段自定义日期同时填写才启用自定义周期；四段均未填时沿用页面默认 recent7；支持 YYYYMMDD 或 YYYY-MM-DD；静态校验：不能晚于昨日、四段整体跨度不超过 90 天、不能早于 N-2 起算的最近 90 天最早可能日期；页面日历灰色不可选时返回业务失败",
-      "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+      "description": "分析开始日期，格式 YYYYMMDD 或 YYYY-MM-DD",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
-    "custom_end_date": {
+    "analysis_end_date": {
       "type": "string",
-      "description": "分析结束日期；须与另外三段自定义日期同时填写；支持 YYYYMMDD 或 YYYY-MM-DD；静态校验规则同上；不可早于 custom_start_date",
-      "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+      "description": "分析结束日期，格式 YYYYMMDD 或 YYYY-MM-DD；不能晚于昨日",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
-    "custom_peer_start_date": {
+    "compare_start_date": {
       "type": "string",
-      "description": "对比周期开始日期；须与另外三段自定义日期同时填写；支持 YYYYMMDD 或 YYYY-MM-DD；静态校验规则同上",
-      "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+      "description": "对比周期开始日期，格式 YYYYMMDD 或 YYYY-MM-DD",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
-    "custom_peer_end_date": {
+    "compare_end_date": {
       "type": "string",
-      "description": "对比周期结束日期；须与另外三段自定义日期同时填写；支持 YYYYMMDD 或 YYYY-MM-DD；静态校验规则同上；不可早于 custom_peer_start_date",
-      "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+      "description": "对比周期结束日期，格式 YYYYMMDD 或 YYYY-MM-DD",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
-    "customer_time_window": {
+    "customer_date_type": {
       "type": "string",
-      "description": "分析对象客群时间周期",
-      "enum": ["recent7", "recent15", "recent30", "recent90"],
-      "default": "recent7"
+      "description": "分析对象客群时间周期，允许值 LAST_7_DAYS（近 7 天）/ LAST_15_DAYS（近 15 天）/ LAST_30_DAYS（近 30 天）/ LAST_90_DAYS（近 90 天）",
+      "enum": ["LAST_7_DAYS", "LAST_15_DAYS", "LAST_30_DAYS", "LAST_90_DAYS"]
     },
-    "compare_customer_time_window": {
+    "compare_customer_date_type": {
       "type": "string",
-      "description": "对比对象客群时间周期；默认与 customer_time_window 相同",
-      "enum": ["recent7", "recent15", "recent30", "recent90"]
+      "description": "对比对象客群时间周期，允许值同上",
+      "enum": ["LAST_7_DAYS", "LAST_15_DAYS", "LAST_30_DAYS", "LAST_90_DAYS"]
     },
     "customer_behavior_types": {
-      "description": "分析对象客群行为；英文 code；英文逗号分隔或字符串数组；默认全选",
+      "description": "分析对象客群行为，允许值 BROWSE / FAVORITE / ADD_CART / PURCHASE / SEARCH；未传或空则页面全选",
       "oneOf": [
         { "type": "string" },
         {
           "type": "array",
           "items": {
             "type": "string",
-            "enum": ["browse", "favorite", "add_cart", "purchase", "search"]
-          },
-          "minItems": 1
+            "enum": ["BROWSE", "FAVORITE", "ADD_CART", "PURCHASE", "SEARCH"]
+          }
         }
       ]
     },
     "compare_customer_behavior_types": {
-      "description": "对比对象客群行为；英文 code；英文逗号分隔或字符串数组；默认全选",
+      "description": "对比对象客群行为，允许值同上；未传或空则页面全选",
       "oneOf": [
         { "type": "string" },
         {
           "type": "array",
           "items": {
             "type": "string",
-            "enum": ["browse", "favorite", "add_cart", "purchase", "search"]
-          },
-          "minItems": 1
+            "enum": ["BROWSE", "FAVORITE", "ADD_CART", "PURCHASE", "SEARCH"]
+          }
         }
       ]
     }
   },
-  "required": ["self_item_id", "rival_item_ids"],
-  "dependentRequired": {
-    "custom_start_date": ["custom_end_date", "custom_peer_start_date", "custom_peer_end_date"],
-    "custom_end_date": ["custom_start_date", "custom_peer_start_date", "custom_peer_end_date"],
-    "custom_peer_start_date": ["custom_start_date", "custom_end_date", "custom_peer_end_date"],
-    "custom_peer_end_date": ["custom_start_date", "custom_end_date", "custom_peer_start_date"]
-  },
+  "required": [
+    "self_item_id",
+    "rival_item_ids",
+    "analysis_start_date",
+    "analysis_end_date",
+    "compare_start_date",
+    "compare_end_date",
+    "customer_date_type",
+    "compare_customer_date_type"
+  ],
   "additionalProperties": false
 }
 ```

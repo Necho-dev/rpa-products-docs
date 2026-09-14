@@ -1,5 +1,5 @@
 ---
-title: 品销宝-品牌专区-计划列表
+title: 计划-品牌专区-计划列表
 description: 采集合妈妈品销宝品牌专区推广计划列表及展现、点击、消耗等报表指标
 entry: rpa.conn.alimm.pxb.brand.plan.list
 badge:
@@ -24,28 +24,95 @@ category: brand
 
 ### 目标页面
 
-> **取数路径**：阿里妈妈—品销宝—品牌专区—计划列表
+> **取数路径**：品销宝—计划—品牌专区—计划列表
 >
 > **取数链接**：[https://branding.taobao.com/#!/plan/index](https://branding.taobao.com/#!/plan/index)
 
-![阿里妈妈—品销宝品牌专区计划列表](../../_public/images/alimm/pxb_brand_plan_list_20260610.png)
+![品销宝—计划—品牌专区—计划列表](../../_public/images/alimm/pxb_brand_plan_list_20260610.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `status` | 计划状态 | `string` | 否 | `valid` | 可选 `all`（全部状态）/ `valid`（有效计划）/ `running`（正在投放）/ `paused`（暂停投放）/ `waiting`（等待投放）/ `ended`（结束投放） |
-| `date_type` | 统计时间类型 | `string` | 否 | `today` | 可选 `today`（今天）/ `yesterday`（昨天）/ `last_7_days`（过去7天，不含今天）/ `last_15_days`（过去15天，不含今天）/ `last_30_days`（过去30天，不含今天）/ `this_month`（本月1日至今天）/ `last_month`（上月整月）/ `custom`（自定义，需配合 `custom_start_date` / `custom_end_date`） |
-| `custom_start_date` | 自定义起始日期 | `string` | 否 | `—` | `date_type` 为 `custom` 时必填，格式 `YYYYMMDD` 或 `YYYY-MM-DD` |
-| `custom_end_date` | 自定义结束日期 | `string` | 否 | `—` | `date_type` 为 `custom` 时必填，格式 `YYYYMMDD` 或 `YYYY-MM-DD`，最晚为今天 |
-| `search_plan` | 搜索计划关键词 | `string` | 否 | `—` | 按计划名称模糊搜索，留空表示不筛选 |
+| `status` | 计划状态 | `String` | 否 | `VALID` | 允许值：`ALL`（全部状态）/ `VALID`（有效计划）/ `RUNNING`（正在投放）/ `PAUSED`（暂停投放）/ `WAITING`（等待投放）/ `ENDED`（结束投放） |
+| `date_type` | 统计时间类型 | `String` | 是 | `-` | 允许值：`TODAY`（今日）/ `YESTERDAY`（昨日）/ `LAST_7_DAYS`（近 7 天）/ `LAST_15_DAYS`（近 15 天）/ `LAST_30_DAYS`（近 30 天）/ `THIS_MONTH`（本月）/ `LAST_MONTH`（上月）/ `CUSTOM`（自定义区间） |
+| `custom_start_date` | 自定义起始日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD` |
+| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；最晚为今天 |
+| `search_plan` | 搜索计划关键词 | `String` | 否 | `-` | 按计划名称模糊搜索 |
 
 ### 入参样例
 
+`YYYYMMDD`：
+
 ```json
 {
-    "status": "valid",
-    "date_type": "today"
+    "status": "ALL",
+    "date_type": "CUSTOM",
+    "custom_start_date": "20260101",
+    "custom_end_date": "20260610",
+    "search_plan": ""
+}
+```
+
+`YYYY-MM-DD`：
+
+```json
+{
+    "status": "",
+    "date_type": "CUSTOM",
+    "custom_start_date": "2026-01-01",
+    "custom_end_date": "2026-06-10",
+    "search_plan": ""
+}
+```
+
+### 入参校验
+
+```json-schema collapsed
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "计划-品牌专区-计划列表 - 查询入参",
+  "description": "采集品销宝品牌专区推广计划列表",
+  "type": "object",
+  "properties": {
+    "status": {
+      "type": "string",
+      "description": "计划状态，允许值 ALL（全部状态）/ VALID（有效计划）/ RUNNING（正在投放）/ PAUSED（暂停投放）/ WAITING（等待投放）/ ENDED（结束投放）",
+      "default": "VALID"
+    },
+    "date_type": {
+      "type": "string",
+      "description": "统计时间类型，允许值 TODAY（今日）/ YESTERDAY（昨日）/ LAST_7_DAYS（近 7 天）/ LAST_15_DAYS（近 15 天）/ LAST_30_DAYS（近 30 天）/ THIS_MONTH（本月）/ LAST_MONTH（上月）/ CUSTOM（自定义区间）",
+      "enum": ["TODAY", "YESTERDAY", "LAST_7_DAYS", "LAST_15_DAYS", "LAST_30_DAYS", "THIS_MONTH", "LAST_MONTH", "CUSTOM"]
+    },
+    "custom_start_date": {
+      "type": "string",
+      "description": "自定义起始日期，date_type=CUSTOM 时必填，格式 YYYYMMDD 或 YYYY-MM-DD",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    },
+    "custom_end_date": {
+      "type": "string",
+      "description": "自定义结束日期，date_type=CUSTOM 时必填，格式 YYYYMMDD 或 YYYY-MM-DD；最晚为今天",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    },
+    "search_plan": {
+      "type": "string",
+      "description": "搜索计划关键词"
+    }
+  },
+  "required": ["date_type"],
+  "allOf": [
+    {
+      "if": {
+        "properties": { "date_type": { "const": "CUSTOM" } },
+        "required": ["date_type"]
+      },
+      "then": {
+        "required": ["custom_start_date", "custom_end_date"]
+      }
+    }
+  ],
+  "additionalProperties": false
 }
 ```
 

@@ -1,5 +1,5 @@
 ---
-title: 品销宝-明星店铺-报表下载
+title: 报表-明星店铺报表
 description: 下载品销宝明星店铺报表 XLSX，解析账户/推广计划/推广单元/创意/品牌流量包/定向人群六个维度数据并合并返回
 entry: rpa.conn.alimm.pxb.star.shop.report
 badge:
@@ -24,42 +24,44 @@ category: star
 
 ### 目标页面
 
-> **取数路径**：阿里妈妈—品销宝—报表中心—明星店铺
+> **取数路径**：品销宝—报表—明星店铺报表
 >
 > **取数链接**：[https://branding.taobao.com/#!/report/index](https://branding.taobao.com/#!/report/index)
 
-![阿里妈妈—品销宝明星店铺报表](../../_public/images/alimm/pxb_star_shop_report_20250630.png)
+![品销宝—报表—明星店铺报表](../../_public/images/alimm/pxb_star_shop_report_20250630.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `conversion_days` | 转化数据窗口 | `String` | 否 | `days_7` | 可选值：`days_3`（3天转化数据）、`days_7`（7天转化数据）、`days_15`（15天转化数据）、`days_30`（30天转化数据） |
-| `metric_type` | 效果类型 | `String` | 否 | `impression` | 可选值：`impression`（展现效果）、`click`（点击效果） |
-| `date_type` | 日期快捷选项 | `String` | 否 | `yesterday` | 可选值：`today`（今日）、`yesterday`（昨日）、`last_week`（上周）、`this_week`（本周）、`last_month`（上月）、`this_month`（本月）、`custom`（自定义） |
-| `custom_start_date` | 自定义起始日期 | `String` | `date_type = custom` 时必填 | — | 支持格式：`YYYYMMDD`、`YYYY-MM-DD` |
-| `custom_end_date` | 自定义结束日期 | `String` | `date_type = custom` 时必填 | — | 支持格式：`YYYYMMDD`、`YYYY-MM-DD`；最晚为今天；与 `custom_start_date` 天差须小于 180 天 |
+| `conversion_days` | 转化数据窗口 | `String` | 否 | `DAYS_7` | 允许值：`DAYS_3`（3天转化数据）/ `DAYS_7`（7天转化数据）/ `DAYS_15`（15天转化数据）/ `DAYS_30`（30天转化数据） |
+| `metric_type` | 效果类型 | `String` | 否 | `IMPRESSION` | 允许值：`IMPRESSION`（展现效果）/ `CLICK`（点击效果） |
+| `date_type` | 日期快捷选项 | `String` | 是 | `-` | 允许值：`TODAY`（今日）/ `YESTERDAY`（昨日）/ `LAST_WEEK`（上周）/ `THIS_WEEK`（本周）/ `LAST_MONTH`（上月）/ `THIS_MONTH`（本月）/ `CUSTOM`（自定义区间） |
+| `custom_start_date` | 自定义起始日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD` |
+| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；最晚为今天；与起始日天差须小于 180 天 |
 
 ### 入参样例
 
-```json
-{
-  "date_type": "yesterday"
-}
-```
+`YYYYMMDD`：
 
 ```json
 {
-  "conversion_days": "days_15",
-  "metric_type": "click",
-  "date_type": "last_week"
+  "conversion_days": "DAYS_30",
+  "metric_type": "IMPRESSION",
+  "date_type": "CUSTOM",
+  "custom_start_date": "20260531",
+  "custom_end_date": "20260629"
 }
 ```
 
+`YYYY-MM-DD`：
+
 ```json
 {
-  "date_type": "custom",
-  "custom_start_date": "2026-06-01",
+  "conversion_days": "",
+  "metric_type": "",
+  "date_type": "CUSTOM",
+  "custom_start_date": "2026-05-31",
   "custom_end_date": "2026-06-29"
 }
 ```
@@ -69,43 +71,42 @@ category: star
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "阿里妈妈-明星店铺报表 - 查询入参",
+  "title": "报表-明星店铺报表 - 查询入参",
   "description": "下载品销宝明星店铺报表 XLSX，解析账户/推广计划/推广单元/创意/品牌流量包/定向人群六个维度数据并合并返回",
   "type": "object",
   "properties": {
     "conversion_days": {
       "type": "string",
-      "description": "转化数据窗口。可选值：days_3（3天转化数据）、days_7（7天转化数据）、days_15（15天转化数据）、days_30（30天转化数据）",
-      "enum": ["days_3", "days_7", "days_15", "days_30"],
-      "default": "days_7"
+      "description": "转化数据窗口，允许值 DAYS_3（3天转化数据）/ DAYS_7（7天转化数据）/ DAYS_15（15天转化数据）/ DAYS_30（30天转化数据）",
+      "default": "DAYS_7"
     },
     "metric_type": {
       "type": "string",
-      "description": "效果类型。可选值：impression（展现效果）、click（点击效果）",
-      "enum": ["impression", "click"],
-      "default": "impression"
+      "description": "效果类型，允许值 IMPRESSION（展现效果）/ CLICK（点击效果）",
+      "default": "IMPRESSION"
     },
     "date_type": {
       "type": "string",
-      "description": "日期快捷选项。可选值：today（今日）、yesterday（昨日）、last_week（上周）、this_week（本周）、last_month（上月）、this_month（本月）、custom（自定义）",
-      "enum": ["today", "yesterday", "last_week", "this_week", "last_month", "this_month", "custom"],
-      "default": "yesterday"
+      "description": "日期快捷选项，允许值 TODAY（今日）/ YESTERDAY（昨日）/ LAST_WEEK（上周）/ THIS_WEEK（本周）/ LAST_MONTH（上月）/ THIS_MONTH（本月）/ CUSTOM（自定义区间）",
+      "enum": ["TODAY", "YESTERDAY", "LAST_WEEK", "THIS_WEEK", "LAST_MONTH", "THIS_MONTH", "CUSTOM"]
     },
     "custom_start_date": {
       "type": "string",
-      "description": "自定义起始日期，date_type=custom 时必填。支持格式：YYYYMMDD、YYYY-MM-DD"
+      "description": "自定义起始日期，date_type=CUSTOM 时必填，格式 YYYYMMDD 或 YYYY-MM-DD",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_end_date": {
       "type": "string",
-      "description": "自定义结束日期，date_type=custom 时必填。支持格式：YYYYMMDD、YYYY-MM-DD；最晚为今天；与 custom_start_date 天差须小于 180 天"
+      "description": "自定义结束日期，date_type=CUSTOM 时必填，格式 YYYYMMDD 或 YYYY-MM-DD；最晚为今天；与起始日天差须小于 180 天",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
-  "required": [],
+  "required": ["date_type"],
   "allOf": [
     {
       "if": {
         "properties": {
-          "date_type": { "const": "custom" }
+          "date_type": { "const": "CUSTOM" }
         },
         "required": ["date_type"]
       },

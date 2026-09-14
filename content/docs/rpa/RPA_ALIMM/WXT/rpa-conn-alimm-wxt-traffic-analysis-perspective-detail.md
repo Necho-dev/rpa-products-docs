@@ -1,5 +1,5 @@
 ---
-title: 万相台-流量分析-竞争透视明细
+title: 洞察-流量分析-竞争流量透视
 description: 按关键词与统计周期采集万相台流量分析页竞争流量透视、搜索时段分布、地域分布与流量透视数据，支持按行业类目全采或指定类目
 entry: rpa.conn.alimm.wxt.traffic.analysis.perspective.detail
 badge:
@@ -24,24 +24,24 @@ category: insight
 
 ### 目标页面
 
-> **取数路径**：万相台—洞察—搜索流量分析—竞争流量透视
+> **取数路径**：万相台—洞察—流量分析—竞争流量透视
 >
 > **取数链接**：[https://one.alimama.com/index.html#!/insight/search/traffic-analysis/index](https://one.alimama.com/index.html#!/insight/search/traffic-analysis/index)
 
-![阿里妈妈—万相台关键词流量分析竞争透视](../../_public/images/alimm/wxt_traffic_analysis_perspective_detail_20260827.png)
+![万相台—洞察—流量分析—竞争流量透视](../../_public/images/alimm/wxt_traffic_analysis_perspective_detail_20260827.png)
 
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `key_word` | 关键词 | `String` | 是 | — | 须与页面关键词输入框一致 |
-| `date_type` | 统计周期 | `String` | 否 | `LAST_7_DAYS` | 可选值：`DAY_BEFORE_YESTERDAY`（前天）/ `LAST_7_DAYS`（过去7天（日均））/ `LAST_14_DAYS`（过去14天（日均）） |
-| `category_names` | 行业类目名称 | `String` / `List[String]` | 否 | - | 须与页面行业类目文案精准一致。空=全采，支持英文逗号分隔字符串或字符串数组（兼容中文逗号）。空或不传=全采（排除页面「全部」）；未在页面出现的名称记「未找到类目」 |
+| `key_word` | 关键词 | `String` | 是 | `-` | 须与页面关键词输入框一致 |
+| `date_type` | 统计周期 | `String` | 是 | `-` | 允许值：`DAY_BEFORE_YESTERDAY`（前天）/ `LAST_7_DAYS`（近 7 天）/ `LAST_14_DAYS`（近 14 天） |
+| `category_names` | 行业类目名称 | `String` / `List[String]` | 否 | `-` | 须与页面行业类目文案精准一致。空或不传则全采（排除页面「全部」）；支持英文逗号分隔字符串或字符串数组；未在页面出现的名称记「未找到类目」 |
 
 ### 入参样例
 
-全采（默认过去 7 天）：
+全采：
 
 ```json
 {
@@ -76,23 +76,21 @@ category: insight
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "万相台-流量分析-竞争透视明细 - 查询入参",
+  "title": "洞察-流量分析-竞争流量透视 - 查询入参",
   "description": "按关键词与统计周期采集万相台流量分析页竞争流量透视、搜索时段分布、地域分布与流量透视数据，支持按行业类目全采或指定类目",
   "type": "object",
   "properties": {
     "key_word": {
       "type": "string",
-      "description": "关键词，必填",
-      "minLength": 1
+      "description": "关键词，须与页面关键词输入框一致"
     },
     "date_type": {
       "type": "string",
-      "description": "统计周期，默认 LAST_7_DAYS。可选值：DAY_BEFORE_YESTERDAY（前天）/ LAST_7_DAYS（过去7天（日均））/ LAST_14_DAYS（过去14天（日均））",
-      "enum": ["DAY_BEFORE_YESTERDAY", "LAST_7_DAYS", "LAST_14_DAYS"],
-      "default": "LAST_7_DAYS"
+      "description": "统计周期。允许值：DAY_BEFORE_YESTERDAY（前天）/ LAST_7_DAYS（近 7 天）/ LAST_14_DAYS（近 14 天）",
+      "enum": ["DAY_BEFORE_YESTERDAY", "LAST_7_DAYS", "LAST_14_DAYS"]
     },
     "category_names": {
-      "description": "行业类目名称，须与页面 radio 文案精准一致。支持英文逗号分隔字符串或字符串数组；空或不传=全采（排除「全部」）",
+      "description": "行业类目名称，须与页面 radio 文案精准一致。支持英文逗号分隔字符串或字符串数组；空或不传则全采（排除「全部」）",
       "oneOf": [
         {
           "type": "string"
@@ -106,7 +104,7 @@ category: insight
       ]
     }
   },
-  "required": ["key_word"],
+  "required": ["key_word", "date_type"],
   "additionalProperties": false
 }
 ```
