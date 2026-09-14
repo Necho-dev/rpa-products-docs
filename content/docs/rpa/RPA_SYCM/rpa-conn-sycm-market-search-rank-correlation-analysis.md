@@ -32,16 +32,16 @@ category: market
 
 ### 业务入参
 
-| 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
-| ---- | -------- | -------- | ---- | ------ | ---- |
-| `key_word` | 搜索词 | `String` | 是 | — | 目标搜索词，不可为空 |
-| `date_type` | 统计时间类型 | `String` | 否 | `DAY` | 可选值：`LAST_7_DAYS`（7天）/ `LAST_30_DAYS`（30天）/ `DAY`（日）/ `WEEK`（周）/ `MONTH`（月）。|
-| `biz_date` | 统计日期 | `String` | 条件必填 | — | `date_type` 为 `WEEK` / `MONTH` / `DAY` 时必填；。格式 `YYYYMMDD` 或 `YYYY-MM-DD`。日：可选近90天。周：近90天的一个完整周。月：本月和前三个月 |
-| `compare_type` | 环比或年同比 | `String` | 否 | `CYCLE` | 可选值：`CYCLE`（环比）/ `YEAR_ON_YEAR`（年同比） |
-| `chart_type` | 榜单类型 | `String` | 否 | `RELATED` | 可选值：`RELATED`（相关热搜词）/ `BLUE_SEA`（相关蓝海词）。`BLUE_SEA` 时页面不支持自定义排序 |
-| `sort_column` | 排序列 | `String` | 否 | — | 可选值：`SE_IPV_UV_HITS`（搜索人气）/ `CLICK_RATE`（点击率）/ `PAY_CONV_RATE`（支付转化率）/ `PAY_BYR_CNT`（支付买家数）/ `SIM_WEIGHT`（需求供给比）/ `TMAO_CLICK_RATIO`（天猫商品点击占比）。不填则不点表头，保留页面默认 |
-| `sort_order` | 排序方向 | `String` | 否 | — | 可选值：`DESC`/ `ASC`。有 `sort_column` 且未传时默认 `DESC` |
-| `collect_limit` | 采集条数上限 | `Number` | 否 | — | 根据这个值计算翻页数 |
+| 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明                                                                                                                                                           |
+| ---- | -------- | -------- | ---- | ------ |--------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `key_word` | 搜索词 | `String` | 是 | — | 目标搜索词，不可为空                                                                                                                                                   |
+| `date_type` | 统计时间类型 | `String` | 否 | `DAY` | 可选值：`LAST_7_DAYS`（7天）/ `LAST_30_DAYS`（30天）/ `DAY`（日）/ `WEEK`（周）/ `MONTH`（月）。                                                                                 |
+| `biz_date` | 统计日期 | `String` | 条件必填 | — | `date_type` 为 `WEEK` / `MONTH` / `DAY` 时必填；。格式 `YYYYMMDD` 或 `YYYY-MM-DD`。日：可选近90天。周：近90天的一个完整周。月：本月和前三个月                                                     |
+| `compare_type` | 环比或年同比 | `String` | 否 | `CYCLE` | 可选值：`CYCLE`（环比）/ `YEAR_ON_YEAR`（年同比）                                                                                                                         |
+| `chart_type` | 榜单类型 | `String` | 否 | `RELATED` | 可选值：`RELATED`（相关热搜词）/ `BLUE_SEA`（相关蓝海词）。`BLUE_SEA` 时页面不支持自定义排序                                                                                               |
+| `sort_field` | 排序列 | `String` | 否 | — | 可选值：`SE_IPV_UV_HITS`（搜索人气）/ `CLICK_RATE`（点击率）/ `PAY_CONV_RATE`（支付转化率）/ `PAY_BYR_CNT`（支付买家数）/ `SIM_WEIGHT`（需求供给比）/ `TMAO_CLICK_RATIO`（天猫商品点击占比）。不填则不点表头，保留页面默认 |
+| `sort_order` | 排序方向 | `String` | 否 | — | 可选值：`DESC`/ `ASC`。有 `sort_field` 且未传时默认 `DESC`                                                                                                               |
+| `collect_limit` | 采集条数上限 | `Number` | 否 | — | 本次最多采集多少条相关热搜词 / 蓝海词。不填则采全量（最多 100 页；页面每页 10 条， 1000 条）。填写时范围 `1`～`1000`，只采到该条数为止。实际不足时按实际条数返回                                                               |
 
 ### 入参样例
 
@@ -62,7 +62,7 @@ category: market
   "biz_date": "2026-09-07",
   "compare_type": "CYCLE",
   "chart_type": "RELATED",
-  "sort_column": "CLICK_RATE",
+  "sort_field": "CLICK_RATE",
   "sort_order": "DESC",
   "collect_limit": 20
 }
@@ -122,23 +122,23 @@ category: market
     },
     "chart_type": {
       "type": "string",
-      "description": "榜单类型（可选）。可选值：RELATED（相关热搜词）/ BLUE_SEA（相关蓝海词）。BLUE_SEA 时页面不支持自定义排序，请去掉 sort_column / sort_order",
+      "description": "榜单类型（可选）。可选值：RELATED（相关热搜词）/ BLUE_SEA（相关蓝海词）。BLUE_SEA 时页面不支持自定义排序，请去掉 sort_field / sort_order",
       "enum": ["RELATED", "BLUE_SEA"],
       "default": "RELATED"
     },
-    "sort_column": {
+    "sort_field": {
       "type": "string",
       "description": "排序列（可选，单值）。可选值：SE_IPV_UV_HITS（搜索人气）/ CLICK_RATE（点击率）/ PAY_CONV_RATE（支付转化率）/ PAY_BYR_CNT（支付买家数）/ SIM_WEIGHT（需求供给比）/ TMAO_CLICK_RATIO（天猫商品点击占比）。不填则保留页面默认排序",
       "enum": ["SE_IPV_UV_HITS", "CLICK_RATE", "PAY_CONV_RATE", "PAY_BYR_CNT", "SIM_WEIGHT", "TMAO_CLICK_RATIO"]
     },
     "sort_order": {
       "type": "string",
-      "description": "排序方向（可选）。可选值：DESC（倒序）/ ASC（正序）。有 sort_column 且未传时默认 DESC",
+      "description": "排序方向（可选）。可选值：DESC（倒序）/ ASC（正序）。有 sort_field 且未传时默认 DESC",
       "enum": ["DESC", "ASC"]
     },
     "collect_limit": {
       "type": "integer",
-      "description": "采集条数上限（可选）。范围 1~1000；不填则采集全部结果（最多 100 页）",
+      "description": "采集条数上限（可选）。本次最多采集多少条相关热搜词 / 蓝海词。不填则采全量（最多 100 页；页面通常每页 10 条，约 1000 条）。填写时范围 1～1000，只采到该条数为止。实际不足时按实际条数返回",
       "minimum": 1,
       "maximum": 1000
     }
@@ -162,11 +162,11 @@ category: market
         "properties": {
           "chart_type": { "const": "BLUE_SEA" }
         },
-        "required": ["chart_type", "sort_column"]
+        "required": ["chart_type", "sort_field"]
       },
       "then": {
         "properties": {
-          "sort_column": { "enum": ["SIM_WEIGHT"] },
+          "sort_field": { "enum": ["SIM_WEIGHT"] },
           "sort_order": { "enum": ["DESC"] }
         }
       }
