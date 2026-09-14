@@ -1,5 +1,5 @@
 ---
-title: 千川-品牌投放-直播加热汇总
+title: 品牌投放-直播加热
 description: 采集巨量千川品牌投放「直播加热」页的计划总数与消耗、展示、点击、成交等汇总指标
 entry: rpa.conn.juliang.qc.brand.placement.live.heat
 badge:
@@ -28,15 +28,15 @@ category: brand
 >
 > **取数链接**：[https://qianchuan.jinritemai.com/brand_bid/promotion/standard](https://qianchuan.jinritemai.com/brand_bid/promotion/standard)
 
-![巨量千川—品牌投放直播加热](../../_public/images/juliang/qc_brand_placement_live_heat_20260815.png)
+![巨量千川—品牌投放—直播加热](../../_public/images/juliang/qc_brand_placement_live_heat_20260815.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `date_range_type` | 统计周期类型 | `String` | 是 | — | 可选值：`TODAY`（今天）、`YESTERDAY`（昨天）、`LAST_3_DAYS`（最近3天）、`LAST_7_DAYS`（最近7天）、`LAST_15_DAYS`（最近15天）、`LAST_30_DAYS`（最近30天）、`LAST_WEEK`（上周）、`THIS_MONTH`（本月）、`LAST_MONTH`（上月）、`CUSTOM`（自定义） |
-| `custom_start_date` | 自定义开始日期 | `String` | 条件必填 | — | `date_range_type=CUSTOM` 时必填；支持格式：`YYYYMMDD`、`YYYY-MM-DD`；不能晚于 `custom_end_date`；含首尾跨度最长 183 天 |
-| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | — | `date_range_type=CUSTOM` 时必填；支持格式：`YYYYMMDD`、`YYYY-MM-DD`；不能早于 `custom_start_date`；含首尾跨度最长 183 天 |
+| `date_type` | 统计周期类型 | `String` | 是 | `-` | 允许值：`TODAY`（今日）/ `YESTERDAY`（昨日）/ `LAST_3_DAYS`（近 3 天）/ `LAST_7_DAYS`（近 7 天）/ `LAST_15_DAYS`（近 15 天）/ `LAST_30_DAYS`（近 30 天）/ `LAST_WEEK`（上周）/ `THIS_MONTH`（本月）/ `LAST_MONTH`（上月）/ `CUSTOM`（自定义区间） |
+| `custom_start_date` | 自定义开始日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不能晚于 `custom_end_date`；含首尾跨度最长 183 天 |
+| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不能早于 `custom_start_date`；含首尾跨度最长 183 天 |
 
 ### 入参样例
 
@@ -44,7 +44,7 @@ category: brand
 
 ```json
 {
-  "date_range_type": "LAST_30_DAYS"
+  "date_type": "LAST_30_DAYS"
 }
 ```
 
@@ -52,7 +52,7 @@ category: brand
 
 ```json
 {
-  "date_range_type": "CUSTOM",
+  "date_type": "CUSTOM",
   "custom_start_date": "20260801",
   "custom_end_date": "20260807"
 }
@@ -62,7 +62,7 @@ category: brand
 
 ```json
 {
-  "date_range_type": "CUSTOM",
+  "date_type": "CUSTOM",
   "custom_start_date": "2026-08-01",
   "custom_end_date": "2026-08-07"
 }
@@ -73,13 +73,13 @@ category: brand
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "巨量千川-品牌投放直播加热汇总 - 查询入参",
+  "title": "品牌投放-直播加热 - 查询入参",
   "description": "采集巨量千川品牌投放「直播加热」页的计划总数与消耗、展示、点击、成交等汇总指标",
   "type": "object",
   "properties": {
-    "date_range_type": {
+    "date_type": {
       "type": "string",
-      "description": "统计周期类型。可选值：TODAY（今天）、YESTERDAY（昨天）、LAST_3_DAYS（最近3天）、LAST_7_DAYS（最近7天）、LAST_15_DAYS（最近15天）、LAST_30_DAYS（最近30天）、LAST_WEEK（上周）、THIS_MONTH（本月）、LAST_MONTH（上月）、CUSTOM（自定义）",
+      "description": "统计周期类型。允许值：TODAY（今日）/ YESTERDAY（昨日）/ LAST_3_DAYS（近 3 天）/ LAST_7_DAYS（近 7 天）/ LAST_15_DAYS（近 15 天）/ LAST_30_DAYS（近 30 天）/ LAST_WEEK（上周）/ THIS_MONTH（本月）/ LAST_MONTH（上月）/ CUSTOM（自定义区间）",
       "enum": [
         "TODAY",
         "YESTERDAY",
@@ -95,23 +95,23 @@ category: brand
     },
     "custom_start_date": {
       "type": "string",
-      "description": "自定义开始日期；date_range_type=CUSTOM 时必填。支持 YYYYMMDD 或 YYYY-MM-DD；不能晚于 custom_end_date；含首尾跨度最长 183 天",
+      "description": "自定义开始日期；date_type 为 CUSTOM 时必填。格式 YYYYMMDD 或 YYYY-MM-DD；不能晚于 custom_end_date；含首尾跨度最长 183 天",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_end_date": {
       "type": "string",
-      "description": "自定义结束日期；date_range_type=CUSTOM 时必填。支持 YYYYMMDD 或 YYYY-MM-DD；不能早于 custom_start_date；含首尾跨度最长 183 天",
+      "description": "自定义结束日期；date_type 为 CUSTOM 时必填。格式 YYYYMMDD 或 YYYY-MM-DD；不能早于 custom_start_date；含首尾跨度最长 183 天",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
-  "required": ["date_range_type"],
+  "required": ["date_type"],
   "allOf": [
     {
       "if": {
         "properties": {
-          "date_range_type": { "const": "CUSTOM" }
+          "date_type": { "const": "CUSTOM" }
         },
-        "required": ["date_range_type"]
+        "required": ["date_type"]
       },
       "then": {
         "required": ["custom_start_date", "custom_end_date"]
