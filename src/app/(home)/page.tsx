@@ -15,7 +15,8 @@ import { AISearch, AISearchPanel, AISearchTrigger } from '@/components/ai/search
 import { OpenDocAiToolsBridge } from '@/components/docs/open-doc-ai-tools-bridge';
 import { DocsFloatingAnchors } from '@/components/docs/floating-anchors';
 import { cn } from '@/lib/core/cn';
-import { docsRoute, getSiteDescription, getSiteName } from '@/lib/core/shared';
+import { getSiteDescription, getSiteName } from '@/lib/core/knowledge-env';
+import { docsRoute } from '@/lib/core/shared';
 import { getLlmModelDisplayName } from '@/lib/ai/llm';
 
 const cards = [

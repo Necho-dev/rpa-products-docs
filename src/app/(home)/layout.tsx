@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { HomeLayout } from 'fumadocs-ui/layouts/home';
-import { getSiteDescription, getSiteName } from '@/lib/core/shared';
+import { getSiteDescription, getSiteName } from '@/lib/core/knowledge-env';
 import { baseOptions } from '@/lib/ui/layout.shared';
 
 /** 首页随环境变量更新站点名，避免静态缓存旧标题 */

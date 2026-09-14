@@ -28,6 +28,7 @@ import {
 } from '@/lib/observability/observability-auth';
 import { extractGeoAsn, isRscRequest } from '@/lib/observability/request-enrichment';
 import { fireSsoGate, isSentryEnabled } from '@/lib/observability/sentry';
+import { applyJsProfilingDocumentPolicy } from '@/lib/observability/sentry/js-profiling-header';
 
 export type SsoLogOutcome = 'redirect' | 'unauthorized' | 'pass';
 
@@ -203,6 +204,7 @@ export function finishSsoLog(
   outcome: SsoLogOutcome,
   startedMs: number,
 ): NextResponse {
+  applyJsProfilingDocumentPolicy(response);
   if (isNextPrefetchRequest(request)) {
     if (shouldLogAccessRequest(request)) {
       recordPrefetchAccess(request, response, startedMs);

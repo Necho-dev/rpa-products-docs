@@ -3,7 +3,7 @@ import {
   getSentryDsn,
   getSentryEnvironment,
   getSentryRelease,
-  getSentryTracesSampleRate,
+  getSentrySharedInitOptions,
   isSentryEnabled,
 } from '@/lib/observability/sentry/env';
 import { registerReadableTraceNameHooks } from '@/lib/observability/sentry/trace-name';
@@ -11,24 +11,17 @@ import { registerReadableTraceNameHooks } from '@/lib/observability/sentry/trace
 const isDev = process.env.NODE_ENV === 'development';
 
 if (isSentryEnabled()) {
+  const shared = getSentrySharedInitOptions();
   Sentry.init({
     dsn: getSentryDsn(),
     environment: getSentryEnvironment(),
     release: getSentryRelease(),
     enabled: true,
-
-    tracesSampleRate: getSentryTracesSampleRate(),
-
-    enableLogs: true,
-
-    // 内部知识库：保留 client IP / user 等 request 侧字段到 Trace
-    sendDefaultPii: true,
-
+    ...shared,
     integrations: [
       Sentry.vercelAIIntegration(),
       Sentry.consoleLoggingIntegration({ levels: ['warn', 'error'] }),
     ],
-
     beforeSendLog: (log) => {
       if (!isDev && (log.level === 'debug' || log.level === 'trace')) {
         return null;

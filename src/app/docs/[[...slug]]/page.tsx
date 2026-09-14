@@ -19,7 +19,7 @@ import { getMDXComponents } from '@/components/docs/mdx';
 import type { Metadata } from 'next';
 import { createRelativeLink } from 'fumadocs-ui/mdx';
 import { DocsLink } from '@/components/docs/docs-link';
-import { getSiteDescription, siteName } from '@/lib/core/shared';
+import { getSiteDescription, getSiteName } from '@/lib/core/knowledge-env';
 import { AddMcpButton } from '@/components/docs/add-mcp-button';
 import { ConnectorSchedulePanel } from '@/components/docs/connector-schedule-panel';
 import { cookies, headers } from 'next/headers';
@@ -190,7 +190,7 @@ export async function generateMetadata(props: PageProps<'/docs/[[...slug]]'>): P
     };
   }
 
-  const title = page.data.title?.trim() || siteName;
+  const title = page.data.title?.trim() || getSiteName();
   const description = page.data.description?.trim() || getSiteDescription();
 
   const hdrs = await headers();

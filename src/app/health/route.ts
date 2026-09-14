@@ -1,6 +1,7 @@
 import { isCubeSsoEnabled } from '@/lib/auth/auth-config';
 import { isPrivateDocAccessConfigured } from '@/lib/docs/access/doc-access';
-import { siteName } from '@/lib/core/shared';
+import { getSiteName } from '@/lib/core/knowledge-env';
+import { isSentryEnabled } from '@/lib/observability/sentry/env';
 import { source } from '@/lib/docs/source/source';
 
 export const runtime = 'nodejs';
@@ -12,7 +13,10 @@ export function GET() {
 
   const body = {
     status: 'ok',
-    site: siteName,
+    site: getSiteName(),
+    sentry: {
+      enabled: isSentryEnabled(),
+    },
     docs: {
       pages: pageCount,
       privateAccessConfigured: isPrivateDocAccessConfigured(),

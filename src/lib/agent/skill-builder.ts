@@ -1,7 +1,7 @@
 import type { DocAccessContext } from '@/lib/docs/access/doc-access';
 import { isPrivateDocAccessConfigured } from '@/lib/docs/access/doc-access';
 import { getMcpDisplayName, getMcpServerName } from '@/lib/agent/mcp-config';
-import { getSiteDescription, siteName } from '@/lib/core/shared';
+import { getSiteDescription, getSiteName } from '@/lib/core/knowledge-env';
 
 /**
  * 生成符合 Agent Skill 规范的 SKILL.md 文本。
@@ -24,7 +24,7 @@ export function buildSkillMarkdown(origin: string, access: DocAccessContext): st
 
   const skillName = getMcpServerName();
   const description =
-    `访问 ${siteName} (RPA 连接器 / 组件 / 应用) 知识库文档内容的元技能。` +
+    `访问 ${getSiteName()} (RPA 连接器 / 组件 / 应用) 知识库文档内容的元技能。` +
     `推荐配合 MCP 使用以获得精准检索能力，未安装 MCP 时可通过 references 端点渐进式加载内容。` +
     `当用户询问 RPA 连接器、组件、应用部署、RPA 制品相关问题时触发。`;
 
@@ -52,7 +52,7 @@ name: ${skillName}
 description: "${description.slice(0, 1024)}"
 ---
 
-# ${siteName} — Agent Skill
+# ${getSiteName()} — Agent Skill
 ${privateHeaderNote}
 
 ## 安装 MCP (推荐)

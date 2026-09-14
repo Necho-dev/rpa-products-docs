@@ -11,7 +11,7 @@ import {
   CircleChevronRightIcon,
 } from 'lucide-react';
 import Image from 'next/image';
-import { siteName } from '@/lib/core/shared';
+import { getSiteName } from '@/lib/core/knowledge-env';
 
 const accessFlowSteps = [
   {
@@ -279,7 +279,7 @@ function SsoLoginAction({ ssoHref }: { ssoHref?: string | null }) {
   const inner = (
     <>
       <span className="inline-flex size-12 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-600 dark:bg-sky-950/50 dark:text-sky-400">
-        <ShieldCheckIcon className="size-[22px]" aria-hidden />
+        <ShieldCheckIcon className="size-5.5" aria-hidden />
       </span>
       <span className="min-w-0 flex-1 text-left">
         <span className="block text-sm font-semibold text-fd-foreground sm:text-[15px]">
@@ -337,7 +337,7 @@ export function AuthLoginGuide({ ssoHref }: AuthLoginGuideProps) {
                 priority
               />
               <h1 className="text-balance text-2xl font-semibold leading-none tracking-tight text-fd-foreground sm:text-[1.75rem]">
-                {siteName}
+                {getSiteName()}
               </h1>
             </div>
             <p className="mx-auto mt-4 max-w-md text-pretty text-sm leading-[1.65] text-fd-muted-foreground sm:text-[15px]">
@@ -353,7 +353,7 @@ export function AuthLoginGuide({ ssoHref }: AuthLoginGuideProps) {
 
           <div className="mt-7 flex items-start gap-3.5 rounded-2xl border border-amber-200/70 bg-linear-to-br from-amber-50 to-amber-50/60 px-5 py-4 text-sm leading-[1.65] text-amber-950 sm:py-4.5 dark:border-amber-900/35 dark:from-amber-950/30 dark:to-amber-950/15 dark:text-amber-100/90">
             <span className="mt-0.5 inline-flex size-9 shrink-0 items-center justify-center rounded-xl bg-amber-100/90 text-amber-700 dark:bg-amber-900/45 dark:text-amber-300">
-              <ShieldCheckIcon className="size-[18px]" aria-hidden />
+              <ShieldCheckIcon className="size-4.5" aria-hidden />
             </span>
             <p className="pt-0.5 text-justify">
               首次访问本站时，请您提前在魔方系统完成账号登录，再次访问时将自动授权；授权有效期（有效期 30 天）内可直接访问，到期后将重新验证魔方登录状态。
@@ -368,7 +368,7 @@ export function AuthLoginGuide({ ssoHref }: AuthLoginGuideProps) {
 
         <footer className="mt-6 text-center text-[11px] leading-relaxed text-fd-muted-foreground/75 sm:text-xs">
           <p>
-            © {new Date().getFullYear()}-{new Date().getFullYear() + 1} {siteName} All Rights Reserved.
+            © {new Date().getFullYear()}-{new Date().getFullYear() + 1} {getSiteName()} All Rights Reserved.
           </p>
         </footer>
       </div>

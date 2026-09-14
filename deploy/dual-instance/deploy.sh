@@ -1,18 +1,23 @@
 #!/bin/bash
 set -euo pipefail
 
-# 部署目录与主仓分支（可用环境变量覆盖，便于 1Panel 配置）
+# 一镜像两容器：检查主仓 / auth submodule，有更新则一次 build 并滚动 intranet + production。
+# 默认仓库根 = 本脚本的 ../.. ；1Panel 可设 DEPLOY_PATH。
+# 不调用仓库根 scripts/deplpy.sh。
 # --force：跳过 Git 更新检查，按当前工作区直接构建启动（首次配置 / 手动重建）。
-DEPLOY_PATH="${DEPLOY_PATH:-/opt/1panel/apps/rpa-products-docs}"
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="${DEPLOY_PATH:-$(cd "$SCRIPT_DIR/../.." && pwd)}"
+DUAL_DIR="$REPO_ROOT/deploy/dual-instance"
 BRANCH="${BRANCH:-main}"
 FORCE=0
 
 usage() {
   cat <<'EOF'
-用法: deplpy.sh [--force]
+用法: deploy.sh [--force]
 
   默认      仅当主仓或 auth submodule 相对 origin 有更新时才构建
-  --force   跳过 Git 更新检查，按当前工作区构建并启动
+  --force   跳过 Git 更新检查，按当前工作区构建并启动两个容器
             （首次配置、或本地/服务器上手动重建）
 
 环境变量: DEPLOY_PATH  BRANCH  AUTH_BRANCH  HEALTH_WAIT_SECONDS
@@ -37,9 +42,6 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-# 每项格式：相对路径|跟踪分支
-# 环境变量可覆盖单条分支；日后加其它 Submodule 时追加一行即可，例如：
-#   "content/docs/rpa|${RPA_BRANCH:-main}"
 SUBMODULES=(
   "content/docs/auth|${AUTH_BRANCH:-main}"
 )
@@ -47,7 +49,6 @@ SUBMODULES=(
 log() { echo ">>> $*" >&2; }
 log_sentry() { echo ">>> [Sentry] $*" >&2; }
 
-# 从 dotenv 文件读取 KEY=value（忽略注释/空行；不 source，避免执行）
 read_dotenv_value() {
   local file="$1" key="$2" line raw
   [ -f "$file" ] || return 1
@@ -65,7 +66,6 @@ read_dotenv_value() {
   printf '%s' "$raw"
 }
 
-# 从 DSN 解析 host：https://key@host/project → host
 sentry_dsn_host() {
   local dsn="$1"
   if [[ "$dsn" =~ ^https?://[^@]+@([^/]+)/ ]]; then
@@ -75,23 +75,33 @@ sentry_dsn_host() {
   return 1
 }
 
-# 将 .env 中构建相关键导出到当前 shell（source map / 镜像名 / 端口）。
-# DSN 与 KNOWLEDGE_SITE_* 只走容器运行时 env_file，不作为 build-arg。
+require_env_files() {
+  local name
+  for name in .env .env.intranet .env.production; do
+    if [ ! -f "$DUAL_DIR/$name" ]; then
+      echo "缺少 $DUAL_DIR/$name" >&2
+      echo "请先: cd $DUAL_DIR && cp ${name}.example ${name}" >&2
+      exit 1
+    fi
+  done
+}
+
 export_compose_build_env() {
   local key value
   for key in \
     SENTRY_AUTH_TOKEN SENTRY_ORG SENTRY_PROJECT SENTRY_URL \
-    COMPOSE_IMAGE COMPOSE_CONTAINER_NAME PORT DOCS_SECRETS_DIR DOCS_OBSERVABILITY_LOG_PATH
+    COMPOSE_IMAGE COMPOSE_PROJECT_NAME \
+    INTRANET_PORT PRODUCTION_PORT \
+    INTRANET_LOG_PATH PRODUCTION_LOG_PATH PRODUCTION_SECRETS_DIR
   do
-    value="$(read_dotenv_value .env "$key" 2>/dev/null || true)"
+    value="$(read_dotenv_value "$DUAL_DIR/.env" "$key" 2>/dev/null || true)"
     if [ -n "$value" ]; then
       export "${key}=${value}"
     fi
   done
 
-  # release / git.sha：构建时自动生成，不读 .env（避免手填漂移）
   if command -v git >/dev/null 2>&1; then
-    GIT_SHA="$(git rev-parse HEAD 2>/dev/null || true)"
+    GIT_SHA="$(git -C "$REPO_ROOT" rev-parse HEAD 2>/dev/null || true)"
   else
     GIT_SHA=""
   fi
@@ -105,39 +115,39 @@ export_compose_build_env() {
   fi
 }
 
-# 运行时 DSN 提示（不强制重建）。stdout 仅输出: ok
-warn_runtime_sentry_dsn() {
-  local env_file=".env" local_file=".env.local"
-  local dsn="" token=""
-
-  dsn="$(read_dotenv_value "$env_file" SENTRY_DSN 2>/dev/null || true)"
+warn_instance_sentry_dsn() {
+  local label="$1" file="$2"
+  local dsn=""
+  dsn="$(read_dotenv_value "$file" SENTRY_DSN 2>/dev/null || true)"
   if [ -z "$dsn" ]; then
-    dsn="$(read_dotenv_value "$local_file" SENTRY_DSN 2>/dev/null || true)"
-  fi
-
-  if [ -z "$dsn" ]; then
-    log_sentry "未配置 SENTRY_DSN：运行时 Errors / Replay / Logs 关闭（改 .env 后重启容器即可，不必 --build）"
-    printf 'ok'
+    log_sentry "[$label] 未配置 SENTRY_DSN：该实例 Errors / Replay / Logs 关闭（改实例 env 后 compose up -d 即可，不必 --build）"
     return 0
   fi
-
   if ! sentry_dsn_host "$dsn" >/dev/null; then
-    log_sentry "警告: SENTRY_DSN 格式无效（期望 https://<key>@<host>/<project>），Sentry 可能无法上报"
+    log_sentry "[$label] 警告: SENTRY_DSN 格式无效（期望 https://<key>@<host>/<project>）"
   else
-    log_sentry "运行时 DSN 已配置；换 DSN 只需重启，无需重建"
+    log_sentry "[$label] 运行时 DSN 已配置；换 DSN 只需重启，无需重建"
   fi
+}
 
-  token="$(read_dotenv_value "$env_file" SENTRY_AUTH_TOKEN 2>/dev/null || true)"
+warn_runtime_sentry() {
+  warn_instance_sentry_dsn intranet "$DUAL_DIR/.env.intranet"
+  warn_instance_sentry_dsn production "$DUAL_DIR/.env.production"
+  local token=""
+  token="$(read_dotenv_value "$DUAL_DIR/.env" SENTRY_AUTH_TOKEN 2>/dev/null || true)"
   if [ -n "$token" ]; then
     log_sentry "已配置 SENTRY_AUTH_TOKEN：本次 next build 将尝试上传 source map"
   else
     log_sentry "未配置 SENTRY_AUTH_TOKEN：跳过 source map 上传（按需再带）"
   fi
-  printf 'ok'
+}
+
+compose() {
+  docker compose --project-directory "$DUAL_DIR" -f "$DUAL_DIR/docker-compose.yml" "$@"
 }
 
 compose_image_ref() {
-  printf '%s' "${COMPOSE_IMAGE:-yuce-knowledge-docs:local}"
+  printf '%s' "${COMPOSE_IMAGE:-yuce-knowledge-docs:latest}"
 }
 
 compose_image_repo() {
@@ -150,15 +160,11 @@ previous_image_ref() {
   printf '%s:previous' "$(compose_image_repo)"
 }
 
-compose_container_ref() {
-  printf '%s' "${COMPOSE_CONTAINER_NAME:-yuce-knowledge-docs}"
-}
-
 image_id() {
   docker image inspect -f '{{.Id}}' "$1" 2>/dev/null || true
 }
 
-# 构建前把正在用的镜像另打 :previous，失败时可回退；构建中勿 prune。
+# 构建前把正在用的 :latest 另打 :previous，失败时可回退；构建中勿 prune。
 reserve_previous_image() {
   local image prev
   image="$(compose_image_ref)"
@@ -171,30 +177,33 @@ reserve_previous_image() {
   fi
 }
 
-wait_service_healthy() {
+wait_services_healthy() {
   local name status
   local timeout="${HEALTH_WAIT_SECONDS:-180}"
   local deadline=$((SECONDS + timeout))
-  name="$(compose_container_ref)"
-  while true; do
-    status="$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$name" 2>/dev/null || echo missing)"
-    if [ "$status" = "healthy" ]; then
-      log "${name} 已 healthy"
-      return 0
-    fi
-    if [ "$status" = "unhealthy" ] || [ "$status" = "exited" ] || [ "$status" = "dead" ] || [ "$status" = "missing" ]; then
-      log "${name} 状态异常: ${status}"
-      return 1
-    fi
-    if [ "$SECONDS" -ge "$deadline" ]; then
-      log "${name} 等待健康检查超时（${timeout}s），当前: ${status}"
-      return 1
-    fi
-    sleep 3
+  local containers=(yuce-knowledge-docs-intranet yuce-knowledge-docs-production)
+  for name in "${containers[@]}"; do
+    while true; do
+      status="$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$name" 2>/dev/null || echo missing)"
+      if [ "$status" = "healthy" ]; then
+        log "${name} 已 healthy"
+        break
+      fi
+      if [ "$status" = "unhealthy" ] || [ "$status" = "exited" ] || [ "$status" = "dead" ] || [ "$status" = "missing" ]; then
+        log "${name} 状态异常: ${status}"
+        return 1
+      fi
+      if [ "$SECONDS" -ge "$deadline" ]; then
+        log "${name} 等待健康检查超时（${timeout}s），当前: ${status}"
+        return 1
+      fi
+      sleep 3
+    done
   done
+  return 0
 }
 
-# 成功后只留 COMPOSE_IMAGE，去掉 :previous 与同仓库其它标签。
+# 成功后只留 COMPOSE_IMAGE，去掉 :previous 与同仓库其它标签，并清dangling / 未用构建缓存。
 keep_only_latest_image() {
   local image repo prev tag
   image="$(compose_image_ref)"
@@ -233,8 +242,8 @@ rollback_to_previous() {
   fi
   log "新实例未就绪，回退到 ${prev}"
   docker tag "$prev" "$image"
-  docker compose up -d
-  if wait_service_healthy; then
+  compose up -d
+  if wait_services_healthy; then
     keep_only_latest_image
     return 0
   fi
@@ -242,9 +251,12 @@ rollback_to_previous() {
   return 1
 }
 
-cd "$DEPLOY_PATH" || { echo "目录不存在，任务终止"; exit 1; }
+cd "$REPO_ROOT" || { echo "仓库根不存在: $REPO_ROOT"; exit 1; }
+require_env_files
 
 echo "==================== $(date '+%Y-%m-%d %H:%M:%S') 检查更新 ================"
+log "仓库根: $REPO_ROOT"
+log "Compose: $DUAL_DIR"
 
 NEED_UPDATE=0
 MAIN_CHANGED=0
@@ -264,7 +276,6 @@ else
   git fetch origin "$BRANCH"
   git submodule update --init --recursive
 
-  # 先导出 .env，避免 cron 空变量盖掉 Compose build.args 插值
   export_compose_build_env
 
   LOCAL="$(git rev-parse HEAD)"
@@ -292,7 +303,6 @@ else
     fi
   done
 
-  # 先拉取主仓，避免预检逻辑本身有 bug 时永远 pull 不到修复
   if [ "$MAIN_CHANGED" -eq 1 ]; then
     log "拉取主仓库 origin/$BRANCH"
     git pull --ff-only origin "$BRANCH"
@@ -301,7 +311,7 @@ else
 fi
 
 log_sentry "运行时配置..."
-warn_runtime_sentry_dsn >/dev/null
+warn_runtime_sentry
 
 if [ "$NEED_UPDATE" -eq 1 ]; then
   log "开始执行更新流程"
@@ -316,13 +326,13 @@ if [ "$NEED_UPDATE" -eq 1 ]; then
     done
   fi
 
-  log "开始构建镜像并滚动更新容器"
+  log "一次构建镜像并滚动更新 intranet + production"
   reserve_previous_image
-  docker compose up -d --build
-  if wait_service_healthy; then
-    log "容器已就绪，只保留最新镜像"
+  compose up -d --build
+  if wait_services_healthy; then
+    log "双实例已就绪，只保留最新镜像"
     keep_only_latest_image
-    log "文档站更新完成"
+    log "双实例更新完成"
   else
     if rollback_to_previous; then
       log "已回退到上一版镜像并恢复服务"

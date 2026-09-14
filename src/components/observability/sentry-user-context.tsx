@@ -2,7 +2,7 @@
 
 import * as Sentry from '@sentry/nextjs';
 import { useEffect } from 'react';
-import { isSentryEnabled } from '@/lib/observability/sentry/env';
+import { isBrowserSentryEnabled } from '@/lib/observability/sentry/public-config';
 
 /**
  * 把服务端解析的登录身份挂到浏览器 scope。
@@ -17,7 +17,7 @@ export function SentryUserContext({
   cubeOrigin?: string;
 }) {
   useEffect(() => {
-    if (!isSentryEnabled()) return;
+    if (!isBrowserSentryEnabled()) return;
 
     if (userId) {
       Sentry.setUser({ id: userId, username: userId });

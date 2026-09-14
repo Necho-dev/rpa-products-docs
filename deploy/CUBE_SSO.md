@@ -317,14 +317,14 @@ flowchart TD
 
 ## 6. 部署配置
 
-### 6.0 推荐：单分支双实例
+### 6.0 推荐：单分支、一镜像、两容器
 
-生产环境推荐从 **`main` 分支**构建同一 Dockerfile，用**两个独立 Docker 实例** + 不同 `.env` 区分：
+生产环境从 **`main`** 构建**一次**镜像，用 [`deploy/dual-instance/`](dual-instance/) 拉起两个容器（详见该目录 `README.md`）：
 
-- **内网文档**（如 `:3033`）：`DOCS_CUBE_SSO_ENABLED=false`
-- **知识库 SSO**（如 `:3031`，`knowledge.yuce-tech.cn` 反代）：`DOCS_CUBE_SSO_ENABLED=true`，配置 `DOCS_SECRETS_FILE_PATH`
+- **intranet**（如 `:3033`）：`DOCS_CUBE_SSO_ENABLED=false`，不挂 secrets
+- **production**（如 `:3031`，`knowledge.yuce-tech.cn` 反代）：`DOCS_CUBE_SSO_ENABLED=true`，`.env` 中设 `PRODUCTION_SECRETS_DIR`
 
-同机部署时须设置不同的 `COMPOSE_IMAGE`、`COMPOSE_CONTAINER_NAME`、`PORT`（详见仓库 `README.md`）。宿主机用 `./scripts/manage-secrets.sh` 维护嵌入密钥 JSON。
+滚动更新用 `deploy/dual-instance/deploy.sh`（不要与根目录单实例 `scripts/deplpy.sh` 同时跑）。宿主机密钥：`./scripts/manage-secrets.sh --file /opt/secrets/secrets.json`。
 
 > 从 `knowledge-sso` 分支迁移时：先让 3031 实例改拉 `main` 并验收，稳定后再归档旧分支；迁移完成前可保留旧分支作回滚。
 
@@ -336,7 +336,7 @@ flowchart TD
 | `DOCS_SESSION_SECRET` | Session 加密密钥 | 强随机，必填 |
 | `DOCS_SECRETS_FILE_PATH` | secrets JSON 路径（应用读取；容器内固定 `/opt/secrets/secrets.json`） | SSO 实例必填；用 `scripts/manage-secrets.sh` 维护 |
 | `DOCS_SECRETS_DIR` | 宿主机 secrets 目录（Compose 挂载至 `/opt/secrets`） | Docker SSO 实例必填；目录内文件名须为 `secrets.json` |
-| `NEXT_PUBLIC_SITE_URL` | 文档站 canonical URL | 必填，用于 MCP aud 和回源基址 |
+| `KNOWLEDGE_SITE_URL` | 文档站 canonical URL | 必填，用于 MCP aud 和回源基址 |
 | `DOCS_CUBE_ORIGIN_PATTERN` | 约束 cubeOrigin 合法值（正则） | 如 `^https://cube\.example\.com$` |
 | `DOCS_RESOURCES_REQUIRE_EMBED_SIGN` | 图片资源是否强制验签 | 默认：生产且 SSO 开启时为 `true` |
 | `DOCS_PRIVATE_ACCESS_TOKEN` | Bearer Token 访问私有文档 | SSO 模式下勿配 |

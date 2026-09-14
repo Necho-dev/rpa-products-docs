@@ -1,6 +1,7 @@
 import { docs } from 'collections/server';
 import { loader } from 'fumadocs-core/source';
-import { docsContentRoute, docsImageRoute, docsRoute, getPublicSiteUrlIfSet } from '@/lib/core/shared';
+import { getPublicSiteUrlIfSet } from '@/lib/core/knowledge-env';
+import { docsContentRoute, docsImageRoute, docsRoute } from '@/lib/core/shared';
 import { docIconsPlugin } from '@/lib/docs/source/doc-icons-plugin';
 import { docsEntryInSidebarPlugin } from '@/lib/docs/source/docs-entry-in-sidebar-plugin';
 import { rewriteMarkdownImagesForEmbed } from '@/lib/docs/embed/markdown';

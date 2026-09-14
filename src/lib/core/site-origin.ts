@@ -1,5 +1,5 @@
 import { mcpResourceUrl } from '@/lib/auth/auth-config';
-import { getPublicSiteUrl, getPublicSiteUrlIfSet } from '@/lib/core/shared';
+import { getPublicSiteUrlIfSet } from '@/lib/core/knowledge-env';
 
 const LOCAL_DEV_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
 
@@ -40,7 +40,7 @@ function buildOrigin(proto: string, hostname: string, port: string): string {
   return `${proto}://${host}`;
 }
 
-/** 开发环境：localhost / 127.0.0.1 与 NEXT_PUBLIC_SITE_URL 视为同一站点（同端口）。 */
+/** 开发环境：localhost / 127.0.0.1 与 KNOWLEDGE_SITE_URL 视为同一站点（同端口）。 */
 function devOriginAliases(...origins: Array<string | undefined>): string[] {
   if (!isDevelopment()) return [];
 
@@ -66,7 +66,7 @@ function devOriginAliases(...origins: Array<string | undefined>): string[] {
 /**
  * 运行时站点根：MCP aud、deeplink、鉴权等。
  * - 开发：优先当前请求 Host（支持 localhost / 局域网 IP 混用）
- * - 生产：优先 NEXT_PUBLIC_SITE_URL（反代场景），否则回退请求 Host
+ * - 生产：优先 KNOWLEDGE_SITE_URL（反代场景），否则回退请求 Host
  */
 export function inferSiteOrigin(request: Request): string {
   const fromRequest = originFromRequest(request);
@@ -78,16 +78,13 @@ export function inferSiteOrigin(request: Request): string {
 }
 
 /**
- * OG 渲染用站点根：build 期优先 env，避免读 request headers 导致 route 标为 dynamic。
+ * OG 渲染用站点根：与 inferSiteOrigin 相同（运行时 canonical）。
  */
-export function resolveOgSiteOrigin(req?: Request): string {
-  const fromEnv = getPublicSiteUrlIfSet();
-  if (fromEnv) return fromEnv;
-  if (req) return inferSiteOrigin(req);
-  return getPublicSiteUrl();
+export function resolveOgSiteOrigin(req: Request): string {
+  return inferSiteOrigin(req);
 }
 
-/** MCP Bearer `aud` 候选：开发环境允许 localhost 与 NEXT_PUBLIC_SITE_URL 互通。 */
+/** MCP Bearer `aud` 候选：开发环境允许 localhost 与 KNOWLEDGE_SITE_URL 互通。 */
 export function mcpResourceUrlsForRequest(request: Request): string[] {
   const fromRequest = originFromRequest(request);
   const fromEnv = getPublicSiteUrlIfSet();

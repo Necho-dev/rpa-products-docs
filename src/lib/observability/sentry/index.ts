@@ -13,10 +13,16 @@
  */
 export {
   getSentryDsn,
+  getSentryEnableLogs,
   getSentryEnvironment,
+  getSentryProfileSessionSampleRate,
+  getSentryProfilesSampleRate,
   getSentryRelease,
+  getSentrySendDefaultPii,
+  getSentrySharedInitOptions,
   getSentryTracesSampleRate,
   isSentryEnabled,
+  isSentryProfilingEnabled,
 } from '@/lib/observability/sentry/env';
 export { parseUserAgent } from '@/lib/observability/sentry/parse-user-agent';
 export { shouldEmitDocsView, formatDocsViewMessage, fireDocsView } from '@/lib/observability/sentry/docs';

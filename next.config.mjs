@@ -5,7 +5,9 @@ const withMDX = createMDX();
 
 function devAllowedOrigins() {
   const hosts = new Set(['localhost', '127.0.0.1']);
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  const siteUrl = (
+    process.env.KNOWLEDGE_SITE_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? ''
+  ).trim();
   if (siteUrl) {
     try {
       hosts.add(new URL(siteUrl).hostname);
@@ -23,31 +25,9 @@ function devAllowedOrigins() {
 /** @type {import('next').NextConfig} */
 const config = {
   reactStrictMode: true,
-  /**
-   * 将 SENTRY_* 内联进客户端包，统一只用 SENTRY_DSN（无需单独写 NEXT_PUBLIC_）。
-   * 同时冗余 NEXT_PUBLIC_SENTRY_*，便于静态字符串替换。
-   * 注意：业务代码必须静态访问 `process.env.SENTRY_DSN`，禁止 `process.env[key]`。
-   */
-  env: {
-    SENTRY_DSN: process.env.SENTRY_DSN ?? process.env.NEXT_PUBLIC_SENTRY_DSN ?? '',
-    SENTRY_ENVIRONMENT:
-      process.env.SENTRY_ENVIRONMENT ?? process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT ?? 'dev',
-    SENTRY_RELEASE:
-      process.env.SENTRY_RELEASE ??
-      process.env.NEXT_PUBLIC_SENTRY_RELEASE ??
-      process.env.GIT_SHA ??
-      '',
-    NEXT_PUBLIC_SENTRY_DSN: process.env.SENTRY_DSN ?? process.env.NEXT_PUBLIC_SENTRY_DSN ?? '',
-    NEXT_PUBLIC_SENTRY_ENVIRONMENT:
-      process.env.SENTRY_ENVIRONMENT ?? process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT ?? 'dev',
-    NEXT_PUBLIC_SENTRY_RELEASE:
-      process.env.SENTRY_RELEASE ??
-      process.env.NEXT_PUBLIC_SENTRY_RELEASE ??
-      process.env.GIT_SHA ??
-      '',
-  },
   /** Docker 等多阶段部署：产出 `.next/standalone`，运行时镜像只需 Node + 该目录 */
   output: 'standalone',
+  serverExternalPackages: ['@sentry/profiling-node'],
   /**
    * 禁止设置 `turbopack.root: <本项目目录>`:
    * Next 16 Turbopack 在 root === projectDir 时会把 CSS `@import` 解析上下文

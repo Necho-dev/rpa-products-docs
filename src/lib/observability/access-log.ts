@@ -10,6 +10,7 @@ import {
 } from '@/lib/observability/observability-auth';
 import { extractGeoAsn, isRscRequest } from '@/lib/observability/request-enrichment';
 import { fireAccessAudit, isSentryEnabled } from '@/lib/observability/sentry';
+import { applyJsProfilingDocumentPolicy } from '@/lib/observability/sentry/js-profiling-header';
 
 export type { ObservabilityAuthFields, ObservabilityAuthorization } from '@/lib/observability/observability-auth';
 
@@ -202,6 +203,7 @@ export function finishAccessLog(
   outcome: AccessLogOutcome,
   startedMs: number,
 ): NextResponse {
+  applyJsProfilingDocumentPolicy(response);
   if (isNextPrefetchRequest(request)) {
     if (shouldLogAccessRequest(request)) {
       recordPrefetchAccess(request, response, startedMs);

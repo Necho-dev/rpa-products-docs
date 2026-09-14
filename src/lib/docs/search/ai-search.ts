@@ -2,7 +2,7 @@ import { APICallError } from '@ai-sdk/provider';
 import { generateText } from 'ai';
 import { z } from 'zod';
 import { getLlmJsonModel } from '@/lib/ai/llm';
-import { getSiteName } from '@/lib/core/shared';
+import { getSiteName } from '@/lib/core/knowledge-env';
 import type { DocAccessContext } from '@/lib/docs/access/doc-access';
 import { filterSearchHitsByDocAccess } from '@/lib/docs/docs-site-tools';
 import { getDocsSearchApi } from '@/lib/docs/search/docs-search-server';

@@ -1,4 +1,4 @@
-import { siteName } from '@/lib/core/shared';
+import { getSiteName } from '@/lib/core/knowledge-env';
 import { computeHeroDisplayHeight, loadHeroImageAsset } from '@/lib/docs/og/hero-image';
 import { POSTER_WIDTH } from '@/lib/docs/og/poster-height';
 import { generateQrDataUrl } from '@/lib/docs/og/qr';
@@ -28,7 +28,7 @@ export function buildOgShareBaseProps(page: Page, origin: string): OgShareBasePr
     description?: string;
   };
   return {
-    siteName,
+    siteName: getSiteName(),
     title: data.title,
     description: data.description,
     badge: data.badge,

@@ -1,6 +1,6 @@
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
 import Image from 'next/image';
-import { getGitRepositoryWebUrl, getSiteName } from '@/lib/core/shared';
+import { getGitRepositoryWebUrl, getSiteName } from '@/lib/core/knowledge-env';
 
 export function baseOptions(): BaseLayoutProps {
   const repoWebUrl = getGitRepositoryWebUrl();

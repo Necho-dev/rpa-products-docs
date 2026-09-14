@@ -1,39 +1,34 @@
 import * as Sentry from '@sentry/nextjs';
-import {
-  getSentryDsn,
-  getSentryEnvironment,
-  getSentryRelease,
-  getSentryTracesSampleRate,
-  isSentryEnabled,
-} from '@/lib/observability/sentry/env';
+import { readDocsPublicSentryConfig } from '@/lib/observability/sentry/public-config';
 
 const isDev = process.env.NODE_ENV === 'development';
+const cfg = readDocsPublicSentryConfig();
 
-if (isSentryEnabled()) {
+if (cfg?.dsn) {
   Sentry.init({
-    dsn: getSentryDsn(),
-    environment: getSentryEnvironment(),
-    release: getSentryRelease(),
+    dsn: cfg.dsn,
+    environment: cfg.environment,
+    release: cfg.release,
     enabled: true,
+    tracesSampleRate: cfg.tracesSampleRate,
+    profilesSampleRate: cfg.profilesSampleRate,
+    profileSessionSampleRate: cfg.profileSessionSampleRate,
+    profileLifecycle: 'trace',
+    enableLogs: cfg.enableLogs,
+    sendDefaultPii: cfg.sendDefaultPii,
 
-    tracesSampleRate: getSentryTracesSampleRate(),
-
-    // 内部知识库流量有限：会话全量采样，便于 Replay 面板有数据
     replaysSessionSampleRate: 1.0,
     replaysOnErrorSampleRate: 1.0,
 
-    enableLogs: true,
-
-    // 允许 Sentry 从上报连接推断 client IP（Replay / Error 列表侧边栏）
-    sendDefaultPii: true,
-
     integrations: [
-      // 公共知识库：文档正文可读，不做 mask/block（仍可对敏感 input 使用 data-sentry-mask）
       Sentry.replayIntegration({
         maskAllText: false,
         blockAllMedia: false,
       }),
       Sentry.consoleLoggingIntegration({ levels: ['warn', 'error'] }),
+      ...(cfg.profilesSampleRate > 0 || cfg.profileSessionSampleRate > 0
+        ? [Sentry.browserProfilingIntegration()]
+        : []),
     ],
 
     beforeSendLog: (log) => {

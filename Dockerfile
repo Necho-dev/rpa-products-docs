@@ -28,14 +28,8 @@ COPY . .
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
   npm run postinstall
 RUN mkdir -p public
-ARG NEXT_PUBLIC_SITE_URL
-ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
-# Sentry：build 期内联到客户端；未设置则关闭 Sentry
-ARG SENTRY_DSN
-ENV SENTRY_DSN=${SENTRY_DSN}
-ARG SENTRY_ENVIRONMENT=dev
-ENV SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT}
 # source map 上传（可选；未提供 token 时 withSentryConfig 会跳过）
+# DSN / 采样率走运行时 env_file，不要在此 ARG 打进镜像
 ARG SENTRY_AUTH_TOKEN
 ENV SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
 ARG SENTRY_ORG
@@ -69,7 +63,6 @@ RUN groupadd -r -g 1001 nodejs && useradd -r -u 1001 -g nodejs -s /usr/sbin/nolo
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-# build 期由 generateStaticParams 预生成 OG Full Route Cache；勿在 builder 对 .next/cache 使用 RUN mount
 COPY --from=builder --chown=nextjs:nodejs /app/.next/cache ./.next/cache
 # quote.png 动态渲染需在运行时读 src/fonts；standalone trace 未必包含该目录
 COPY --from=builder --chown=nextjs:nodejs /app/src/fonts ./src/fonts

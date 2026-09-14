@@ -3,8 +3,13 @@ import { describe, it } from 'node:test';
 import {
   getSentryEnvironment,
   getSentryRelease,
+  getSentryEnableLogs,
+  getSentryProfileSessionSampleRate,
+  getSentryProfilesSampleRate,
+  getSentrySendDefaultPii,
   getSentryTracesSampleRate,
   isSentryEnabled,
+  isSentryProfilingEnabled,
   parseUserAgent,
   shouldEmitAuthDeny,
   formatDocsViewMessage,
@@ -85,6 +90,50 @@ describe('sentry-env', () => {
     } finally {
       if (prev === undefined) delete process.env.SENTRY_TRACES_SAMPLE_RATE;
       else process.env.SENTRY_TRACES_SAMPLE_RATE = prev;
+    }
+  });
+
+  it('profile sample rates default 0 and clamp', () => {
+    const prevTx = process.env.SENTRY_PROFILES_SAMPLE_RATE;
+    const prevSession = process.env.SENTRY_PROFILE_SESSION_SAMPLE_RATE;
+    try {
+      delete process.env.SENTRY_PROFILES_SAMPLE_RATE;
+      delete process.env.SENTRY_PROFILE_SESSION_SAMPLE_RATE;
+      assert.equal(getSentryProfilesSampleRate(), 0);
+      assert.equal(getSentryProfileSessionSampleRate(), 0);
+      assert.equal(isSentryProfilingEnabled(), false);
+      process.env.SENTRY_PROFILES_SAMPLE_RATE = '0.4';
+      assert.equal(getSentryProfilesSampleRate(), 0.4);
+      assert.equal(isSentryProfilingEnabled(), true);
+      process.env.SENTRY_PROFILES_SAMPLE_RATE = '0';
+      process.env.SENTRY_PROFILE_SESSION_SAMPLE_RATE = '2';
+      assert.equal(getSentryProfileSessionSampleRate(), 1);
+      assert.equal(isSentryProfilingEnabled(), true);
+    } finally {
+      if (prevTx === undefined) delete process.env.SENTRY_PROFILES_SAMPLE_RATE;
+      else process.env.SENTRY_PROFILES_SAMPLE_RATE = prevTx;
+      if (prevSession === undefined) delete process.env.SENTRY_PROFILE_SESSION_SAMPLE_RATE;
+      else process.env.SENTRY_PROFILE_SESSION_SAMPLE_RATE = prevSession;
+    }
+  });
+
+  it('logs / pii env', () => {
+    const prevLogs = process.env.SENTRY_ENABLE_LOGS;
+    const prevPii = process.env.SENTRY_SEND_DEFAULT_PII;
+    try {
+      delete process.env.SENTRY_ENABLE_LOGS;
+      delete process.env.SENTRY_SEND_DEFAULT_PII;
+      assert.equal(getSentryEnableLogs(), true);
+      assert.equal(getSentrySendDefaultPii(), true);
+      process.env.SENTRY_ENABLE_LOGS = 'false';
+      process.env.SENTRY_SEND_DEFAULT_PII = '0';
+      assert.equal(getSentryEnableLogs(), false);
+      assert.equal(getSentrySendDefaultPii(), false);
+    } finally {
+      if (prevLogs === undefined) delete process.env.SENTRY_ENABLE_LOGS;
+      else process.env.SENTRY_ENABLE_LOGS = prevLogs;
+      if (prevPii === undefined) delete process.env.SENTRY_SEND_DEFAULT_PII;
+      else process.env.SENTRY_SEND_DEFAULT_PII = prevPii;
     }
   });
 });

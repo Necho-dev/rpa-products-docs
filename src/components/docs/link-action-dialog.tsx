@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/core/cn';
-import { siteName } from '@/lib/core/shared';
+import { useSiteName } from '@/components/docs/site-name-context';
 import { isExternalHref } from '@/lib/docs/link-kind';
 import { safeWriteClipboard } from '@/lib/ui/code-block-utils';
 
@@ -35,7 +35,10 @@ function isSameOriginLink(absoluteUrl: string): boolean {
   }
 }
 
-function getLinkHint(absoluteUrl: string): { kind: 'internal' | 'external'; text: string } {
+function getLinkHint(
+  absoluteUrl: string,
+  siteName: string,
+): { kind: 'internal' | 'external'; text: string } {
   if (isSameOriginLink(absoluteUrl)) {
     return { kind: 'internal', text: '站内安全链接，请放心访问！' };
   }
@@ -54,9 +57,10 @@ export type LinkActionDialogProps = {
  */
 export function LinkActionDialog({ open, href, onClose }: LinkActionDialogProps) {
   const router = useRouter();
+  const siteName = useSiteName();
   const absoluteUrl = toAbsoluteUrl(href);
   const external = !isSameOriginLink(absoluteUrl);
-  const hint = getLinkHint(absoluteUrl);
+  const hint = getLinkHint(absoluteUrl, siteName);
 
   const openSameTab = useCallback(() => {
     onClose();

@@ -11,15 +11,9 @@ import {
   verifyQuoteSignature,
 } from '@/lib/docs/selection/quote-sign';
 import { source } from '@/lib/docs/source/source';
-import { getPublicSiteUrlIfSet } from '@/lib/core/shared';
+import { inferSiteOrigin } from '@/lib/core/site-origin';
 import { notFound } from 'next/navigation';
 import { ImageResponse } from 'next/og';
-
-function resolveQuoteSiteOrigin(req: Request): string {
-  const fromEnv = getPublicSiteUrlIfSet();
-  if (fromEnv) return fromEnv;
-  return new URL(req.url).origin;
-}
 
 const MAX_QUOTE_IMAGE_HEIGHT = 2400;
 
@@ -30,7 +24,7 @@ export async function renderQuoteOgImage(req: Request, slugs: string[]): Promise
   const access = getDocAccessContext(req);
   if (!isDocPageAccessible(page, access)) notFound();
 
-  const origin = resolveQuoteSiteOrigin(req);
+  const origin = inferSiteOrigin(req);
   const url = new URL(req.url);
   const rawText = url.searchParams.get('text') ?? '';
   const quoteText = normalizeQuoteText(rawText);

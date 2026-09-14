@@ -1,16 +1,12 @@
 import { Feed } from 'feed';
 import type { DocAccessContext } from '@/lib/docs/access/doc-access';
 import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
-import {
-  getPublicDocsUrl,
-  getPublicSiteUrl,
-  getSiteDescription,
-  siteName,
-} from '@/lib/core/shared';
+import { getSiteDescription, getSiteName } from '@/lib/core/knowledge-env';
 import { source } from '@/lib/docs/source/source';
 
-export function getRSS(access: DocAccessContext) {
-  const baseUrl = getPublicSiteUrl();
+export function getRSS(access: DocAccessContext, siteOrigin: string) {
+  const baseUrl = siteOrigin.replace(/\/$/, '');
+  const siteName = getSiteName();
   const feedUrl = `${baseUrl}/rss.xml`;
   const year = new Date().getFullYear();
 
@@ -18,7 +14,7 @@ export function getRSS(access: DocAccessContext) {
     title: siteName,
     description: getSiteDescription(),
     id: feedUrl,
-    link: getPublicDocsUrl(),
+    link: `${baseUrl}/docs`,
     feed: feedUrl,
     language: 'zh-CN',
 

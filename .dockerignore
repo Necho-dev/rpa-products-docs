@@ -5,6 +5,13 @@ out
 .env
 .env.*
 !.env.example
+# 宿主机运行时落盘 / 密钥，禁止打进构建上下文与镜像
+logs
+logs/
+*.jsonl
+.secrets
+.secrets/
+secrets.json
 **/.DS_Store
 **/*.log
 npm-debug.log*

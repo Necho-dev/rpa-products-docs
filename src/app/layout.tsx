@@ -1,13 +1,17 @@
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
+import Script from 'next/script';
 import { RootProvider } from 'fumadocs-ui/provider/next';
 import DocsSearchDialog from '@/components/docs/search/docs-search-dialog';
 import { AiSearchUiProvider } from '@/components/docs/search/ai-search-ui-context';
 import { SearchTagsProvider } from '@/components/docs/search/search-tags-context';
+import { SiteNameProvider } from '@/components/docs/site-name-context';
 import { SentryUserContext } from '@/components/observability/sentry-user-context';
 import { isAiSearchAvailable } from '@/lib/docs/search/ai-search';
 import { getSearchTags } from '@/lib/docs/search/search-tags';
 import { resolveClientSentryIdentity } from '@/lib/observability/sentry-client-identity';
+import { getDocsPublicConfig } from '@/lib/observability/sentry/public-config-server';
+import { serializeDocsPublicConfigScript } from '@/lib/observability/sentry/public-config';
 import './global.css';
 import 'katex/dist/katex.css';
 /** 在 Tailwind/typography 与 KaTeX 之后覆盖文档 blockquote，避免层叠被吃掉 */
@@ -20,7 +24,11 @@ import {
 import localFont from 'next/font/local';
 import { cn } from '@/lib/core/cn';
 import { DocumentTitleDefault } from '@/components/docs/document-title-default';
-import { getPublicSiteUrl, getPublicSiteUrlIfSet, getSiteDescription, getSiteName } from '@/lib/core/shared';
+import {
+  getPublicSiteUrlIfSet,
+  getSiteDescription,
+  getSiteName,
+} from '@/lib/core/knowledge-env';
 
 /** 拉丁正文（本地 woff2，见 src/fonts） */
 const inter = localFont({
@@ -40,28 +48,35 @@ const jetBrainsMono = localFont({
 
 if (process.env.NODE_ENV === 'production' && !getPublicSiteUrlIfSet()) {
   console.warn(
-    '[site] NEXT_PUBLIC_SITE_URL is not set. RSS/MCP absolute links and proxy Host inference may be wrong; set it in production.',
+    '[site] KNOWLEDGE_SITE_URL is not set. RSS/MCP absolute links and proxy Host inference may be wrong; set it in production.',
   );
+}
+
+if (process.env.NODE_ENV === 'production' && !getDocsPublicConfig().sentry.dsn) {
+  console.warn('[sentry] SENTRY_DSN is not set; Errors / Replay / Logs are off until runtime env is provided.');
 }
 
 export function generateMetadata(): Metadata {
   const siteName = getSiteName();
+  const siteUrl = getPublicSiteUrlIfSet();
   return {
     title: {
       default: siteName,
       template: `%s | ${siteName}`,
     },
     description: getSiteDescription(),
-    alternates: {
-      types: {
-        'application/rss+xml': [
-          {
-            title: siteName,
-            url: `${getPublicSiteUrl()}/rss.xml`,
+    alternates: siteUrl
+      ? {
+          types: {
+            'application/rss+xml': [
+              {
+                title: siteName,
+                url: `${siteUrl}/rss.xml`,
+              },
+            ],
           },
-        ],
-      },
-    },
+        }
+      : undefined,
   };
 }
 
@@ -70,6 +85,7 @@ export default async function Layout({ children }: LayoutProps<'/'>) {
   const aiSearchUiEnabled = isAiSearchAvailable();
   const searchTags = getSearchTags();
   const sentryIdentity = await resolveClientSentryIdentity();
+  const publicConfigScript = serializeDocsPublicConfigScript(getDocsPublicConfig());
   const cookieStore = await cookies();
   const colorPreset = parseFdColorPresetId(
     cookieStore.get(FD_COLOR_PRESET_STORAGE_KEY)?.value,
@@ -84,10 +100,14 @@ export default async function Layout({ children }: LayoutProps<'/'>) {
       suppressHydrationWarning
     >
       <body className="flex min-h-screen flex-col font-sans antialiased">
+        <Script id="knowledge-public-config" strategy="beforeInteractive">
+          {publicConfigScript}
+        </Script>
         <SentryUserContext
           userId={sentryIdentity.userId}
           cubeOrigin={sentryIdentity.cubeOrigin}
         />
+        <SiteNameProvider siteName={siteName}>
         <AiSearchUiProvider enabled={aiSearchUiEnabled}>
           <SearchTagsProvider tags={searchTags}>
           <RootProvider
@@ -106,6 +126,7 @@ export default async function Layout({ children }: LayoutProps<'/'>) {
           </RootProvider>
           </SearchTagsProvider>
         </AiSearchUiProvider>
+        </SiteNameProvider>
       </body>
     </html>
   );

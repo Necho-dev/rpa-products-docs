@@ -1,0 +1,69 @@
+# 一镜像、两容器：intranet（无 SSO）+ production（SSO）
+# 只在 intranet 上 build；production 复用同一 COMPOSE_IMAGE。
+# 在本目录执行：docker compose up -d --build
+# 构建上下文为仓库根（../..）
+
+x-build-common: &build-common
+  image: ${COMPOSE_IMAGE:-yuce-knowledge-docs:latest}
+  restart: unless-stopped
+  environment:
+    NODE_ENV: production
+    PORT: 3000
+    HOSTNAME: "0.0.0.0"
+    DOCS_OBSERVABILITY_LOG_PATH: /app/logs
+  healthcheck:
+    test:
+      [
+        "CMD",
+        "node",
+        "-e",
+        "fetch('http://127.0.0.1:3000/health').then(r=>r.json()).then(j=>process.exit(j.status==='ok'?0:1)).catch(()=>process.exit(1))",
+      ]
+    interval: 30s
+    timeout: 5s
+    retries: 3
+    start_period: 20s
+  deploy:
+    update_config:
+      order: start-first
+  stop_grace_period: 15s
+
+services:
+  intranet:
+    <<: *build-common
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+      args:
+        SENTRY_AUTH_TOKEN: ${SENTRY_AUTH_TOKEN:-}
+        SENTRY_ORG: ${SENTRY_ORG:-}
+        SENTRY_PROJECT: ${SENTRY_PROJECT:-}
+        SENTRY_URL: ${SENTRY_URL:-}
+        GIT_SHA: ${GIT_SHA:-}
+        SENTRY_RELEASE: ${SENTRY_RELEASE:-}
+    container_name: yuce-knowledge-docs-intranet
+    ports:
+      - "${INTRANET_PORT:-3033}:3000"
+    env_file:
+      - path: .env.intranet
+        required: true
+    volumes:
+      - ${INTRANET_LOG_PATH:-./logs/intranet}:/app/logs
+
+  production:
+    <<: *build-common
+    container_name: yuce-knowledge-docs-production
+    ports:
+      - "${PRODUCTION_PORT:-3031}:3000"
+    env_file:
+      - path: .env.production
+        required: true
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: "0.0.0.0"
+      DOCS_OBSERVABILITY_LOG_PATH: /app/logs
+      DOCS_SECRETS_FILE_PATH: /opt/secrets/secrets.json
+    volumes:
+      - ${PRODUCTION_SECRETS_DIR:-/opt/secrets}:/opt/secrets:ro
+      - ${PRODUCTION_LOG_PATH:-./logs/production}:/app/logs

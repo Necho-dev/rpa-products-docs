@@ -7,7 +7,7 @@ import { safeWriteClipboard } from '@/lib/ui/code-block-utils';
 
 interface Props {
   mcpUrl: string;
-  /** Cursor / Claude 安装展示名（来自 `MCP_DISPLAY_NAME` 或 `NEXT_PUBLIC_SITE_NAME`） */
+  /** Cursor / Claude 安装展示名（来自 `MCP_DISPLAY_NAME` 或 `KNOWLEDGE_SITE_NAME`） */
   mcpDisplayName: string;
   /** 服务端已配置 `DOCS_PRIVATE_ACCESS_TOKEN` 时需携带 Bearer 访问私有文档 */
   privateDocsAccessEnabled: boolean;

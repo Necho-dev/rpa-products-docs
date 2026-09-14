@@ -1,6 +1,7 @@
 import { isPrivateDocAccessConfigured } from '@/lib/docs/access/doc-access';
 import type { SearchTag } from '@/lib/docs/search/search-tags';
-import { docsRoute, getSiteDescription, siteName } from '@/lib/core/shared';
+import { getKnowledgeSkillName, getSiteDescription, getSiteName } from '@/lib/core/knowledge-env';
+import { docsRoute } from '@/lib/core/shared';
 
 function trimEnv(key: string): string | undefined {
   const v = process.env[key];
@@ -20,16 +21,16 @@ export function slugifyMcpId(name: string): string {
 
 /**
  * MCP Server `name` 字段（协议标识）。
- * 优先 `MCP_SERVER_NAME`，其次 `NEXT_PUBLIC_SKILL_NAME`，再回退为站点名 slug。
+ * 优先 `MCP_SERVER_NAME`，其次 `KNOWLEDGE_SKILL_NAME`，再回退为站点名 slug。
  */
 export function getMcpServerName(): string {
   const explicit = trimEnv('MCP_SERVER_NAME');
   if (explicit) return slugifyMcpId(explicit);
 
-  const skill = trimEnv('NEXT_PUBLIC_SKILL_NAME');
+  const skill = getKnowledgeSkillName();
   if (skill) return slugifyMcpId(skill);
 
-  return slugifyMcpId(siteName) || 'rpa-products-docs';
+  return slugifyMcpId(getSiteName()) || 'rpa-products-docs';
 }
 
 /** MCP Server `version` 字段 */
@@ -39,10 +40,10 @@ export function getMcpServerVersion(): string {
 
 /**
  * Cursor / Claude 一键安装等 UI 展示名。
- * 优先 `MCP_DISPLAY_NAME`，其次 `NEXT_PUBLIC_SITE_NAME`。
+ * 优先 `MCP_DISPLAY_NAME`，其次 `KNOWLEDGE_SITE_NAME`。
  */
 export function getMcpDisplayName(): string {
-  return trimEnv('MCP_DISPLAY_NAME') ?? siteName;
+  return trimEnv('MCP_DISPLAY_NAME') ?? getSiteName();
 }
 
 function buildPartitionsBlock(searchTags: SearchTag[]): string {
@@ -85,7 +86,7 @@ export function buildMcpServerInstructions(
     ? '\n\nPrivate documentation requires `Authorization: Bearer <token>` or an authenticated browser session via `/docs/access`.'
     : '';
 
-  return `This MCP server exposes documentation for ${siteName}.
+  return `This MCP server exposes documentation for ${getSiteName()}.
 ${description}
 
 Site URL: ${siteOrigin.replace(/\/$/, '')}

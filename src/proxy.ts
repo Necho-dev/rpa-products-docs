@@ -25,6 +25,7 @@ import {
 import { applyOgDocGate, isOgDocsPath, isPublicOgDocsPath } from '@/lib/docs/og/proxy-gate';
 import { finishAccessLog, clientIp, sanitizeQuery } from '@/lib/observability/access-log';
 import { setProxyTraceName, attachTraceContext } from '@/lib/observability/sentry';
+import { applyJsProfilingDocumentPolicy } from '@/lib/observability/sentry/js-profiling-header';
 import { resolveObservabilityLogAuth } from '@/lib/observability/observability-auth';
 import {
   extractGeoAsn,
@@ -272,7 +273,7 @@ export function proxy(request: NextRequest) {
     if (ssoOutcome === 'pass') {
       // 鉴权已通过：文档/API 等按 ACCESS 记；/mcp 由 route handler 记 [MCP]
       if (request.nextUrl.pathname === '/mcp') {
-        return gate;
+        return applyJsProfilingDocumentPolicy(gate);
       }
       return finishAccessLog(request, gate, 'forward', started);
     }
