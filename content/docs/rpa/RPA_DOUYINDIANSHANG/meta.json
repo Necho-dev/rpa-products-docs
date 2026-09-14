@@ -1,0 +1,9 @@
+{
+  "title": "抖音电商罗盘",
+  "categoryAxis": {
+    "title": "业务场景",
+    "items": [
+      { "key": "live", "item": "直播", "icon": { "comp": "Video", "color": "#ec4899" } }
+    ]
+  }
+}
