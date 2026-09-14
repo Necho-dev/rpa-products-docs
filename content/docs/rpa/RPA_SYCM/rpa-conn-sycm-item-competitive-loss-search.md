@@ -28,20 +28,24 @@ category: item
 >
 > **取数链接**：[https://sycm.taobao.com/mc/free/ci_item](https://sycm.taobao.com/mc/free/ci_item)
 
-![生意参谋—市场竞品流失搜索流失竞品推荐](../_public/images/sycm/item_competitive_loss_search_20260909.png)
+![生意参谋—市场竞品流失搜索流失竞品推荐](../_public/images/sycm/item_competitive_loss_search_20260914.png)
+
+> 黄框内为点击流失竞品商品列表展开后的商品子列表（入参 `product_sublist`）：排名、商品名称、所属店铺、搜索竞争商品数、搜索人数、搜索收藏指数、搜索加购指数、搜索交易指数。
 
 ### 业务入参
-`product_sublist` 是点击商品列表展开后的数据
+
+`product_sublist` 对应上图黄框内展开后的商品子列表（排名、商品名称、所属店铺、搜索竞争商品数、搜索人数、搜索收藏指数、搜索加购指数、搜索交易指数）。
+
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
 | `date_type` | 时间类型 | `String` | 否 | `DAY` | 可选值：`LAST_7_DAYS`（7天）/ `LAST_30_DAYS`（30天）/ `DAY`（日）/ `WEEK`（周）/ `MONTH`（月）。 |
-| `biz_date` | 统计日期 | `String` | 条件必填 | — | `date_type` 为 `WEEK` / `MONTH` 时必填；为 `DAY` 时不传则默认昨天。格式 `YYYYMMDD` 或 `YYYY-MM-DD`。日：昨天往前共 90 天。周：整周必须在90天内。月：当前月之前的三个完整自然月 |
+| `biz_date` | 统计日期 | `String` | 条件必填 | — | `date_type` 为 `WEEK` / `MONTH` / `DAY` 时必填。格式 `YYYYMMDD` 或 `YYYY-MM-DD`。日：昨天往前共 90 天。周：整周必须在90天内。月：当前月之前的三个完整自然月 |
 | `category_keyword` | 类目关键字 | `String` | 是 | — | 在类目选择器中按关键字搜索；多条命中点第一条；无结果返回「暂无搜索结果」 |
 | `indicator_type` | 指标选择 | `String` | 否 | `SE_GUIDE_UV` | 可选值：`SE_GUIDE_UV`（搜索引导访客数）/ `SE_GUIDE_CART_BYR_CNT`（搜索引导加购人数）/ `SE_GUIDE_PAY_BYR_CNT`（搜索引导支付买家数）/ `SE_GUIDE_PAY_RATE`（搜索引导支付转化率）。 |
-| `product_sublist` | 是否采集商品子列表 | `String` | 否 | `FALSE` | 可选值：`TRUE`（采集商品子列表）/ `FALSE`（只采流失竞品商品列表）。采集时输出含商品子列表，只采流失竞品商品列表时该字段为 `null` |
+| `product_sublist` | 是否采集商品子列表 | `String` | 否 | `FALSE` | 可选值：`TRUE`（采集上图黄框内展开后的商品子列表）/ `FALSE`（只采流失竞品商品列表）。采集时输出含商品子列表，只采流失竞品商品列表时该字段为 `null` |
 | `sort_column` | 流失竞品商品列表排序列 | `String` | 否 | — | 可选值：`SE_RIVAL_ITM_CNT`（搜索竞争商品数）/ `SELF_INDICATOR`（本店商品当前指标）/ `RIVAL_AVG_INDICATOR`（竞品平均当前指标）。保留页面默认排序 |
 | `sort_order` | 排序方向 | `String` | 否 | — | 可选值：`DESC`（降序）/ `ASC`（升序）。有 `sort_column` 且未传时默认 `DESC` |
-| `collect_limit` | 采集条数上限 | `Number` | 否 | — | 须为正整数。根据此值计算翻页数 |
+| `collect_limit` | 采集条数上限 | `Number` | 否 | — | 须为正整数，按流失竞品商品条数计。不采集内层（`product_sublist=FALSE`）：可填 1～10000；不传则最多 10000 条（每页 100 条、最多 100 页）；传入超过 10000 按 10000；翻页数 = 向上取整(条数 ÷ 100)。采集内层（`product_sublist=TRUE`）：可填 1～50；不传则最多展开 50 条；传入超过 50 按 50。每条只采黄框内商品子列表当前页（每页 10 条、不翻页，可能不足） |
 
 ### 入参样例
 ```json
@@ -134,7 +138,7 @@ category: item
     },
     "collect_limit": {
       "type": "integer",
-      "description": "采集条数上限（可选）。须为正整数。未传时：只采流失竞品商品列表最多 100 页（每页 100 条，合计 10000）；采集商品子列表最多 50 条流失竞品商品。传入后不超过对应上限。一条为一条流失竞品商品（含 product_sublist）",
+      "description": "采集条数上限（可选）。须为正整数，按流失竞品商品条数计。不采集内层（product_sublist=FALSE）：可填 1～10000；不传则最多 10000 条（每页 100 条、最多 100 页）；传入超过 10000 按 10000；翻页数 = 向上取整(条数÷100)。采集内层（product_sublist=TRUE）：可填 1～50；不传则最多展开 50 条；传入超过 50 按 50。每条只采商品子列表当前页（每页 10 条、不翻页，可能不足）",
       "minimum": 1,
       "maximum": 10000
     }
