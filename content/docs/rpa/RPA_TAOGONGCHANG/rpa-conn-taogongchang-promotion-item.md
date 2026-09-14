@@ -44,6 +44,8 @@ category: promotion
 
 ### 入参样例
 
+自定义统计区间，单品平推，推广中 Tab：
+
 ```json
 {
   "date_type": "CUSTOM",
@@ -54,6 +56,8 @@ category: promotion
 }
 ```
 
+近 7 天，单品加速，按商品 ID 筛选，推广中 Tab：
+
 ```json
 {
   "date_type": "LAST_7_DAYS",
@@ -62,6 +66,8 @@ category: promotion
   "item_tab": "PROMOTING"
 }
 ```
+
+不传筛选项，沿用页面当前日期与 Tab：
 
 ```json
 {}
