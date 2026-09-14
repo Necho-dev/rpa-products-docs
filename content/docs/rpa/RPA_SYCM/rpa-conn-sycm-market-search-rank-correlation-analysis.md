@@ -35,8 +35,8 @@ category: market
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
 | `key_word` | 搜索词 | `String` | 是 | — | 目标搜索词，不可为空 |
-| `date_type` | 统计时间类型 | `String` | 否 | `DAY` | 可选值：`LAST_7_DAYS`（7天）/ `LAST_30_DAYS`（30天）/ `DAY`（日）/ `WEEK`（周）/ `MONTH`（月）。`LAST_7_DAYS` / `LAST_30_DAYS`  |
-| `biz_date` | 统计日期 | `String` | 条件必填 | — | `date_type` 为 `WEEK` / `MONTH` 时必填；为 `DAY` 时不传则用昨天。格式 `YYYYMMDD` 或 `YYYY-MM-DD`。日：可选近90天。周：近90天的一个完整周。月：本月和前三个月 |
+| `date_type` | 统计时间类型 | `String` | 否 | `DAY` | 可选值：`LAST_7_DAYS`（7天）/ `LAST_30_DAYS`（30天）/ `DAY`（日）/ `WEEK`（周）/ `MONTH`（月）。|
+| `biz_date` | 统计日期 | `String` | 条件必填 | — | `date_type` 为 `WEEK` / `MONTH` / `DAY` 时必填；。格式 `YYYYMMDD` 或 `YYYY-MM-DD`。日：可选近90天。周：近90天的一个完整周。月：本月和前三个月 |
 | `compare_type` | 环比或年同比 | `String` | 否 | `CYCLE` | 可选值：`CYCLE`（环比）/ `YEAR_ON_YEAR`（年同比） |
 | `chart_type` | 榜单类型 | `String` | 否 | `RELATED` | 可选值：`RELATED`（相关热搜词）/ `BLUE_SEA`（相关蓝海词）。`BLUE_SEA` 时页面不支持自定义排序 |
 | `sort_column` | 排序列 | `String` | 否 | — | 可选值：`SE_IPV_UV_HITS`（搜索人气）/ `CLICK_RATE`（点击率）/ `PAY_CONV_RATE`（支付转化率）/ `PAY_BYR_CNT`（支付买家数）/ `SIM_WEIGHT`（需求供给比）/ `TMAO_CLICK_RATIO`（天猫商品点击占比）。不填则不点表头，保留页面默认 |
@@ -45,11 +45,15 @@ category: market
 
 ### 入参样例
 
+仅指定搜索词，其余按默认（日、环比、相关热搜词）：
+
 ```json
 {
   "key_word": "头冠"
 }
 ```
+
+按日统计指定日期，相关热搜词按点击率倒序，采集前 20 条：
 
 ```json
 {
@@ -64,6 +68,8 @@ category: market
 }
 ```
 
+近 7 天 + 年同比 + 相关蓝海词：
+
 ```json
 {
   "key_word": "头冠",
@@ -72,6 +78,8 @@ category: market
   "chart_type": "BLUE_SEA"
 }
 ```
+
+按周统计（用该日定位所在周）：
 
 ```json
 {
