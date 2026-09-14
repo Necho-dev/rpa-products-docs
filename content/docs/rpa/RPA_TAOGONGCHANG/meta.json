@@ -1,0 +1,9 @@
+{
+  "title": "淘工厂",
+  "categoryAxis": {
+    "title": "业务场景",
+    "items": [
+      { "key": "promotion", "item": "淘客推广", "icon": { "comp": "Megaphone", "color": "#EA580C" } }
+    ]
+  }
+}

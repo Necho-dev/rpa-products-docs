@@ -151,6 +151,11 @@
       "sourceIcon": "https://mmc.tmall.com/favicon.ico",
       "origin": "mmc.tmall.com"
     },
+    "ICO_TAOGONGCHANG": {
+      "file": "platform/files/ICO_TAOGONGCHANG.png",
+      "sourceIcon": "local:ICO_TAOBAO",
+      "origin": "tgc.tmall.com"
+    },
     "ICO_WANGDIANTONG": {
       "file": "platform/files/ICO_WANGDIANTONG.png",
       "sourceIcon": "https://www.wangdian.cn/favicon.ico",
