@@ -1,5 +1,5 @@
 ---
-title: 店铺-评价管理-来自买家的评价
+title: 交易-评价管理-来自买家的评价
 description: 按全部/正面/中性/负面及评价日期筛选，用于客服与口碑分析；默认配置最大翻页次数 100
 entry: rpa.conn.qianniu.shop.comment.list
 badge:
@@ -32,19 +32,54 @@ category: shop
 
 ### 业务入参
 
-| 字段                | 中文释义     | 数据类型  | 必填 | 默认值     | 说明 |
-| ------------------- | ------------ | --------- | ---- | ---------- | ---- |
-| `emotion_type`      | 情感分类     | `string`  | 否   | 可选项：`NEGATIVE` | `ALL` / `POSITIVE` / `NEUTRAL` / `NEGATIVE` |
-| `rate_date_start`   | 评价开始日期 | `string`  | 否   | bizDate - 30     | `YYYY-MM-DD` |
-| `rate_date_end`     | 评价结束日期 | `string`  | 否   | bizDate     | `YYYY-MM-DD` |
+| 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
+| ---- | -------- | -------- | ---- | ------ | ---- |
+| `emotion_type` | 情感分类 | `String` | 否 | `NEGATIVE` | 允许值：`ALL`（全部）/ `POSITIVE`（正面评价）/ `NEUTRAL`（中性评价）/ `NEGATIVE`（负面评价） |
+| `comment_start_date` | 评价开始日期 | `String` | 否 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与 `comment_end_date` 须同时传入；均未传则不填页面时间筛选 |
+| `comment_end_date` | 评价结束日期 | `String` | 否 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与 `comment_start_date` 须同时传入 |
 
 ### 入参样例
 
 ```json
 {
-    "emotion_type": "NEGATIVE",
-    "rate_date_start": "",
-    "rate_date_end": ""
+  "emotion_type": "NEGATIVE",
+  "comment_start_date": "",
+  "comment_end_date": ""
+}
+```
+
+### 入参校验
+
+```json-schema collapsed
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "千牛-交易-评价管理-来自买家的评价 - 查询入参",
+  "description": "emotion_type 允许值 ALL（全部）/ POSITIVE（正面评价）/ NEUTRAL（中性评价）/ NEGATIVE（负面评价）；comment_start_date / comment_end_date 须同时传入；均未传则不填页面时间筛选",
+  "type": "object",
+  "required": [],
+  "additionalProperties": false,
+  "dependentRequired": {
+    "comment_start_date": ["comment_end_date"],
+    "comment_end_date": ["comment_start_date"]
+  },
+  "properties": {
+    "emotion_type": {
+      "type": "string",
+      "description": "情感分类；允许值：ALL（全部）/ POSITIVE（正面评价）/ NEUTRAL（中性评价）/ NEGATIVE（负面评价）",
+      "enum": ["ALL", "POSITIVE", "NEUTRAL", "NEGATIVE"],
+      "default": "NEGATIVE"
+    },
+    "comment_start_date": {
+      "type": "string",
+      "description": "评价开始日期；格式 YYYYMMDD 或 YYYY-MM-DD；与 comment_end_date 须同时传入；均未传则不填页面时间筛选",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    },
+    "comment_end_date": {
+      "type": "string",
+      "description": "评价结束日期；格式 YYYYMMDD 或 YYYY-MM-DD；与 comment_start_date 须同时传入",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    }
+  }
 }
 ```
 

@@ -1,5 +1,5 @@
 ---
-title: 营销-优惠券详情-已选商品列表
+title: 营销-优惠券-优惠券详情-已选商品列表
 description: 按券 ID 定位优惠券并采集券详情中的已选商品列表，适用于核对优惠券适用商品及商品状态
 entry: rpa.conn.qianniu.marketing.coupon.item.selected.list
 badge:
@@ -36,49 +36,27 @@ category: marketing
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `coupon_id` | 券 ID | `String` | 是 | — | 用于搜索并定位目标优惠券，不可为空 |
-| `promote_type` | 推广方式 | `String` | 否 | `SHOP_MEMBER` | 英文 code；可选值：`ALL`（全部）、`AUTO_PROMOTE`（全网自动推广）、`GENERAL_LINK`（通用领券链接）、`LIVE_CHANNEL`（淘宝直播渠道优惠券）、`SHOP_MEMBER`（店铺会员专享券）、`RETURN_CUSTOMER`（回头客券）、`RIGHTS_PLATFORM`（权益营销平台券）、`FOLLOW_SHOP`（关注店铺优惠券）。连接器会映射为页面中文文案后精确匹配；页面无对应选项时失败软退出（`reason=promote_type_not_found`），并通过 `available_promote_types` 返回页面全部可选推广方式 |
-| `item_scope` | 商品生效范围 | `String` | 否 | `ITEM_COUPON` | 可选值：`ITEM_COUPON`（商品券（指定商品可用））、`SHOP_COUPON`（店铺券（全店可用）） |
-| `custom_start_date` | 可用开始日期 | `String` | 否 | —（不限） | 格式：`YYYYMMDD` 或 `YYYY-MM-DD`；与 `custom_end_date` 均未传时不填页面可用时间筛选；起止须同时传入 |
-| `custom_end_date` | 可用结束日期 | `String` | 否 | —（不限） | 格式：`YYYYMMDD` 或 `YYYY-MM-DD`；与 `custom_start_date` 均未传时不填页面可用时间筛选；起止须同时传入；不能早于可用开始日期 |
-| `coupon_name` | 券名称 | `String` | 否 | 空字符串 | 按券名称筛选 |
-| `coupon_amount` | 券面额 | `String` | 否 | 空字符串 | 按券面额筛选 |
-| `item_id` | 商品 ID | `String` | 否 | 空字符串 | 按商品 ID 筛选 |
+| `coupon_id` | 券 ID | `String` | 是 | `-` | 用于搜索并定位目标优惠券 |
+| `promote_type` | 推广方式 | `String` | 否 | `SHOP_MEMBER` | 允许值：`ALL`（全部）/ `AUTO_PROMOTE`（全网自动推广）/ `GENERAL_LINK`（通用领券链接）/ `LIVE_CHANNEL`（淘宝直播渠道优惠券）/ `SHOP_MEMBER`（店铺会员专享券）/ `RETURN_CUSTOMER`（回头客券）/ `RIGHTS_PLATFORM`（权益营销平台券）/ `FOLLOW_SHOP`（关注店铺优惠券） |
+| `item_scope` | 商品生效范围 | `String` | 否 | `ITEM_COUPON` | 允许值：`ITEM_COUPON`（商品券（指定商品可用））/ `SHOP_COUPON`（店铺券（全店可用）） |
+| `available_start_date` | 可用开始日期 | `String` | 否 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与 `available_end_date` 须同时传入；均未传则不填页面时间筛选 |
+| `available_end_date` | 可用结束日期 | `String` | 否 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与 `available_start_date` 须同时传入；不得早于开始日期 |
+| `coupon_name` | 券名称 | `String` | 否 | `-` | 按券名称筛选 |
+| `coupon_amount` | 券面额 | `String` | 否 | `-` | 按券面额筛选 |
+| `item_id` | 商品 ID | `String` | 否 | `-` | 按商品 ID 筛选 |
 
 ### 入参样例
 
-仅传必填券 ID（其余筛选项走默认；推广方式默认 `SHOP_MEMBER`，可用时间不限）：
-
-```json
-{
-  "coupon_id": "138940200949"
-}
-```
-
-指定推广方式、商品生效范围与可用时间：
-
 ```json
 {
   "coupon_id": "138940200949",
   "promote_type": "SHOP_MEMBER",
   "item_scope": "ITEM_COUPON",
-  "custom_start_date": "20260701",
-  "custom_end_date": "20260731"
-}
-```
-
-叠加券名称、券面额、商品 ID 等文本筛选：
-
-```json
-{
-  "coupon_id": "138940200949",
-  "promote_type": "SHOP_MEMBER",
-  "item_scope": "ITEM_COUPON",
-  "custom_start_date": "20260701",
-  "custom_end_date": "20260731",
-  "coupon_name": "220",
-  "coupon_amount": "220",
-  "item_id": "1034567890123"
+  "available_start_date": "",
+  "available_end_date": "",
+  "coupon_name": "",
+  "coupon_amount": "",
+  "item_id": ""
 }
 ```
 
@@ -87,18 +65,18 @@ category: marketing
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "千牛-营销优惠券管理已选商品列表 - 查询入参",
-  "description": "按券 ID 定位优惠券并采集券详情中的已选商品列表，适用于核对优惠券适用商品及商品状态",
+  "title": "千牛-营销-优惠券-优惠券详情-已选商品列表 - 查询入参",
+  "description": "coupon_id 必填；promote_type 允许值 ALL / AUTO_PROMOTE / GENERAL_LINK / LIVE_CHANNEL / SHOP_MEMBER / RETURN_CUSTOMER / RIGHTS_PLATFORM / FOLLOW_SHOP；available_start_date / available_end_date 须同时传入；均未传则不填页面时间筛选",
   "type": "object",
   "properties": {
     "coupon_id": {
       "type": "string",
-      "description": "用于搜索并定位目标优惠券，不可为空",
+      "description": "券 ID；用于搜索并定位目标优惠券",
       "minLength": 1
     },
     "promote_type": {
       "type": "string",
-      "description": "推广方式英文 code，映射为页面中文后精确匹配；页面无对应选项时失败软退出，并返回 available_promote_types",
+      "description": "推广方式；允许值：ALL（全部）/ AUTO_PROMOTE（全网自动推广）/ GENERAL_LINK（通用领券链接）/ LIVE_CHANNEL（淘宝直播渠道优惠券）/ SHOP_MEMBER（店铺会员专享券）/ RETURN_CUSTOMER（回头客券）/ RIGHTS_PLATFORM（权益营销平台券）/ FOLLOW_SHOP（关注店铺优惠券）",
       "enum": [
         "ALL",
         "AUTO_PROMOTE",
@@ -113,21 +91,21 @@ category: marketing
     },
     "item_scope": {
       "type": "string",
-      "description": "商品生效范围",
+      "description": "商品生效范围；允许值：ITEM_COUPON（商品券（指定商品可用））/ SHOP_COUPON（店铺券（全店可用））",
       "enum": [
         "ITEM_COUPON",
         "SHOP_COUPON"
       ],
       "default": "ITEM_COUPON"
     },
-    "custom_start_date": {
+    "available_start_date": {
       "type": "string",
-      "description": "可用开始日期，格式 YYYYMMDD 或 YYYY-MM-DD；与结束日期均未传时不填页面；须与 custom_end_date 成对传入",
+      "description": "可用开始日期；格式 YYYYMMDD 或 YYYY-MM-DD；与 available_end_date 须同时传入；均未传则不填页面时间筛选",
       "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
-    "custom_end_date": {
+    "available_end_date": {
       "type": "string",
-      "description": "可用结束日期，格式 YYYYMMDD 或 YYYY-MM-DD；与开始日期均未传时不填页面；须与 custom_start_date 成对传入，且不能早于开始日期",
+      "description": "可用结束日期；格式 YYYYMMDD 或 YYYY-MM-DD；与 available_start_date 须同时传入；不得早于开始日期",
       "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "coupon_name": {

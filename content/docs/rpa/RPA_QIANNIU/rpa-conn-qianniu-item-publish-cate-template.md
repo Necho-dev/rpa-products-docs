@@ -1,5 +1,5 @@
 ---
-title: 商品-发布-类目属性模板提取
+title: 商品-商品发布-选择类目
 description: 在千牛商品发布页搜索并选择目标类目，自动提取该类目的基础信息、销售信息、物流服务、图文描述等可直接填写的上架模板结构。
 entry: rpa.conn.qianniu.item.publish.cate.template
 badge:

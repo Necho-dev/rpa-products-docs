@@ -1,5 +1,5 @@
 ---
-title: 店铺-内容创作-搭配购列表
+title: 店铺-内容创作-作品管理-搭配购
 description: 采集千牛内容创作「搭配购」作品列表，支持按商品ID、搭配ID、搭配标题筛选，完整保留平台返回的搭配字段及嵌套商品明细
 entry: rpa.conn.qianniu.shop.content.creation.collocation
 badge:
@@ -34,9 +34,9 @@ category: shop
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `item_id` | 商品 ID | `String` | 否 | — | 单值纯数字字符串，最长 16 位；禁止多值粘连或 `+` 分隔 |
-| `collocation_id` | 搭配 ID | `String` | 否 | — | 单值纯数字字符串，最长 16 位；对应页面「搭配ID」筛选项 |
-| `collocation_title` | 搭配标题 | `String` | 否 | — | 模糊匹配，可含 emoji，最长 200 字符 |
+| `item_id` | 商品 ID | `String` | 否 | `-` | 单值纯数字，最长 16 位；禁止多值粘连或 `+` 分隔 |
+| `collocation_id` | 搭配 ID | `String` | 否 | `-` | 单值纯数字，最长 16 位；对应页面「搭配ID」 |
+| `collocation_title` | 搭配标题 | `String` | 否 | `-` | 模糊匹配，可含 emoji，最长 200 字符 |
 
 ### 入参样例
 

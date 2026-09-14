@@ -1,5 +1,5 @@
 ---
-title: 商品-商品价格管理-价格查询
+title: 营销-商品价格管理-价格查询
 description: 按商品 ID 批量导出价格优惠明细，支持按价格类型、导出维度筛选，一次最多 800 个商品；
 entry: rpa.conn.qianniu.item.price.discount.list
 badge:
@@ -38,26 +38,26 @@ category: item
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
-| ------------ | ------------ | ------------ | ------------ | ------------ | ------------ |
-| `item_ids` | 商品 ID 列表 | `string` \| `list[string]` | 是   | — | 支持英文逗号或空格分隔的字符串，或字符串数组；最多 800 个；中文逗号会转为英文逗号 |
-| `effective_time` | 优惠生效时间 | `string` | 否   | — | 格式 `YYYY-MM-DD HH:MM:SS`；不传则保持页面默认（通常相较于数据采集时间晚1小时） |
-| `price_type` | 价格类型     | `string` | 否   | `1件预估价(公域)` | 可选值：`1件预估价(公域)`、`预估最低到手价` |
-| `export_type` | 导出维度 | `string` | 否   | `SKU维度` | 可选值：`商品维度`、`SKU维度` |
+| ---- | -------- | -------- | ---- | ------ | ---- |
+| `item_ids` | 商品 ID 列表 | `String` / `List[String]` | 是 | `-` | 英文逗号或空格分隔，或字符串数组；最多 800 个 |
+| `biz_date` | 优惠生效时间 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`，可带时分秒；缺时分秒补 `00:00:00`；不得早于当前时间 |
+| `price_type` | 价格类型 | `String` | 否 | `SINGLE_ITEM_ESTIMATED_PRICE_PUBLIC` | 允许值：`SINGLE_ITEM_ESTIMATED_PRICE_PUBLIC`（1件预估价(公域)）/ `ESTIMATED_LOWEST_FINAL_PRICE`（预估最低到手价） |
+| `export_type` | 导出维度 | `String` | 否 | `SKU_DIMENSION` | 允许值：`ITEM_DIMENSION`（商品维度）/ `SKU_DIMENSION`（SKU维度） |
 
 ### 入参样例
 
 ```json
 {
-    "item_ids": [
-        "720056350901",
-        "826562939262",
-        "752102501302",
-        "741212242088",
-        "740949636929"
-    ],
-    "effective_time": "",
-    "price_type": "1件预估价(公域)",
-    "export_type": "SKU维度"
+  "item_ids": [
+    "720056350901",
+    "826562939262",
+    "752102501302",
+    "741212242088",
+    "740949636929"
+  ],
+  "biz_date": "20261231",
+  "price_type": "SINGLE_ITEM_ESTIMATED_PRICE_PUBLIC",
+  "export_type": "SKU_DIMENSION"
 }
 ```
 
@@ -66,12 +66,14 @@ category: item
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "千牛商品价格管理-价格查询 - 查询入参",
-  "description": "按商品 ID 批量导出价格优惠明细，支持按价格类型、导出维度筛选，一次最多 800 个商品",
+  "title": "千牛-商品价格管理-价格查询 - 查询入参",
+  "description": "item_ids / biz_date 必填；biz_date 格式 YYYYMMDD 或 YYYY-MM-DD，可带时分秒；缺时分秒补 00:00:00；不得早于当前时间；price_type 允许值 SINGLE_ITEM_ESTIMATED_PRICE_PUBLIC（1件预估价(公域)）/ ESTIMATED_LOWEST_FINAL_PRICE（预估最低到手价）；export_type 允许值 ITEM_DIMENSION（商品维度）/ SKU_DIMENSION（SKU维度）",
   "type": "object",
+  "additionalProperties": false,
+  "required": ["item_ids", "biz_date"],
   "properties": {
     "item_ids": {
-      "description": "商品 ID 列表，支持英文逗号或空格分隔的字符串，或字符串数组；最多 800 个；中文逗号会转为英文逗号",
+      "description": "商品 ID 列表；英文逗号或空格分隔，或字符串数组；最多 800 个",
       "oneOf": [
         {
           "type": "string",
@@ -88,34 +90,30 @@ category: item
         }
       ]
     },
-    "effective_time": {
+    "biz_date": {
       "type": "string",
-      "description": "优惠生效时间，格式：YYYY-MM-DD HH:MM:SS；不传则保持页面默认",
-      "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$"
+      "description": "优惠生效时间；格式 YYYYMMDD 或 YYYY-MM-DD，可带时分秒；缺时分秒补 00:00:00；不得早于当前时间",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})(?:[ T]\\d{2}:\\d{2}:\\d{2})?$"
     },
     "price_type": {
       "type": "string",
-      "description": "价格类型",
+      "description": "价格类型；允许值：SINGLE_ITEM_ESTIMATED_PRICE_PUBLIC（1件预估价(公域)）/ ESTIMATED_LOWEST_FINAL_PRICE（预估最低到手价）",
       "enum": [
-        "1件预估价(公域)",
-        "预估最低到手价"
+        "SINGLE_ITEM_ESTIMATED_PRICE_PUBLIC",
+        "ESTIMATED_LOWEST_FINAL_PRICE"
       ],
-      "default": "1件预估价(公域)"
+      "default": "SINGLE_ITEM_ESTIMATED_PRICE_PUBLIC"
     },
     "export_type": {
       "type": "string",
-      "description": "导出维度",
+      "description": "导出维度；允许值：ITEM_DIMENSION（商品维度）/ SKU_DIMENSION（SKU维度）",
       "enum": [
-        "商品维度",
-        "SKU维度"
+        "ITEM_DIMENSION",
+        "SKU_DIMENSION"
       ],
-      "default": "SKU维度"
+      "default": "SKU_DIMENSION"
     }
-  },
-  "required": [
-    "item_ids"
-  ],
-  "additionalProperties": false
+  }
 }
 ```
 

@@ -1,5 +1,5 @@
 ---
-title: 店铺-资质管理-品牌资质
+title: 店铺-店铺信息-资质管理-品牌资质
 description: 获取店铺「品牌资质」明细数据，包含状态、审核结果与有效期等信息
 entry: rpa.conn.qianniu.shop.qualification.brand.list
 badge:

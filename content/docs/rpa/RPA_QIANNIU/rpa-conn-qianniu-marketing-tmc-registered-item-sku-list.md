@@ -1,5 +1,5 @@
 ---
-title: 营销-活动报名-已报商品SKU闪降明细
+title: 营销-活动报名-已报管理-已报商品(编辑商品)
 description: 按筛选条件采集千牛活动报名「已报商品」编辑页中的 SKU 闪降明细，单次最多采集商品侧栏前 10 个商品
 entry: rpa.conn.qianniu.marketing.tmc.registered.item.sku.list
 badge:
@@ -35,16 +35,16 @@ category: marketing
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `registration_status` | 商品报名状态 | `String` | 否 | — | 可选值：`DRAFT`（草稿）、`PENDING_REVIEW`（待审核）、`UNDER_REVIEW`（审核中）、`REVIEW_REJECTED`（审核不通过）、`REVIEW_PASSED`（审核通过/初审通过）、`CANCELLED`（撤销报名）、`SCHEDULE_PENDING`（排期待确认）、`SCHEDULED`（已排期待发布/终审通过）、`ABNORMAL`（异常）、`PUBLISHED`（已发布设定）、`IN_ACTIVITY`（活动中）、`ACTIVITY_ENDED`（活动结束）、`REMOVED`（清退） |
-| `completion_status` | 商品完善状态 | `String` | 否 | — | 可选值：`COMPLETED`（已完善）、`INCOMPLETE`（待完善） |
-| `sales_mode` | 售卖模式 | `String` | 否 | — | 可选值：`DEFAULT`（默认）、`PLAY`（玩法）、`MATERIAL`（素材）、`SHOP`（店铺）、`SPOT`（现货商品）、`PRESALE`（预售商品） |
-| `activity_name` | 活动名称 | `String` | 否 | — | 输入活动名称关键字，连接器选择首个匹配项 |
-| `item_id` | 商品 ID | `String` | 否 | — | 精确匹配商品 ID |
-| `item_name` | 商品名称 | `String` | 否 | — | 模糊匹配商品名称 |
-| `custom_activity_start_date` | 活动开始日期 | `String` | 否 | —（不限） | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与 `custom_activity_end_date` 均未传时不填页面筛选；起止须同时传入 |
-| `custom_activity_end_date` | 活动结束日期 | `String` | 否 | —（不限） | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与 `custom_activity_start_date` 均未传时不填页面筛选；起止须同时传入 |
-| `custom_sign_start_date` | 报名开始日期 | `String` | 否 | —（不限） | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与 `custom_sign_end_date` 均未传时不填页面筛选；起止须同时传入 |
-| `custom_sign_end_date` | 报名结束日期 | `String` | 否 | —（不限） | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与 `custom_sign_start_date` 均未传时不填页面筛选；起止须同时传入 |
+| `registration_status` | 商品报名状态 | `String` | 否 | `-` | 允许值：`DRAFT`（草稿）/ `PENDING_REVIEW`（待审核）/ `UNDER_REVIEW`（审核中）/ `REVIEW_REJECTED`（审核不通过）/ `REVIEW_PASSED`（审核通过(初审通过)）/ `CANCELLED`（撤销报名）/ `SCHEDULE_PENDING`（排期待确认）/ `SCHEDULED`（已排期待发布(终审通过)）/ `ABNORMAL`（异常）/ `PUBLISHED`（已发布设定）/ `IN_ACTIVITY`（活动中）/ `ACTIVITY_ENDED`（活动结束）/ `REMOVED`（清退） |
+| `completion_status` | 商品完善状态 | `String` | 否 | `-` | 允许值：`COMPLETED`（已完善）/ `INCOMPLETE`（待完善） |
+| `sales_mode` | 售卖模式 | `String` | 否 | `-` | 允许值：`DEFAULT`（默认）/ `PLAY`（玩法）/ `MATERIAL`（素材）/ `SHOP`（店铺）/ `SPOT`（现货商品）/ `PRESALE`（预售商品） |
+| `activity_name` | 活动名称 | `String` | 否 | `-` | 关键字，选择首个匹配项 |
+| `item_id` | 商品 ID | `String` | 否 | `-` | 精确匹配商品 ID |
+| `item_name` | 商品名称 | `String` | 否 | `-` | 模糊匹配商品名称 |
+| `activity_start_date` | 活动开始日期 | `String` | 否 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与 `activity_end_date` 均未传则不填页面时间筛选；起止须同时传入 |
+| `activity_end_date` | 活动结束日期 | `String` | 否 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与 `activity_start_date` 均未传则不填页面时间筛选；起止须同时传入 |
+| `sign_start_date` | 报名开始日期 | `String` | 否 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与 `sign_end_date` 均未传则不填页面时间筛选；起止须同时传入 |
+| `sign_end_date` | 报名结束日期 | `String` | 否 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与 `sign_start_date` 均未传则不填页面时间筛选；起止须同时传入 |
 
 ### 入参样例
 
@@ -69,8 +69,8 @@ category: marketing
 {
   "registration_status": "PUBLISHED",
   "activity_name": "店播日常",
-  "custom_activity_start_date": "20260722",
-  "custom_activity_end_date": "20260820",
+  "activity_start_date": "20260722",
+  "activity_end_date": "20260820",
   "item_id": "944218782720"
 }
 ```
@@ -81,10 +81,10 @@ category: marketing
 {
   "registration_status": "PUBLISHED",
   "activity_name": "店播日常",
-  "custom_activity_start_date": "20260630",
-  "custom_activity_end_date": "20260714",
-  "custom_sign_start_date": "20260630",
-  "custom_sign_end_date": "20260714",
+  "activity_start_date": "20260630",
+  "activity_end_date": "20260714",
+  "sign_start_date": "20260630",
+  "sign_end_date": "20260714",
   "item_name": "示例品牌"
 }
 ```
@@ -94,7 +94,7 @@ category: marketing
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "千牛-活动报名已报商品SKU闪降明细 - 查询入参",
+  "title": "千牛-营销-活动报名-已报管理-已报商品(编辑商品) - 查询入参",
   "description": "按筛选条件采集千牛活动报名「已报商品」编辑页中的 SKU 闪降明细，单次最多采集商品侧栏前 10 个商品",
   "type": "object",
   "properties": {
@@ -139,24 +139,24 @@ category: marketing
       "type": "string",
       "description": "商品名称"
     },
-    "custom_activity_start_date": {
+    "activity_start_date": {
       "type": "string",
-      "description": "活动开始日期，格式 YYYYMMDD 或 YYYY-MM-DD；与结束日期均未传时不填页面；须与 custom_activity_end_date 成对传入",
+      "description": "活动开始日期，格式 YYYYMMDD 或 YYYY-MM-DD；与结束日期均未传时不填页面；须与 activity_end_date 成对传入",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
-    "custom_activity_end_date": {
+    "activity_end_date": {
       "type": "string",
-      "description": "活动结束日期，格式 YYYYMMDD 或 YYYY-MM-DD；与开始日期均未传时不填页面；须与 custom_activity_start_date 成对传入",
+      "description": "活动结束日期，格式 YYYYMMDD 或 YYYY-MM-DD；与开始日期均未传时不填页面；须与 activity_start_date 成对传入",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
-    "custom_sign_start_date": {
+    "sign_start_date": {
       "type": "string",
-      "description": "报名开始日期，格式 YYYYMMDD 或 YYYY-MM-DD；与结束日期均未传时不填页面；须与 custom_sign_end_date 成对传入",
+      "description": "报名开始日期，格式 YYYYMMDD 或 YYYY-MM-DD；与结束日期均未传时不填页面；须与 sign_end_date 成对传入",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
-    "custom_sign_end_date": {
+    "sign_end_date": {
       "type": "string",
-      "description": "报名结束日期，格式 YYYYMMDD 或 YYYY-MM-DD；与开始日期均未传时不填页面；须与 custom_sign_start_date 成对传入",
+      "description": "报名结束日期，格式 YYYYMMDD 或 YYYY-MM-DD；与开始日期均未传时不填页面；须与 sign_start_date 成对传入",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },

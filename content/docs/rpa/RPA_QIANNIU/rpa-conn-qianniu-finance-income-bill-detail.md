@@ -1,5 +1,5 @@
 ---
-title: 财务-收支账单-收入明细
+title: 财务-收支账单-收入账单-收入明细
 description: 导出千牛收支账单中的收入明细，支持按账单类型、业务大类、业务小类和同月时间范围筛选
 entry: rpa.conn.qianniu.finance.income.bill.detail
 badge:
@@ -35,17 +35,17 @@ category: finance
 >
 > **取数链接**：[https://myseller.taobao.com/home.htm/whale-accountant/bill/summary?billDirection=income&billType=detail](https://myseller.taobao.com/home.htm/whale-accountant/bill/summary?billDirection=income&billType=detail)
 
-![财务-收支账单-收入明细](../_public/images/qianniu/finance_income_bill_detail_20260715.png)
+![财务-收支账单-收入账单-收入明细](../_public/images/qianniu/finance_income_bill_detail_20260715.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `bill_type` | 账单类型 | `String` | 是 | — | 填写页面「账单类型」下拉框中的中文选项；不同账单类型对应不同的时间选择方式和导出字段 |
-| `biz_major` | 业务大类 | `String` | 是 | — | 填写所选账单类型下页面「业务大类」下拉框中的中文选项 |
-| `biz_minor` | 业务小类 | `String` | 是 | — | 填写所选业务大类下页面「业务小类」下拉框中的中文选项 |
-| `custom_start_date` | 开始时间 | `String` | 是 | — | 支持格式：YYYYMM、YYYY-MM、YYYYMMDD、YYYY-MM-DD；账单类型为「货款收入」时按日期选择，其他类型按月份选择；须与结束时间处于同一个自然月 |
-| `custom_end_date` | 结束时间 | `String` | 是 | — | 支持格式：YYYYMM、YYYY-MM、YYYYMMDD、YYYY-MM-DD；不得早于开始时间，且须与开始时间处于同一个自然月 |
+| `bill_type` | 账单类型 | `String` | 是 | `-` | 填写页面「账单类型」下拉中文选项；「货款收入」按日，其余按月 |
+| `biz_major` | 业务大类 | `String` | 是 | `-` | 填写所选账单类型下页面「业务大类」下拉中文选项 |
+| `biz_minor` | 业务小类 | `String` | 是 | `-` | 填写所选业务大类下页面「业务小类」下拉中文选项 |
+| `custom_start_date` | 开始时间 | `String` | 是 | `-` | 格式 `YYYYMM` / `YYYY-MM` / `YYYYMMDD` / `YYYY-MM-DD`；须与结束时间处于同一个自然月 |
+| `custom_end_date` | 结束时间 | `String` | 是 | `-` | 格式 `YYYYMM` / `YYYY-MM` / `YYYYMMDD` / `YYYY-MM-DD`；不得早于开始时间，且须与开始时间处于同一个自然月 |
 
 ### 入参样例
 
