@@ -3,8 +3,8 @@ title: 直播-直播概览及列表-直播间列表
 description: 从抖音电商罗盘「直播概览」页导出直播间列表明细，采集主播、观看、成交、退款及投放等指标
 entry: rpa.conn.douyindianshang.lp.live.list.report
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 120
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

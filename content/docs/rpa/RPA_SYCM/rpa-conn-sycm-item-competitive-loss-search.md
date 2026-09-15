@@ -3,8 +3,8 @@ title: 市场-竞品分析-竞品流失-搜索流失竞品推荐
 description: 采集生意参谋市场竞品分析「竞品流失」中「搜索流失竞品推荐」列表，按统计时间与类目筛选，可只采流失竞品商品列表或展开采集商品子列表
 entry: rpa.conn.sycm.item.competitive.loss.search
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 120
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。
@@ -36,7 +36,7 @@ category: item
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `date_type` | 时间类型 | `String` | 否 | `DAY` | 可选值：`LAST_7_DAYS`（7天）/ `LAST_30_DAYS`（30天）/ `DAY`（日）/ `WEEK`（周）/ `MONTH`（月）。 |
+| `date_type` | 时间类型 | `String` | 否 | `DAY` | 可选值：`LAST_7_DAYS`（7天）/ `LAST_30_DAYS`（30天）/ `DAY`（日）/ `WEEK`（自然周）/ `MONTH`（自然月）。 |
 | `biz_date` | 统计日期 | `String` | 条件必填 | — | `date_type` 为 `WEEK` / `MONTH` / `DAY` 时必填。格式 `YYYYMMDD` 或 `YYYY-MM-DD`。日：昨天往前共 90 天。周：整周必须在90天内。月：当前月之前的三个完整自然月 |
 | `category_level1` | 一级类目 | `String` | 是 | — | 类目树左栏全称，须与选项完全一致。找不到则失败，失败信息含当前可选一级类目及数量。一级无下级时忽略更深层入参并选中一级 |
 | `category_level2` | 二级类目 | `String` | 条件必填 | — | 类目树中栏全称，须与选项完全一致。传入时必须同时传 `category_level1`。找不到则失败，失败信息含当前可选二级类目及数量。二级无三级面板时忽略 `category_level3` 并选中二级 |
@@ -44,7 +44,7 @@ category: item
 | `indicator_type` | 指标选择 | `String` | 否 | `SE_GUIDE_UV` | 可选值：`SE_GUIDE_UV`（搜索引导访客数）/ `SE_GUIDE_CART_BYR_CNT`（搜索引导加购人数）/ `SE_GUIDE_PAY_BYR_CNT`（搜索引导支付买家数）/ `SE_GUIDE_PAY_RATE`（搜索引导支付转化率）。 |
 | `product_sublist` | 是否采集商品子列表 | `String` | 否 | `FALSE` | 可选值：`TRUE`（采集上图黄框内商品子列表）/ `FALSE`（只采流失竞品商品列表） |
 | `sort_field` | 流失竞品商品列表排序列 | `String` | 否 | — | 可选值：`SE_RIVAL_ITM_CNT`（搜索竞争商品数）/ `SELF_INDICATOR`（本店商品当前指标）/ `RIVAL_AVG_INDICATOR`（竞品平均当前指标）。不填则不点表头，保留页面默认排序 |
-| `sort_order` | 排序方向 | `String` | 否 | — | 可选值：`DESC`（降序）/ `ASC`（升序）。有 `sort_field` 且未传时默认 `DESC` |
+| `sort_order` | 排序方向 | `String` | 否 | `DESC` | 可选值：`DESC`（降序）/ `ASC`（升序）。仅在传入 `sort_field` 时生效 |
 | `collect_limit` | 采集条数上限 | `Number` | 否 | — | 一律按**外层**流失竞品商品条数计，不含黄框内子列表条数。只采列表（`product_sublist=FALSE`）：范围 1～10000，超出则入参校验失败；不填则采全量（每页 100 条、最多 100 页）。采集子列表（`product_sublist=TRUE`）：范围 1～50，超出则入参校验失败；不填则最多展开 **50 条外层商品**；每条外层只采黄框内商品子列表当前页（每页 10 条、不翻页）。填了只采到该条数外层为止，实际不足时按实际条数返回 |
 
 ### 入参样例
@@ -115,7 +115,7 @@ category: item
   "properties": {
     "date_type": {
       "type": "string",
-      "description": "统计时间类型（可选）。可选值：LAST_7_DAYS（7天）/ LAST_30_DAYS（30天）/ DAY（日）/ WEEK（周）/ MONTH（月）。LAST_7_DAYS / LAST_30_DAYS 以昨天为终点自动取窗口，忽略 biz_date",
+      "description": "统计时间类型（可选）。可选值：LAST_7_DAYS（7天）/ LAST_30_DAYS（30天）/ DAY（日）/ WEEK（自然周）/ MONTH（自然月）。LAST_7_DAYS / LAST_30_DAYS 以昨天为终点自动取窗口，忽略 biz_date",
       "enum": ["LAST_7_DAYS", "LAST_30_DAYS", "DAY", "WEEK", "MONTH"],
       "default": "DAY"
     },
@@ -156,8 +156,9 @@ category: item
     },
     "sort_order": {
       "type": "string",
-      "description": "排序方向（可选）。可选值：DESC（降序）/ ASC（升序）。有 sort_field 且未传时默认 DESC",
-      "enum": ["DESC", "ASC"]
+      "description": "排序方向（可选）。可选值：DESC（降序）/ ASC（升序）。仅在传入 sort_field 时生效",
+      "enum": ["DESC", "ASC"],
+      "default": "DESC"
     },
     "collect_limit": {
       "type": "integer",

@@ -2,7 +2,7 @@
 title: 抖音电商罗盘
 icon: ICO_DOUYIN
 description: 覆盖抖音电商罗盘直播概览、直播间列表等场景的连接器
-entry: RPA_DOUYINDIANSHANG
+entry: RPA_DOUYINDIANSHANG_LP
 category:
   slug: doudian
   icon:

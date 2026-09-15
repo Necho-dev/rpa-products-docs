@@ -3,8 +3,8 @@ title: 商品分析-实物商品-天猫链路转化归因交易明细
 description: 使用代理商账号切换到委托人账号登录支付宝数字推广平台后进入实物商品分析页，打开天猫链路转化归因交易明细，导出交易明细 CSV；天猫链路转化归因交易明细暂无数据时直接返回空结果
 entry: rpa.conn.zhifubaotg.dls.item.tmall.conversion.export
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 60
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

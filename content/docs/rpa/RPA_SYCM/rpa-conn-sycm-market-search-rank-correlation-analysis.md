@@ -3,8 +3,8 @@ title: 市场-搜索排行-相关分析
 description: 采集生意参谋市场搜索排行「相关分析」列表，按搜索词、统计时间、环比或年同比与榜单类型筛选，翻页采集相关热搜词或蓝海词的搜索人气、点击率、支付转化等指标
 entry: rpa.conn.sycm.market.search.rank.correlation.analysis
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 120
   description: 根据测试运行耗时估算，每翻一页约 9s；实际运行耗时将受到数据量、调度并发、网路波动等情况影响。
@@ -35,12 +35,12 @@ category: market
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明                                                                                                                                                           |
 | ---- | -------- | -------- | ---- | ------ |--------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `key_word` | 搜索词 | `String` | 是 | — | 目标搜索词，不可为空                                                                                                                                                   |
-| `date_type` | 统计时间类型 | `String` | 否 | `DAY` | 可选值：`LAST_7_DAYS`（7天）/ `LAST_30_DAYS`（30天）/ `DAY`（日）/ `WEEK`（周）/ `MONTH`（月）。                                                                                 |
+| `date_type` | 统计时间类型 | `String` | 否 | `DAY` | 可选值：`LAST_7_DAYS`（7天）/ `LAST_30_DAYS`（30天）/ `DAY`（日）/ `WEEK`（自然周）/ `MONTH`（自然月）。 |
 | `biz_date` | 统计日期 | `String` | 条件必填 | — | `date_type` 为 `WEEK` / `MONTH` / `DAY` 时必填；。格式 `YYYYMMDD` 或 `YYYY-MM-DD`。日：可选近90天。周：近90天的一个完整周。月：本月和前三个月                                                     |
 | `compare_type` | 环比或年同比 | `String` | 否 | `CYCLE` | 可选值：`CYCLE`（环比）/ `YEAR_ON_YEAR`（年同比）                                                                                                                         |
 | `chart_type` | 榜单类型 | `String` | 否 | `RELATED` | 可选值：`RELATED`（相关热搜词）/ `BLUE_SEA`（相关蓝海词）。`BLUE_SEA` 时页面不支持自定义排序                                                                                               |
 | `sort_field` | 排序列 | `String` | 否 | — | 可选值：`SE_IPV_UV_HITS`（搜索人气）/ `CLICK_RATE`（点击率）/ `PAY_CONV_RATE`（支付转化率）/ `PAY_BYR_CNT`（支付买家数）/ `SIM_WEIGHT`（需求供给比）/ `TMAO_CLICK_RATIO`（天猫商品点击占比）。不填则不点表头，保留页面默认 |
-| `sort_order` | 排序方向 | `String` | 否 | — | 可选值：`DESC`/ `ASC`。有 `sort_field` 且未传时默认 `DESC`                                                                                                               |
+| `sort_order` | 排序方向 | `String` | 否 | `DESC` | 可选值：`DESC`（倒序）/ `ASC`（正序）。仅在传入 `sort_field` 时生效 |
 | `collect_limit` | 采集条数上限 | `Number` | 否 | — | 本次最多采集多少条相关热搜词 / 蓝海词。不填则采全量（最多 100 页；页面每页 10 条， 1000 条）。填写时范围 `1`～`1000`，只采到该条数为止。实际不足时按实际条数返回                                                               |
 
 ### 入参样例
@@ -105,7 +105,7 @@ category: market
     },
     "date_type": {
       "type": "string",
-      "description": "统计时间类型（可选）。可选值：LAST_7_DAYS（7天）/ LAST_30_DAYS（30天）/ DAY（日）/ WEEK（周）/ MONTH（月）。LAST_7_DAYS / LAST_30_DAYS 以昨天为终点自动取窗口，忽略 biz_date",
+      "description": "统计时间类型（可选）。可选值：LAST_7_DAYS（7天）/ LAST_30_DAYS（30天）/ DAY（日）/ WEEK（自然周）/ MONTH（自然月）。LAST_7_DAYS / LAST_30_DAYS 以昨天为终点自动取窗口，忽略 biz_date",
       "enum": ["LAST_7_DAYS", "LAST_30_DAYS", "DAY", "WEEK", "MONTH"],
       "default": "DAY"
     },
@@ -133,8 +133,9 @@ category: market
     },
     "sort_order": {
       "type": "string",
-      "description": "排序方向（可选）。可选值：DESC（倒序）/ ASC（正序）。有 sort_field 且未传时默认 DESC",
-      "enum": ["DESC", "ASC"]
+      "description": "排序方向（可选）。可选值：DESC（倒序）/ ASC（正序）。仅在传入 sort_field 时生效",
+      "enum": ["DESC", "ASC"],
+      "default": "DESC"
     },
     "collect_limit": {
       "type": "integer",

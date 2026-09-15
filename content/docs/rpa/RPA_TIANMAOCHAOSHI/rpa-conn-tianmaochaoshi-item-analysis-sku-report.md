@@ -3,8 +3,8 @@ title: 天机-商品分析-明细查询-SKU明细
 description: 登录天猫超市后进入天机商品分析页，按日期与筛选项导出明细查询SKU明细查询报表
 entry: rpa.conn.tianmaochaoshi.item.analysis.sku.report
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 120
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。
