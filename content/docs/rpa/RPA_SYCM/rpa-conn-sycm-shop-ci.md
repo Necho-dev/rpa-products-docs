@@ -39,8 +39,8 @@ category: shop
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
 | `rival_shop_keywords` | 竞店关键字 | `String` / `List[String]` | 否 | `-` | 不传或空字符串/`[]` 时只采集本店；传值时支持英文/中文逗号分隔或字符串数组，最多 2 个；按关键字在监控列表中搜索点选，任一未命中则任务失败 |
-| `analysis_tabs` | 分析主 Tab | `String` / `List[String]` | 否 | `-` | 允许值：`sale`（销售分析）/ `flow`（来源分析）/ `customer`（客群分析）；支持逗号分隔或数组；不传/空/`ALL` 表示三个 Tab 全采；未选中的模块输出空结构 |
-| `date_type` | 统计时间类型 | `String` | 是 | `-` | 允许值：`REALTIME`（实时）/ `LAST_7_DAYS`（近 7 天）/ `LAST_30_DAYS`（近 30 天）/ `DAY`（按日）/ `WEEK`（自然周）/ `MONTH`（自然月）。`analysis_tabs` 含 `customer` 时不允许 `REALTIME` |
+| `analysis_tabs` | 分析主 Tab | `String` / `List[String]` | 否 | `-` | 允许值：`SALE`（销售分析）/ `FLOW`（来源分析）/ `CUSTOMER`（客群分析）；支持逗号分隔或数组；不传/空/`ALL` 表示三个 Tab 全采；未选中的模块输出空结构 |
+| `date_type` | 统计时间类型 | `String` | 是 | `-` | 允许值：`REALTIME`（实时）/ `LAST_7_DAYS`（近 7 天）/ `LAST_30_DAYS`（近 30 天）/ `DAY`（按日）/ `WEEK`（自然周）/ `MONTH`（自然月）。`analysis_tabs` 含 `CUSTOMER` 时不允许 `REALTIME` |
 | `biz_date` | 业务日期 | `String` | 条件必填 | `-` | `date_type` 为 `DAY`/`WEEK`/`MONTH` 时必填；始终填一天，格式 `YYYYMMDD` 或 `YYYY-MM-DD`；`REALTIME`/`LAST_7_DAYS`/`LAST_30_DAYS` 时忽略。`DAY` 不可选今日及以后；`WEEK`/`MONTH` 用这一天定位所在周/月，不可选本周/本月的日期；`DAY`/`WEEK` 最早 today-90；`MONTH` 最早约 today 往前 3 个月 |
 
 ### 入参样例
@@ -49,7 +49,7 @@ category: shop
 
 ```json
 {
-  "analysis_tabs": "sale",
+  "analysis_tabs": "SALE",
   "date_type": "REALTIME"
 }
 ```
@@ -58,7 +58,7 @@ category: shop
 
 ```json
 {
-  "analysis_tabs": "sale",
+  "analysis_tabs": "SALE",
   "date_type": "LAST_7_DAYS"
 }
 ```
@@ -67,7 +67,7 @@ category: shop
 
 ```json
 {
-  "analysis_tabs": "sale",
+  "analysis_tabs": "SALE",
   "date_type": "DAY",
   "biz_date": "20260905"
 }
@@ -77,7 +77,7 @@ category: shop
 
 ```json
 {
-  "analysis_tabs": "sale",
+  "analysis_tabs": "SALE",
   "date_type": "WEEK",
   "biz_date": "2026-08-31"
 }
@@ -87,7 +87,7 @@ category: shop
 
 ```json
 {
-  "analysis_tabs": "sale",
+  "analysis_tabs": "SALE",
   "date_type": "MONTH",
   "biz_date": "20260801"
 }
@@ -118,7 +118,7 @@ category: shop
       ]
     },
     "analysis_tabs": {
-      "description": "分析主 Tab；不传/空/ALL=三 Tab 全采。允许值：sale（销售分析）/ flow（来源分析）/ customer（客群分析）",
+      "description": "分析主 Tab；不传/空/ALL=三 Tab 全采。允许值：SALE（销售分析）/ FLOW（来源分析）/ CUSTOMER（客群分析）",
       "oneOf": [
         {
           "type": "string"
@@ -127,7 +127,7 @@ category: shop
           "type": "array",
           "items": {
             "type": "string",
-            "enum": ["sale", "flow", "customer", "ALL"]
+            "enum": ["SALE", "FLOW", "CUSTOMER", "ALL"]
           },
           "minItems": 1,
           "uniqueItems": true
@@ -136,7 +136,7 @@ category: shop
     },
     "date_type": {
       "type": "string",
-      "description": "统计时间类型。允许值：REALTIME（实时）/ LAST_7_DAYS（近 7 天）/ LAST_30_DAYS（近 30 天）/ DAY（按日）/ WEEK（自然周）/ MONTH（自然月）。analysis_tabs 含 customer 时不允许 REALTIME",
+      "description": "统计时间类型。允许值：REALTIME（实时）/ LAST_7_DAYS（近 7 天）/ LAST_30_DAYS（近 30 天）/ DAY（按日）/ WEEK（自然周）/ MONTH（自然月）。analysis_tabs 含 CUSTOMER 时不允许 REALTIME",
       "enum": ["REALTIME", "LAST_7_DAYS", "LAST_30_DAYS", "DAY", "WEEK", "MONTH"]
     },
     "biz_date": {
