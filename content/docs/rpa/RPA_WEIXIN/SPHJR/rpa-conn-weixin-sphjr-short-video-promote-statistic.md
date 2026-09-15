@@ -44,7 +44,7 @@ category: sphjr
 | `creator` | 创建人昵称 | `String` | 否 | `-` | 空串或 `ALL` 表示全部创建人；有值须与页面创建人下拉选项完全匹配 |
 | `custom_start_date` | 查询起始日期 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不可选今日及以后；与结束日期组成闭区间，跨度 ≤ 8 天 |
 | `custom_end_date` | 查询结束日期 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不可选今日及以后；不得早于起始日期；闭区间跨度 ≤ 8 天 |
-| `metric_fields` | 数据明细指标 | `String` \| `String[]` | 否 | `COST,WECOIN_COST,PLAY,PRODUCT_CLICK,PRODUCT_CTR,PRODUCT_ORDER,PRODUCT_NET_ORDER,PRODUCT_CVR,PRODUCT_GMV,PRODUCT_NET_GMV,PRODUCT_ROI,PRODUCT_NET_ROI` | 英文逗号分隔字符串或字符串数组；最多 12 项；可选值：`COST`（消耗金额）/ `WECOIN_COST`（消耗微信豆金额）/ `PLAY`（播放）/ `PRODUCT_CLICK`（商品点击数）/ `PRODUCT_CTR`（商品点击率）/ `PRODUCT_ORDER`（商品成交数）/ `PRODUCT_NET_ORDER`（商品净成交数）/ `PRODUCT_CVR`（商品成交率）/ `PRODUCT_GMV`（商品 GMV）/ `PRODUCT_NET_GMV`（商品净成交金额）/ `PRODUCT_ROI`（商品 ROI）/ `PRODUCT_NET_ROI`（商品净成交ROI）/ `HEART_LIKE`（爱心赞数）/ `THUMB_LIKE`（拇指赞数）/ `COMMENT`（评论数）/ `SHARE`（分享）/ `FOLLOW`（关注）/ `COMPONENT_CLICK`（组件点击）/ `PAID_USER`（付费人数）/ `LIVE_RESERVE`（直播预约数） |
+| `metric_fields` | 数据明细指标 | `String` \| `String[]` | 否 | `COST,WECOIN_COST,PLAY,PRODUCT_CLICK,PRODUCT_CTR,PRODUCT_ORDER,PRODUCT_NET_ORDER,PRODUCT_CVR,PRODUCT_GMV,PRODUCT_NET_GMV,PRODUCT_ROI,PRODUCT_NET_ROI` | 英文逗号分隔字符串或字符串数组；最多 12 项；可选值：`COST` / `WECOIN_COST` / `PLAY` / `PRODUCT_CLICK` / `PRODUCT_CTR` / `PRODUCT_ORDER` / `PRODUCT_NET_ORDER` / `PRODUCT_CVR` / `PRODUCT_GMV` / `PRODUCT_NET_GMV` / `PRODUCT_ROI` / `PRODUCT_NET_ROI` / `HEART_LIKE` / `THUMB_LIKE` / `COMMENT` / `SHARE` / `FOLLOW` / `COMPONENT_CLICK` / `PAID_USER` / `LIVE_RESERVE` |
 
 ### 入参样例
 

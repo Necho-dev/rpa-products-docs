@@ -45,7 +45,7 @@ module:
 | `create_end_date` | 订单创建时间-结束 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不得早于 `create_start_date` |
 | `bid_methods` | 出价方式 | `String` / `List[String]` | 否 | `-` | 英文逗号分隔字符串或字符串数组。可选值：`ALL`（全选）/ `VOLUME_HEATING`（放量加热）/ `COST_CONTROL_HEATING`（控成本加热）。含 `ALL` 时按全选处理，忽略其它值 |
 | `heating_types` | 加热类型 | `String` / `List[String]` | 否 | `-` | 英文逗号分隔字符串或字符串数组。可选值：`ALL`（全选）/ `LIVE`（直播）/ `SHORT_VIDEO`（短视频）/ `PRODUCT`（商品）。含 `ALL` 时按全选处理，忽略其它值 |
-| `order_statuses` | 订单状态 | `String` / `List[String]` | 否 | `-` | 英文逗号分隔字符串或字符串数组。可选值：`PENDING_PAYMENT`（待支付）/ `UNDER_REVIEW`（审核中）/ `REVIEW_FAILED`（审核未通过）/ `PENDING_HEAT`（待加热）/ `CANCELLED`（已取消，父级）/ `UNPAID_CLOSED`（未支付关单，`CANCELLED` 子级）/ `RESERVATION_INVALID`（预约失效，`CANCELLED` 子级）/ `RESERVATION_EXPIRED`（预约过期，`CANCELLED` 子级）/ `HEATING`（加热中）/ `PAUSED`（已暂停）/ `REFUNDING`（退款中）/ `SETTLING`（结算中）/ `ENDED`（已结束，父级）/ `CONSUMPTION_COMPLETED`（消耗完成，`ENDED` 子级）/ `MAX_DURATION_REACHED`（达到最大加热时长，`ENDED` 子级）/ `LIVE_ENDED`（直播结束，`ENDED` 子级）/ `ACTIVE_CANCEL`（主动取消，`ENDED` 子级）/ `ORDER_CIRCUIT_BREAK`（订单熔断，`ENDED` 子级）/ `OTHER`（其他，`ENDED` 子级）。父级 `CANCELLED` / `ENDED` 与子级同传时只勾父级 |
+| `order_statuses` | 订单状态 | `String` / `List[String]` | 否 | `-` | 英文逗号分隔字符串或字符串数组。可选值：`PENDING_PAYMENT` / `UNDER_REVIEW` / `REVIEW_FAILED` / `PENDING_HEAT` / `CANCELLED` / `UNPAID_CLOSED` / `RESERVATION_INVALID` / `RESERVATION_EXPIRED` / `HEATING` / `PAUSED` / `REFUNDING` / `SETTLING` / `ENDED` / `CONSUMPTION_COMPLETED` / `MAX_DURATION_REACHED` / `LIVE_ENDED` / `ACTIVE_CANCEL` / `ORDER_CIRCUIT_BREAK` / `OTHER`。父级 `CANCELLED` / `ENDED` 与子级同传时只勾父级 |
 
 ### 入参样例
 
@@ -145,7 +145,7 @@ module:
       ]
     },
     "order_statuses": {
-      "description": "订单状态多选。英文逗号分隔字符串或字符串数组。可选值：PENDING_PAYMENT（待支付）、UNDER_REVIEW（审核中）、REVIEW_FAILED（审核未通过）、PENDING_HEAT（待加热）、CANCELLED（已取消，父级）、UNPAID_CLOSED（未支付关单，CANCELLED 子级）、RESERVATION_INVALID（预约失效，CANCELLED 子级）、RESERVATION_EXPIRED（预约过期，CANCELLED 子级）、HEATING（加热中）、PAUSED（已暂停）、REFUNDING（退款中）、SETTLING（结算中）、ENDED（已结束，父级）、CONSUMPTION_COMPLETED（消耗完成，ENDED 子级）、MAX_DURATION_REACHED（达到最大加热时长，ENDED 子级）、LIVE_ENDED（直播结束，ENDED 子级）、ACTIVE_CANCEL（主动取消，ENDED 子级）、ORDER_CIRCUIT_BREAK（订单熔断，ENDED 子级）、OTHER（其他，ENDED 子级）。父级 CANCELLED / ENDED 与子级同传时只勾父级",
+      "description": "订单状态多选。英文逗号分隔字符串或字符串数组。可选值：PENDING_PAYMENT、UNDER_REVIEW、REVIEW_FAILED、PENDING_HEAT、CANCELLED、UNPAID_CLOSED、RESERVATION_INVALID、RESERVATION_EXPIRED、HEATING、PAUSED、REFUNDING、SETTLING、ENDED、CONSUMPTION_COMPLETED、MAX_DURATION_REACHED、LIVE_ENDED、ACTIVE_CANCEL、ORDER_CIRCUIT_BREAK、OTHER。父级 CANCELLED / ENDED 与子级同传时只勾父级",
       "oneOf": [
         {
           "type": "string"
