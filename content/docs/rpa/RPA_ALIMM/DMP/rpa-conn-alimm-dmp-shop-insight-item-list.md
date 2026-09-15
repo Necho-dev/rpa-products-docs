@@ -1,5 +1,5 @@
 ---
-title: 达摩盘-货品洞察-全店单品列表
+title: 货品洞察-全店洞察-全店单品列表(基础版)
 description: 导出达摩盘货品洞察全店单品列表（基础版）数据，支持按快捷时间或自定义日期区间筛选
 entry: rpa.conn.alimm.dmp.shop.insight.item.list
 badge:
@@ -24,57 +24,51 @@ category: insight
 
 ### 目标页面
 
-> **取数路径**：阿里妈妈达摩盘—货品洞察—全店洞察—前往下载数据—全店单品列表_基础版
+> **取数路径**：达摩盘—货品洞察—全店洞察—全店单品列表
 >
 > **取数链接**：[https://dmp.taobao.com/index_new.html#!/items/shop-insight](https://dmp.taobao.com/index_new.html#!/items/shop-insight)
 
-![阿里妈妈达摩盘—货品洞察全店洞察](../../_public/images/alimm/dmp_shop_insight_item_list_1_20260723.png)
+![达摩盘—货品洞察—全店洞察—全店单品列表](../../_public/images/alimm/dmp_shop_insight_item_list_1_20260723.png)
 
-![阿里妈妈达摩盘—全店单品列表基础版](../../_public/images/alimm/dmp_shop_insight_item_list_2_20260723.png)
+![货品洞察-全店洞察-全店单品列表(基础版)](../../_public/images/alimm/dmp_shop_insight_item_list_2_20260723.png)
 
 ### 业务入参
 
-| 字段                 | 中文释义     | 数据类型 | 必填     | 默认值       | 说明 |
-| -------------------- | ------------ | -------- | -------- | ------------ | ---- |
-| `date_type`          | 时间类型     | `String` | 否       | `YESTERDAY`  | 可选值：`YESTERDAY`（昨日）/ `RECENT7`（过去 7 天）/ `LAST_WEEK`（上周）/ `RECENT15`（过去 15 天）/ `THIS_MONTH`（本月）/ `RECENT30`（过去 30 天）/ `LAST_MONTH`（上月）/ `CUSTOM`（自定义）。非 `CUSTOM` 时仅点击绝对日期面板快捷项；选「昨日」时实际数据范围可能因平台产出延迟而为前天，以返回字段 `summaryPeriod` 为准 |
-| `custom_start_date`  | 自定义起始日 | `String` | 条件必填 | —            | `date_type=CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不可晚于 `custom_end_date`；与结束日跨度 ≤180 天 |
-| `custom_end_date`    | 自定义结束日 | `String` | 条件必填 | —            | `date_type=CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不可早于 `custom_start_date`；与起始日跨度 ≤180 天。非 `CUSTOM` 时不要传起止日 |
+| 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
+| ---- | -------- | -------- | ---- | ------ | ---- |
+| `date_type` | 时间类型 | `String` | 是 | `-` | 允许值：`YESTERDAY`（昨日）/ `LAST_7_DAYS`（近 7 天）/ `LAST_WEEK`（上周）/ `LAST_15_DAYS`（近 15 天）/ `THIS_MONTH`（本月）/ `LAST_30_DAYS`（近 30 天）/ `LAST_MONTH`（上月）/ `CUSTOM`（自定义区间） |
+| `custom_start_date` | 自定义起始日 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与结束日跨度 ≤180 天 |
+| `custom_end_date` | 自定义结束日 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；非 `CUSTOM` 不应传入 |
 
 ### 入参样例
 
-**默认昨日**
+`YYYYMMDD`：
 
 ```json
 {
-  "date_type": "YESTERDAY"
+    "date_type": "CUSTOM",
+    "custom_start_date": "20260701",
+    "custom_end_date": "20260716"
 }
 ```
 
-**快捷区间（过去 7 天）**
+`YYYY-MM-DD`：
 
 ```json
 {
-  "date_type": "RECENT7"
+    "date_type": "CUSTOM",
+    "custom_start_date": "2026-07-01",
+    "custom_end_date": "2026-07-16"
 }
 ```
 
-**自定义区间（紧凑日期）**
+快捷：
 
 ```json
 {
-  "date_type": "CUSTOM",
-  "custom_start_date": "20260701",
-  "custom_end_date": "20260715"
-}
-```
-
-**自定义区间（横线日期）**
-
-```json
-{
-  "date_type": "CUSTOM",
-  "custom_start_date": "2026-07-01",
-  "custom_end_date": "2026-07-15"
+    "date_type": "LAST_7_DAYS",
+    "custom_start_date": "",
+    "custom_end_date": ""
 }
 ```
 
@@ -83,24 +77,23 @@ category: insight
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "阿里妈妈达摩盘-货品洞察全店单品列表 - 查询入参",
+  "title": "货品洞察-全店洞察-全店单品列表(基础版) - 查询入参",
   "description": "导出达摩盘货品洞察全店单品列表（基础版）数据，支持按快捷时间或自定义日期区间筛选",
   "type": "object",
   "properties": {
     "date_type": {
       "type": "string",
-      "description": "时间类型；非 CUSTOM 时仅使用绝对日期快捷项；选昨日时实际数据范围可能因平台产出延迟而为前天，以返回 summaryPeriod 为准",
+      "description": "时间类型，允许值 YESTERDAY（昨日）/ LAST_7_DAYS（近 7 天）/ LAST_WEEK（上周）/ LAST_15_DAYS（近 15 天）/ THIS_MONTH（本月）/ LAST_30_DAYS（近 30 天）/ LAST_MONTH（上月）/ CUSTOM（自定义区间）",
       "enum": [
         "YESTERDAY",
-        "RECENT7",
+        "LAST_7_DAYS",
         "LAST_WEEK",
-        "RECENT15",
+        "LAST_15_DAYS",
         "THIS_MONTH",
-        "RECENT30",
+        "LAST_30_DAYS",
         "LAST_MONTH",
         "CUSTOM"
-      ],
-      "default": "YESTERDAY"
+      ]
     },
     "custom_start_date": {
       "type": "string",
@@ -113,7 +106,7 @@ category: insight
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
-  "required": [],
+  "required": ["date_type"],
   "allOf": [
     {
       "if": {

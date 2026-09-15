@@ -34,19 +34,56 @@ category: logistics
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `date_start` | 支付起始时间 | `string` | 否 | `""` | 格式 `YYYYMMDD`、`YYYY-MM-DD` 或 `YYYY-MM-DD HH:mm:ss`；与 `date_end` 必须同时传入；不得早于 30 天前 |
-| `date_end` | 支付结束时间 | `string` | 否 | `""` | 格式 `YYYYMMDD`、`YYYY-MM-DD` 或 `YYYY-MM-DD HH:mm:ss`；与 `date_start` 必须同时传入；不得晚于今天 |
-| `trade_no` | 运单号/交易单号 | `string` | 否 | `""` | 6–32 位字母或数字 |
-| `item_id` | 商品 ID | `string` | 否 | `""` | 6–20 位纯数字 |
+| `pay_start_date` | 支付起始时间 | `String` | 否 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与 `pay_end_date` 须同时传入；均未传则不填页面时间筛选；最早约 today-30 |
+| `pay_end_date` | 支付结束时间 | `String` | 否 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与 `pay_start_date` 须同时传入；不得晚于今天 |
+| `trade_no` | 运单号/交易单号 | `String` | 否 | `-` | 6–32 位字母或数字 |
+| `item_id` | 商品 ID | `String` | 否 | `-` | 6–20 位纯数字 |
 
 ### 入参样例
 
 ```json
 {
-    "date_start": "2026-06-01",
-    "date_end": "2026-06-11",
-    "trade_no": "",
-    "item_id": ""
+  "pay_start_date": "20260901",
+  "pay_end_date": "20260908",
+  "trade_no": "",
+  "item_id": ""
+}
+```
+
+### 入参校验
+
+```json-schema collapsed
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "千牛-物流-包裹中心-揽收异常 - 查询入参",
+  "description": "pay_start_date / pay_end_date 可选成对；格式 YYYYMMDD 或 YYYY-MM-DD；均未传则不填页面时间筛选；最早约 today-30；结束不得晚于今天",
+  "type": "object",
+  "required": [],
+  "additionalProperties": false,
+  "properties": {
+    "pay_start_date": {
+      "type": "string",
+      "description": "支付起始时间；格式 YYYYMMDD 或 YYYY-MM-DD；与 pay_end_date 须同时传入；均未传则不填页面时间筛选；最早约 today-30",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    },
+    "pay_end_date": {
+      "type": "string",
+      "description": "支付结束时间；格式 YYYYMMDD 或 YYYY-MM-DD；与 pay_start_date 须同时传入；不得晚于今天",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    },
+    "trade_no": {
+      "type": "string",
+      "description": "运单号/交易单号；6–32 位字母或数字"
+    },
+    "item_id": {
+      "type": "string",
+      "description": "商品 ID；6–20 位纯数字"
+    }
+  },
+  "dependentRequired": {
+    "pay_start_date": ["pay_end_date"],
+    "pay_end_date": ["pay_start_date"]
+  }
 }
 ```
 
@@ -61,8 +98,8 @@ category: logistics
 | `mail_no` | 运单号 | `string` | 是 | `XLSX.0.运单号` | — |
 | `courier_company` | 快递公司 | `string` | 是 | `XLSX.0.快递公司` | — |
 | `timeout_type` | 超时类型 | `string` | 否 | `XLSX.0.超时类型` | 即将超时 |
-| `pay_time` | 支付时间 | `string` | 否 | `XLSX.0.支付时间` | 2026-06-08 10:24:50 |
-| `expected_pickup_time` | 应揽收时间 | `string` | 否 | `XLSX.0.应揽收时间` | 2026-06-11 23:59:59 |
+| `pay_time` | 支付时间 | `string` | 否 | `XLSX.0.支付时间` | `2026-06-08 10:24:50` |
+| `expected_pickup_time` | 应揽收时间 | `string` | 否 | `XLSX.0.应揽收时间` | `2026-06-11 23:59:59` |
 | `exception_type` | 异常类型 | `string` | 否 | `XLSX.0.异常类型` | 支付-揽收(48h) |
 | `buyer_name` | 买家姓名 | `string` | 否 | `XLSX.0.买家姓名` | 陈* |
 | `buyer_phone` | 买家电话 | `string` | 否 | `XLSX.0.买家电话` | 1\*\*\*\*\*\*\*\*\*8 |
@@ -70,7 +107,7 @@ category: logistics
 | `expected_compensation_amount` | 预计赔付金额 | `number` | 否 | `XLSX.0.预计赔付金额` | 50.0 |
 | `order_service` | 订单服务 | `string` | 否 | `XLSX.0.订单服务` | 无 |
 | `goods_name` | 商品名称 | `string` | 否 | `XLSX.0.商品名称` | 松下壁挂洗衣机洗烘一体机婴幼儿童3kg家用小型迷你内衣裤洗衣机 |
-| `remark` | 备注信息 | `string` | 是 | `XLSX.0.备注信息` | 升级秀图50元+2瓶内衣洗衣液【小果｜06-08 10:28:13】\n已反馈售后，延迟发货【小述｜06-08 12:00:35】 |
+| `remark` | 备注信息 | `string` | 是 | `XLSX.0.备注信息` | `升级秀图50元+2瓶内衣洗衣液【小果｜06-08 10:28:13】\n已反馈售后，延迟发货【小述｜06-08 12:00:35】` |
 | `bizDate` | 业务日期 | `string` | 否 | 附加 |  |
 | `accountId` | 授权 ID | `string` | 否 | 附加 |  |
 

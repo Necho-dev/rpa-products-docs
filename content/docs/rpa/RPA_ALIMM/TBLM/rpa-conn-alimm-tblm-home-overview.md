@@ -1,5 +1,5 @@
 ---
-title: 淘宝联盟-商家中心-数据概览
+title: 首页-数据概览
 description: 采集淘宝联盟商家中心 Dashboard 数据概览指标，支持快捷日期与自定义日期范围
 entry: rpa.conn.alimm.tblm.home.overview
 badge:
@@ -24,51 +24,80 @@ category: merchant
 
 ### 目标页面
 
-> **取数路径**：阿里妈妈—淘宝联盟—商家中心—数据概览
+> **取数路径**：淘宝联盟—首页—数据概览
 >
 > **取数链接**：[https://ad.alimama.com/portal/v2/dashboard.htm](https://ad.alimama.com/portal/v2/dashboard.htm)
 
-![阿里妈妈—淘宝联盟商家中心数据概览](../../_public/images/alimm/home_overview_20260512.png)
+![淘宝联盟—首页—数据概览](../../_public/images/alimm/home_overview_20260512.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `date_type` | 时间类型 | `string` | 是 | — | 可选值：`today_realtime` / `yesterday` / `last_7_days` / `last_15_days` / `last_30_days` / `last_60_days` / `last_90_days` / `custom` |
-| `custom_start_date` | 自定义起始日期 | `string` | 否 | — | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；仅 `date_type=custom` 时必填 |
-| `custom_end_date` | 自定义结束日期 | `string` | 否 | — | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；仅 `date_type=custom` 时必填；不能晚于昨天；自定义范围不超过 90 天 |
+| `date_type` | 时间类型 | `String` | 是 | `-` | 允许值：`TODAY_REALTIME`（今日实时）/ `YESTERDAY`（昨日）/ `LAST_7_DAYS`（近 7 天）/ `LAST_15_DAYS`（近 15 天）/ `LAST_30_DAYS`（近 30 天）/ `LAST_60_DAYS`（近 60 天）/ `LAST_90_DAYS`（近 90 天）/ `CUSTOM`（自定义区间） |
+| `custom_start_date` | 自定义起始日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD` |
+| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不能晚于昨天；自定义范围不超过 90 天 |
 
 ### 入参样例
 
+`YYYYMMDD`：
+
 ```json
 {
-    "date_type": "last_7_days"
+    "date_type": "CUSTOM",
+    "custom_start_date": "20260312",
+    "custom_end_date": "20260511"
 }
 ```
 
+`YYYY-MM-DD`：
+
 ```json
 {
-    "date_type": "yesterday"
+    "date_type": "CUSTOM",
+    "custom_start_date": "2026-03-12",
+    "custom_end_date": "2026-05-11"
 }
 ```
 
-自定义日期（`YYYYMMDD`）：
+### 入参校验
 
-```json
+```json-schema collapsed
 {
-    "date_type": "custom",
-    "custom_start_date": "20260501",
-    "custom_end_date": "20260510"
-}
-```
-
-自定义日期（`YYYY-MM-DD`）：
-
-```json
-{
-    "date_type": "custom",
-    "custom_start_date": "2026-05-01",
-    "custom_end_date": "2026-05-10"
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "首页-数据概览 - 查询入参",
+  "description": "采集淘宝联盟商家中心 Dashboard 数据概览指标，支持快捷日期与自定义日期范围",
+  "type": "object",
+  "properties": {
+    "date_type": {
+      "type": "string",
+      "description": "时间类型，允许值 TODAY_REALTIME（今日实时）/ YESTERDAY（昨日）/ LAST_7_DAYS（近 7 天）/ LAST_15_DAYS（近 15 天）/ LAST_30_DAYS（近 30 天）/ LAST_60_DAYS（近 60 天）/ LAST_90_DAYS（近 90 天）/ CUSTOM（自定义区间）",
+      "enum": ["TODAY_REALTIME", "YESTERDAY", "LAST_7_DAYS", "LAST_15_DAYS", "LAST_30_DAYS", "LAST_60_DAYS", "LAST_90_DAYS", "CUSTOM"]
+    },
+    "custom_start_date": {
+      "type": "string",
+      "description": "自定义起始日期，date_type=CUSTOM 时必填，格式 YYYYMMDD 或 YYYY-MM-DD",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    },
+    "custom_end_date": {
+      "type": "string",
+      "description": "自定义结束日期，date_type=CUSTOM 时必填，格式 YYYYMMDD 或 YYYY-MM-DD；不能晚于昨天；自定义范围不超过 90 天",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    }
+  },
+  "required": ["date_type"],
+  "allOf": [
+    {
+      "if": {
+        "properties": { "date_type": { "const": "CUSTOM" } },
+        "required": ["date_type"]
+      },
+      "then": {
+        "required": ["custom_start_date", "custom_end_date"]
+      }
+    }
+  ],
+  "additionalProperties": false
 }
 ```
 

@@ -34,19 +34,61 @@ category: logistics
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `stage_status` | 阶段状态 | `string` | 是 | `—` | 允许值：`pickup_update`（揽收更新异常）、`transport_update`（运输更新异常）、`delivery_update`（派送更新异常） |
-| `date_start` | 发货起始时间 | `string` | 否 | `""` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与 `date_end` 必须同时传入；不得早于 30 天前 |
-| `date_end` | 发货结束时间 | `string` | 否 | `""` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与 `date_start` 必须同时传入；不得晚于今天 |
-| `trade_no` | 运单号/交易单号 | `string` | 否 | `""` | 6–32 位字母或数字 |
+| `stage_status` | 阶段状态 | `String` | 是 | `-` | 允许值：`PICKUP_UPDATE_EXCEPTION`（揽收更新异常）/ `TRANSPORT_UPDATE_EXCEPTION`（运输更新异常）/ `DELIVERY_UPDATE_EXCEPTION`（派送更新异常） |
+| `ship_start_date` | 发货起始时间 | `String` | 否 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与 `ship_end_date` 须同时传入；均未传则不填页面时间筛选；最早约 today-30 |
+| `ship_end_date` | 发货结束时间 | `String` | 否 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与 `ship_start_date` 须同时传入；不得晚于今天 |
+| `trade_no` | 运单号/交易单号 | `String` | 否 | `-` | 6–32 位字母或数字 |
 
 ### 入参样例
 
 ```json
 {
-    "stage_status": "transport_update",
-    "date_start": "2026-05-01",
-    "date_end": "2026-06-11",
-    "trade_no": ""
+  "stage_status": "TRANSPORT_UPDATE_EXCEPTION",
+  "ship_start_date": "",
+  "ship_end_date": "",
+  "trade_no": ""
+}
+```
+
+### 入参校验
+
+```json-schema collapsed
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "千牛-物流-包裹中心-阶段更新异常 - 查询入参",
+  "description": "stage_status 必填；允许值 PICKUP_UPDATE_EXCEPTION（揽收更新异常）/ TRANSPORT_UPDATE_EXCEPTION（运输更新异常）/ DELIVERY_UPDATE_EXCEPTION（派送更新异常）；ship_start_date / ship_end_date 可选成对；格式 YYYYMMDD 或 YYYY-MM-DD；均未传则不填页面时间筛选；最早约 today-30；结束不得晚于今天",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["stage_status"],
+  "properties": {
+    "stage_status": {
+      "type": "string",
+      "description": "阶段状态；允许值：PICKUP_UPDATE_EXCEPTION（揽收更新异常）/ TRANSPORT_UPDATE_EXCEPTION（运输更新异常）/ DELIVERY_UPDATE_EXCEPTION（派送更新异常）",
+      "enum": [
+        "PICKUP_UPDATE_EXCEPTION",
+        "TRANSPORT_UPDATE_EXCEPTION",
+        "DELIVERY_UPDATE_EXCEPTION"
+      ]
+    },
+    "ship_start_date": {
+      "type": "string",
+      "description": "发货起始时间；格式 YYYYMMDD 或 YYYY-MM-DD；与 ship_end_date 须同时传入；均未传则不填页面时间筛选；最早约 today-30",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    },
+    "ship_end_date": {
+      "type": "string",
+      "description": "发货结束时间；格式 YYYYMMDD 或 YYYY-MM-DD；与 ship_start_date 须同时传入；不得晚于今天",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    },
+    "trade_no": {
+      "type": "string",
+      "description": "运单号/交易单号；6–32 位字母或数字"
+    }
+  },
+  "dependentRequired": {
+    "ship_start_date": ["ship_end_date"],
+    "ship_end_date": ["ship_start_date"]
+  }
 }
 ```
 
@@ -63,14 +105,14 @@ category: logistics
 | `pickup_city` | 揽收城市 | `string` | 否 | `XLSX.0.揽收城市` | 嘉兴市 |
 | `timeout_type` | 超时类型 | `string` | 否 | `XLSX.0.超时类型` | 运输停滞 |
 | `exception_type` | 异常类型 | `string` | 否 | `XLSX.0.异常类型` | 运输停滞 |
-| `ship_time` | 发货时间 | `string` | 否 | `XLSX.0.发货时间` | 2026-05-30 19:04:24 |
-| `pickup_time` | 揽收时间 | `string` | 否 | `XLSX.0.揽收时间` | 2026-05-30 19:07:02 |
+| `ship_time` | 发货时间 | `string` | 否 | `XLSX.0.发货时间` | `2026-05-30 19:04:24` |
+| `pickup_time` | 揽收时间 | `string` | 否 | `XLSX.0.揽收时间` | `2026-05-30 19:07:02` |
 | `buyer_name` | 买家姓名 | `string` | 否 | `XLSX.0.买家姓名` | 袁** |
 | `buyer_phone` | 买家电话 | `string` | 否 | `XLSX.0.买家电话` | 1\*\*\*\*\*\*\*\*\*8 |
 | `buyer_address` | 买家地址 | `string` | 否 | `XLSX.0.买家地址` | 山东省临沂市兰山区柳青街道 \*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\* |
 | `expected_compensation_amount` | 预计赔付金额 | `number` | 否 | `XLSX.0.预计赔付金额` | 100.0 |
 | `order_service` | 订单服务 | `string` | 否 | `XLSX.0.订单服务` | 优+订单 |
-| `remark` | 备注信息 | `string` | 是 | `XLSX.0.备注信息` | 拦截中【六六｜05-31 23:07:52】此单也拦截成功【六六｜05-31 23:13:00】此单不应该拦截，建工单错误导致误拦，已留言客户，此单菜鸟已下补发单【六六｜05-31 23:26:04】已完结05-31 23:28\nSN6600088901385补发单号【六六｜06-01 19:53:10】 |
+| `remark` | 备注信息 | `string` | 是 | `XLSX.0.备注信息` | `拦截中【六六｜05-31 23:07:52】此单也拦截成功【六六｜05-31 23:13:00】此单不应该拦截，建工单错误导致误拦，已留言客户，此单菜鸟已下补发单【六六｜05-31 23:26:04】已完结05-31 23:28\nSN6600088901385补发单号【六六｜06-01 19:53:10】` |
 | `exception_handling` | 异常处理情况 | `string` | 是 | `XLSX.0.异常处理情况` | — |
 | `bizDate` | 业务日期 | `string` | 否 | 附加 |  |
 | `accountId` | 授权 ID | `string` | 否 | 附加 |  |

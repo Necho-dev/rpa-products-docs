@@ -1,5 +1,5 @@
 ---
-title: 流量-店铺来源-明细下载
+title: 流量-店铺来源-流量来源构成
 description: 按 7天/30天/日/周/月 拼接「全店流量来源」与「分载体流量来源」两个 Sheet，获得流量载体与多级流量来源构成指标
 entry: rpa.conn.sycm.flow.shop.source
 badge:
@@ -38,16 +38,24 @@ category: flow
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `date_type` | 统计时间类型 | `String` | 否 | `day` | 可选值：`recent7`（7天）/ `recent30`（30天）/ `day`（日）/ `week`（周）/ `month`（月）。页面有自定义，不开放 |
-| `biz_date` | 业务日期 | `String` | 条件必填 | `day` 都空则昨日 T-1 | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`。`week`/`month` 必填；`recent7`/`recent30` 忽略本参数。日不可选今日及以后；周只接受已结束的完整周；月只接受已结束的完整月 |
+| `date_type` | 统计时间类型 | `String` | 是 | `-` | 允许值：`LAST_7_DAYS`（近 7 天）/ `LAST_30_DAYS`（近 30 天）/ `DAY`（按日）/ `WEEK`（自然周）/ `MONTH`（自然月） |
+| `biz_date` | 业务日期 | `String` | 条件必填 | `-` | `date_type` 为 `DAY`/`WEEK`/`MONTH` 时必填；始终填一天，格式 `YYYYMMDD` 或 `YYYY-MM-DD`；`LAST_7_DAYS`/`LAST_30_DAYS` 时忽略。`DAY` 不可选今日及以后；`WEEK`/`MONTH` 用这一天定位所在周/月，不可选本周/本月的日期；最早约 2024-06-05 |
 
 ### 入参样例
 
-按日（默认昨天）：
+近 7 天：
 
 ```json
 {
-  "date_type": "day"
+  "date_type": "LAST_7_DAYS"
+}
+```
+
+近 30 天：
+
+```json
+{
+  "date_type": "LAST_30_DAYS"
 }
 ```
 
@@ -55,16 +63,8 @@ category: flow
 
 ```json
 {
-  "date_type": "day",
-  "biz_date": "2026-08-05"
-}
-```
-
-近 7 天：
-
-```json
-{
-  "date_type": "recent7"
+  "date_type": "DAY",
+  "biz_date": "20260905"
 }
 ```
 
@@ -72,8 +72,8 @@ category: flow
 
 ```json
 {
-  "date_type": "week",
-  "biz_date": "2025-11-05"
+  "date_type": "WEEK",
+  "biz_date": "2026-08-31"
 }
 ```
 
@@ -81,8 +81,8 @@ category: flow
 
 ```json
 {
-  "date_type": "month",
-  "biz_date": "2025-06-15"
+  "date_type": "MONTH",
+  "biz_date": "20260801"
 }
 ```
 
@@ -91,30 +91,29 @@ category: flow
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "生意参谋-店铺来源 - 查询入参",
+  "title": "生意参谋-流量-店铺来源-流量来源构成 - 查询入参",
   "description": "按 7天/30天/日/周/月 导出店铺流量来源构成",
   "type": "object",
   "properties": {
     "date_type": {
       "type": "string",
-      "description": "统计时间类型，未传默认 day。可选值：recent7 / recent30 / day / week / month。不开放实时、自定义",
-      "enum": ["recent7", "recent30", "day", "week", "month"],
-      "default": "day"
+      "description": "统计时间类型。允许值：LAST_7_DAYS（近 7 天）/ LAST_30_DAYS（近 30 天）/ DAY（按日）/ WEEK（自然周）/ MONTH（自然月）",
+      "enum": ["LAST_7_DAYS", "LAST_30_DAYS", "DAY", "WEEK", "MONTH"]
     },
     "biz_date": {
       "type": "string",
-      "description": "业务日期；week/month 时必填；day 都空则昨日 T-1；recent7/recent30 时忽略。格式 YYYYMMDD 或 YYYY-MM-DD",
+      "description": "业务日期；date_type 为 DAY/WEEK/MONTH 时必填；始终填一天；LAST_7_DAYS/LAST_30_DAYS 时忽略。格式 YYYYMMDD 或 YYYY-MM-DD；DAY 不可选今日及以后；WEEK/MONTH 用这一天定位所在周/月，不可选本周/本月的日期；最早约 2024-06-05",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
-  "required": [],
+  "required": ["date_type"],
   "additionalProperties": false,
   "allOf": [
     {
       "if": {
         "properties": {
           "date_type": {
-            "enum": ["week", "month"]
+            "enum": ["DAY", "WEEK", "MONTH"]
           }
         },
         "required": ["date_type"]
@@ -170,7 +169,7 @@ category: flow
 | `orderAmtRatio`               | 下单金额环比     | `string`              | 是     | `XLS.全店流量来源.下单金额环比` | — |
 | `orderConversionRatio`        | 下单转化率       | `string`              | 否     | `XLS.全店流量来源.下单转化率`  | 0.00% |
 | `orderConversionRatioRatio`   | 下单转化率环比   | `string`              | 是     | `XLS.全店流量来源.下单转化率环比` | — |
-| `dateType`                    | 统计时间类型 | `String`              | 否     | 附加，来自入参 `date_type` | `day` |
+| `dateType`                    | 统计时间类型 | `String`              | 否     | 附加，来自入参 `date_type` | `DAY` |
 | `dateRangeStart`              | 统计区间起始日 | `String`            | 否     | 附加 | `2026-08-05` |
 | `dateRangeEnd`                | 统计区间结束日 | `String`            | 否     | 附加 | `2026-08-05` |
 | `bizDate`                     | 业务日期     | `string`              | 否     | 附加，取区间结束日 `YYYYMMDD` | |
@@ -220,7 +219,7 @@ category: flow
     "orderAmtRatio": "-",
     "orderConversionRatio": "0.00%",
     "orderConversionRatioRatio": "-",
-    "dateType": "day",
+    "dateType": "DAY",
     "dateRangeStart": "2026-04-14",
     "dateRangeEnd": "2026-04-14",
     "bizDate": "20260414",

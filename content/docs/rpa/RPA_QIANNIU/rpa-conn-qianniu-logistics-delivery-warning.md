@@ -34,19 +34,56 @@ category: logistics
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `date_start` | 支付起始时间 | `string` | 否 | `""` | 格式 `YYYYMMDD`、`YYYY-MM-DD` 或 `YYYY-MM-DD HH:mm:ss`；与 `date_end` 必须同时传入；不得早于 30 天前 |
-| `date_end` | 支付结束时间 | `string` | 否 | `""` | 格式 `YYYYMMDD`、`YYYY-MM-DD` 或 `YYYY-MM-DD HH:mm:ss`；与 `date_start` 必须同时传入；不得晚于今天 |
-| `trade_no` | 运单号/交易单号 | `string` | 否 | `""` | 6–32 位字母或数字 |
-| `item_id` | 商品 ID | `string` | 否 | `""` | 6–20 位纯数字 |
+| `pay_start_date` | 支付起始时间 | `String` | 否 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与 `pay_end_date` 须同时传入；均未传则不填页面时间筛选；最早约 today-30 |
+| `pay_end_date` | 支付结束时间 | `String` | 否 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与 `pay_start_date` 须同时传入；不得晚于今天 |
+| `trade_no` | 运单号/交易单号 | `String` | 否 | `-` | 6–32 位字母或数字 |
+| `item_id` | 商品 ID | `String` | 否 | `-` | 6–20 位纯数字 |
 
 ### 入参样例
 
 ```json
 {
-    "date_start": "2026-06-01",
-    "date_end": "2026-06-11",
-    "trade_no": "",
-    "item_id": ""
+  "pay_start_date": "20260901",
+  "pay_end_date": "20260908",
+  "trade_no": "",
+  "item_id": ""
+}
+```
+
+### 入参校验
+
+```json-schema collapsed
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "千牛-物流-包裹中心-发货预警 - 查询入参",
+  "description": "pay_start_date / pay_end_date 可选成对；格式 YYYYMMDD 或 YYYY-MM-DD；均未传则不填页面时间筛选；最早约 today-30；结束不得晚于今天",
+  "type": "object",
+  "required": [],
+  "additionalProperties": false,
+  "properties": {
+    "pay_start_date": {
+      "type": "string",
+      "description": "支付起始时间；格式 YYYYMMDD 或 YYYY-MM-DD；与 pay_end_date 须同时传入；均未传则不填页面时间筛选；最早约 today-30",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    },
+    "pay_end_date": {
+      "type": "string",
+      "description": "支付结束时间；格式 YYYYMMDD 或 YYYY-MM-DD；与 pay_start_date 须同时传入；不得晚于今天",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    },
+    "trade_no": {
+      "type": "string",
+      "description": "运单号/交易单号；6–32 位字母或数字"
+    },
+    "item_id": {
+      "type": "string",
+      "description": "商品 ID；6–20 位纯数字"
+    }
+  },
+  "dependentRequired": {
+    "pay_start_date": ["pay_end_date"],
+    "pay_end_date": ["pay_start_date"]
+  }
 }
 ```
 
@@ -59,8 +96,8 @@ category: logistics
 | `trade_no` | 交易单号 | `number` | 否 | `XLSX.0.交易单号` | 5118851054150013638 |
 | `sub_trade_no` | 子交易单号 | `number` | 否 | `XLSX.0.子交易单号` | 5118851054150013638 |
 | `timeout_type` | 超时类型 | `string` | 否 | `XLSX.0.超时类型` | 支付超24h |
-| `pay_time` | 支付时间 | `string` | 否 | `XLSX.0.支付时间` | 2026-06-03 23:16:35 |
-| `expected_pickup_time` | 应揽收时间 | `string` | 否 | `XLSX.0.应揽收时间` | 2026-06-05 23:16:35 |
+| `pay_time` | 支付时间 | `string` | 否 | `XLSX.0.支付时间` | `2026-06-03 23:16:35` |
+| `expected_pickup_time` | 应揽收时间 | `string` | 否 | `XLSX.0.应揽收时间` | `2026-06-05 23:16:35` |
 | `exception_type` | 异常类型 | `string` | 否 | `XLSX.0.异常类型` | 支付-发货 |
 | `buyer_name` | 买家姓名 | `string` | 否 | `XLSX.0.买家姓名` | 张** |
 | `buyer_phone` | 买家电话 | `string` | 否 | `XLSX.0.买家电话` | 1\*\*\*\*\*\*\*\*\*7 |

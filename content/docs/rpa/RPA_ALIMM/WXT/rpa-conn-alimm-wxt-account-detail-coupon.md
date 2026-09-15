@@ -1,5 +1,5 @@
 ---
-title: 万相台-账户-优惠券花费明细
+title: 账户-账户明细-优惠券花费明细
 description: 导出阿里妈妈万相台账户明细中的优惠券花费明细，支持按券类型与日期范围筛选
 entry: rpa.conn.alimm.wxt.account.detail.coupon
 badge:
@@ -24,35 +24,39 @@ category: account
 
 ### 目标页面
 
-> **取数路径**：阿里妈妈—万相台—账户—账户明细—优惠券花费明细
+> **取数路径**：万相台—账户—账户明细—优惠券花费明细
 >
 > **取数链接**：[https://one.alimama.com/index.html#!/account/detail](https://one.alimama.com/index.html#!/account/detail)
 
-![阿里妈妈—万相台优惠券花费明细](../../_public/images/alimm/wxt_account_detail_coupon_20260713.png)
+![万相台—账户—账户明细—优惠券花费明细](../../_public/images/alimm/wxt_account_detail_coupon_20260713.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `coupon_type` | 券类型 | `String` | 否 | `all` | 可选值：`all`（全部券类型）/ `cash`（现金券）/ `discount`（满折券）/ `order`（订单券）/ `voucher`（代金券）；不支持空字符串 `""`，全部须传 `all` |
-| `start_date` | 起始日期 | `String` | 是 | — | 对应页面日期范围开始；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不能晚于 `end_date` |
-| `end_date` | 结束日期 | `String` | 是 | — | 对应页面日期范围结束；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不能晚于今天 |
+| `coupon_type` | 券类型 | `String` | 否 | `ALL` | 允许值：`ALL`（全部券类型）/ `CASH`（现金券）/ `DISCOUNT`（满折券）/ `ORDER`（订单券）/ `VOUCHER`（代金券） |
+| `custom_start_date` | 起始日期 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不能晚于 `custom_end_date` |
+| `custom_end_date` | 结束日期 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不能晚于今天 |
 
 ### 入参样例
 
-```json
-{
-  "coupon_type": "all",
-  "start_date": "20260601",
-  "end_date": "20260713"
-}
-```
+`YYYYMMDD`：
 
 ```json
 {
-  "coupon_type": "cash",
-  "start_date": "2026-06-01",
-  "end_date": "2026-07-13"
+  "coupon_type": "ALL",
+  "custom_start_date": "20260601",
+  "custom_end_date": "20260630"
+}
+```
+
+`YYYY-MM-DD`：
+
+```json
+{
+  "coupon_type": "",
+  "custom_start_date": "2026-06-01",
+  "custom_end_date": "2026-06-30"
 }
 ```
 
@@ -61,28 +65,27 @@ category: account
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "阿里妈妈-万相台优惠券花费明细 - 查询入参",
+  "title": "账户-账户明细-优惠券花费明细 - 查询入参",
   "description": "导出阿里妈妈万相台账户明细中的优惠券花费明细，支持按券类型与日期范围筛选",
   "type": "object",
   "properties": {
     "coupon_type": {
       "type": "string",
-      "description": "券类型。可选值：all（全部券类型）/ cash（现金券）/ discount（满折券）/ order（订单券）/ voucher（代金券）；不支持空字符串，全部须传 all",
-      "enum": ["all", "cash", "discount", "order", "voucher"],
-      "default": "all"
+      "description": "券类型，允许值 ALL（全部券类型）/ CASH（现金券）/ DISCOUNT（满折券）/ ORDER（订单券）/ VOUCHER（代金券）",
+      "default": "ALL"
     },
-    "start_date": {
+    "custom_start_date": {
       "type": "string",
-      "description": "起始日期，对应页面日期范围开始。格式 YYYYMMDD 或 YYYY-MM-DD；不能晚于 end_date",
+      "description": "起始日期，格式 YYYYMMDD 或 YYYY-MM-DD；不能晚于 custom_end_date",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
-    "end_date": {
+    "custom_end_date": {
       "type": "string",
-      "description": "结束日期，对应页面日期范围结束。格式 YYYYMMDD 或 YYYY-MM-DD；不能晚于今天",
+      "description": "结束日期，格式 YYYYMMDD 或 YYYY-MM-DD；不能晚于今天",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
-  "required": ["start_date", "end_date"],
+  "required": ["custom_start_date", "custom_end_date"],
   "additionalProperties": false
 }
 ```

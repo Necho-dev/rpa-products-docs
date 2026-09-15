@@ -1,5 +1,5 @@
 ---
-title: 云图-行业内容榜-素材详情秒级拆解
+title: 内容-行业灵感激发-行业内容榜-素材详情(秒级拆解)
 description: 采集巨量云图行业内容榜中指定素材的秒级拆解指数（点赞/流失/点击/互动/评论）及视频链接
 entry: rpa.conn.juliang.yt.industry.content.rankings.detail
 badge:
@@ -24,20 +24,20 @@ category: yt
 
 ### 目标页面
 
-> **取数路径**：巨量云图—内容—创意内容实验室—行业灵感—行业内容榜—素材详情—秒级拆解
+> **取数路径**：巨量云图—内容—行业灵感激发—行业内容榜—素材详情—秒级拆解
 >
 > **取数链接**：[https://yuntu.oceanengine.com/yuntu_brand/ecom/content_new/creative/content_lab/inspiration/industryContent](https://yuntu.oceanengine.com/yuntu_brand/ecom/content_new/creative/content_lab/inspiration/industryContent)
 
-![巨量云图—行业内容榜素材详情秒级拆解](../../_public/images/juliang/yt_industry_content_rankings_detail_20260704.png)
+![巨量云图—内容—行业灵感激发—行业内容榜—素材详情—秒级拆解](../../_public/images/juliang/yt_industry_content_rankings_detail_20260704.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `material_id` | 素材 ID | `String` | 是 | — | 必须为纯数字 |
-| `date_range_type` | 时间周期类型 | `String` | 是 | — | 可选值：`LAST_7_DAYS`（近7天）、`LAST_30_DAYS`（近30天）、`CUSTOM`（自定义） |
-| `custom_start_date` | 自定义开始日期 | `String` | `date_range_type = CUSTOM` 时必填 | — | 支持格式：`YYYYMMDD`、`YYYY-MM-DD` |
-| `custom_end_date` | 自定义结束日期 | `String` | `date_range_type = CUSTOM` 时必填 | — | 支持格式：`YYYYMMDD`、`YYYY-MM-DD`；不得早于 `custom_start_date` |
+| `material_id` | 素材 ID | `String` | 是 | `-` | 必须为纯数字 |
+| `date_type` | 时间周期类型 | `String` | 是 | `-` | 允许值：`LAST_7_DAYS`（近 7 天）/ `LAST_30_DAYS`（近 30 天）/ `CUSTOM`（自定义区间） |
+| `custom_start_date` | 自定义开始日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD` |
+| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不得早于 `custom_start_date` |
 
 ### 入参样例
 
@@ -46,7 +46,7 @@ category: yt
 ```json
 {
   "material_id": "7648216411198554162",
-  "date_range_type": "LAST_7_DAYS"
+  "date_type": "LAST_7_DAYS"
 }
 ```
 
@@ -55,7 +55,7 @@ category: yt
 ```json
 {
   "material_id": "7648216411198554162",
-  "date_range_type": "LAST_30_DAYS"
+  "date_type": "LAST_30_DAYS"
 }
 ```
 
@@ -64,7 +64,7 @@ category: yt
 ```json
 {
   "material_id": "7648216411198554162",
-  "date_range_type": "CUSTOM",
+  "date_type": "CUSTOM",
   "custom_start_date": "2026-06-01",
   "custom_end_date": "2026-06-29"
 }
@@ -75,7 +75,7 @@ category: yt
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "巨量云图-行业内容榜素材详情秒级拆解 - 查询入参",
+  "title": "内容-行业灵感激发-行业内容榜-素材详情(秒级拆解) - 查询入参",
   "description": "采集巨量云图行业内容榜中指定素材的秒级拆解指数（点赞/流失/点击/互动/评论）及视频链接",
   "type": "object",
   "properties": {
@@ -84,26 +84,26 @@ category: yt
       "description": "素材 ID，必须为纯数字",
       "pattern": "^\\d+$"
     },
-    "date_range_type": {
+    "date_type": {
       "type": "string",
-      "description": "时间周期类型。可选值：LAST_7_DAYS（近7天）、LAST_30_DAYS（近30天）、CUSTOM（自定义）",
+      "description": "时间周期类型。允许值：LAST_7_DAYS（近 7 天）/ LAST_30_DAYS（近 30 天）/ CUSTOM（自定义区间）",
       "enum": ["LAST_7_DAYS", "LAST_30_DAYS", "CUSTOM"]
     },
     "custom_start_date": {
       "type": "string",
-      "description": "自定义开始日期；date_range_type=CUSTOM 时必填。支持 YYYYMMDD 或 YYYY-MM-DD"
+      "description": "自定义开始日期；date_type 为 CUSTOM 时必填。格式 YYYYMMDD 或 YYYY-MM-DD"
     },
     "custom_end_date": {
       "type": "string",
-      "description": "自定义结束日期；date_range_type=CUSTOM 时必填。支持 YYYYMMDD 或 YYYY-MM-DD；不得早于 custom_start_date"
+      "description": "自定义结束日期；date_type 为 CUSTOM 时必填。格式 YYYYMMDD 或 YYYY-MM-DD；不得早于 custom_start_date"
     }
   },
-  "required": ["material_id", "date_range_type"],
+  "required": ["material_id", "date_type"],
   "if": {
     "properties": {
-      "date_range_type": { "const": "CUSTOM" }
+      "date_type": { "const": "CUSTOM" }
     },
-    "required": ["date_range_type"]
+    "required": ["date_type"]
   },
   "then": {
     "required": ["custom_start_date", "custom_end_date"],

@@ -4,12 +4,12 @@
     "title": "子平台"
   },
   "pages": [
-    "./DMP",
-    "./PPXX",
-    "./PXB",
-    "./TBLM",
+    "./YXSTUD",
     "./UD",
+    "./DMP",
+    "./TBLM",
+    "./PXB",
     "./WXT",
-    "./YXSTUD"
+    "./PPXX"
   ]
 }

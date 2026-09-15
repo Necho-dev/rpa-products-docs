@@ -1,5 +1,5 @@
 ---
-title: 物流-仓库库存-流水导出
+title: 物流-在库业务-仓库库存流水
 description: 在京东物流工作台仓库库存流水页，按日期范围导出库存流水明细数据
 entry: rpa.conn.jingmai.wl.inventory.flow
 badge:
@@ -28,31 +28,31 @@ category: wl
 
 ### 目标页面
 
-> **取数路径**：京东物流工作台—供应链—库存—库存流水
+> **取数路径**：京东物流工作台—物流—在库业务—仓库库存流水
 >
 > **取数链接**：[https://wl.jdl.com/supplychain--inventory/flow](https://wl.jdl.com/supplychain--inventory/flow)
 
-![京麦—仓库库存流水导出](../_public/images/jingmai/wl_inventory_flow_20260709.png)
+![京东物流工作台—物流—在库业务—仓库库存流水](../_public/images/jingmai/wl_inventory_flow_20260709.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `date_range` | 日期范围 | `String` | 否 | `LAST_THREE_MONTHS` | 可选值：`LAST_WEEK`（最近一周）、`LAST_MONTH`（最近一月）、`LAST_THREE_MONTHS`（最近三月）、`LAST_YEAR`（最近一年）、`CUSTOM`（自定义） |
-| `custom_start_date` | 自定义开始日期 | `String` | `date_range` 为 `CUSTOM` 时必填 | — | 支持格式：YYYYMMDD、YYYY-MM-DD；非 `CUSTOM` 模式不可传入 |
-| `custom_end_date` | 自定义结束日期 | `String` | `date_range` 为 `CUSTOM` 时必填 | — | 支持格式：YYYYMMDD、YYYY-MM-DD；不能早于 `custom_start_date`；不能晚于当天；非 `CUSTOM` 模式不可传入 |
+| `date_type` | 日期范围 | `String` | 是 | `-` | 可选值：`LAST_7_DAYS`（近 7 天）、`LAST_1_MONTH`（近 1 个月）、`LAST_3_MONTHS`（近 3 个月）、`LAST_1_YEAR`（近 1 年）、`CUSTOM`（自定义） |
+| `custom_start_date` | 自定义开始日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；支持格式：YYYYMMDD、YYYY-MM-DD；非 `CUSTOM` 不应传入 |
+| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；支持格式：YYYYMMDD、YYYY-MM-DD；不能早于 `custom_start_date`；不能晚于当天；非 `CUSTOM` 不应传入 |
 
 ### 入参样例
 
 ```json
 {
-  "date_range": "LAST_THREE_MONTHS"
+  "date_type": "LAST_3_MONTHS"
 }
 ```
 
 ```json
 {
-  "date_range": "CUSTOM",
+  "date_type": "CUSTOM",
   "custom_start_date": "2025-12-01",
   "custom_end_date": "2026-07-04"
 }
@@ -63,25 +63,24 @@ category: wl
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "京麦-仓库库存流水导出 - 查询入参",
+  "title": "物流-在库业务-仓库库存流水 - 查询入参",
   "description": "在京东物流工作台仓库库存流水页，按日期范围导出库存流水明细数据",
   "type": "object",
   "properties": {
-    "date_range": {
+    "date_type": {
       "type": "string",
-      "description": "日期范围。可选值：LAST_WEEK（最近一周）、LAST_MONTH（最近一月）、LAST_THREE_MONTHS（最近三月）、LAST_YEAR（最近一年）、CUSTOM（自定义）",
+      "description": "日期范围。可选值：LAST_7_DAYS（近 7 天）、LAST_1_MONTH（近 1 个月）、LAST_3_MONTHS（近 3 个月）、LAST_1_YEAR（近 1 年）、CUSTOM（自定义）",
       "enum": [
-        "LAST_WEEK",
-        "LAST_MONTH",
-        "LAST_THREE_MONTHS",
-        "LAST_YEAR",
+        "LAST_7_DAYS",
+        "LAST_1_MONTH",
+        "LAST_3_MONTHS",
+        "LAST_1_YEAR",
         "CUSTOM"
-      ],
-      "default": "LAST_THREE_MONTHS"
+      ]
     },
     "custom_start_date": {
       "type": "string",
-      "description": "自定义开始日期。支持格式：YYYYMMDD、YYYY-MM-DD；date_range 为 CUSTOM 时必填；非 CUSTOM 模式不可传入",
+      "description": "自定义开始日期。支持格式：YYYYMMDD、YYYY-MM-DD；date_type 为 CUSTOM 时必填；非 CUSTOM 不应传入",
       "anyOf": [
         { "pattern": "^\\d{8}$" },
         { "pattern": "^\\d{4}-\\d{2}-\\d{2}$" }
@@ -89,17 +88,17 @@ category: wl
     },
     "custom_end_date": {
       "type": "string",
-      "description": "自定义结束日期。支持格式：YYYYMMDD、YYYY-MM-DD；不能早于 custom_start_date；不能晚于当天；date_range 为 CUSTOM 时必填；非 CUSTOM 模式不可传入",
+      "description": "自定义结束日期。支持格式：YYYYMMDD、YYYY-MM-DD；不能早于 custom_start_date；不能晚于当天；date_type 为 CUSTOM 时必填；非 CUSTOM 不应传入",
       "anyOf": [
         { "pattern": "^\\d{8}$" },
         { "pattern": "^\\d{4}-\\d{2}-\\d{2}$" }
       ]
     }
   },
-  "required": [],
+  "required": ["date_type"],
   "if": {
     "properties": {
-      "date_range": { "const": "CUSTOM" }
+      "date_type": { "const": "CUSTOM" }
     }
   },
   "then": {

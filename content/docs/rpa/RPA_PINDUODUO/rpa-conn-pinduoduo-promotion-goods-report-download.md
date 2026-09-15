@@ -1,6 +1,6 @@
 ---
-title: 推广平台-商品推广-推广商品报表下载
-description: 从拼多多推广平台下载「商品推广-推广商品」分天数据报表，支持快捷日期与自定义日期范围
+title: 推广平台-工具-报表下载-商品推广(推广商品)
+description: 从拼多多推广平台下载「商品推广(推广商品)」分天数据报表，支持快捷日期与自定义日期范围
 entry: rpa.conn.pinduoduo.promotion.goods.report.download
 badge:
   label: 已上线
@@ -18,43 +18,86 @@ category: promotion
 | **连接器代码**   | `rpa.conn.pinduoduo.promotion.goods.report.download`|
 | **操作类型**     | `文件导出`|
 | **目标网页**     | `https://yingxiao.pinduoduo.com/tools/report/download`|
-| **适用场景**     | 从拼多多推广平台下载「商品推广-推广商品」分天数据报表，支持快捷日期与自定义日期范围|
+| **适用场景**     | 从拼多多推广平台下载「商品推广(推广商品)」分天数据报表，支持快捷日期与自定义日期范围|
 | **数据表名**     | `ods_rpa_pinduoduo_promotion_goods_report_download_du`|
 | **业务表名**     | `ODS_商品推广数据报表下载(拼多多RPA)`|
 
 ### 目标页面
 
-> **取数路径**：拼多多推广平台—工具—报表下载
+> **取数路径**：拼多多推广平台—工具—报表下载—商品推广(推广商品)
 >
 > **取数链接**：[https://yingxiao.pinduoduo.com/tools/report/download](https://yingxiao.pinduoduo.com/tools/report/download)
 
-![拼多多推广平台—商品推广-推广商品报表下载](../_public/images/pinduoduo/goods_report_download_20260429.png)
+![拼多多推广平台—工具—报表下载—商品推广(推广商品)](../_public/images/pinduoduo/goods_report_download_20260429.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `date_range` | 日期范围 | `string` | 否 | `"7d"` | 可选值：`today`(今日) / `yesterday`(昨日) / `7d`(近7日) / `30d`(近30日) / `90d`(近90日) / `custom`(自定义) |
-| `custom_start_date` | 自定义开始日期 | `string` | 否 | — | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；`date_range="custom"` 时必填；须落在平台可选最近 90 天内 |
-| `custom_end_date` | 自定义结束日期 | `string` | 否 | — | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；`date_range="custom"` 时必填；不可晚于今天 |
+| `date_type` | 日期范围 | `String` | 是 | `-` | 允许值：`TODAY`（今日）/ `YESTERDAY`（昨日）/ `LAST_7_DAYS`（近 7 天）/ `LAST_30_DAYS`（近 30 天）/ `LAST_90_DAYS`（近 90 天）/ `CUSTOM`（自定义区间） |
+| `custom_start_date` | 自定义开始日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` / `YYYY-MM-DD`；最早约 today-90 |
+| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` / `YYYY-MM-DD`；不可晚于今天 |
 
 ### 入参样例
 
-近 7 日：
+近 7 天：
 
 ```json
 {
-  "date_range": "7d"
+  "date_type": "LAST_7_DAYS",
+  "custom_start_date": "",
+  "custom_end_date": ""
 }
 ```
 
-自定义区间（`YYYY-MM-DD`）：
+自定义区间（两种日期格式均可）：
 
 ```json
 {
-  "date_range": "custom",
-  "custom_start_date": "2026-07-01",
-  "custom_end_date": "2026-07-07"
+  "date_type": "CUSTOM",
+  "custom_start_date": "20260901",
+  "custom_end_date": "2026-09-07"
+}
+```
+
+### 入参校验
+
+```json-schema collapsed
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "拼多多-推广平台-工具-报表下载-商品推广(推广商品) - 查询入参",
+  "description": "date_type 必填；允许值 TODAY（今日）/ YESTERDAY（昨日）/ LAST_7_DAYS（近 7 天）/ LAST_30_DAYS（近 30 天）/ LAST_90_DAYS（近 90 天）/ CUSTOM（自定义区间）；CUSTOM 时起止条件必填；最早约 today-90；不可晚于今天",
+  "type": "object",
+  "required": ["date_type"],
+  "additionalProperties": false,
+  "properties": {
+    "date_type": {
+      "type": "string",
+      "description": "日期范围；允许值：TODAY（今日）/ YESTERDAY（昨日）/ LAST_7_DAYS（近 7 天）/ LAST_30_DAYS（近 30 天）/ LAST_90_DAYS（近 90 天）/ CUSTOM（自定义区间）",
+      "enum": ["TODAY", "YESTERDAY", "LAST_7_DAYS", "LAST_30_DAYS", "LAST_90_DAYS", "CUSTOM"]
+    },
+    "custom_start_date": {
+      "type": "string",
+      "description": "自定义开始日期；date_type 为 CUSTOM 时必填；格式 YYYYMMDD / YYYY-MM-DD；最早约 today-90",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    },
+    "custom_end_date": {
+      "type": "string",
+      "description": "自定义结束日期；date_type 为 CUSTOM 时必填；格式 YYYYMMDD / YYYY-MM-DD；不可晚于今天",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "date_type": { "const": "CUSTOM" } },
+        "required": ["date_type"]
+      },
+      "then": {
+        "required": ["custom_start_date", "custom_end_date"]
+      }
+    }
+  ]
 }
 ```
 

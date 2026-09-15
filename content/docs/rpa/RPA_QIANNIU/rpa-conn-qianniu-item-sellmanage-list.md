@@ -1,5 +1,5 @@
 ---
-title: 商品-商品管理-我的商品
+title: 商品-商品管理-我的商品-全部
 description: 采集千牛商品管理列表（出售中/仓库中/已售完等状态），支持按标题、商品ID搜索及自定义排序，自动翻页最多100页
 entry: rpa.conn.qianniu.item.sellmanage.list
 badge:
@@ -34,20 +34,66 @@ category: item
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `item_status` | 商品状态 | `string` | 否 | `all` | 可选值：`all`（全部）/`on_sale`（出售中）/`in_stock`（仓库中）/`sold_out`（已售空） |
-| `query_title` | 商品标题搜索 | `string` | 否 | `""` | 关键词模糊搜索 |
-| `query_item_id` | 商品ID搜索 | `string` | 否 | `""` | 多个ID用中文逗号分隔 |
-| `sort_field` | 排序字段 | `string` | 否 | `""` | 可选值：`managerPrice`（价格）/`managerQuantityNew`（库存）/`soldQuantity_m`（累计销量）/`monthlySoldQuantity`（30日销量）/`upShelfDate_m`（创建时间） |
-| `sort_order` | 排序方向 | `string` | 否 | `desc` | 可选值：`asc`（升序）/`desc`（降序） |
+| `item_status` | 商品状态 | `String` | 否 | `-` | 允许值：`ALL`（全部）/ `ON_SALE`（出售中）/ `IN_STOCK`（仓库中）/ `SOLD_OUT`（已售空） |
+| `query_title` | 商品标题搜索 | `String` | 否 | `-` | 关键词模糊搜索 |
+| `query_item_id` | 商品 ID 搜索 | `String` / `List[String]` | 否 | `-` | 英文逗号或字符串数组；中文逗号改英文 |
+| `sort_field` | 排序字段 | `String` | 条件必填 | `-` | 允许值：`PRICE`（价格）/ `STOCK`（库存）/ `CUMULATIVE_SALES`（累计销量）/ `LAST_30_DAYS_SALES`（30日销量）/ `CREATE_TIME`（创建时间）；与 `sort_order` 须同时传入 |
+| `sort_order` | 排序方向 | `String` | 条件必填 | `-` | 允许值：`ASC`（升序）/ `DESC`（降序）；与 `sort_field` 须同时传入 |
 
 ### 入参样例
 
 ```json
 {
-    "item_status": "on_sale",
-    "query_title": "松下",
-    "sort_field": "soldQuantity_m",
-    "sort_order": "desc"
+  "item_status": "",
+  "query_title": "",
+  "query_item_id": "",
+  "sort_field": "",
+  "sort_order": ""
+}
+```
+
+### 入参校验
+
+```json-schema collapsed
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "千牛-商品-商品管理-我的商品-全部 - 查询入参",
+  "description": "item_status 允许值 ALL（全部）/ ON_SALE（出售中）/ IN_STOCK（仓库中）/ SOLD_OUT（已售空）；sort_field / sort_order 须同时传入",
+  "type": "object",
+  "required": [],
+  "additionalProperties": false,
+  "properties": {
+    "item_status": {
+      "type": "string",
+      "description": "商品状态；允许值：ALL（全部）/ ON_SALE（出售中）/ IN_STOCK（仓库中）/ SOLD_OUT（已售空）",
+      "enum": ["ALL", "ON_SALE", "IN_STOCK", "SOLD_OUT"]
+    },
+    "query_title": {
+      "type": "string",
+      "description": "商品标题搜索；关键词模糊搜索"
+    },
+    "query_item_id": {
+      "description": "商品 ID 搜索；英文逗号或字符串数组；中文逗号改英文",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    },
+    "sort_field": {
+      "type": "string",
+      "description": "排序字段；允许值：PRICE（价格）/ STOCK（库存）/ CUMULATIVE_SALES（累计销量）/ LAST_30_DAYS_SALES（30日销量）/ CREATE_TIME（创建时间）；与 sort_order 须同时传入",
+      "enum": ["PRICE", "STOCK", "CUMULATIVE_SALES", "LAST_30_DAYS_SALES", "CREATE_TIME"]
+    },
+    "sort_order": {
+      "type": "string",
+      "description": "排序方向；允许值：ASC（升序）/ DESC（降序）；与 sort_field 须同时传入",
+      "enum": ["ASC", "DESC"]
+    }
+  },
+  "dependentRequired": {
+    "sort_field": ["sort_order"],
+    "sort_order": ["sort_field"]
+  }
 }
 ```
 

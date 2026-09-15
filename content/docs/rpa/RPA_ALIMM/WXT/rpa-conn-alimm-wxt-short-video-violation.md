@@ -1,5 +1,5 @@
 ---
-title: 万相台-短视频-违规列表
+title: 账户-体检中心-内容违规-短视频违规
 description: 采集阿里妈妈万相台内容违规列表中的短视频违规记录，支持推广场景、物料ID、违规类型、违规影响及时间范围筛选
 entry: rpa.conn.alimm.wxt.short.video.violation
 badge:
@@ -24,44 +24,89 @@ category: video
 
 ### 目标页面
 
-> **取数路径**：阿里妈妈—万相台—账户—违规管理—内容违规—短视频
+> **取数路径**：万相台—账户—体检中心—内容违规—短视频违规
 >
 > **取数链接**：[https://one.alimama.com/index.html#!/account/violation/index?tab=content&tabIndex=short_video](https://one.alimama.com/index.html#!/account/violation/index?tab=content&tabIndex=short_video)
 
-![阿里妈妈—万相台短视频违规列表](../../_public/images/alimm/short_video_violation_20260604.png)
+![万相台—账户—体检中心—内容违规—短视频违规](../../_public/images/alimm/short_video_violation_20260604.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `scene_id` | 推广场景 appId | `string` | 否 | `""` | 可选值：`372`（人群推广）、`428`（多目标直投）、`419`（追投快）、`418`（策略快）、`436`（货品全站推广）、`383`（全媒体智投）、`479`（店铺直达）、`408`（全店推广）、`376`（货品运营）、`533`（光合商单）、`386`（超级直播）、`400`（短直联动）、`387`（超级短视频）、`395`（线索推广）、`371`（关键词推广） |
-| `element_id` | 物料 ID | `string` | 否 | `""` | 纯数字，最长 20 位 |
-| `violate_id` | 违规类型 ID | `string` | 否 | `""` | 可选值：`630`（A 类违规）、`631`（B 类违规）、`632`（C 类违规） |
-| `violate_impact` | 违规影响分值 | `string` | 否 | `""` | 可选值：`0`（0 分）、`1`（1 分）、`2`（2 分）、`3`（3 分）、`6`（6 分及以上） |
-| `custom_start_date` | 时间统计开始日期 | `string` | 否 | — | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`，不早于当年 1 月 1 日；不传则不拼接 URL 时间参数（页面默认当年 1 月 1 日）；与 `custom_end_date` 成对传入 |
-| `custom_end_date` | 时间统计结束日期 | `string` | 否 | — | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`，不晚于今天；不传则不拼接 URL 时间参数（页面默认今天）；与 `custom_start_date` 成对传入 |
+| `scene_id` | 推广场景 appId | `String` | 否 | `-` | 允许值：`372`（人群推广）/ `428`（多目标直投）/ `419`（追投快）/ `418`（策略快）/ `436`（货品全站推广）/ `383`（全媒体智投）/ `479`（店铺直达）/ `408`（全店推广）/ `376`（货品运营）/ `533`（光合商单）/ `386`（超级直播）/ `400`（短直联动）/ `387`（超级短视频）/ `395`（线索推广）/ `371`（关键词推广） |
+| `element_id` | 物料 ID | `String` | 否 | `-` | 纯数字，最长 20 位 |
+| `violate_id` | 违规类型 ID | `String` | 否 | `-` | 允许值：`630`（A 类违规）/ `631`（B 类违规）/ `632`（C 类违规） |
+| `violate_impact` | 违规影响分值 | `String` | 否 | `-` | 允许值：`0`（0 分）/ `1`（1 分）/ `2`（2 分）/ `3`（3 分）/ `6`（6 分及以上） |
+| `violation_start_date` | 时间统计开始日期 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不早于当年 1 月 1 日 |
+| `violation_end_date` | 时间统计结束日期 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不能晚于今天 |
 
 ### 入参样例
 
-```json
-{}
-```
+`YYYYMMDD`：
 
 ```json
 {
     "scene_id": "387",
+    "element_id": "",
     "violate_id": "631",
     "violate_impact": "1",
-    "custom_start_date": "20260101",
-    "custom_end_date": "20260604"
+    "violation_start_date": "20260101",
+    "violation_end_date": "20260604"
 }
 ```
 
+`YYYY-MM-DD`：
+
 ```json
 {
+    "scene_id": "",
     "element_id": "560087737752",
-    "custom_start_date": "2026-05-01",
-    "custom_end_date": "2026-05-31"
+    "violate_id": "",
+    "violate_impact": "",
+    "violation_start_date": "2026-05-01",
+    "violation_end_date": "2026-05-31"
+}
+```
+
+### 入参校验
+
+```json-schema collapsed
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "账户-体检中心-内容违规-短视频违规 - 查询入参",
+  "description": "采集阿里妈妈万相台内容违规列表中的短视频违规记录",
+  "type": "object",
+  "properties": {
+    "scene_id": {
+      "type": "string",
+      "description": "推广场景 appId，允许值：372 / 428 / 419 / 418 / 436 / 383 / 479 / 408 / 376 / 533 / 386 / 400 / 387 / 395 / 371"
+    },
+    "element_id": {
+      "type": "string",
+      "description": "物料 ID，纯数字，最长 20 位"
+    },
+    "violate_id": {
+      "type": "string",
+      "description": "违规类型 ID，允许值：630（A 类违规）/ 631（B 类违规）/ 632（C 类违规）"
+    },
+    "violate_impact": {
+      "type": "string",
+      "description": "违规影响分值，允许值：0（0 分）/ 1（1 分）/ 2（2 分）/ 3（3 分）/ 6（6 分及以上）"
+    },
+    "violation_start_date": {
+      "type": "string",
+      "description": "时间统计开始日期，格式 YYYYMMDD 或 YYYY-MM-DD；不早于当年 1 月 1 日",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    },
+    "violation_end_date": {
+      "type": "string",
+      "description": "时间统计结束日期，格式 YYYYMMDD 或 YYYY-MM-DD；不能晚于今天",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    }
+  },
+  "required": ["violation_start_date", "violation_end_date"],
+  "additionalProperties": false
 }
 ```
 

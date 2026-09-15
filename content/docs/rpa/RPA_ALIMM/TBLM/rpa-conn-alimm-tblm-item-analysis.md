@@ -1,5 +1,5 @@
 ---
-title: 淘宝联盟-商家中心-商品分析
+title: 数据分析-商品分析-商品管理
 description: 采集淘宝联盟商家中心商品分析报表，按商品维度导出付款、结算、预售及进店转化等指标，支持快捷日期与自定义日期范围
 entry: rpa.conn.alimm.tblm.item.analysis
 badge:
@@ -24,33 +24,33 @@ category: merchant
 
 ### 目标页面
 
-> **取数路径**：阿里妈妈—淘宝联盟—商家中心—商品分析
+> **取数路径**：淘宝联盟—数据分析—商品分析—商品管理
 >
 > **取数链接**：[https://ad.alimama.com/portal/v2/report/item/list.htm](https://ad.alimama.com/portal/v2/report/item/list.htm)
 
-![阿里妈妈—淘宝联盟商家中心商品分析](../../_public/images/alimm/tblm_item_analysis_20260704.png)
+![淘宝联盟—数据分析—商品分析—商品管理](../../_public/images/alimm/tblm_item_analysis_20260704.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `date_type` | 时间类型 | `String` | 是 | — | 可选值：`TODAY_REALTIME`（今日实时）、`YESTERDAY`（昨日）、`LAST_7_DAYS`（近7天）、`LAST_15_DAYS`（近15天）、`LAST_30_DAYS`（近30天）、`CUSTOM`（自定义） |
-| `custom_start_date` | 自定义起始日期 | `String` | 否 | — | 仅 `date_type=CUSTOM` 时必填；支持格式：YYYYMMDD、YYYY-MM-DD；不能早于近一年；不能晚于 `custom_end_date`；与结束日期跨度不超过 31 天；选定时间后，连接器会读取页面「当前数据统计截止到」所示的实际统计日期进行回验；若与所选时间不一致，任务判定为失败。 |
-| `custom_end_date` | 自定义结束日期 | `String` | 否 | — | 仅 `date_type=CUSTOM` 时必填；支持格式：YYYYMMDD、YYYY-MM-DD；不能晚于当天；`CUSTOM` 模式下须与页面实际统计日期一致，否则任务失败 |
+| `date_type` | 时间类型 | `String` | 是 | `-` | 允许值：`TODAY_REALTIME`（今日实时）/ `YESTERDAY`（昨日）/ `LAST_7_DAYS`（近 7 天）/ `LAST_15_DAYS`（近 15 天）/ `LAST_30_DAYS`（近 30 天）/ `CUSTOM`（自定义区间） |
+| `custom_start_date` | 自定义起始日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不能早于近一年；与结束日期跨度不超过 31 天 |
+| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不能晚于当天 |
 
 ### 入参样例
 
-```json
-{
-  "date_type": "LAST_7_DAYS"
-}
-```
+`YYYYMMDD`：
 
 ```json
 {
-  "date_type": "YESTERDAY"
+  "date_type": "CUSTOM",
+  "custom_start_date": "20260312",
+  "custom_end_date": "20260312"
 }
 ```
+
+`YYYY-MM-DD`：
 
 ```json
 {
@@ -65,13 +65,13 @@ category: merchant
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "淘宝联盟-商品分析 - 查询入参",
+  "title": "数据分析-商品分析-商品管理 - 查询入参",
   "description": "采集淘宝联盟商家中心商品分析报表，按商品维度导出付款、结算、预售及进店转化等指标，支持快捷日期与自定义日期范围",
   "type": "object",
   "properties": {
     "date_type": {
       "type": "string",
-      "description": "时间类型。可选值：TODAY_REALTIME（今日实时）、YESTERDAY（昨日）、LAST_7_DAYS（近7天）、LAST_15_DAYS（近15天）、LAST_30_DAYS（近30天）、CUSTOM（自定义）",
+      "description": "时间类型，允许值 TODAY_REALTIME（今日实时）/ YESTERDAY（昨日）/ LAST_7_DAYS（近 7 天）/ LAST_15_DAYS（近 15 天）/ LAST_30_DAYS（近 30 天）/ CUSTOM（自定义区间）",
       "enum": [
         "TODAY_REALTIME",
         "YESTERDAY",

@@ -1,5 +1,5 @@
 ---
-title: 店铺-店铺体检-违规记录
+title: 店铺-店铺体检-全部违规-违规记录
 description: 获取店铺违规管理中心记录，查询待处理/全部/已撤销违规，按违规时间范围筛选，用于违规处理跟进
 entry: rpa.conn.qianniu.shop.violation.list
 badge:
@@ -32,19 +32,54 @@ category: shop
 
 ### 业务入参
 
-| 字段                   | 中文释义     | 数据类型 | 必填 | 默认值    | 说明                                                   |
-| ---------------------- | ------------ | -------- | ---- | --------- | ------------------------------------------------------ |
-| `violation_status`     | 违规状态     | `string` | 否   | `PENDING` | `PENDING`（待处理）、`ALL`（全部）、`UNDONE`（已撤销） |
-| `violation_date_start` | 违规开始日期 | `string` | 否   | bizDate-1 | 格式 `YYYY-MM-DD`                                      |
-| `violation_date_end`   | 违规结束日期 | `string` | 否   | bizDate   | 格式 `YYYY-MM-DD`                                      |
+| 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
+| ---- | -------- | -------- | ---- | ------ | ---- |
+| `violation_status` | 违规状态 | `String` | 否 | `PENDING` | 允许值：`PENDING`（待处理）/ `ALL`（全部）/ `UNDONE`（已撤销） |
+| `violation_start_date` | 违规开始日期 | `String` | 否 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与 `violation_end_date` 须同时传入；均未传则不填页面时间筛选 |
+| `violation_end_date` | 违规结束日期 | `String` | 否 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与 `violation_start_date` 须同时传入 |
 
 ### 入参样例
 
 ```json
 {
-    "violation_status": "ALL",
-    "violation_date_start": "2025-06-01",
-    "violation_date_end": "2025-08-30"
+  "violation_status": "PENDING",
+  "violation_start_date": "",
+  "violation_end_date": ""
+}
+```
+
+### 入参校验
+
+```json-schema collapsed
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "千牛-店铺-店铺体检-全部违规-违规记录 - 查询入参",
+  "description": "violation_status 允许值 PENDING（待处理）/ ALL（全部）/ UNDONE（已撤销）；violation_start_date / violation_end_date 须同时传入；均未传则不填页面时间筛选",
+  "type": "object",
+  "required": [],
+  "additionalProperties": false,
+  "dependentRequired": {
+    "violation_start_date": ["violation_end_date"],
+    "violation_end_date": ["violation_start_date"]
+  },
+  "properties": {
+    "violation_status": {
+      "type": "string",
+      "description": "违规状态；允许值：PENDING（待处理）/ ALL（全部）/ UNDONE（已撤销）",
+      "enum": ["PENDING", "ALL", "UNDONE"],
+      "default": "PENDING"
+    },
+    "violation_start_date": {
+      "type": "string",
+      "description": "违规开始日期；格式 YYYYMMDD 或 YYYY-MM-DD；与 violation_end_date 须同时传入；均未传则不填页面时间筛选",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    },
+    "violation_end_date": {
+      "type": "string",
+      "description": "违规结束日期；格式 YYYYMMDD 或 YYYY-MM-DD；与 violation_start_date 须同时传入",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    }
+  }
 }
 ```
 
@@ -68,7 +103,7 @@ category: shop
 | `punishReason`       | 违规原因     | `string`  | 否     | `punishReason`       | 卖家发布的商品，经消费者维权退款评价数据反馈及主动排查发现涉嫌劣质或描述不符 |
 | `punishSource`       | 处罚来源     | `string`  | 否     | `punishSource`       | MTee3.0 |
 | `punishStatus`       | 处罚状态     | `string`  | 否     | `punishStatus`       | DONE |
-| `punishTime`         | 违规时间     | `string`  | 否     | `punishTime`         | 2025-08-18 15:50:07 |
+| `punishTime`         | 违规时间     | `string`  | 否     | `punishTime`         | `2025-08-18 15:50:07` |
 | `recordId`           | 记录 ID      | `string`  | 否     | `recordId`           | 824639 |
 | `recordSource`       | 记录来源     | `string`  | 否     | `recordSource`       | PUNISH_CENTER |
 | `recordStatus`       | 记录状态     | `string`  | 否     | `recordStatus`       | DONE |

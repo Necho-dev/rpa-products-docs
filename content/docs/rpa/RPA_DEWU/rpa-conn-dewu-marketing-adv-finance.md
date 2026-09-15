@@ -1,5 +1,5 @@
 ---
-title: 营销-得物推-财务流水导出
+title: 营销-得物推-财务流水
 description: 导出得物推财务流水数据，支持按资金类型、流水类型、日期范围筛选
 entry: rpa.conn.dewu.marketing.adv.finance
 badge:
@@ -28,17 +28,17 @@ category: marketing
 >
 > **取数链接**：[https://stark.dewu.com/main/newAdv/advFinance](https://stark.dewu.com/main/newAdv/advFinance)
 
-![得物—得物推财务流水](../_public/images/dewu/marketing_adv_finance_20260618.png)
+![得物商家后台—营销—得物推—财务流水](../_public/images/dewu/marketing_adv_finance_20260618.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `amount_type` | 资金类型 | `String` | 否 | `BONUS` | 可选值：`CASH`（现金）、`BONUS`（奖励金） |
-| `flow_type` | 流水类型 | `String` | 否 | `ALL` | 可选值：`ALL`（全部流水类型）、`INCOME`（收入）、`EXPENSE`（支出） |
-| `date_range_type` | 日期范围 | `String` | 否 | `WEEK` | 可选值：`WEEK`（近7天）、`MONTH`（近30天）、`CUSTOM`（自定义） |
-| `start_date` | 自定义开始日期 | `String` | `date_range_type=CUSTOM` 时必填 | — | 支持格式：`YYYYMMDD`、`YYYY-MM-DD` |
-| `end_date` | 自定义结束日期 | `String` | `date_range_type=CUSTOM` 时必填 | — | 支持格式：`YYYYMMDD`、`YYYY-MM-DD`；与 `start_date` 间隔不超过 6 个自然月 |
+| `amount_type` | 资金类型 | `String` | 否 | `BONUS` | 允许值：`CASH`（现金）/ `BONUS`（奖励金） |
+| `flow_type` | 流水类型 | `String` | 否 | `ALL` | 允许值：`ALL`（全部流水类型）/ `INCOME`（收入）/ `EXPENSE`（支出） |
+| `date_type` | 日期范围 | `String` | 是 | `-` | 允许值：`LAST_7_DAYS`（近 7 天）/ `LAST_30_DAYS`（近 30 天）/ `CUSTOM`（自定义区间） |
+| `custom_start_date` | 自定义开始日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD` |
+| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；结束日须早于开始日加 6 个自然月 |
 
 ### 入参样例
 
@@ -46,7 +46,7 @@ category: marketing
 {
   "amount_type": "BONUS",
   "flow_type": "ALL",
-  "date_range_type": "MONTH"
+  "date_type": "LAST_30_DAYS"
 }
 ```
 
@@ -55,7 +55,7 @@ category: marketing
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "得物-得物推财务流水导出 - 查询入参",
+  "title": "营销-得物推-财务流水 - 查询入参",
   "description": "导出得物推财务流水数据，支持按资金类型、流水类型、日期范围筛选",
   "type": "object",
   "properties": {
@@ -71,30 +71,29 @@ category: marketing
       "enum": ["ALL", "INCOME", "EXPENSE"],
       "default": "ALL"
     },
-    "date_range_type": {
-      "description": "日期范围。WEEK=近7天、MONTH=近30天、CUSTOM=自定义",
+    "date_type": {
+      "description": "日期范围。允许值：LAST_7_DAYS（近 7 天）/ LAST_30_DAYS（近 30 天）/ CUSTOM（自定义区间）",
       "type": "string",
-      "enum": ["WEEK", "MONTH", "CUSTOM"],
-      "default": "WEEK"
+      "enum": ["LAST_7_DAYS", "LAST_30_DAYS", "CUSTOM"]
     },
-    "start_date": {
-      "description": "自定义开始日期，date_range_type=CUSTOM 时必填。支持格式：YYYYMMDD、YYYY-MM-DD",
+    "custom_start_date": {
+      "description": "自定义开始日期；date_type 为 CUSTOM 时必填。格式 YYYYMMDD 或 YYYY-MM-DD",
       "type": "string"
     },
-    "end_date": {
-      "description": "自定义结束日期，date_range_type=CUSTOM 时必填。支持格式：YYYYMMDD、YYYY-MM-DD；与 start_date 间隔不超过 6 个自然月",
+    "custom_end_date": {
+      "description": "自定义结束日期；date_type 为 CUSTOM 时必填。格式 YYYYMMDD 或 YYYY-MM-DD；结束日须早于开始日加 6 个自然月",
       "type": "string"
     }
   },
-  "required": [],
+  "required": ["date_type"],
   "if": {
     "properties": {
-      "date_range_type": { "const": "CUSTOM" }
+      "date_type": { "const": "CUSTOM" }
     },
-    "required": ["date_range_type"]
+    "required": ["date_type"]
   },
   "then": {
-    "required": ["start_date", "end_date"]
+    "required": ["custom_start_date", "custom_end_date"]
   },
   "additionalProperties": false
 }

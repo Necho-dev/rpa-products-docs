@@ -1,5 +1,5 @@
 ---
-title: 商品-发布-商品上架发布
+title: 商品-商品发布-填写商品信息
 description: 在千牛商品发布页按照 publish_cate_template 输出的模板骨架，自动完成类目选择、基础信息、销售信息、物流服务、图文描述的填写，并执行提交上架或保存草稿操作。
 entry: rpa.conn.qianniu.item.publish.item
 badge:
@@ -40,7 +40,7 @@ category: item
 | `sale_info`          | 销售信息                     | `Dict`       | 否   | —      | 同上；包含销售规格（`sale_props.sku_specs`）、SKU 列表（`sku_list.input_value`）、一口价、总库存、购买须知、商家编码、商品条形码、多件优惠、库存扣减方式、上架时间          |
 | `logistics`          | 物流服务                     | `Dict`       | 否   | —      | 同上；包含发货时间、运费模板、区域限售、售后服务（保修）、七天无理由退货                                                                                                   |
 | `description`        | 图文描述                     | `Dict`       | 否   | —      | 同上；包含 3:4主图、白底图、宝贝详情（HTML 源码）、店铺中分类                                                                                                              |
-| `submit_action`      | 提交动作                     | `string`     | 是   | —      | `"submit"` 提交宝贝信息并上架；`"draft"` 保存草稿（草稿箱上限 10 个，满时报错）                                                                                           |
+| `submit_action`      | 提交动作                     | `string`     | 是   | —      | 允许值：`SUBMIT`（提交宝贝信息）/ `DRAFT`（保存草稿）；草稿箱上限 10 个，满时报错                                                                                           |
 
 #### 构造规则
 
@@ -131,7 +131,7 @@ publish_item 的入参基于 publish_template 输出的模板骨架构造. 调�
 | 校验项 | 规则 |
 |--------|------|
 | `category_path` | 不能为空 |
-| `submit_action` | 只允许 `"submit"` 或 `"draft"` |
+| `submit_action` | 只允许 `SUBMIT` 或 `DRAFT` |
 | 各 section 必填字段 | `required=true` 的字段必须提供 `input_value` |
 | `max_length` | 文本类 input_value 长度不能超过 max_length |
 | `max_count` | 列表类 input_value 数量不能超过 max_count |
@@ -143,7 +143,7 @@ publish_item 的入参基于 publish_template 输出的模板骨架构造. 调�
 
 ```json
 {
-    "submit_action": "submit",
+    "submit_action": "SUBMIT",
     "category_path": "美容护肤/美体/精油 > 身体护理（新） > 身体护理油",
     "select_stage_props": [
         {
@@ -267,8 +267,8 @@ publish_item 的入参基于 publish_template 输出的模板骨架构造. 调�
 | `bizDate`     | 业务日期           | `string` | 否     | 附加      |                |
 | `accountId`   | 授权 ID            | `string` | 否     | 附加      |                |
 
-> `item_id` 仅 `submit_action="submit"` 成功时有值；
-> `saved_time` 仅 `submit_action="draft"` 成功时有值。
+> `item_id` 仅 `submit_action="SUBMIT"` 成功时有值；
+> `saved_time` 仅 `submit_action="DRAFT"` 成功时有值。
 
 ### 数据样例
 

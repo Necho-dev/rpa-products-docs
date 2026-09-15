@@ -1,5 +1,5 @@
 ---
-title: 视频号加热-推广订单-标准订单明细
+title: 推广订单-标准订单
 description: 导出视频号加热平台「标准订单」明细 CSV；筛选后自动全选展示项再下载
 entry: rpa.conn.weixin.sphjr.standard.order.report
 badge:
@@ -39,22 +39,22 @@ module:
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `heat_custom_start_date` | 开始加热时间-起始 | `String` | 否 | — | 支持 `YYYYMMDD` / `YYYY-MM-DD`；须与 `heat_custom_end_date` **成对传入**；**均不传则跳过**该筛选项；不得晚于结束日期 |
-| `heat_custom_end_date` | 开始加热时间-结束 | `String` | 否 | — | 支持 `YYYYMMDD` / `YYYY-MM-DD`；须与 `heat_custom_start_date` **成对传入**；**均不传则跳过**该筛选项；不得早于起始日期 |
-| `create_custom_start_date` | 订单创建时间-起始 | `String` | 是 | — | 支持 `YYYYMMDD` / `YYYY-MM-DD`；不得晚于 `create_custom_end_date` |
-| `create_custom_end_date` | 订单创建时间-结束 | `String` | 是 | — | 支持 `YYYYMMDD` / `YYYY-MM-DD`；不得早于 `create_custom_start_date` |
-| `bid_methods` | 出价方式 | `String` / `List[String]` | 否 | — | 不传则不设置该筛选项默认就是全选。支持英文逗号分隔字符串或字符串数组。可选值：`ALL`（全选）、`VOLUME_HEATING`（放量加热）、`COST_CONTROL_HEATING`（控成本加热）。含 `ALL` 时按全选处理，忽略其它值 |
-| `heating_types` | 加热类型 | `String` / `List[String]` | 否 | — | 不传则不设置该筛选项默认全选。支持英文逗号分隔字符串或字符串数组。可选值：`ALL`（全选）、`LIVE`（直播）、`SHORT_VIDEO`（短视频）、`PRODUCT`（商品）。含 `ALL` 时按全选处理，忽略其它值 |
-| `order_statuses` | 订单状态 | `String` / `List[String]` | 否 | — | 不传则不设置该筛选项默认全选。支持英文逗号分隔字符串或字符串数组。可选值：`PENDING_PAYMENT`（待支付）、`UNDER_REVIEW`（审核中）、`REVIEW_FAILED`（审核未通过）、`PENDING_HEAT`（待加热）、`CANCELLED`（已取消，父级）、`UNPAID_CLOSED`（未支付关单，`CANCELLED` 子级）、`RESERVATION_INVALID`（预约失效，`CANCELLED` 子级）、`RESERVATION_EXPIRED`（预约过期，`CANCELLED` 子级）、`HEATING`（加热中）、`PAUSED`（已暂停）、`REFUNDING`（退款中）、`SETTLING`（结算中）、`ENDED`（已结束，父级）、`CONSUMPTION_COMPLETED`（消耗完成，`ENDED` 子级）、`MAX_DURATION_REACHED`（达到最大加热时长，`ENDED` 子级）、`LIVE_ENDED`（直播结束，`ENDED` 子级）、`ACTIVE_CANCEL`（主动取消，`ENDED` 子级）、`ORDER_CIRCUIT_BREAK`（订单熔断，`ENDED` 子级）、`OTHER`（其他，`ENDED` 子级）。父级 `CANCELLED` / `ENDED` 与子级同传时只勾父级 |
+| `heat_start_date` | 开始加热时间-起始 | `String` | 否 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；须与 `heat_end_date` 成对传入；均未传则不填页面时间筛选；不得晚于结束日期 |
+| `heat_end_date` | 开始加热时间-结束 | `String` | 否 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；须与 `heat_start_date` 成对传入；均未传则不填页面时间筛选；不得早于起始日期 |
+| `create_start_date` | 订单创建时间-起始 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不得晚于 `create_end_date` |
+| `create_end_date` | 订单创建时间-结束 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不得早于 `create_start_date` |
+| `bid_methods` | 出价方式 | `String` / `List[String]` | 否 | `-` | 英文逗号分隔字符串或字符串数组。可选值：`ALL`（全选）/ `VOLUME_HEATING`（放量加热）/ `COST_CONTROL_HEATING`（控成本加热）。含 `ALL` 时按全选处理，忽略其它值 |
+| `heating_types` | 加热类型 | `String` / `List[String]` | 否 | `-` | 英文逗号分隔字符串或字符串数组。可选值：`ALL`（全选）/ `LIVE`（直播）/ `SHORT_VIDEO`（短视频）/ `PRODUCT`（商品）。含 `ALL` 时按全选处理，忽略其它值 |
+| `order_statuses` | 订单状态 | `String` / `List[String]` | 否 | `-` | 英文逗号分隔字符串或字符串数组。可选值：`PENDING_PAYMENT`（待支付）/ `UNDER_REVIEW`（审核中）/ `REVIEW_FAILED`（审核未通过）/ `PENDING_HEAT`（待加热）/ `CANCELLED`（已取消，父级）/ `UNPAID_CLOSED`（未支付关单，`CANCELLED` 子级）/ `RESERVATION_INVALID`（预约失效，`CANCELLED` 子级）/ `RESERVATION_EXPIRED`（预约过期，`CANCELLED` 子级）/ `HEATING`（加热中）/ `PAUSED`（已暂停）/ `REFUNDING`（退款中）/ `SETTLING`（结算中）/ `ENDED`（已结束，父级）/ `CONSUMPTION_COMPLETED`（消耗完成，`ENDED` 子级）/ `MAX_DURATION_REACHED`（达到最大加热时长，`ENDED` 子级）/ `LIVE_ENDED`（直播结束，`ENDED` 子级）/ `ACTIVE_CANCEL`（主动取消，`ENDED` 子级）/ `ORDER_CIRCUIT_BREAK`（订单熔断，`ENDED` 子级）/ `OTHER`（其他，`ENDED` 子级）。父级 `CANCELLED` / `ENDED` 与子级同传时只勾父级 |
 
 ### 入参样例
 
-仅必填订单创建时间（不传开始加热时间，该筛选项跳过）：
+仅必填订单创建时间（开始加热时间均未传则不填页面时间筛选）：
 
 ```json
 {
-  "create_custom_start_date": "2026-08-01",
-  "create_custom_end_date": "2026-08-28"
+  "create_start_date": "2026-08-01",
+  "create_end_date": "2026-08-28"
 }
 ```
 
@@ -62,10 +62,10 @@ module:
 
 ```json
 {
-  "heat_custom_start_date": "2026-08-01",
-  "heat_custom_end_date": "2026-08-28",
-  "create_custom_start_date": "2026-08-01",
-  "create_custom_end_date": "2026-08-28"
+  "heat_start_date": "2026-08-01",
+  "heat_end_date": "2026-08-28",
+  "create_start_date": "2026-08-01",
+  "create_end_date": "2026-08-28"
 }
 ```
 
@@ -73,10 +73,10 @@ module:
 
 ```json
 {
-  "heat_custom_start_date": "20260801",
-  "heat_custom_end_date": "20260828",
-  "create_custom_start_date": "20260801",
-  "create_custom_end_date": "20260828",
+  "heat_start_date": "20260801",
+  "heat_end_date": "20260828",
+  "create_start_date": "20260801",
+  "create_end_date": "20260828",
   "bid_methods": ["ALL"],
   "heating_types": ["ALL"],
   "order_statuses": ["HEATING"]
@@ -88,32 +88,32 @@ module:
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "视频号加热-标准订单明细 - 查询入参",
+  "title": "推广订单-标准订单 - 查询入参",
   "description": "导出视频号加热平台「标准订单」明细 CSV；订单创建时间必填，开始加热时间可选；筛选后自动全选展示项再下载",
   "type": "object",
   "properties": {
-    "heat_custom_start_date": {
-      "description": "开始加热时间-起始。支持 YYYYMMDD 或 YYYY-MM-DD；须与 heat_custom_end_date 成对传入，均不传则跳过该筛选项；不得晚于 heat_custom_end_date",
+    "heat_start_date": {
+      "description": "开始加热时间-起始。格式 YYYYMMDD 或 YYYY-MM-DD；须与 heat_end_date 成对传入，均未传则不填页面时间筛选；不得晚于 heat_end_date",
       "type": "string",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
-    "heat_custom_end_date": {
-      "description": "开始加热时间-结束。支持 YYYYMMDD 或 YYYY-MM-DD；须与 heat_custom_start_date 成对传入，均不传则跳过该筛选项；不得早于 heat_custom_start_date",
+    "heat_end_date": {
+      "description": "开始加热时间-结束。格式 YYYYMMDD 或 YYYY-MM-DD；须与 heat_start_date 成对传入，均未传则不填页面时间筛选；不得早于 heat_start_date",
       "type": "string",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
-    "create_custom_start_date": {
-      "description": "订单创建时间-起始。支持 YYYYMMDD 或 YYYY-MM-DD；不得晚于 create_custom_end_date",
+    "create_start_date": {
+      "description": "订单创建时间-起始。格式 YYYYMMDD 或 YYYY-MM-DD；不得晚于 create_end_date",
       "type": "string",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
-    "create_custom_end_date": {
-      "description": "订单创建时间-结束。支持 YYYYMMDD 或 YYYY-MM-DD；不得早于 create_custom_start_date",
+    "create_end_date": {
+      "description": "订单创建时间-结束。格式 YYYYMMDD 或 YYYY-MM-DD；不得早于 create_start_date",
       "type": "string",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "bid_methods": {
-      "description": "出价方式多选。支持英文逗号分隔字符串或字符串数组。可选值：ALL（全选）、VOLUME_HEATING（放量加热）、COST_CONTROL_HEATING（控成本加热）；含 ALL 时按全选处理，忽略其它值。不传则不设置该筛选项",
+      "description": "出价方式多选。英文逗号分隔字符串或字符串数组。可选值：ALL（全选）、VOLUME_HEATING（放量加热）、COST_CONTROL_HEATING（控成本加热）；含 ALL 时按全选处理，忽略其它值",
       "oneOf": [
         {
           "type": "string"
@@ -129,7 +129,7 @@ module:
       ]
     },
     "heating_types": {
-      "description": "加热类型多选。支持英文逗号分隔字符串或字符串数组。可选值：ALL（全选）、LIVE（直播）、SHORT_VIDEO（短视频）、PRODUCT（商品）；含 ALL 时按全选处理，忽略其它值。不传则不设置该筛选项",
+      "description": "加热类型多选。英文逗号分隔字符串或字符串数组。可选值：ALL（全选）、LIVE（直播）、SHORT_VIDEO（短视频）、PRODUCT（商品）；含 ALL 时按全选处理，忽略其它值",
       "oneOf": [
         {
           "type": "string"
@@ -145,7 +145,7 @@ module:
       ]
     },
     "order_statuses": {
-      "description": "订单状态多选。支持英文逗号分隔字符串或字符串数组。可选值：PENDING_PAYMENT（待支付）、UNDER_REVIEW（审核中）、REVIEW_FAILED（审核未通过）、PENDING_HEAT（待加热）、CANCELLED（已取消，父级）、UNPAID_CLOSED（未支付关单，CANCELLED 子级）、RESERVATION_INVALID（预约失效，CANCELLED 子级）、RESERVATION_EXPIRED（预约过期，CANCELLED 子级）、HEATING（加热中）、PAUSED（已暂停）、REFUNDING（退款中）、SETTLING（结算中）、ENDED（已结束，父级）、CONSUMPTION_COMPLETED（消耗完成，ENDED 子级）、MAX_DURATION_REACHED（达到最大加热时长，ENDED 子级）、LIVE_ENDED（直播结束，ENDED 子级）、ACTIVE_CANCEL（主动取消，ENDED 子级）、ORDER_CIRCUIT_BREAK（订单熔断，ENDED 子级）、OTHER（其他，ENDED 子级）。父级 CANCELLED / ENDED 与子级同传时只勾父级。不传则不设置该筛选项",
+      "description": "订单状态多选。英文逗号分隔字符串或字符串数组。可选值：PENDING_PAYMENT（待支付）、UNDER_REVIEW（审核中）、REVIEW_FAILED（审核未通过）、PENDING_HEAT（待加热）、CANCELLED（已取消，父级）、UNPAID_CLOSED（未支付关单，CANCELLED 子级）、RESERVATION_INVALID（预约失效，CANCELLED 子级）、RESERVATION_EXPIRED（预约过期，CANCELLED 子级）、HEATING（加热中）、PAUSED（已暂停）、REFUNDING（退款中）、SETTLING（结算中）、ENDED（已结束，父级）、CONSUMPTION_COMPLETED（消耗完成，ENDED 子级）、MAX_DURATION_REACHED（达到最大加热时长，ENDED 子级）、LIVE_ENDED（直播结束，ENDED 子级）、ACTIVE_CANCEL（主动取消，ENDED 子级）、ORDER_CIRCUIT_BREAK（订单熔断，ENDED 子级）、OTHER（其他，ENDED 子级）。父级 CANCELLED / ENDED 与子级同传时只勾父级",
       "oneOf": [
         {
           "type": "string"
@@ -182,8 +182,8 @@ module:
     }
   },
   "required": [
-    "create_custom_start_date",
-    "create_custom_end_date"
+    "create_start_date",
+    "create_end_date"
   ],
   "additionalProperties": false
 }

@@ -1,5 +1,5 @@
 ---
-title: 物流-包裹中心-发货包裹异常列表
+title: 包裹中心-发货包裹-异常包裹列表
 description: 采集抖店包裹中心发货包裹异常列表，支持按发货时间、异常类型、包裹异常状态、是否已忽略异常预警筛选
 entry: rpa.conn.doudian.shop.shipping.package.list
 badge:
@@ -24,19 +24,19 @@ category: shop
 
 ### 目标页面
 
-> **取数路径**：抖店商家后台—物流—包裹中心—发货包裹
+> **取数路径**：抖店商家后台—包裹中心—发货包裹—异常包裹列表
 >
 > **取数链接**：[https://fxg.jinritemai.com/ffa/logistics/parcelCenter](https://fxg.jinritemai.com/ffa/logistics/parcelCenter)
 
-![抖店—包裹中心发货包裹异常列表](../_public/images/doudian/shop_shipping_package_list_20260624.png)
+![抖店商家后台—包裹中心—发货包裹—异常包裹列表](../_public/images/doudian/shop_shipping_package_list_20260624.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `ship_time_type` | 发货时间范围 | `String` | 否 | `LAST_30_DAYS` | 可选值：`TODAY`（今天）、`YESTERDAY`（昨天）、`LAST_7_DAYS`（近7天）、`LAST_30_DAYS`（近30天）、`CUSTOM`（自定义时间） |
-| `custom_start_date` | 自定义起始日期 | `String` | `ship_time_type = CUSTOM` 时必填 | — | 支持格式：`YYYYMMDD`、`YYYY-MM-DD` |
-| `custom_end_date` | 自定义结束日期 | `String` | `ship_time_type = CUSTOM` 时必填 | — | 支持格式：`YYYYMMDD`、`YYYY-MM-DD`；不能晚于当天；起止跨度（含首尾）最多 31 天 |
+| `date_type` | 发货时间范围 | `String` | 是 | `-` | 允许值：`TODAY`（今日）/ `YESTERDAY`（昨日）/ `LAST_7_DAYS`（近 7 天）/ `LAST_30_DAYS`（近 30 天）/ `CUSTOM`（自定义） |
+| `custom_start_date` | 自定义起始日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD` |
+| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不可晚于当天；跨度（含首尾）最多 31 天 |
 | `exception_types` | 异常类型卡片 | `String / List[String]` | 否 | — | 多选时用英文逗号分隔或 JSON 数组；不传则不切换卡片筛选。可选值：`PICKUP_PRE_TIMEOUT`（即将揽收超时）、`PICKUP_TIMEOUT`（揽收超时）、`PICKUP_SERIOUS_TIMEOUT`（揽收严重超时）、`DISPATCH_PRE_TIMEOUT`（即将发运超时）、`DISPATCH_TIMEOUT`（发运超时）、`DISPATCH_SERIOUS_TIMEOUT`（发运严重超时）、`TRANSIT_PRE_TIMEOUT`（即将中转超时）、`TRANSIT_TIMEOUT`（中转超时）、`DELIVERY_TIMEOUT`（派签超时）、`LONG_DELIVERY`（配送超长）、`SUSPECTED_LOST`（疑似遗失）、`INTERCEPTED_RETURN`（拦截返件） |
 | `exception_status` | 包裹异常状态 | `String` | 否 | `IN_PROGRESS` | 可选值：`ALL`（全部）、`IN_PROGRESS`（进行中）、`COMPLETED`（已完结） |
 | `ignore_warning` | 是否已忽略异常预警 | `String` | 否 | `NO` | 可选值：`ALL`（全部）、`YES`（是）、`NO`（否） |
@@ -45,20 +45,22 @@ category: shop
 
 ```json
 {
-    "ship_time_type": "LAST_30_DAYS",
-    "exception_status": "IN_PROGRESS",
-    "ignore_warning": "NO"
+  "date_type": "LAST_30_DAYS",
+  "custom_start_date": "",
+  "custom_end_date": "",
+  "exception_status": "IN_PROGRESS",
+  "ignore_warning": "NO"
 }
 ```
 
 ```json
 {
-    "ship_time_type": "CUSTOM",
-    "custom_start_date": "20260525",
-    "custom_end_date": "20260624",
-    "exception_types": ["PICKUP_TIMEOUT", "DISPATCH_TIMEOUT"],
-    "exception_status": "ALL",
-    "ignore_warning": "ALL"
+  "date_type": "CUSTOM",
+  "custom_start_date": "2026-05-02",
+  "custom_end_date": "2026-05-29",
+  "exception_types": ["PICKUP_TIMEOUT", "DISPATCH_TIMEOUT"],
+  "exception_status": "ALL",
+  "ignore_warning": "ALL"
 }
 ```
 
@@ -67,29 +69,28 @@ category: shop
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "抖店-发货包裹异常列表 - 查询入参",
+  "title": "包裹中心-发货包裹-异常包裹列表 - 查询入参",
   "description": "采集抖店包裹中心发货包裹异常列表，支持按发货时间、异常类型、包裹异常状态、是否已忽略异常预警筛选",
   "type": "object",
   "properties": {
-    "ship_time_type": {
+    "date_type": {
       "type": "string",
-      "description": "发货时间范围。可选值：TODAY（今天）、YESTERDAY（昨天）、LAST_7_DAYS（近7天）、LAST_30_DAYS（近30天）、CUSTOM（自定义时间）",
+      "description": "允许值：TODAY（今日）/ YESTERDAY（昨日）/ LAST_7_DAYS（近 7 天）/ LAST_30_DAYS（近 30 天）/ CUSTOM（自定义）",
       "enum": [
         "TODAY",
         "YESTERDAY",
         "LAST_7_DAYS",
         "LAST_30_DAYS",
         "CUSTOM"
-      ],
-      "default": "LAST_30_DAYS"
+      ]
     },
     "custom_start_date": {
       "type": "string",
-      "description": "自定义起始日期，ship_time_type = CUSTOM 时必填。支持格式：YYYYMMDD、YYYY-MM-DD"
+      "description": "date_type 为 CUSTOM 时必填。格式 YYYYMMDD 或 YYYY-MM-DD"
     },
     "custom_end_date": {
       "type": "string",
-      "description": "自定义结束日期，ship_time_type = CUSTOM 时必填。支持格式：YYYYMMDD、YYYY-MM-DD；不能晚于当天；起止跨度（含首尾）最多 31 天"
+      "description": "date_type 为 CUSTOM 时必填。格式 YYYYMMDD 或 YYYY-MM-DD；不可晚于当天；跨度（含首尾）最多 31 天"
     },
     "exception_types": {
       "oneOf": [
@@ -143,11 +144,11 @@ category: shop
       "default": "NO"
     }
   },
-  "required": [],
+  "required": ["date_type"],
   "additionalProperties": false,
   "if": {
     "properties": {
-      "ship_time_type": {
+      "date_type": {
         "const": "CUSTOM"
       }
     }

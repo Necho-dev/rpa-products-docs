@@ -1,5 +1,5 @@
 ---
-title: 生意参谋工作台
+title: 生意参谋
 icon: ICO_SYCM
 description: 覆盖生意参谋流量与商品等分析能力的连接器
 entry: RPA_SYCM

@@ -1,5 +1,5 @@
 ---
-title: 千帆-买手数据-订单明细
+title: 买手-买手数据-订单明细
 description: 导出小红书千帆买手数据页的订单明细报表，支持下载近 1 年数据
 entry: rpa.conn.xiaohongshu.qf.buyer.data.order
 badge:
@@ -40,18 +40,18 @@ prompt:
 
 ### 目标页面
 
-> **取数路径**：小红书千帆—买手数据—订单明细
+> **取数路径**：小红书千帆—买手—买手数据—订单明细
 >
 > **取数链接**：[https://ark.xiaohongshu.com/app-distribution/dataView](https://ark.xiaohongshu.com/app-distribution/dataView)
 
-![小红书千帆—买手数据订单明细](../../_public/images/xiaohongshu/qf_buyer_data_order_20260815.png)
+![小红书千帆—买手—买手数据—订单明细](../../_public/images/xiaohongshu/qf_buyer_data_order_20260815.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `custom_start_date` | 导出开始日期 | `String` | 是 | — | 支持格式：`YYYYMMDD`、`YYYY-MM-DD`；须在近 1 年内；不能晚于 `custom_end_date`。下载时间间隔为近 1 年 |
-| `custom_end_date` | 导出结束日期 | `String` | 是 | — | 支持格式：`YYYYMMDD`、`YYYY-MM-DD`；须在近 1 年内且不能早于 `custom_start_date`。下载时间间隔为近 1 年 |
+| `export_start_date` | 导出开始日期 | `String` | 是 | `-` | 支持格式：`YYYYMMDD`、`YYYY-MM-DD`；须在近 1 年内；不能晚于 `export_end_date` |
+| `export_end_date` | 导出结束日期 | `String` | 是 | `-` | 支持格式：`YYYYMMDD`、`YYYY-MM-DD`；须在近 1 年内；不能早于 `export_start_date` |
 
 ### 入参样例
 
@@ -59,8 +59,8 @@ prompt:
 
 ```json
 {
-  "custom_start_date": "2025-08-20",
-  "custom_end_date": "2026-08-11"
+  "export_start_date": "2026-08-15",
+  "export_end_date": "2026-09-10"
 }
 ```
 
@@ -68,8 +68,8 @@ prompt:
 
 ```json
 {
-  "custom_start_date": "20260801",
-  "custom_end_date": "20260810"
+  "export_start_date": "20260801",
+  "export_end_date": "20260810"
 }
 ```
 
@@ -78,22 +78,22 @@ prompt:
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "小红书千帆-买手数据订单明细 - 查询入参",
+  "title": "买手-买手数据-订单明细 - 查询入参",
   "description": "导出小红书千帆买手数据页的订单明细报表，支持下载近 1 年数据",
   "type": "object",
   "properties": {
-    "custom_start_date": {
+    "export_start_date": {
       "type": "string",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$",
-      "description": "导出开始日期，YYYYMMDD 或 YYYY-MM-DD；须在近 1 年内，且不能晚于 custom_end_date。下载时间间隔为近 1 年"
+      "description": "导出开始日期，YYYYMMDD 或 YYYY-MM-DD；须在近 1 年内，且不能晚于 export_end_date"
     },
-    "custom_end_date": {
+    "export_end_date": {
       "type": "string",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$",
-      "description": "导出结束日期，YYYYMMDD 或 YYYY-MM-DD；须在近 1 年内，且不能早于 custom_start_date。下载时间间隔为近 1 年"
+      "description": "导出结束日期，YYYYMMDD 或 YYYY-MM-DD；须在近 1 年内，且不能早于 export_start_date"
     }
   },
-  "required": ["custom_start_date", "custom_end_date"],
+  "required": ["export_start_date", "export_end_date"],
   "additionalProperties": false
 }
 ```
@@ -102,7 +102,7 @@ prompt:
 
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
-| `payTime` | 支付时间 | `String` | 是 | `XLSX.0.支付时间` | 2026-08-11 23:59:37 |
+| `payTime` | 支付时间 | `String` | 是 | `XLSX.0.支付时间` | `2026-08-11 23:59:37` |
 | `orderId` | 订单 ID | `String` | 是 | `XLSX.0.订单ID` | `P80****804` (已脱敏) |
 | `orderStatus` | 订单状态 | `String` | 是 | `XLSX.0.订单状态` | 已签收 |
 | `skuName` | 规格名称 | `String` | 是 | `XLSX.0.规格名称` | 示例规格名称（控油妆前乳 单支装） |

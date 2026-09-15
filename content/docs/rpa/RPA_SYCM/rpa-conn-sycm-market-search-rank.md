@@ -1,5 +1,5 @@
 ---
-title: 市场-搜索排行
+title: 市场-搜索排行-搜索排行
 description: 采集生意参谋市场搜索排行列表，支持按搜索词类型、榜单类型、统计时间与类目筛选并翻页取全量
 entry: rpa.conn.sycm.market.search.rank
 badge:
@@ -34,13 +34,13 @@ category: market
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `keyword_type` | 搜索词类型 | `String` | 是 | — | 可选值：`SEARCH`（搜索词）/ `TREND`（趋势词）/ `CORE`（核心词）/ `PROP`（修饰词） |
-| `rank_type` | 榜单类型 | `String` | 是 | — | 可选值：`HOT`（搜索人气）/ `SOAR`（搜索增速） |
-| `date_type` | 统计时间 | `String` | 是 | — | 可选值：`RECENT_7`（7天）/ `RECENT_30`（30天）/ `DAY`（日） |
-| `custom_date` | 自定义单日日期 | `String` | 条件必填 | — | `date_type=DAY` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不能晚于昨天，不能早于近三个月（today-90） |
-| `category_level1` | 一级类目 | `String` | 否 | — | 左栏类目；支持路径或短名匹配（三级类目如果传路径，都用「/」分隔） |
-| `category_level2` | 二级类目 | `String` | 条件必填 | — | 中栏类目；传入时必须同时传 `category_level1`；无二级面板时回退选中一级 |
-| `category_level3` | 三级类目 | `String` | 条件必填 | — | 右栏类目；传入时必须同时传 `category_level1`、`category_level2`；推荐传末级短名（如「裙子」）；无三级面板时回退选中二级 |
+| `keyword_type` | 搜索词类型 | `String` | 是 | `-` | 允许值：`SEARCH`（搜索词）/ `TREND`（趋势词）/ `CORE`（核心词）/ `PROP`（修饰词） |
+| `rank_type` | 榜单类型 | `String` | 是 | `-` | 允许值：`HOT`（搜索人气）/ `SOAR`（搜索增速） |
+| `date_type` | 统计时间 | `String` | 是 | `-` | 允许值：`LAST_7_DAYS`（近 7 天）/ `LAST_30_DAYS`（近 30 天）/ `DAY`（按日） |
+| `biz_date` | 业务日期 | `String` | 条件必填 | `-` | `date_type` 为 `DAY` 时必填；始终填一天，格式 `YYYYMMDD` 或 `YYYY-MM-DD`；`LAST_7_DAYS`/`LAST_30_DAYS` 时忽略。`DAY` 不可选今日及以后；最早 today-90 |
+| `category_level1` | 一级类目 | `String` | 否 | `-` | 左栏类目；支持路径或短名匹配（三级类目如果传路径，都用「/」分隔） |
+| `category_level2` | 二级类目 | `String` | 条件必填 | `-` | 中栏类目；传入时必须同时传 `category_level1`；无二级面板时回退选中一级 |
+| `category_level3` | 三级类目 | `String` | 条件必填 | `-` | 右栏类目；传入时必须同时传 `category_level1`、`category_level2`；推荐传末级短名（如「裙子」）；无三级面板时回退选中二级 |
 
 ### 入参样例
 
@@ -48,7 +48,7 @@ category: market
 {
   "keyword_type": "SEARCH",
   "rank_type": "HOT",
-  "date_type": "RECENT_7"
+  "date_type": "LAST_7_DAYS"
 }
 ```
 
@@ -56,7 +56,7 @@ category: market
 {
   "keyword_type": "CORE",
   "rank_type": "HOT",
-  "date_type": "RECENT_30",
+  "date_type": "LAST_30_DAYS",
   "category_level1": "女装",
   "category_level2": "半身裙"
 }
@@ -67,7 +67,7 @@ category: market
   "keyword_type": "TREND",
   "rank_type": "SOAR",
   "date_type": "DAY",
-  "custom_date": "20260715",
+  "biz_date": "20260715",
   "category_level1": "女装/女士精品",
   "category_level2": "唐装/民族服装/舞台服装",
   "category_level3": "裙子"
@@ -79,7 +79,7 @@ category: market
   "keyword_type": "PROP",
   "rank_type": "SOAR",
   "date_type": "DAY",
-  "custom_date": "2026-07-12"
+  "biz_date": "2026-07-12"
 }
 ```
 
@@ -88,28 +88,28 @@ category: market
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "生意参谋-市场搜索排行 - 查询入参",
+  "title": "生意参谋-市场-搜索排行-搜索排行 - 查询入参",
   "description": "采集生意参谋市场搜索排行列表，支持按搜索词类型、榜单类型、统计时间与类目筛选并翻页取全量",
   "type": "object",
   "properties": {
     "keyword_type": {
       "type": "string",
-      "description": "搜索词类型。可选值：SEARCH（搜索词）/ TREND（趋势词）/ CORE（核心词）/ PROP（修饰词）",
+      "description": "搜索词类型。允许值：SEARCH（搜索词）/ TREND（趋势词）/ CORE（核心词）/ PROP（修饰词）",
       "enum": ["SEARCH", "TREND", "CORE", "PROP"]
     },
     "rank_type": {
       "type": "string",
-      "description": "榜单类型。可选值：HOT（搜索人气）/ SOAR（搜索增速）",
+      "description": "榜单类型。允许值：HOT（搜索人气）/ SOAR（搜索增速）",
       "enum": ["HOT", "SOAR"]
     },
     "date_type": {
       "type": "string",
-      "description": "统计时间。可选值：RECENT_7（7天）/ RECENT_30（30天）/ DAY（日）",
-      "enum": ["RECENT_7", "RECENT_30", "DAY"]
+      "description": "统计时间。允许值：LAST_7_DAYS（近 7 天）/ LAST_30_DAYS（近 30 天）/ DAY（按日）",
+      "enum": ["LAST_7_DAYS", "LAST_30_DAYS", "DAY"]
     },
-    "custom_date": {
+    "biz_date": {
       "type": "string",
-      "description": "自定义单日日期；date_type=DAY 时必填。格式 YYYYMMDD 或 YYYY-MM-DD；不能晚于昨天，不能早于近三个月（today-90）",
+      "description": "业务日期；date_type 为 DAY 时必填；始终填一天；LAST_7_DAYS/LAST_30_DAYS 时忽略。格式 YYYYMMDD 或 YYYY-MM-DD；DAY 不可选今日及以后；最早 today-90",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "category_level1": {
@@ -136,7 +136,7 @@ category: market
         "required": ["date_type"]
       },
       "then": {
-        "required": ["custom_date"]
+        "required": ["biz_date"]
       }
     },
     {

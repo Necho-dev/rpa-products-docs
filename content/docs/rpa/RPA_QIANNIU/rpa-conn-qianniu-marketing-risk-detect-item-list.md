@@ -1,5 +1,5 @@
 ---
-title: 营销-风险检测-商品维度列表
+title: 营销-营销工具-商品价格管理-营销风险
 description: 按指定商品维度风险类型采集营销风险检测记录全量列表，用于价格与促销风险监控与处置跟进；默认配置每个风险选项卡最大翻页次数 100
 entry: rpa.conn.qianniu.marketing.risk.detect.item.list
 badge:
@@ -24,17 +24,17 @@ category: marketing
 
 ### 目标页面
 
-> **取数路径**：千牛后台—价格管理—营销风险
+> **取数路径**：千牛后台—营销—营销工具—商品价格管理—营销风险
 >
 > **取数链接**：[https://myseller.taobao.com/home.htm/PriceManagement/?source=qianniulist&TabCode=Risk](https://myseller.taobao.com/home.htm/PriceManagement/?source=qianniulist&TabCode=Risk)
 
-![千牛后台—价格管理—营销风险](../_public/images/qianniu/marketing_risk_detect_item_list_20260520.png)
+![千牛后台—营销—营销工具—商品价格管理—营销风险](../_public/images/qianniu/marketing_risk_detect_item_list_20260520.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `risk_codes` | 风险类型代码 | `string \| List[string]` | 是 | — | 支持数组或英文逗号分隔的字符串，可多选。可选值：`item_predict_risk`（商品资损风险）、`price_delist_protect`（商品价格风险下架保护）、`zero_price_order`（已产生0元订单）、`ultra_low_price_order`（已产生超低价订单）、`shop_coupon_upcoming`（店铺宝即将生效）、`shop_coupon_expiring`（店铺宝即将失效） |
+| `risk_codes` | 风险类型代码 | `String` / `List[String]` | 是 | `-` | 数组或英文逗号分隔字符串。允许值：`ITEM_PREDICT_RISK`（商品资损风险）/ `PRICE_DELIST_PROTECT`（商品价格风险下架保护）/ `ZERO_PRICE_ORDER`（已产生0元订单）/ `ULTRA_LOW_PRICE_ORDER`（已产生超低价订单）/ `SHOP_COUPON_UPCOMING`（店铺宝即将生效）/ `SHOP_COUPON_EXPIRING`（店铺宝即将失效） |
 
 ### 入参样例
 
@@ -43,12 +43,12 @@ category: marketing
 ```json
 {
     "risk_codes": [
-        "item_predict_risk",
-        "price_delist_protect",
-        "zero_price_order",
-        "ultra_low_price_order",
-        "shop_coupon_upcoming",
-        "shop_coupon_expiring"
+        "ITEM_PREDICT_RISK",
+        "PRICE_DELIST_PROTECT",
+        "ZERO_PRICE_ORDER",
+        "ULTRA_LOW_PRICE_ORDER",
+        "SHOP_COUPON_UPCOMING",
+        "SHOP_COUPON_EXPIRING"
     ]
 }
 ```
@@ -57,7 +57,47 @@ category: marketing
 
 ```json
 {
-    "risk_codes": "item_predict_risk,price_delist_protect,zero_price_order"
+    "risk_codes": "ITEM_PREDICT_RISK,PRICE_DELIST_PROTECT,ZERO_PRICE_ORDER"
+}
+```
+
+### 入参校验
+
+```json-schema collapsed
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "千牛-营销-营销工具-商品价格管理-营销风险 - 查询入参",
+  "description": "按指定商品维度风险类型采集营销风险检测记录",
+  "type": "object",
+  "properties": {
+    "risk_codes": {
+      "description": "风险类型代码。数组或英文逗号分隔字符串。允许值：ITEM_PREDICT_RISK（商品资损风险）/ PRICE_DELIST_PROTECT（商品价格风险下架保护）/ ZERO_PRICE_ORDER（已产生0元订单）/ ULTRA_LOW_PRICE_ORDER（已产生超低价订单）/ SHOP_COUPON_UPCOMING（店铺宝即将生效）/ SHOP_COUPON_EXPIRING（店铺宝即将失效）",
+      "oneOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "ITEM_PREDICT_RISK",
+              "PRICE_DELIST_PROTECT",
+              "ZERO_PRICE_ORDER",
+              "ULTRA_LOW_PRICE_ORDER",
+              "SHOP_COUPON_UPCOMING",
+              "SHOP_COUPON_EXPIRING"
+            ]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        {
+          "type": "string",
+          "minLength": 1
+        }
+      ]
+    }
+  },
+  "required": ["risk_codes"],
+  "additionalProperties": false
 }
 ```
 
@@ -68,14 +108,14 @@ category: marketing
 | `recordId` | 风险记录 ID | `number` | 否 | `recordId` | 1536683208195 |
 | `riskCode` | 接口风险类型代码 | `string` | 否 | `riskCode` | ITEM_PREDICT_RISK_DETECT |
 | `riskScope` | 风险作用域 | `string` | 否 | `riskScope` | itemId |
-| `gmtModified` | 记录更新时间 | `string` | 否 | `gmtModified` | 2026-05-20 11:50:34 |
+| `gmtModified` | 记录更新时间 | `string` | 否 | `gmtModified` | `2026-05-20 11:50:34` |
 | `itemInfo` | 商品信息 | `Dict` | 否 | `itemInfo` | 见数据样例 `itemInfo` |
 | `riskDesc` | 风险描述 | `Dict` | 否 | `riskDesc` | 见数据样例 `riskDesc` |
 | `riskActionCode` | 可操作项代码 | `List[string]` | 否 | `riskActionCode` | 见数据样例 `riskActionCode` |
 | `continueQuery` | 是否继续查询 | `boolean` | 否 | `continueQuery` | false |
 | `success` | 单条记录处理是否成功 | `boolean` | 否 | `success` | false |
 | `traceId` | 链路追踪 ID | `string` | 否 | `traceId` | 213e031b17792494264518559e0f01 |
-| `riskCodeInput` | 入参风险类型代码 | `string` | 否 | 入参 `risk_codes` 对应项 | item_predict_risk |
+| `riskCodeInput` | 入参风险类型代码 | `string` | 否 | 入参 `risk_codes` 对应项 | ITEM_PREDICT_RISK |
 | `riskLabel` | 风险选项卡名称 | `string` | 否 | 页面选项卡中文名 | 商品资损风险 |
 | `bizDate` | 业务日期 | `string` | 否 | 附加 |  |
 | `accountId` | 授权 ID | `string` | 否 | 附加 |  |
@@ -171,7 +211,7 @@ category: marketing
         "continueQuery": false,
         "success": false,
         "traceId": "213e031b17792494264518559e0f01",
-        "riskCodeInput": "item_predict_risk",
+        "riskCodeInput": "ITEM_PREDICT_RISK",
         "riskLabel": "商品资损风险",
         "bizDate": "20260520",
         "accountId": "106",

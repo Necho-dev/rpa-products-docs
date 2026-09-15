@@ -36,35 +36,23 @@ category: item
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `marketing_goal` | 营销目标 | `String` | 是 | — | 营销目标搜索关键字。 |
-| `time_unit` | 时间单位 | `String` | 是 | — | 可选值：`HOUR`（分时）/ `DAY`（分天）。`HOUR` 时不支持 `LAST_30_DAYS` / `LAST_90_DAYS`，自定义跨度不超过 7 天 |
-| `attribution_type` | 归因类型 | `String` | 否 | — | 不传则跳过点选，保留页面当前归因。可选值：`BILLING_TIME`（按计费时间归因）/ `CONVERSION_TIME`（按转化时间归因） |
-| `custom_date` | 日期类型 | `String` | 否 | — | 不传则跳过点选，读取页面默认起止日。只传自定义日期、未传本字段时视为 `CUSTOM`。与 `custom_start_date` / `custom_end_date` 同时传入时以本字段为准。可选值：`TODAY`（今日）/ `YESTERDAY`（昨日）/ `LAST_7_DAYS`（近7日）/ `LAST_30_DAYS`（近30日）/ `LAST_90_DAYS`（近90日）/ `CUSTOM`（自定义） |
-| `custom_start_date` | 自定义起始日期 | `String` | 条件必填 | — | `custom_date`为`CUSTOM` 时生效。须与 `custom_end_date` 成对传入。格式：`YYYYMMDD` 或 `YYYY-MM-DD`；不得晚于结束日 |
-| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | — | `custom_date` 为`CUSTOM` 时生效。须与 `custom_start_date` 成对传入。格式：`YYYYMMDD` 或 `YYYY-MM-DD`；不得晚于今天；`DAY` 跨度不超过 90 天、`HOUR` 跨度不超过 7 天（均含起止日） |
+| `marketing_goal` | 营销目标 | `String` | 是 | `-` | 营销目标搜索关键字。 |
+| `time_unit` | 时间单位 | `String` | 是 | `-` | 可选值：`HOUR`（分时）/ `DAY`（分天）。`HOUR` 时不支持 `LAST_30_DAYS` / `LAST_90_DAYS`，自定义跨度不超过 7 天 |
+| `attribution_type` | 归因类型 | `String` | 否 | `-` | 均未传则不填页面筛选。可选值：`BILLING_TIME`（按计费时间归因）/ `CONVERSION_TIME`（按转化时间归因） |
+| `date_type` | 日期类型 | `String` | 是 | `-` | 可选值：`TODAY`（今日）/ `YESTERDAY`（昨日）/ `LAST_7_DAYS`（近 7 天）/ `LAST_30_DAYS`（近 30 天）/ `LAST_90_DAYS`（近 90 天）/ `CUSTOM`（自定义） |
+| `custom_start_date` | 自定义起始日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填。须与 `custom_end_date` 成对传入。格式：`YYYYMMDD` 或 `YYYY-MM-DD`；不得晚于结束日 |
+| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填。须与 `custom_start_date` 成对传入。格式：`YYYYMMDD` 或 `YYYY-MM-DD`；不得晚于今天；`DAY` 跨度不超过 90 天、`HOUR` 跨度不超过 7 天（均含起止日） |
 
 ### 入参样例
 
-分天 + 近 7 日 + 按转化时间归因（常用）：
+分天 + 近 7 天 + 按转化时间归因（常用）：
 
 ```json
 {
   "marketing_goal": "电商",
   "time_unit": "DAY",
   "attribution_type": "CONVERSION_TIME",
-  "custom_date": "LAST_7_DAYS"
-}
-```
-
-快捷项与自定义日期同时传入（以快捷项为准）：
-
-```json
-{
-  "marketing_goal": "电商",
-  "time_unit": "DAY",
-  "custom_date": "LAST_7_DAYS",
-  "custom_start_date": "20260516",
-  "custom_end_date": "2026-08-13"
+  "date_type": "LAST_7_DAYS"
 }
 ```
 
@@ -74,7 +62,7 @@ category: item
 {
   "marketing_goal": "电商",
   "time_unit": "HOUR",
-  "custom_date": "TODAY"
+  "date_type": "TODAY"
 }
 ```
 
@@ -84,18 +72,9 @@ category: item
 {
   "marketing_goal": "电商",
   "time_unit": "DAY",
-  "custom_date": "CUSTOM",
+  "date_type": "CUSTOM",
   "custom_start_date": "20260827",
   "custom_end_date": "2026-09-02"
-}
-```
-
-仅必填项，使用页面当前日期区间与归因：
-
-```json
-{
-  "marketing_goal": "电商",
-  "time_unit": "DAY"
 }
 ```
 
@@ -121,16 +100,16 @@ category: item
     "attribution_type": {
       "type": "string",
       "enum": ["BILLING_TIME", "CONVERSION_TIME", ""],
-      "description": "归因类型；空字符串视为未传，跳过点选。可选值：BILLING_TIME（按计费时间归因）/ CONVERSION_TIME（按转化时间归因）"
+      "description": "归因类型。均未传则不填页面筛选。可选值：BILLING_TIME（按计费时间归因）/ CONVERSION_TIME（按转化时间归因）"
     },
-    "custom_date": {
+    "date_type": {
       "type": "string",
-      "enum": ["TODAY", "YESTERDAY", "LAST_7_DAYS", "LAST_30_DAYS", "LAST_90_DAYS", "CUSTOM", ""],
-      "description": "日期类型；空字符串视为未传。与自定义日期同时传入时以本字段为准。可选值：TODAY（今日）/ YESTERDAY（昨日）/ LAST_7_DAYS（近7日）/ LAST_30_DAYS（近30日）/ LAST_90_DAYS（近90日）/ CUSTOM（自定义）"
+      "enum": ["TODAY", "YESTERDAY", "LAST_7_DAYS", "LAST_30_DAYS", "LAST_90_DAYS", "CUSTOM"],
+      "description": "日期类型：TODAY（今日）/ YESTERDAY（昨日）/ LAST_7_DAYS（近 7 天）/ LAST_30_DAYS（近 30 天）/ LAST_90_DAYS（近 90 天）/ CUSTOM（自定义）"
     },
     "custom_start_date": {
       "type": "string",
-      "description": "自定义起始日期，YYYYMMDD 或 YYYY-MM-DD；空字符串视为未传。仅 custom_date 为空或 CUSTOM 时生效，须与 custom_end_date 成对",
+      "description": "自定义起始日期，YYYYMMDD 或 YYYY-MM-DD；date_type 为 CUSTOM 时必填，须与 custom_end_date 成对",
       "anyOf": [
         { "const": "" },
         { "pattern": "^\\d{8}$" },
@@ -139,7 +118,7 @@ category: item
     },
     "custom_end_date": {
       "type": "string",
-      "description": "自定义结束日期，YYYYMMDD 或 YYYY-MM-DD；空字符串视为未传。仅 custom_date 为空或 CUSTOM 时生效，须与 custom_start_date 成对；不得晚于今天；DAY 跨度不超过 90 天、HOUR 跨度不超过 7 天",
+      "description": "自定义结束日期，YYYYMMDD 或 YYYY-MM-DD；date_type 为 CUSTOM 时必填；不得晚于今天；DAY 跨度不超过 90 天、HOUR 跨度不超过 7 天",
       "anyOf": [
         { "const": "" },
         { "pattern": "^\\d{8}$" },
@@ -147,39 +126,21 @@ category: item
       ]
     }
   },
-  "required": ["marketing_goal", "time_unit"],
+  "required": ["marketing_goal", "time_unit", "date_type"],
   "additionalProperties": false,
   "allOf": [
     {
       "if": {
         "properties": {
-          "custom_date": { "const": "CUSTOM" }
+          "date_type": { "const": "CUSTOM" }
         },
-        "required": ["custom_date"]
+        "required": ["date_type"]
       },
       "then": {
         "required": ["custom_start_date", "custom_end_date"],
         "properties": {
           "custom_start_date": { "type": "string", "minLength": 1 },
           "custom_end_date": { "type": "string", "minLength": 1 }
-        }
-      }
-    },
-    {
-      "if": {
-        "anyOf": [
-          { "not": { "required": ["custom_date"] } },
-          {
-            "properties": {
-              "custom_date": { "enum": [""] }
-            }
-          }
-        ]
-      },
-      "then": {
-        "dependentRequired": {
-          "custom_start_date": ["custom_end_date"],
-          "custom_end_date": ["custom_start_date"]
         }
       }
     },
@@ -192,8 +153,8 @@ category: item
       },
       "then": {
         "properties": {
-          "custom_date": {
-            "enum": ["TODAY", "YESTERDAY", "LAST_7_DAYS", "CUSTOM", ""]
+          "date_type": {
+            "enum": ["TODAY", "YESTERDAY", "LAST_7_DAYS", "CUSTOM"]
           }
         }
       }

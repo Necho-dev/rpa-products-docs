@@ -1,5 +1,5 @@
 ---
-title: 营销生态UD-报表-UDSmart
+title: 报表-UDSmart-数据明细
 description: 从阿里妈妈营销生态UD进入 UD智汇投，导出 UDSmart 报表明细，支持按投放媒体、归因周期、归因模型及汇总周期筛选
 entry: rpa.conn.alimm.yxstud.smart.report
 badge:
@@ -24,22 +24,22 @@ category: smart
 
 ### 目标页面
 
-> **取数路径**：阿里妈妈—营销生态UD—UD智汇投—报表—基础报表—UDSmart
+> **取数路径**：营销生态UD—报表—UDSmart—数据明细
 >
 > **取数链接**：[https://ud.alimama.com/index.html#!/report/ud_smart?rptType=udSmart&bizCode=udSmart](https://ud.alimama.com/index.html#!/report/ud_smart?rptType=udSmart&bizCode=udSmart)
 
-![阿里妈妈—营销生态UD—UD智汇投—报表—UDSmart](../../_public/images/alimm/yxstud_smart_report_20260824.png)
+![营销生态UD—报表—UDSmart—数据明细](../../_public/images/alimm/yxstud_smart_report_20260824.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `delivery_media` | 投放媒体 | `String` | 是 | — | 仅接受英文 code，不接受页面中文。可选值：`BYTEDANCE`（字节）/ `TENCENT`（腾讯）/ `XIAOHONGSHU`（小红书）/ `BILIBILI`（B站）/ `KUAISHOU`（快手）。不含「全部媒体」（页面选全部媒体无报表数据） |
-| `attribution_period` | 归因周期 | `String` | 否 | `HOURS_24` | 仅接受英文 code。可选值：`DAYS_7`（7天累计数据）/ `DAYS_15`（15天累计数据）/ `HOURS_24`（24小时累计数据）。默认 24 小时累计数据 |
-| `attribution_model` | 归因模型 | `String` | 否 | `CLICK` | 仅接受英文 code。可选值：`CLICK`（点击）/ `EFFECTIVE_TOUCH`（有效触点）。默认点击 |
-| `date_type` | 汇总周期 | `String` | 否 | `YESTERDAY` | 仅接受英文 code，对齐页面「快捷日期」。可选值：`YESTERDAY`（昨日）/ `LAST_7_DAYS`（过去 7 天）/ `LAST_WEEK`（上周）/ `LAST_15_DAYS`（过去 15 天）/ `THIS_MONTH`（本月）/ `LAST_30_DAYS`（过去 30 天）/ `LAST_MONTH`（上月）/ `CUSTOM`（自定义）。未传 `date_type` 但传了起止日时按 `CUSTOM` |
-| `custom_start_date` | 自定义开始日期 | `String` | 条件必填 | — | 仅 `date_type=CUSTOM` 时必填；仅 `YYYYMMDD` / `YYYY-MM-DD`（月日须两位补零）；拒绝斜杠等其它格式；最早=今天往前 364 天；与 `custom_end_date` 成对；含首尾跨度 ≤ 90 天；仅历史数据 |
-| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | — | 仅 `date_type=CUSTOM` 时必填；仅 `YYYYMMDD` / `YYYY-MM-DD`（月日须两位补零）；最晚=昨天；与 `custom_start_date` 成对；超过 90 天入参校验失败 |
+| `delivery_media` | 投放媒体 | `String` | 是 | `-` | 允许值：`BYTEDANCE`（字节）/ `TENCENT`（腾讯）/ `XIAOHONGSHU`（小红书）/ `BILIBILI`（B站）/ `KUAISHOU`（快手） |
+| `attribution_period` | 归因周期 | `String` | 否 | `HOURS_24` | 允许值：`DAYS_7`（7天累计数据）/ `DAYS_15`（15天累计数据）/ `HOURS_24`（24小时累计数据） |
+| `attribution_model` | 归因模型 | `String` | 否 | `CLICK` | 允许值：`CLICK`（点击）/ `EFFECTIVE_TOUCH`（有效触点） |
+| `date_type` | 汇总周期 | `String` | 是 | `-` | 允许值：`YESTERDAY`（昨日）/ `LAST_7_DAYS`（近 7 天）/ `LAST_WEEK`（上周）/ `LAST_15_DAYS`（近 15 天）/ `THIS_MONTH`（本月）/ `LAST_30_DAYS`（近 30 天）/ `LAST_MONTH`（上月）/ `CUSTOM`（自定义区间） |
+| `custom_start_date` | 自定义开始日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；最早约 today-364 |
+| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不能晚于昨天；含首尾跨度不超过 90 天 |
 
 ### 入参样例
 
@@ -81,13 +81,13 @@ category: smart
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "阿里妈妈-营销生态UD-UDSmart报表 - 查询入参",
+  "title": "报表-UDSmart-数据明细 - 查询入参",
   "description": "从阿里妈妈营销生态UD进入 UD智汇投，导出 UDSmart 报表明细，支持按投放媒体、归因周期、归因模型及汇总周期筛选",
   "type": "object",
   "properties": {
     "delivery_media": {
       "type": "string",
-      "description": "投放媒体。仅接受英文 code，不接受页面中文。可选值：BYTEDANCE（字节）/ TENCENT（腾讯）/ XIAOHONGSHU（小红书）/ BILIBILI（B站）/ KUAISHOU（快手）。不含全部媒体",
+      "description": "投放媒体。允许值：BYTEDANCE（字节）/ TENCENT（腾讯）/ XIAOHONGSHU（小红书）/ BILIBILI（B站）/ KUAISHOU（快手）",
       "enum": [
         "BYTEDANCE",
         "TENCENT",
@@ -98,7 +98,7 @@ category: smart
     },
     "attribution_period": {
       "type": "string",
-      "description": "归因周期。仅接受英文 code。可选值：DAYS_7（7天累计数据）/ DAYS_15（15天累计数据）/ HOURS_24（24小时累计数据）。默认 HOURS_24",
+      "description": "归因周期。允许值：DAYS_7（7天累计数据）/ DAYS_15（15天累计数据）/ HOURS_24（24小时累计数据）",
       "enum": [
         "DAYS_7",
         "DAYS_15",
@@ -108,7 +108,7 @@ category: smart
     },
     "attribution_model": {
       "type": "string",
-      "description": "归因模型。仅接受英文 code。可选值：CLICK（点击）/ EFFECTIVE_TOUCH（有效触点）。默认 CLICK",
+      "description": "归因模型。允许值：CLICK（点击）/ EFFECTIVE_TOUCH（有效触点）",
       "enum": [
         "CLICK",
         "EFFECTIVE_TOUCH"
@@ -117,7 +117,7 @@ category: smart
     },
     "date_type": {
       "type": "string",
-      "description": "汇总周期。仅接受英文 code，对齐页面「快捷日期」。可选值：YESTERDAY（昨日）/ LAST_7_DAYS（过去 7 天）/ LAST_WEEK（上周）/ LAST_15_DAYS（过去 15 天）/ THIS_MONTH（本月）/ LAST_30_DAYS（过去 30 天）/ LAST_MONTH（上月）/ CUSTOM（自定义）。默认 YESTERDAY；未传 date_type 但传了起止日时按 CUSTOM",
+      "description": "汇总周期。允许值：YESTERDAY（昨日）/ LAST_7_DAYS（近 7 天）/ LAST_WEEK（上周）/ LAST_15_DAYS（近 15 天）/ THIS_MONTH（本月）/ LAST_30_DAYS（近 30 天）/ LAST_MONTH（上月）/ CUSTOM（自定义区间）",
       "enum": [
         "YESTERDAY",
         "LAST_7_DAYS",
@@ -127,22 +127,22 @@ category: smart
         "LAST_30_DAYS",
         "LAST_MONTH",
         "CUSTOM"
-      ],
-      "default": "YESTERDAY"
+      ]
     },
     "custom_start_date": {
       "type": "string",
-      "description": "自定义开始日期。仅 date_type=CUSTOM 时必填；仅 YYYYMMDD 或 YYYY-MM-DD（月日须两位补零）；最早=今天往前 364 天；与 custom_end_date 成对；含首尾跨度 ≤ 90 天；仅历史数据",
+      "description": "自定义开始日期。date_type 为 CUSTOM 时必填；格式 YYYYMMDD 或 YYYY-MM-DD；最早约 today-364",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_end_date": {
       "type": "string",
-      "description": "自定义结束日期。仅 date_type=CUSTOM 时必填；仅 YYYYMMDD 或 YYYY-MM-DD（月日须两位补零）；最晚=昨天；与 custom_start_date 成对；超过 90 天入参校验失败",
+      "description": "自定义结束日期。date_type 为 CUSTOM 时必填；格式 YYYYMMDD 或 YYYY-MM-DD；不能晚于昨天；含首尾跨度不超过 90 天",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
   "required": [
-    "delivery_media"
+    "delivery_media",
+    "date_type"
   ],
   "additionalProperties": false,
   "allOf": [

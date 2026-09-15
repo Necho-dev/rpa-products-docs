@@ -38,15 +38,17 @@ category: finance
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `date_range_type` | 时间范围类型 | `String` | 否 | `LAST_30_DAYS` | 可选值：`YESTERDAY`（昨天）、`TODAY`（今天）、`LAST_7_DAYS`（7 日）、`LAST_30_DAYS`（30 日）、`THIS_MONTH`（本月）、`THIS_YEAR`（本年）、`CUSTOM`（自定义） |
-| `custom_start_date` | 自定义开始日期 | `String` | 条件必填 | — | `date_range_type` 为 `CUSTOM` 时必填；支持格式：`YYYYMMDD`、`YYYY-MM-DD`；不得晚于今天；非 `CUSTOM` 模式不应传入 |
-| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | — | `date_range_type` 为 `CUSTOM` 时必填；支持格式：`YYYYMMDD`、`YYYY-MM-DD`；不得晚于今天；与开始日期含首尾跨度不超过 365 天；非 `CUSTOM` 模式不应传入 |
+| `date_type` | 时间范围类型 | `String` | 是 | `-` | 允许值：`YESTERDAY`（昨日）/ `TODAY`（今日）/ `LAST_7_DAYS`（近 7 天）/ `LAST_30_DAYS`（近 30 天）/ `THIS_MONTH`（本月）/ `THIS_YEAR`（本年）/ `CUSTOM`（自定义区间） |
+| `custom_start_date` | 自定义开始日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不得晚于今天；非 `CUSTOM` 不应传入 |
+| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不得晚于今天；与开始日期含首尾跨度不超过 365 天；非 `CUSTOM` 不应传入 |
 
 ### 入参样例
 
 ```json
 {
-  "date_range_type": "LAST_30_DAYS"
+  "date_type": "LAST_30_DAYS",
+  "custom_start_date": "",
+  "custom_end_date": ""
 }
 ```
 
@@ -56,12 +58,14 @@ category: finance
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "千牛-结算资金账单明细 - 查询入参",
-  "description": "导出千牛保证金账户「结算资金」账单明细，支持快捷时间范围或自定义起止日期",
+  "description": "date_type 必填；允许值 YESTERDAY（昨日）/ TODAY（今日）/ LAST_7_DAYS（近 7 天）/ LAST_30_DAYS（近 30 天）/ THIS_MONTH（本月）/ THIS_YEAR（本年）/ CUSTOM（自定义区间）；CUSTOM 时 custom_start_date / custom_end_date 必填",
   "type": "object",
+  "additionalProperties": false,
+  "required": ["date_type"],
   "properties": {
-    "date_range_type": {
+    "date_type": {
       "type": "string",
-      "description": "时间范围类型。可选值：YESTERDAY（昨天）、TODAY（今天）、LAST_7_DAYS（7 日）、LAST_30_DAYS（30 日）、THIS_MONTH（本月）、THIS_YEAR（本年）、CUSTOM（自定义）",
+      "description": "时间范围类型；允许值：YESTERDAY（昨日）/ TODAY（今日）/ LAST_7_DAYS（近 7 天）/ LAST_30_DAYS（近 30 天）/ THIS_MONTH（本月）/ THIS_YEAR（本年）/ CUSTOM（自定义区间）",
       "enum": [
         "YESTERDAY",
         "TODAY",
@@ -70,45 +74,30 @@ category: finance
         "THIS_MONTH",
         "THIS_YEAR",
         "CUSTOM"
-      ],
-      "default": "LAST_30_DAYS"
+      ]
     },
     "custom_start_date": {
       "type": "string",
-      "description": "自定义开始日期。date_range_type 为 CUSTOM 时必填；支持格式 YYYYMMDD、YYYY-MM-DD；不得晚于今天；非 CUSTOM 模式不应传入",
-      "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+      "description": "自定义开始日期；date_type 为 CUSTOM 时必填；格式 YYYYMMDD 或 YYYY-MM-DD；不得晚于今天；非 CUSTOM 不应传入",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_end_date": {
       "type": "string",
-      "description": "自定义结束日期。date_range_type 为 CUSTOM 时必填；支持格式 YYYYMMDD、YYYY-MM-DD；不得晚于今天；与开始日期含首尾跨度不超过 365 天；非 CUSTOM 模式不应传入",
-      "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+      "description": "自定义结束日期；date_type 为 CUSTOM 时必填；格式 YYYYMMDD 或 YYYY-MM-DD；不得晚于今天；与开始日期含首尾跨度不超过 365 天；非 CUSTOM 不应传入",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
-  "required": [],
   "if": {
     "properties": {
-      "date_range_type": {
+      "date_type": {
         "const": "CUSTOM"
       }
     },
-    "required": ["date_range_type"]
+    "required": ["date_type"]
   },
   "then": {
     "required": ["custom_start_date", "custom_end_date"]
-  },
-  "else": {
-    "not": {
-      "anyOf": [
-        {
-          "required": ["custom_start_date"]
-        },
-        {
-          "required": ["custom_end_date"]
-        }
-      ]
-    }
-  },
-  "additionalProperties": false
+  }
 }
 ```
 

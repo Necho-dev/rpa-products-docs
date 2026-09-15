@@ -1,5 +1,5 @@
 ---
-title: 店铺-财务-聚合账单(收支明细)导出
+title: 财务-聚合结算账户(收支记录)-收支明细
 description: 导出「财务-聚合结算-收支明细」明细数据，支持按入账日区间拉取（起止日期遵循平台规则限制）
 entry: rpa.conn.qianniu.shop.aggregated.fund.bill.detail
 badge:
@@ -32,17 +32,42 @@ category: shop
 
 ### 业务入参
 
-| 字段              | 中文释义     | 数据类型 | 必填 | 默认值            | 说明                                                             |
-| ----------------- | ------------ | -------- | ---- | ----------------- | ---------------------------------------------------------------- |
-| `bill_date_start` | 入账开始日期 | `string` | 否   | bizDate - 1 Month | 格式：`YYYY-MM-DD`；不得早于 2024-09-01；不得早于 6 个月前       |
-| `bill_date_end`   | 入账结束日期 | `string` | 否   | bizDate           | 格式：`YYYY-MM-DD`；不得晚于执行日期；与开始日期跨度不超过 31 天 |
+| 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
+| ---- | -------- | -------- | ---- | ------ | ---- |
+| `entry_start_date` | 入账开始日期 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不得早于 2024-09-01；最早约 6 个月前；不得晚于今天 |
+| `entry_end_date` | 入账结束日期 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不得晚于今天；与开始日期含首尾跨度不超过 31 天 |
 
 ### 入参样例
 
 ```json
 {
-    "bill_date_start": "2026-03-20",
-    "bill_date_end": "2026-04-20"
+  "entry_start_date": "20260901",
+  "entry_end_date": "2026-09-08"
+}
+```
+
+### 入参校验
+
+```json-schema collapsed
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "千牛-财务-聚合结算账户(收支记录)-收支明细 - 查询入参",
+  "description": "entry_start_date / entry_end_date 必填；格式 YYYYMMDD 或 YYYY-MM-DD；不得早于 2024-09-01；最早约 6 个月前；不得晚于今天；含首尾跨度不超过 31 天",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["entry_start_date", "entry_end_date"],
+  "properties": {
+    "entry_start_date": {
+      "type": "string",
+      "description": "入账开始日期；格式 YYYYMMDD 或 YYYY-MM-DD；不得早于 2024-09-01；最早约 6 个月前；不得晚于今天",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    },
+    "entry_end_date": {
+      "type": "string",
+      "description": "入账结束日期；格式 YYYYMMDD 或 YYYY-MM-DD；不得晚于今天；与开始日期含首尾跨度不超过 31 天",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    }
+  }
 }
 ```
 
@@ -50,7 +75,7 @@ category: shop
 
 | 字段         | 中文释义       | 数据类型 | 可为空 | 取数路径                | 示例 |
 | ------------ | -------------- | -------- | ------ | ----------------------- | ---- |
-| `billTime`   | 入账时间       | `string` | 否     | `XLSX.0.入账时间`       | 2026-04-20 13:30:44 |
+| `billTime`   | 入账时间       | `string` | 否     | `XLSX.0.入账时间`       | `2026-04-20 13:30:44` |
 | `payFlowId`  | 支付流水号     | `string` | 否     | `XLSX.0.支付流水号`     | 832936025990888 |
 | `tradeId`    | 淘宝订单编号   | `string` | 否     | `XLSX.0.淘宝订单编号`   | 2701855562034109276 |
 | `billType`   | 入账类型       | `string` | 否     | `XLSX.0.入账类型`       | 交易退款(售后) |

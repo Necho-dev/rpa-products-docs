@@ -1,5 +1,5 @@
 ---
-title: 商品-商品排行-全部数据下载
+title: 商品-商品排行-全部商品(下载)
 description: 按日期类型（日/周/月）和日期参数下载生意参谋商品排行全部数据，支持天、自然周、自然月维度
 entry: rpa.conn.sycm.item.rank.all
 badge:
@@ -32,14 +32,14 @@ category: item
 >
 > **取数链接**：[https://sycm.taobao.com/cc/item_rank](https://sycm.taobao.com/cc/item_rank)
 
-![生意参谋—商品排行全部数据下载](../_public/images/sycm/rank_all_20260429.png)
+![生意参谋—商品排行全部商品（下载）](../_public/images/sycm/rank_all_20260429.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `date_type` | 日期类型 | `String` | 是 | — | 可选值：`day`（天）/ `week`（自然周）/ `month`（自然月） |
-| `biz_date` | 业务日期 | `String` | 是 | — | 格式：`YYYYMMDD` 或 `YYYY-MM-DD`；`day` 最晚昨天、`week` 最晚上一完整周、`month` 最晚上个月 |
+| `date_type` | 日期类型 | `String` | 是 | `-` | 允许值: `DAY`(按日) / `WEEK`(自然周) / `MONTH`(自然月) |
+| `biz_date` | 业务日期 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`。始终填一天。`DAY` 不可选今日及以后；`WEEK`/`MONTH` 用这一天定位所在周/月，不可选本周/本月的日期 |
 
 ### 入参样例
 
@@ -47,7 +47,7 @@ category: item
 
 ```json
 {
-  "date_type": "day",
+  "date_type": "DAY",
   "biz_date": "20260419"
 }
 ```
@@ -56,25 +56,25 @@ category: item
 
 ```json
 {
-  "date_type": "day",
+  "date_type": "DAY",
   "biz_date": "2026-04-19"
 }
 ```
 
-按「自然周」维度查询：传入该周内任意一天，系统自动对齐到周一～周日：
+按周：
 
 ```json
 {
-  "date_type": "week",
+  "date_type": "WEEK",
   "biz_date": "20260414"
 }
 ```
 
-按「自然月」维度查询：传入该月内任意一天，系统自动对齐到月初～月末：
+按月：
 
 ```json
 {
-  "date_type": "month",
+  "date_type": "MONTH",
   "biz_date": "20260301"
 }
 ```
@@ -84,18 +84,18 @@ category: item
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "生意参谋-商品排行全部数据下载 - 查询入参",
+  "title": "生意参谋-商品排行全部商品(下载) - 查询入参",
   "description": "按日期类型（日/周/月）和日期参数下载生意参谋商品排行全部数据，支持天、自然周、自然月维度",
   "type": "object",
   "properties": {
     "date_type": {
       "type": "string",
-      "description": "日期类型。可选值：day（天）/ week（自然周）/ month（自然月）",
-      "enum": ["day", "week", "month"]
+      "description": "日期类型。允许值：DAY（按日）/ WEEK（自然周）/ MONTH（自然月）",
+      "enum": ["DAY", "WEEK", "MONTH"]
     },
     "biz_date": {
       "type": "string",
-      "description": "业务日期。格式 YYYYMMDD 或 YYYY-MM-DD；day 最晚昨天、week 最晚上一完整周、month 最晚上个月",
+      "description": "业务日期。始终填一天。格式 YYYYMMDD 或 YYYY-MM-DD；DAY 不可选今日及以后；WEEK/MONTH 用这一天定位所在周/月，不可选本周/本月的日期",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },

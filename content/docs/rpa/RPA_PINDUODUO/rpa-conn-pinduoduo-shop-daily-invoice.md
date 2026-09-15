@@ -32,36 +32,71 @@ category: shop
 
 ### 业务入参
 
-| 字段                | 中文释义     | 数据类型 | 必填 | 默认值 | 说明                                                                 |
-| ------------------- | ------------ | -------- | ---- | ------ | -------------------------------------------------------------------- |
-| `custom_start_date` | 开始日期     | `string` | 否   | 页面默认（T-29） | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；需与 `custom_end_date` 同时传入，不能早于前推 6 个月；不传则使用页面默认日期（T-29，起止同一天） |
-| `custom_end_date`   | 结束日期     | `string` | 否   | 页面默认（T-29） | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；需与 `custom_start_date` 同时传入，不能晚于当天 |
-| `fund_type`         | 资金类型     | `string` | 否   | —      | 可选值：`CASH`（现金）/ `RED_PACKET`（红包）/ `VIRTUAL_GOLD`（虚拟金）/ `SUBSIDY`（津贴） |
-| `flow_type`         | 流水类型     | `string` | 否   | —      | 可选值：`INCOME`（收入）/ `EXPENSE`（支出）                          |
-| `min_amount`        | 最小交易金额 | `string` | 否   | —      | 有效数字，不能大于 `max_amount`                                      |
-| `max_amount`        | 最大交易金额 | `string` | 否   | —      | 有效数字                                                             |
+| 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
+| ---- | -------- | -------- | ---- | ------ | ---- |
+| `custom_start_date` | 开始日期 | `String` | 是 | `-` | 与 `custom_end_date` 须为同一天；格式 `YYYYMMDD` / `YYYY-MM-DD`；最早约 today 往前 6 个自然月 |
+| `custom_end_date` | 结束日期 | `String` | 是 | `-` | 与 `custom_start_date` 须为同一天；格式 `YYYYMMDD` / `YYYY-MM-DD`；不可晚于今天 |
+| `fund_type` | 资金类型 | `String` | 否 | `-` | 允许值：`CASH`（现金）/ `RED_PACKET`（红包）/ `VIRTUAL_GOLD`（虚拟金）/ `SUBSIDY`（津贴） |
+| `flow_type` | 流水类型 | `String` | 否 | `-` | 允许值：`INCOME`（收入）/ `EXPENSE`（支出） |
+| `min_amount` | 最小交易金额 | `String` | 否 | `-` | 有效数字，不能大于 `max_amount` |
+| `max_amount` | 最大交易金额 | `String` | 否 | `-` | 有效数字 |
 
 ### 入参样例
 
-`YYYYMMDD`：
-
 ```json
 {
-  "custom_start_date": "20260501",
-  "custom_end_date": "20260531",
-  "fund_type": "CASH",
-  "flow_type": "EXPENSE"
+  "custom_start_date": "20260909",
+  "custom_end_date": "20260909",
+  "fund_type": "",
+  "flow_type": "",
+  "min_amount": "",
+  "max_amount": ""
 }
 ```
 
-`YYYY-MM-DD`：
+两种日期格式均可：
 
 ```json
 {
-  "custom_start_date": "2026-05-01",
-  "custom_end_date": "2026-05-31",
-  "fund_type": "CASH",
-  "flow_type": "EXPENSE"
+  "custom_start_date": "2026-09-08",
+  "custom_end_date": "20260908"
+}
+```
+
+### 入参校验
+
+```json-schema collapsed
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "拼多多财务流水日账单 - 查询入参",
+  "description": "custom_start_date / custom_end_date 必填且须为同一天；格式 YYYYMMDD / YYYY-MM-DD；最早约 today 往前 6 个自然月；不可晚于今天",
+  "type": "object",
+  "required": ["custom_start_date", "custom_end_date"],
+  "additionalProperties": false,
+  "properties": {
+    "custom_start_date": {
+      "type": "string",
+      "description": "开始日期；与 custom_end_date 须为同一天；格式 YYYYMMDD / YYYY-MM-DD；最早约 today 往前 6 个自然月",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    },
+    "custom_end_date": {
+      "type": "string",
+      "description": "结束日期；与 custom_start_date 须为同一天；格式 YYYYMMDD / YYYY-MM-DD；不可晚于今天",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    },
+    "fund_type": {
+      "type": "string",
+      "description": "资金类型；允许值：CASH（现金）/ RED_PACKET（红包）/ VIRTUAL_GOLD（虚拟金）/ SUBSIDY（津贴）",
+      "enum": ["CASH", "RED_PACKET", "VIRTUAL_GOLD", "SUBSIDY"]
+    },
+    "flow_type": {
+      "type": "string",
+      "description": "流水类型；允许值：INCOME（收入）/ EXPENSE（支出）",
+      "enum": ["INCOME", "EXPENSE"]
+    },
+    "min_amount": { "type": "string", "description": "最小交易金额；有效数字，不能大于 max_amount" },
+    "max_amount": { "type": "string", "description": "最大交易金额；有效数字" }
+  }
 }
 ```
 
@@ -69,7 +104,7 @@ category: shop
 
 | 字段           | 中文释义 | 数据类型 | 可为空 | 取数路径       | 示例                                                                         |
 | -------------- | -------- | -------- | ------ | -------------- | ---------------------------------------------------------------------------- |
-| `tradeTime`    | 交易时间 | `string` | 否     | `XLS.0.时间`       | 2026-05-31 23:59:59                                                          |
+| `tradeTime`    | 交易时间 | `string` | 否     | `XLS.0.时间`       | `2026-05-31 23:59:59`                                                          |
 | `fundType`     | 资金类型 | `string` | 否     | `XLS.0.资金类型`   | 现金                                                                         |
 | `flowType`     | 流水类型 | `string` | 否     | `XLS.0.流水类型`   | 支出                                                                         |
 | `shopName`     | 店铺名称 | `string` | 否     | `XLS.0.店铺名称`   | 王小卤旗舰店                                                                 |

@@ -34,23 +34,17 @@ category: promotion
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `sub_tab` | 子页签 | `String` | 否 | `PRODUCT_PROMOTION` | 可选值：`PRODUCT_PROMOTION`（商品推广）、`LIVE_PROMOTION`（直播推广）、`STAR_SHOP`（明星店铺）、`INTEGRATED_MARKETING`（整合营销）、`ACCOUNT`（账户）；决定可用筛选项；非法枚举直接失败 |
-| `operation_module` | 操作模块 | `String` | 否 | `ALL` | 默认 `ALL`（全部）时不操作控件。**商品推广**：`ALL` / `PROMOTION`（推广）/ `CREATIVE`（创意）。**明星店铺**：另增 `BRAND_CATEGORY`（品牌类目词）。**整合营销**：`ALL` / `CROWD`（人群）/ `ACTIVITY`（活动）/ `GOODS`（商品）。**账户**：`ALL` / `FINANCE`（财务）/ `PRODUCT`（产品）/ `ACCOUNT_MODULE`（账户）。**直播推广不可传**（显式传入即失败） |
-| `operation_type` | 操作类型 | `String` | 否 | `ALL` | 默认 `ALL`（全部）时不操作控件。可选值：`ALL` / `ADD`（添加）/ `UPDATE`（更新）/ `DELETE`（删除）。适用于商品推广、明星店铺、整合营销；**直播推广、账户不可传** |
-| `operation` | 操作 | `String` | 否 | `ALL` | 仅直播推广可用。默认 `ALL`（全部）时不操作控件。可选值：`ALL` / `ADD_PROMO`（添加推广）/ `UPDATE_PROMO`（更新推广）/ `DELETE_PROMO`（删除推广）。非直播推广显式传入即失败 |
-| `operator_type` | 操作人类型 | `String` | 否 | `ALL` | 各子页签均可用。默认 `ALL`（全部）时不操作控件。可选值：`ALL` / `MERCHANT`（商家）/ `SYSTEM`（系统） |
-| `custom_start_date` | 查询起始日期 | `String` | 条件必填 | — | 与 `custom_end_date` **须成对传入**才改写页面日期；均未传时保留页面默认区间。支持 `YYYYMMDD` 或 `YYYY-MM-DD`；不可晚于结束日期；仅支持近 30 天（含今天共 30 个自然日） |
-| `custom_end_date` | 查询结束日期 | `String` | 条件必填 | — | 须与 `custom_start_date` 成对；支持 `YYYYMMDD` 或 `YYYY-MM-DD`；不可早于起始日期；不可选择未来日期，且须在近 30 天范围内 |
+| `sub_tab` | 子页签 | `String` | 否 | `PRODUCT_PROMOTION` | 允许值：`PRODUCT_PROMOTION`（商品营销）/ `LIVE_PROMOTION`（直播推广）/ `STAR_SHOP`（明星店铺）/ `INTEGRATED_MARKETING`（整合营销）/ `ACCOUNT`（账户） |
+| `operation_module` | 操作模块 | `String` | 否 | `ALL` | **商品营销**：`ALL`（全部）/ `PROMOTION`（推广）/ `CREATIVE`（创意）。**明星店铺**：另增 `BRAND_CATEGORY`（品牌类目词）。**整合营销**：`ALL` / `CROWD`（人群）/ `ACTIVITY`（活动）/ `GOODS`（商品）。**账户**：`ALL` / `FINANCE`（财务）/ `PRODUCT`（产品）/ `ACCOUNT_MODULE`（账户）。直播推广不可传 |
+| `operation_type` | 操作类型 | `String` | 否 | `ALL` | 允许值：`ALL`（全部）/ `ADD`（添加）/ `UPDATE`（更新）/ `DELETE`（删除）。适用于商品推广、明星店铺、整合营销；直播推广、账户不可传 |
+| `operation` | 操作 | `String` | 否 | `ALL` | 仅直播推广可用。允许值：`ALL`（全部）/ `ADD_PROMO`（添加推广）/ `UPDATE_PROMO`（更新推广）/ `DELETE_PROMO`（删除推广）。非直播推广不可传 |
+| `operator_type` | 操作人类型 | `String` | 否 | `ALL` | 允许值：`ALL`（全部）/ `MERCHANT`（商家）/ `SYSTEM`（系统） |
+| `operate_start_date` | 操作时间开始日期 | `String` | 是 | `-` | 格式 `YYYYMMDD` / `YYYY-MM-DD`；须与 `operate_end_date` 成对；最早约 today-29（近 30 天含今天） |
+| `operate_end_date` | 操作时间结束日期 | `String` | 是 | `-` | 格式 `YYYYMMDD` / `YYYY-MM-DD`；不可晚于今天 |
 
 ### 入参样例
 
-**默认商品推广** — 不传 `sub_tab` 与筛选项时，走商品推广 + 页面「全部」筛选，日期沿用页面默认。
-
-```json
-{}
-```
-
-**商品推广 + 自定义日期** — 显式指定模块/类型/操作人与日期区间。
+商品推广：
 
 ```json
 {
@@ -58,50 +52,20 @@ category: promotion
   "operation_module": "ALL",
   "operation_type": "ALL",
   "operator_type": "ALL",
-  "custom_start_date": "20260728",
-  "custom_end_date": "20260728"
+  "operate_start_date": "20260901",
+  "operate_end_date": "2026-09-07"
 }
 ```
 
-**明星店铺** — 可使用品牌类目词模块。
-
-```json
-{
-  "sub_tab": "STAR_SHOP",
-  "operation_module": "BRAND_CATEGORY",
-  "operation_type": "ALL",
-  "operator_type": "ALL"
-}
-```
-
-**直播推广** — 使用 `operation`，不可传 `operation_module` / `operation_type`。
+直播推广：
 
 ```json
 {
   "sub_tab": "LIVE_PROMOTION",
   "operation": "ALL",
-  "operator_type": "ALL"
-}
-```
-
-**整合营销** — 模块取人群/活动/商品等。
-
-```json
-{
-  "sub_tab": "INTEGRATED_MARKETING",
-  "operation_module": "CROWD",
-  "operation_type": "UPDATE",
-  "operator_type": "MERCHANT"
-}
-```
-
-**账户** — 无操作类型控件；不可传 `operation_type` / `operation`。
-
-```json
-{
-  "sub_tab": "ACCOUNT",
-  "operation_module": "FINANCE",
-  "operator_type": "SYSTEM"
+  "operator_type": "ALL",
+  "operate_start_date": "20260901",
+  "operate_end_date": "20260907"
 }
 ```
 
@@ -111,12 +75,14 @@ category: promotion
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "拼多多推广平台-工具-操作记录 - 查询入参",
-  "description": "采集拼多多推广平台操作记录页各子页签数据，支持按子页签切换，并按当前页签允许的操作模块、操作类型/操作、操作人及日期范围筛选；当前页签不支持的筛选项显式传入时任务失败",
+  "description": "operate_start_date / operate_end_date 必填；格式 YYYYMMDD 或 YYYY-MM-DD；最早约 today-29（近 30 天含今天）；不可晚于今天",
   "type": "object",
+  "required": ["operate_start_date", "operate_end_date"],
+  "additionalProperties": false,
   "properties": {
     "sub_tab": {
       "type": "string",
-      "description": "子页签；决定可用筛选项",
+      "description": "子页签；允许值：PRODUCT_PROMOTION（商品营销）/ LIVE_PROMOTION（直播推广）/ STAR_SHOP（明星店铺）/ INTEGRATED_MARKETING（整合营销）/ ACCOUNT（账户）",
       "enum": [
         "PRODUCT_PROMOTION",
         "LIVE_PROMOTION",
@@ -128,7 +94,7 @@ category: promotion
     },
     "operation_module": {
       "type": "string",
-      "description": "操作模块；默认 ALL 时不操作控件；允许值随 sub_tab 变化：商品推广 ALL/PROMOTION/CREATIVE；明星店铺另含 BRAND_CATEGORY；整合营销 ALL/CROWD/ACTIVITY/GOODS；账户 ALL/FINANCE/PRODUCT/ACCOUNT_MODULE；直播推广不可传",
+      "description": "操作模块；商品营销 ALL/PROMOTION/CREATIVE；明星店铺另含 BRAND_CATEGORY；整合营销 ALL/CROWD/ACTIVITY/GOODS；账户 ALL/FINANCE/PRODUCT/ACCOUNT_MODULE；直播推广不可传",
       "enum": [
         "ALL",
         "PROMOTION",
@@ -145,39 +111,33 @@ category: promotion
     },
     "operation_type": {
       "type": "string",
-      "description": "操作类型；默认 ALL 时不操作控件；适用于商品推广/明星店铺/整合营销；直播推广与账户不可传",
+      "description": "操作类型；允许值 ALL（全部）/ ADD（添加）/ UPDATE（更新）/ DELETE（删除）；直播推广与账户不可传",
       "enum": ["ALL", "ADD", "UPDATE", "DELETE"],
       "default": "ALL"
     },
     "operation": {
       "type": "string",
-      "description": "操作（仅直播推广）；默认 ALL 时不操作控件；非直播推广不可传",
+      "description": "操作（仅直播推广）；允许值 ALL（全部）/ ADD_PROMO（添加推广）/ UPDATE_PROMO（更新推广）/ DELETE_PROMO（删除推广）；非直播推广不可传",
       "enum": ["ALL", "ADD_PROMO", "UPDATE_PROMO", "DELETE_PROMO"],
       "default": "ALL"
     },
     "operator_type": {
       "type": "string",
-      "description": "操作人类型；各子页签均可用；默认 ALL 时不操作控件",
+      "description": "操作人类型；允许值 ALL（全部）/ MERCHANT（商家）/ SYSTEM（系统）",
       "enum": ["ALL", "MERCHANT", "SYSTEM"],
       "default": "ALL"
     },
-    "custom_start_date": {
+    "operate_start_date": {
       "type": "string",
-      "description": "查询起始日期；须与 custom_end_date 成对传入；均未传时保留页面默认区间；支持 YYYYMMDD 或 YYYY-MM-DD；不可晚于结束日期；仅支持近 30 天（含今天共 30 个自然日）",
+      "description": "操作时间开始日期；格式 YYYYMMDD / YYYY-MM-DD；须与 operate_end_date 成对；最早约 today-29（近 30 天含今天）",
       "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
-    "custom_end_date": {
+    "operate_end_date": {
       "type": "string",
-      "description": "查询结束日期；须与 custom_start_date 成对；支持 YYYYMMDD 或 YYYY-MM-DD；不可早于起始日期；不可选择未来日期，且须在近 30 天范围内",
+      "description": "操作时间结束日期；格式 YYYYMMDD / YYYY-MM-DD；不可晚于今天",
       "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
-  },
-  "required": [],
-  "dependentRequired": {
-    "custom_start_date": ["custom_end_date"],
-    "custom_end_date": ["custom_start_date"]
-  },
-  "additionalProperties": false
+  }
 }
 ```
 

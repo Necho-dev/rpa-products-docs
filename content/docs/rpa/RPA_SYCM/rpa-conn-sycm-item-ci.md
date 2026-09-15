@@ -1,5 +1,5 @@
 ---
-title: 市场-竞争-竞品对比
+title: 市场-竞品分析-竞品对比
 description: 按本店与竞品商品 ID 采集生意参谋竞品对比页的销售分析、来源渠道、客群分析、详情分析与退款分析数据
 entry: rpa.conn.sycm.item.ci
 badge:
@@ -38,28 +38,78 @@ category: item
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `self_item_id` | 本店商品 ID | `String` | 是 | — | 本店参与对比的商品 ID |
-| `rival_item_id_1` | 竞品商品 ID（第一个） | `String` | 是 | — | 第一个竞品商品 ID |
-| `rival_item_id_2` | 竞品商品 ID（第二个） | `String` | 否 | — | 第二个竞品商品 ID；不传则不采集竞品 2 相关数据 |
-| `date_type` | 销售/来源/详情/退款统计周期类型 | `String` | 否 | 实时 | 同时作用于销售分析、来源渠道、详情分析、退款分析。允许值：`实时`/`today`（今日）、`recent7`（近 7 天）、`recent30`（近 30 天）、`day`（指定日）、`week`（指定周）、`month`（指定月） |
-| `stat_date` | 销售/来源/详情/退款统计日期 | `String` | 条件必填 | — | 当 `date_type` 为 `day`/`week`/`month` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD` |
-| `customer_date_type` | 客群分析统计周期类型 | `String` | 否 | `day` | 仅作用于客群分析。允许值：`day`（指定日）、`month`（指定月） |
-| `customer_stat_date` | 客群分析统计日期 | `String` | 条件必填 | 昨天 | 当 `customer_date_type=month` 时必填；`day` 时未传则默认昨天；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；日粒度范围为近 90 天（不含今天），月粒度仅支持过去 3 个完整月 |
+| `self_item_id` | 本店商品 ID | `String` | 是 | `-` | 与两个竞品 ID 不允许重复；页面搜不到则返回空数据 |
+| `rival_item_id_1` | 竞品商品 ID（第一个） | `String` | 是 | `-` | 与本店、竞品 2 不允许重复；页面搜不到则返回空数据 |
+| `rival_item_id_2` | 竞品商品 ID（第二个） | `String` | 否 | `-` | 不传则不采集竞品 2；三个商品 ID 不允许重复 |
+| `date_type` | 销售/来源/详情/退款统计周期类型 | `String` | 是 | `-` | 允许值：`REALTIME`（实时）/ `LAST_7_DAYS`（近 7 天）/ `LAST_30_DAYS`（近 30 天）/ `DAY`（按日）/ `WEEK`（自然周）/ `MONTH`（自然月） |
+| `biz_date` | 销售/来源/详情/退款业务日期 | `String` | 条件必填 | `-` | `date_type` 为 `DAY`/`WEEK`/`MONTH` 时必填；始终填一天，格式 `YYYYMMDD` 或 `YYYY-MM-DD`；`REALTIME`/`LAST_7_DAYS`/`LAST_30_DAYS` 时忽略。`DAY` 不可选今日及以后；`WEEK`/`MONTH` 用这一天定位所在周/月，不可选本周/本月的日期。`DAY`/`WEEK` 最早 today-90；`MONTH` 最早约 today 往前 3 个月 |
+| `customer_date_type` | 客群分析统计周期类型 | `String` | 是 | `-` | 允许值：`DAY`（按日）/ `MONTH`（自然月） |
+| `customer_biz_date` | 客群分析业务日期 | `String` | 条件必填 | `-` | `customer_date_type` 为 `DAY`/`MONTH` 时必填；始终填一天，格式 `YYYYMMDD` 或 `YYYY-MM-DD`。`DAY` 不可选今日及以后；`MONTH` 用这一天定位所在月，不可选本月的日期。`DAY` 最早 today-90；`MONTH` 最早约 today 往前 3 个月 |
 
-> 三个商品 ID（`self_item_id` / `rival_item_id_1` / `rival_item_id_2`）不允许重复。执行前会在页面商品选择框中搜索校验 ID 是否可命中；未搜到则返回空数据。
->
 > 详情分析「主图素材」会在页面内依次切换曝光人数 / 互动人数 / 加购转化率 / 支付转化率 / 跳失率五个核心指标采集，**不是任务入参**。退款原因仅采集「全部」Tab（落地默认，不点「退货退款」）。
 
 ### 入参样例
 
+实时 + 客群按日：
+
 ```json
 {
-    "self_item_id": "975****355",
-    "rival_item_id_1": "638****270",
-    "date_type": "week",
-    "stat_date": "2026-04-14",
-    "customer_date_type": "month",
-    "customer_stat_date": "2026-05-14"
+  "self_item_id": "752102501302",
+  "rival_item_id_1": "965527321546",
+  "date_type": "REALTIME",
+  "customer_date_type": "DAY",
+  "customer_biz_date": "20260908"
+}
+```
+
+近 7 天 + 客群按日：
+
+```json
+{
+  "self_item_id": "752102501302",
+  "rival_item_id_1": "965527321546",
+  "date_type": "LAST_7_DAYS",
+  "customer_date_type": "DAY",
+  "customer_biz_date": "20260908"
+}
+```
+
+指定自然日（`YYYYMMDD`）：
+
+```json
+{
+  "self_item_id": "752102501302",
+  "rival_item_id_1": "965527321546",
+  "date_type": "DAY",
+  "biz_date": "20260905",
+  "customer_date_type": "DAY",
+  "customer_biz_date": "20260905"
+}
+```
+
+按周：
+
+```json
+{
+  "self_item_id": "752102501302",
+  "rival_item_id_1": "965527321546",
+  "date_type": "WEEK",
+  "biz_date": "2026-08-31",
+  "customer_date_type": "DAY",
+  "customer_biz_date": "20260908"
+}
+```
+
+按月 + 客群按月：
+
+```json
+{
+  "self_item_id": "752102501302",
+  "rival_item_id_1": "965527321546",
+  "date_type": "MONTH",
+  "biz_date": "20260801",
+  "customer_date_type": "MONTH",
+  "customer_biz_date": "20260801"
 }
 ```
 
@@ -68,70 +118,68 @@ category: item
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "生意参谋-市场-竞争-竞品对比 - 查询入参",
+  "title": "生意参谋-市场-竞品分析-竞品对比 - 查询入参",
   "description": "按本店与竞品商品 ID 采集生意参谋竞品对比页的销售分析、来源渠道、客群分析、详情分析与退款分析数据",
   "type": "object",
   "properties": {
     "self_item_id": {
       "type": "string",
-      "description": "本店参与对比的商品 ID",
+      "description": "本店商品 ID；与两个竞品 ID 不允许重复；页面搜不到则返回空数据",
       "minLength": 1
     },
     "rival_item_id_1": {
       "type": "string",
-      "description": "第一个竞品商品 ID",
+      "description": "竞品商品 ID（第一个）；与本店、竞品 2 不允许重复；页面搜不到则返回空数据",
       "minLength": 1
     },
     "rival_item_id_2": {
       "type": "string",
-      "description": "第二个竞品商品 ID；不传则不采集竞品 2 相关数据",
+      "description": "竞品商品 ID（第二个）；不传则不采集竞品 2；三个商品 ID 不允许重复",
       "minLength": 1
     },
     "date_type": {
       "type": "string",
-      "description": "销售/来源/详情/退款统计周期类型，未传默认实时",
-      "enum": ["实时", "today", "recent7", "recent30", "day", "week", "month"],
-      "default": "实时"
+      "description": "销售/来源/详情/退款统计周期类型。允许值：REALTIME（实时）/ LAST_7_DAYS（近 7 天）/ LAST_30_DAYS（近 30 天）/ DAY（按日）/ WEEK（自然周）/ MONTH（自然月）",
+      "enum": ["REALTIME", "LAST_7_DAYS", "LAST_30_DAYS", "DAY", "WEEK", "MONTH"]
     },
-    "stat_date": {
+    "biz_date": {
       "type": "string",
-      "description": "销售/来源/详情/退款统计日期；date_type 为 day/week/month 时必填。格式 YYYYMMDD 或 YYYY-MM-DD",
+      "description": "销售/来源/详情/退款业务日期；date_type 为 DAY/WEEK/MONTH 时必填；始终填一天；REALTIME/LAST_7_DAYS/LAST_30_DAYS 时忽略。格式 YYYYMMDD 或 YYYY-MM-DD；DAY 不可选今日及以后；WEEK/MONTH 用这一天定位所在周/月，不可选本周/本月的日期。DAY/WEEK 最早 today-90；MONTH 最早约 today 往前 3 个月",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "customer_date_type": {
       "type": "string",
-      "description": "客群分析统计周期类型，未传默认 day",
-      "enum": ["day", "month"],
-      "default": "day"
+      "description": "客群分析统计周期类型。允许值：DAY（按日）/ MONTH（自然月）",
+      "enum": ["DAY", "MONTH"]
     },
-    "customer_stat_date": {
+    "customer_biz_date": {
       "type": "string",
-      "description": "客群分析统计日期；customer_date_type=month 时必填；day 时未传默认昨天。格式 YYYYMMDD 或 YYYY-MM-DD",
+      "description": "客群分析业务日期；customer_date_type 为 DAY/MONTH 时必填；始终填一天。格式 YYYYMMDD 或 YYYY-MM-DD。DAY 不可选今日及以后；MONTH 用这一天定位所在月，不可选本月的日期。DAY 最早 today-90；MONTH 最早约 today 往前 3 个月",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
-  "required": ["self_item_id", "rival_item_id_1"],
+  "required": ["self_item_id", "rival_item_id_1", "date_type", "customer_date_type"],
   "allOf": [
     {
       "if": {
         "properties": {
-          "date_type": { "enum": ["day", "week", "month"] }
+          "date_type": { "enum": ["DAY", "WEEK", "MONTH"] }
         },
         "required": ["date_type"]
       },
       "then": {
-        "required": ["stat_date"]
+        "required": ["biz_date"]
       }
     },
     {
       "if": {
         "properties": {
-          "customer_date_type": { "const": "month" }
+          "customer_date_type": { "enum": ["DAY", "MONTH"] }
         },
         "required": ["customer_date_type"]
       },
       "then": {
-        "required": ["customer_stat_date"]
+        "required": ["customer_biz_date"]
       }
     }
   ],

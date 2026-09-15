@@ -1,5 +1,5 @@
 ---
-title: 品销宝-品牌专区-报表下载
+title: 报表-品牌专区报表
 description: 下载品销宝品牌专区报表 XLSX，解析账户/推广计划/推广单元/创意/品牌流量包/定向人群六个维度数据并合并返回
 entry: rpa.conn.alimm.pxb.brand.zone.report
 badge:
@@ -24,48 +24,48 @@ category: brand
 
 ### 目标页面
 
-> **取数路径**：阿里妈妈—品销宝—报表—品牌专区报表
+> **取数路径**：品销宝—报表—品牌专区报表
 >
 > **取数链接**：[https://branding.taobao.com/#!/report/index](https://branding.taobao.com/#!/report/index)
 
-![阿里妈妈—品销宝品牌专区报表](../../_public/images/alimm/pxb_brand_zone_report_20260807.png)
+![品销宝—报表—品牌专区报表](../../_public/images/alimm/pxb_brand_zone_report_20260807.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `date_type` | 日期快捷选项 | `String` | 是 | — | 可选值：`today`（今日）、`yesterday`（昨日）、`last_week`（上周）、`this_week`（本周）、`last_month`（上月）、`this_month`（本月）、`last_30_days`（最近30天，含昨日共30天）、`custom`（自定义） |
-| `custom_start_date` | 自定义起始日期 | `String` | `date_type = custom` 时必填 | — | 支持格式：`YYYYMMDD`、`YYYY-MM-DD`；须不晚于 `custom_end_date`；须落在可查询窗口内（约今天往前 401 天至今天） |
-| `custom_end_date` | 自定义结束日期 | `String` | `date_type = custom` 时必填 | — | 支持格式：`YYYYMMDD`、`YYYY-MM-DD`；最晚为今天；须落在可查询窗口内（约今天往前 401 天至今天） |
-| `platform` | 设备平台 | `String` | 否 | `all` | 可选值：`all`（汇总设备）、`wireless`（无线）、`pc`（计算机） |
-| `metric_type` | 效果类型 | `String` | 否 | `click` | 可选值：`click`（点击效果）、`impression`（展现效果） |
-| `conversion_days` | 转化数据窗口 | `String` | 否 | `days_30` | 可选值：`days_3`（3天转化数据）、`days_7`（7天转化数据）、`days_15`（15天转化数据）、`days_30`（30天转化数据） |
+| `date_type` | 日期快捷选项 | `String` | 是 | `-` | 允许值：`TODAY`（今日）/ `YESTERDAY`（昨日）/ `LAST_WEEK`（上周）/ `THIS_WEEK`（本周）/ `LAST_MONTH`（上月）/ `THIS_MONTH`（本月）/ `LAST_30_DAYS`（近 30 天）/ `CUSTOM`（自定义区间） |
+| `custom_start_date` | 自定义起始日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；最早约今天往前 401 天 |
+| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；最晚为今天 |
+| `platform` | 设备平台 | `String` | 否 | `ALL` | 允许值：`ALL`（汇总设备）/ `WIRELESS`（无线）/ `PC`（计算机） |
+| `metric_type` | 效果类型 | `String` | 否 | `CLICK` | 允许值：`CLICK`（点击效果）/ `IMPRESSION`（展现效果） |
+| `conversion_days` | 转化数据窗口 | `String` | 否 | `DAYS_30` | 允许值：`DAYS_3`（3天转化数据）/ `DAYS_7`（7天转化数据）/ `DAYS_15`（15天转化数据）/ `DAYS_30`（30天转化数据） |
 
 ### 入参样例
 
-```json
-{
-  "date_type": "yesterday"
-}
-```
+`YYYYMMDD`：
 
 ```json
 {
-  "date_type": "custom",
+  "date_type": "CUSTOM",
+  "custom_start_date": "20260701",
+  "custom_end_date": "20260707",
+  "platform": "WIRELESS",
+  "metric_type": "IMPRESSION",
+  "conversion_days": ""
+}
+```
+
+`YYYY-MM-DD`：
+
+```json
+{
+  "date_type": "CUSTOM",
   "custom_start_date": "2026-07-01",
   "custom_end_date": "2026-07-07",
-  "platform": "wireless",
-  "metric_type": "impression",
-  "conversion_days": "days_15"
-}
-```
-
-```json
-{
-  "date_type": "last_week",
-  "platform": "all",
-  "metric_type": "click",
-  "conversion_days": "days_7"
+  "platform": "",
+  "metric_type": "",
+  "conversion_days": ""
 }
 ```
 
@@ -74,40 +74,39 @@ category: brand
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "阿里妈妈-品牌专区报表 - 查询入参",
+  "title": "报表-品牌专区报表 - 查询入参",
   "description": "下载品销宝品牌专区报表 XLSX，解析账户/推广计划/推广单元/创意/品牌流量包/定向人群六个维度数据并合并返回",
   "type": "object",
   "properties": {
     "date_type": {
       "type": "string",
-      "description": "日期快捷选项。可选值：today（今日）、yesterday（昨日）、last_week（上周）、this_week（本周）、last_month（上月）、this_month（本月）、last_30_days（最近30天）、custom（自定义）",
-      "enum": ["today", "yesterday", "last_week", "this_week", "last_month", "this_month", "last_30_days", "custom"]
+      "description": "日期快捷选项，允许值 TODAY（今日）/ YESTERDAY（昨日）/ LAST_WEEK（上周）/ THIS_WEEK（本周）/ LAST_MONTH（上月）/ THIS_MONTH（本月）/ LAST_30_DAYS（近 30 天）/ CUSTOM（自定义区间）",
+      "enum": ["TODAY", "YESTERDAY", "LAST_WEEK", "THIS_WEEK", "LAST_MONTH", "THIS_MONTH", "LAST_30_DAYS", "CUSTOM"]
     },
     "custom_start_date": {
       "type": "string",
-      "description": "自定义起始日期，date_type=custom 时必填。支持格式：YYYYMMDD、YYYY-MM-DD；须不晚于 custom_end_date；须落在可查询窗口内（约今天往前 401 天至今天）"
+      "description": "自定义起始日期，date_type=CUSTOM 时必填，格式 YYYYMMDD 或 YYYY-MM-DD；最早约今天往前 401 天",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_end_date": {
       "type": "string",
-      "description": "自定义结束日期，date_type=custom 时必填。支持格式：YYYYMMDD、YYYY-MM-DD；最晚为今天；须落在可查询窗口内（约今天往前 401 天至今天）"
+      "description": "自定义结束日期，date_type=CUSTOM 时必填，格式 YYYYMMDD 或 YYYY-MM-DD；最晚为今天",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "platform": {
       "type": "string",
-      "description": "设备平台。可选值：all（汇总设备）、wireless（无线）、pc（计算机）",
-      "enum": ["all", "wireless", "pc"],
-      "default": "all"
+      "description": "设备平台，允许值 ALL（汇总设备）/ WIRELESS（无线）/ PC（计算机）",
+      "default": "ALL"
     },
     "metric_type": {
       "type": "string",
-      "description": "效果类型。可选值：click（点击效果）、impression（展现效果）",
-      "enum": ["click", "impression"],
-      "default": "click"
+      "description": "效果类型，允许值 CLICK（点击效果）/ IMPRESSION（展现效果）",
+      "default": "CLICK"
     },
     "conversion_days": {
       "type": "string",
-      "description": "转化数据窗口。可选值：days_3（3天转化数据）、days_7（7天转化数据）、days_15（15天转化数据）、days_30（30天转化数据）",
-      "enum": ["days_3", "days_7", "days_15", "days_30"],
-      "default": "days_30"
+      "description": "转化数据窗口，允许值 DAYS_3（3天转化数据）/ DAYS_7（7天转化数据）/ DAYS_15（15天转化数据）/ DAYS_30（30天转化数据）",
+      "default": "DAYS_30"
     }
   },
   "required": ["date_type"],
@@ -115,7 +114,7 @@ category: brand
     {
       "if": {
         "properties": {
-          "date_type": { "const": "custom" }
+          "date_type": { "const": "CUSTOM" }
         },
         "required": ["date_type"]
       },

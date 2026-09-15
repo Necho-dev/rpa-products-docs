@@ -1,5 +1,5 @@
 ---
-title: 财务-收支账单-支出日汇总
+title: 财务-收支账单-支出账单-日汇总
 description: 导出千牛收支账单中支出账单日汇总的区间汇总数据，支持按同月日期区间和账单类型筛选
 entry: rpa.conn.qianniu.finance.income.bill.day.summary
 badge:
@@ -46,9 +46,9 @@ category: finance
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `custom_start_date` | 查询起始日期 | `String` | 是 | — | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`。须与结束日期处于同一个自然月，区间跨度不超过 31 天（含起止），且不得晚于结束日期 |
-| `custom_end_date` | 查询结束日期 | `String` | 是 | — | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`。不得早于开始日期；跨月或超过 31 天时连接器返回「时间范围不可超过31天且不允许跨月，请重新选择」 |
-| `bill_type` | 账单类型 | `String` | 否 | 页面默认值 | 英文 code。不传则沿用页面当前默认值。可选值：`SETTLE_COMMON`（结算通用账单）/ `LOGISTICS_COMMON`（物流费用通用账单）/ `MARKETING_PLATFORM`（营销平台） |
+| `custom_start_date` | 查询起始日期 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；须与结束日期处于同一个自然月，区间跨度不超过 31 天（含起止），且不得晚于结束日期 |
+| `custom_end_date` | 查询结束日期 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不得早于开始日期；跨月或超过 31 天时连接器返回「时间范围不可超过31天且不允许跨月，请重新选择」 |
+| `bill_type` | 账单类型 | `String` | 否 | `-` | 允许值：`SETTLE_COMMON`（结算通用账单）/ `LOGISTICS_COMMON`（物流费用通用账单）/ `MARKETING_PLATFORM`（营销平台） |
 
 ### 入参样例
 
@@ -72,7 +72,7 @@ category: finance
 }
 ```
 
-不传账单类型（沿用页面默认）：
+不传账单类型：
 
 ```json
 {
@@ -86,24 +86,24 @@ category: finance
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "千牛-支出账单日汇总 - 查询入参",
+  "title": "千牛-财务-收支账单-支出账单-日汇总 - 查询入参",
   "description": "导出千牛收支账单中支出账单日汇总的区间汇总数据，支持按同月日期区间和账单类型筛选",
   "type": "object",
   "properties": {
     "custom_start_date": {
-      "description": "查询起始日期，必填。支持 YYYYMMDD 或 YYYY-MM-DD；须与结束日期处于同一个自然月，区间跨度不超过 31 天（含起止），且不得晚于结束日期",
+      "description": "查询起始日期，格式 YYYYMMDD 或 YYYY-MM-DD；须与结束日期处于同一个自然月，区间跨度不超过 31 天（含起止），且不得晚于结束日期",
       "type": "string",
       "minLength": 1,
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_end_date": {
-      "description": "查询结束日期，必填。支持 YYYYMMDD 或 YYYY-MM-DD；不得早于开始日期；跨月或超过 31 天时校验失败",
+      "description": "查询结束日期，格式 YYYYMMDD 或 YYYY-MM-DD；不得早于开始日期；跨月或超过 31 天时校验失败",
       "type": "string",
       "minLength": 1,
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "bill_type": {
-      "description": "账单类型英文 code，选填；不传则沿用页面当前默认值。可选值：SETTLE_COMMON（结算通用账单）/ LOGISTICS_COMMON（物流费用通用账单）/ MARKETING_PLATFORM（营销平台）",
+      "description": "账单类型。允许值：SETTLE_COMMON（结算通用账单）/ LOGISTICS_COMMON（物流费用通用账单）/ MARKETING_PLATFORM（营销平台）",
       "type": "string",
       "enum": ["SETTLE_COMMON", "LOGISTICS_COMMON", "MARKETING_PLATFORM"]
     }

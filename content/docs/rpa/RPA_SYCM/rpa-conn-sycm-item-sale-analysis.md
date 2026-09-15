@@ -48,47 +48,67 @@ category: item
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `item_id` | 商品 ID | `String` | 是 | — | 仅允许纯数字 |
-| `date_type` | 统计时间类型 | `String` | 否 | `day` | 可选值：`recent7`（7天）/ `recent30`（30天）/ `day`（日）/ `week`（周）/ `month`（月） |
-| `stat_date` | 统计日期 | `String` | 否 | `day`/`week`/`month` 不传时默认昨天/上周/上月 | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；`date_type` 为 `day`/`week`/`month` 时可传。禁止今日/本周/本月及以后；`recent7`/`recent30` 时忽略本参数 |
+| `item_id` | 商品 ID | `String` | 是 | `-` | 仅允许纯数字 |
+| `date_type` | 统计时间类型 | `String` | 是 | `-` | 允许值：`LAST_7_DAYS`（近 7 天）/ `LAST_30_DAYS`（近 30 天）/ `DAY`（按日）/ `WEEK`（自然周）/ `MONTH`（自然月） |
+| `biz_date` | 业务日期 | `String` | 条件必填 | `-` | `date_type` 为 `DAY`/`WEEK`/`MONTH` 时必填；始终填一天，格式 `YYYYMMDD` 或 `YYYY-MM-DD`；`LAST_7_DAYS`/`LAST_30_DAYS` 时忽略。`DAY` 不可选今日及以后；`WEEK`/`MONTH` 用这一天定位所在周/月，不可选本周/本月的日期；最早约 2024-07-01 |
 
 ### 入参样例
-
-按日（默认昨天，可不传 `stat_date`）：
-
-```json
-{
-  "item_id": "1017291731088",
-  "date_type": "day"
-}
-```
-
-指定自然日：
-
-```json
-{
-  "item_id": "1017291731088",
-  "date_type": "day",
-  "stat_date": "20260804"
-}
-```
 
 近 7 天：
 
 ```json
 {
-  "item_id": "1017291731088",
-  "date_type": "recent7"
+  "item_id": "752102501302",
+  "date_type": "LAST_7_DAYS"
 }
 ```
 
-按月（不传 `stat_date` 时默认上月）：
+近 30 天：
 
 ```json
 {
-  "item_id": "1017291731088",
-  "date_type": "month",
-  "stat_date": "20260701"
+  "item_id": "752102501302",
+  "date_type": "LAST_30_DAYS"
+}
+```
+
+指定自然日（`YYYYMMDD`）：
+
+```json
+{
+  "item_id": "752102501302",
+  "date_type": "DAY",
+  "biz_date": "20260905"
+}
+```
+
+指定自然日（`YYYY-MM-DD`）：
+
+```json
+{
+  "item_id": "752102501302",
+  "date_type": "DAY",
+  "biz_date": "2026-08-05"
+}
+```
+
+按周：
+
+```json
+{
+  "item_id": "752102501302",
+  "date_type": "WEEK",
+  "biz_date": "2026-08-31"
+}
+```
+
+按月：
+
+```json
+{
+  "item_id": "752102501302",
+  "date_type": "MONTH",
+  "biz_date": "2026-08-01"
 }
 ```
 
@@ -108,18 +128,32 @@ category: item
     },
     "date_type": {
       "type": "string",
-      "description": "统计时间类型，未传默认 day。可选值：recent7（7天）/ recent30（30天）/ day（日）/ week（周）/ month（月）",
-      "enum": ["recent7", "recent30", "day", "week", "month"],
-      "default": "day"
+      "description": "统计时间类型。允许值：LAST_7_DAYS（近 7 天）/ LAST_30_DAYS（近 30 天）/ DAY（按日）/ WEEK（自然周）/ MONTH（自然月）",
+      "enum": ["LAST_7_DAYS", "LAST_30_DAYS", "DAY", "WEEK", "MONTH"]
     },
-    "stat_date": {
+    "biz_date": {
       "type": "string",
-      "description": "统计日期；date_type 为 day/week/month 时可传，不传则默认昨天/上周/上月。格式 YYYYMMDD 或 YYYY-MM-DD；禁止今日/本周/本月及以后；recent7/recent30 时忽略",
+      "description": "业务日期；date_type 为 DAY/WEEK/MONTH 时必填；始终填一天；LAST_7_DAYS/LAST_30_DAYS 时忽略。格式 YYYYMMDD 或 YYYY-MM-DD；DAY 不可选今日及以后；WEEK/MONTH 用这一天定位所在周/月，不可选本周/本月的日期；最早约 2024-07-01",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
-  "required": ["item_id"],
-  "additionalProperties": false
+  "required": ["item_id", "date_type"],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "date_type": {
+            "enum": ["DAY", "WEEK", "MONTH"]
+          }
+        },
+        "required": ["date_type"]
+      },
+      "then": {
+        "required": ["biz_date"]
+      }
+    }
+  ]
 }
 ```
 
@@ -185,7 +219,7 @@ category: item
 | ---- | -------- | -------- | ------ | -------- | ---- |
 | `itemId` | 商品 ID | `String` | 否 | 根据入参 `item_id` 派生 | `101****088` (已脱敏) |
 | `itemName` | 商品名称 | `String` | 是 | 页面解析 | `示例品牌/商品` (已脱敏) |
-| `dateType` | 统计时间类型 | `String` | 否 | 根据入参 `date_type` 派生 | `day` |
+| `dateType` | 统计时间类型 | `String` | 否 | 根据入参 `date_type` 派生 | `DAY` |
 | `dateRangeStart` | 统计起始日 | `String` | 否 | 根据入参统计周期派生 | `2026-08-04` |
 | `dateRangeEnd` | 统计结束日 | `String` | 否 | 根据入参统计周期派生 | `2026-08-04` |
 | `coreList` @核心概况明细 | 核心概况明细列表 | `List[Dict]` | 是 | `XLS` 文件导出 | 见数据样例 |
@@ -202,7 +236,7 @@ category: item
   {
     "itemId": "101****088",
     "itemName": "示例品牌/商品",
-    "dateType": "day",
+    "dateType": "DAY",
     "dateRangeStart": "2026-08-04",
     "dateRangeEnd": "2026-08-04",
     "coreList": [

@@ -1,5 +1,5 @@
 ---
-title: 云图-行业灵感-行业内容榜列表
+title: 内容-行业灵感激发-行业内容榜
 description: 采集巨量云图行业灵感页行业内容榜视频列表，支持按行业、时间、品牌范围、截取方式及年龄/性别/八大人群筛选，返回榜内素材详情及页面实际筛选项
 entry: rpa.conn.juliang.yt.industry.content.rankings.list
 badge:
@@ -24,41 +24,35 @@ category: yt
 
 ### 目标页面
 
-> **取数路径**：巨量云图—内容—创意内容实验室—行业灵感—行业内容榜
+> **取数路径**：巨量云图—内容—行业灵感激发—行业内容榜
 >
 > **取数链接**：[https://yuntu.oceanengine.com/yuntu_brand/ecom/content_new/creative/content_lab/inspiration/industryContent](https://yuntu.oceanengine.com/yuntu_brand/ecom/content_new/creative/content_lab/inspiration/industryContent)
 
-![巨量云图—行业内容榜](../../_public/images/juliang/yt_industry_content_rankings_list_20260703.png)
+![巨量云图—内容—行业灵感激发—行业内容榜](../../_public/images/juliang/yt_industry_content_rankings_list_20260703.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `industry` | 行业 | `String` | 否 | — | 行业搜索关键词；未传则沿用页面当前选中行业 |
-| `time_range_type` | 时间快捷类型 | `String` | 否 | — | 可选值：`LAST_7_DAYS`（近7天）、`LAST_30_DAYS`（近30天）、`CUSTOM`（自定义）；未传则沿用页面当前选中值 |
-| `custom_start_date` | 自定义开始日期 | `String` | `time_range_type = CUSTOM` 时必填 | — | 支持格式：`YYYYMMDD`、`YYYY-MM-DD`；不得早于一年前再往前推 4 天（如 today=2026-07-03 则最早 2025-06-29） |
-| `custom_end_date` | 自定义结束日期 | `String` | `time_range_type = CUSTOM` 时必填 | — | 支持格式：`YYYYMMDD`、`YYYY-MM-DD`；不得晚于 today-4 天（如 today=2026-07-03 则最晚 2026-06-29）；与 `custom_start_date` 相差不得超过 44 天 |
-| `ages` | 年龄 | `String / List[String]` | 否 | — | 多选，英文逗号分隔或 JSON 数组；可选值：`AGE_18_19`（18-19）、`AGE_20_23`（20-23）、`AGE_24_30`（24-30）、`AGE_31_35`（31-35）、`AGE_36_40`（36-40）、`AGE_41_45`（41-45）、`AGE_46_50`（46-50）、`AGE_51_55`（51-55）、`AGE_56_59`（56-59）、`AGE_60_PLUS`（60+） |
-| `genders` | 性别 | `String / List[String]` | 否 | — | 多选，英文逗号分隔或 JSON 数组；可选值：`MALE`（男）、`FEMALE`（女） |
-| `crowd_groups` | 八大人群 | `String / List[String]` | 否 | — | 多选，英文逗号分隔或 JSON 数组；可选值：`TOWN_YOUTH`（小镇青年）、`GENZ`（genz）、`SENIOR_MIDDLE`（资深中产）、`REFINED_MOM`（精致妈妈）、`NEW_WHITE_COLLAR`（新锐白领）、`URBAN_SILVER`（都市银发）、`TOWN_MIDDLE_ELDER`（小镇中老年）、`URBAN_BLUE_COLLAR`（都市蓝领） |
-| `brand_scope_type` | 品牌范围 | `String` | 否 | — | 可选值：`ALL_INDUSTRY`（全行业）、`SPECIFIED_BRANDS`（指定品牌）；部分行业无此筛选项（如手机）；传 `brands` 时本字段必填且须为 `SPECIFIED_BRANDS` |
-| `brands` | 指定品牌 | `String / List[String]` | 传 `brands` 时 `brand_scope_type` 必填且为 `SPECIFIED_BRANDS` | — | 品牌搜索关键词，多选 3-10 个，英文逗号分隔或 JSON 数组；搜索有结果则选列表第一项，无结果则跳过；选完后页面实际 tag 数须仍为 3-10 个 |
-| `ranking_limit_type` | 截取方式 | `String` | 否 | — | 可选值：`EXPOSURE_TOP1000`（曝光量TOP1000）、`CTR_TOP1000`（CTRTOP1000）、`INTERACTION_RATE_TOP1000`（互动率TOP1000）、`COMPLETION_RATE_TOP1000`（完播率TOP1000） |
+| `industry` | 行业 | `String` | 否 | `-` | 行业搜索关键词；均未传则不填页面筛选 |
+| `date_type` | 时间快捷类型 | `String` | 是 | `-` | 允许值：`LAST_7_DAYS`（近 7 天）/ `LAST_30_DAYS`（近 30 天）/ `CUSTOM`（自定义区间） |
+| `custom_start_date` | 自定义开始日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；最早 today-1年-4天 |
+| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不得晚于 today-4；与 `custom_start_date` 相差不得超过 44 天 |
+| `ages` | 年龄 | `String / List[String]` | 否 | `-` | 多选，英文逗号分隔或 JSON 数组；允许值：`AGE_18_19`（18-19）/ `AGE_20_23`（20-23）/ `AGE_24_30`（24-30）/ `AGE_31_35`（31-35）/ `AGE_36_40`（36-40）/ `AGE_41_45`（41-45）/ `AGE_46_50`（46-50）/ `AGE_51_55`（51-55）/ `AGE_56_59`（56-59）/ `AGE_60_PLUS`（60+） |
+| `genders` | 性别 | `String / List[String]` | 否 | `-` | 多选，英文逗号分隔或 JSON 数组；允许值：`MALE`（男）/ `FEMALE`（女） |
+| `crowd_groups` | 八大人群 | `String / List[String]` | 否 | `-` | 多选，英文逗号分隔或 JSON 数组；允许值：`TOWN_YOUTH`（小镇青年）/ `GENZ`（genz）/ `SENIOR_MIDDLE`（资深中产）/ `REFINED_MOM`（精致妈妈）/ `NEW_WHITE_COLLAR`（新锐白领）/ `URBAN_SILVER`（都市银发）/ `TOWN_MIDDLE_ELDER`（小镇中老年）/ `URBAN_BLUE_COLLAR`（都市蓝领） |
+| `brand_scope_type` | 品牌范围 | `String` | 否 | `-` | 允许值：`ALL_INDUSTRY`（全行业）/ `SPECIFIED_BRANDS`（指定品牌）；部分行业无此筛选项（如手机）；传 `brands` 时本字段必填且须为 `SPECIFIED_BRANDS`；本字段为 `SPECIFIED_BRANDS` 时 `brands` 必填 |
+| `brands` | 指定品牌 | `String / List[String]` | 条件必填 | `-` | `brand_scope_type` 为 `SPECIFIED_BRANDS` 时必填；传 `brands` 时 `brand_scope_type` 必填且须为 `SPECIFIED_BRANDS`；品牌搜索关键词，多选 3-10 个，英文逗号分隔或 JSON 数组；搜索有结果则选列表第一项，无结果则跳过；选完后页面实际 tag 数须仍为 3-10 个 |
+| `ranking_limit_type` | 截取方式 | `String` | 否 | `-` | 允许值：`EXPOSURE_TOP1000`（曝光量TOP1000）/ `CTR_TOP1000`（CTRTOP1000）/ `INTERACTION_RATE_TOP1000`（互动率TOP1000）/ `COMPLETION_RATE_TOP1000`（完播率TOP1000） |
 
 ### 入参样例
 
-**沿用页面当前筛选项（不传任何入参）：**
-
-```json
-{}
-```
-
-**指定行业 + 近 7 天：**
+指定行业 + 近 7 天：
 
 ```json
 {
   "industry": "食品饮料",
-  "time_range_type": "LAST_7_DAYS"
+  "date_type": "LAST_7_DAYS"
 }
 ```
 
@@ -67,7 +61,7 @@ category: yt
 ```json
 {
   "industry": "手机",
-  "time_range_type": "LAST_30_DAYS",
+  "date_type": "LAST_30_DAYS",
   "brand_scope_type": "ALL_INDUSTRY",
   "ranking_limit_type": "EXPOSURE_TOP1000"
 }
@@ -78,7 +72,7 @@ category: yt
 ```json
 {
   "industry": "食品饮料",
-  "time_range_type": "CUSTOM",
+  "date_type": "CUSTOM",
   "custom_start_date": "2026-03-01",
   "custom_end_date": "2026-04-11",
   "brand_scope_type": "SPECIFIED_BRANDS",
@@ -93,7 +87,7 @@ category: yt
 ```json
 {
   "industry": "食品饮料",
-  "time_range_type": "LAST_7_DAYS",
+  "date_type": "LAST_7_DAYS",
   "ages": "AGE_24_30,AGE_31_35,AGE_36_40",
   "genders": "FEMALE",
   "crowd_groups": "REFINED_MOM,NEW_WHITE_COLLAR,URBAN_SILVER",
@@ -106,7 +100,7 @@ category: yt
 ```json
 {
   "industry": "食品饮料",
-  "time_range_type": "LAST_7_DAYS",
+  "date_type": "LAST_7_DAYS",
   "brand_scope_type": "SPECIFIED_BRANDS",
   "brands": "燕之屋,王老吉,Oreo/奥利奥,鲁花,洋河,香飘飘,ChaCheer/洽洽"
 }
@@ -117,9 +111,9 @@ category: yt
 ```json
 {
   "industry": "美妆",
-  "time_range_type": "CUSTOM",
+  "date_type": "CUSTOM",
   "custom_start_date": "20260501",
-  "custom_end_date": "20260615",
+  "custom_end_date": "20260614",
   "brand_scope_type": "SPECIFIED_BRANDS",
   "brands": ["兰蔻", "雅诗兰黛", "欧莱雅", "SK-II", "资生堂"],
   "ranking_limit_type": "COMPLETION_RATE_TOP1000",
@@ -133,26 +127,26 @@ category: yt
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "巨量云图-行业内容榜列表 - 查询入参",
+  "title": "内容-行业灵感激发-行业内容榜 - 查询入参",
   "description": "采集巨量云图行业灵感页行业内容榜视频列表，支持按行业、时间、品牌范围、截取方式及年龄/性别/八大人群筛选，返回榜内素材详情及页面实际筛选项",
   "type": "object",
   "properties": {
     "industry": {
       "type": "string",
-      "description": "行业搜索关键词；未传则沿用页面当前选中行业"
+      "description": "行业搜索关键词；均未传则不填页面筛选"
     },
-    "time_range_type": {
+    "date_type": {
       "type": "string",
-      "description": "时间快捷类型。可选值：LAST_7_DAYS（近7天）、LAST_30_DAYS（近30天）、CUSTOM（自定义）",
+      "description": "时间快捷类型。允许值：LAST_7_DAYS（近 7 天）/ LAST_30_DAYS（近 30 天）/ CUSTOM（自定义区间）",
       "enum": ["LAST_7_DAYS", "LAST_30_DAYS", "CUSTOM"]
     },
     "custom_start_date": {
       "type": "string",
-      "description": "自定义开始日期；time_range_type=CUSTOM 时必填。支持 YYYYMMDD 或 YYYY-MM-DD；不得早于一年前再往前推 4 天"
+      "description": "自定义开始日期；date_type 为 CUSTOM 时必填。格式 YYYYMMDD 或 YYYY-MM-DD；最早 today-1年-4天"
     },
     "custom_end_date": {
       "type": "string",
-      "description": "自定义结束日期；time_range_type=CUSTOM 时必填。支持 YYYYMMDD 或 YYYY-MM-DD；不得晚于 today-4 天；与 custom_start_date 相差不得超过 44 天"
+      "description": "自定义结束日期；date_type 为 CUSTOM 时必填。格式 YYYYMMDD 或 YYYY-MM-DD；不得晚于 today-4；与 custom_start_date 相差不得超过 44 天"
     },
     "ages": {
       "description": "年龄多选，英文逗号分隔字符串或字符串数组",
@@ -227,11 +221,11 @@ category: yt
     },
     "brand_scope_type": {
       "type": "string",
-      "description": "品牌范围。可选值：ALL_INDUSTRY（全行业）、SPECIFIED_BRANDS（指定品牌）",
+      "description": "品牌范围。可选值：ALL_INDUSTRY（全行业）、SPECIFIED_BRANDS（指定品牌）。传 brands 时必填且须为 SPECIFIED_BRANDS；为 SPECIFIED_BRANDS 时 brands 必填",
       "enum": ["ALL_INDUSTRY", "SPECIFIED_BRANDS"]
     },
     "brands": {
-      "description": "指定品牌搜索关键词，3~10 个；英文逗号分隔字符串或字符串数组",
+      "description": "指定品牌搜索关键词，3~10 个；brand_scope_type 为 SPECIFIED_BRANDS 时必填。英文逗号分隔字符串或字符串数组",
       "oneOf": [
         {
           "type": "string",
@@ -257,14 +251,14 @@ category: yt
       ]
     }
   },
-  "required": [],
+  "required": ["date_type"],
   "allOf": [
     {
       "if": {
         "properties": {
-          "time_range_type": { "const": "CUSTOM" }
+          "date_type": { "const": "CUSTOM" }
         },
-        "required": ["time_range_type"]
+        "required": ["date_type"]
       },
       "then": {
         "required": ["custom_start_date", "custom_end_date"],

@@ -1,5 +1,5 @@
 ---
-title: 京慧-销售出库-订单明细
+title: 京慧-报表中心-销售出库订单明细表
 description: 按创建日期与下单日期筛选京慧销售出库订单及明细报表，异步导出并解析为行级明细
 entry: rpa.conn.jingmai.jh.sales.order.report
 badge:
@@ -24,11 +24,11 @@ category: jh
 
 ### 目标页面
 
-> **取数路径**：京慧—报表中心—销售出库订单及明细报表
+> **取数路径**：京慧—报表中心—销售出库订单明细表
 >
 > **取数链接**：[https://jh.jdl.com/#/reportForm/salesOrderDetailForm](https://jh.jdl.com/#/reportForm/salesOrderDetailForm)
 
-![京麦—京慧销售出库订单及明细报表](../_public/images/jingmai/jh_sales_order_report_20260820.png)
+![京慧—报表中心—销售出库订单明细表](../_public/images/jingmai/jh_sales_order_report_20260820.png)
 
 页面可选历史日期较久，但近三年以前的区间平台侧常无数据，连接器会按空结果返回，属正常现象；建议使用近两年内日期。
 
@@ -36,19 +36,19 @@ category: jh
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `create_custom_start_date` | 创建起始日期 | `String` | 是 | — | 须与结束日期成对。支持 `YYYYMMDD` / `YYYY-MM-DD` / `YYYY-MM-DD HH:MM:SS` / `YYYYMMDD HH:MM:SS`；仅年月日时默认 `00:00:00`。最早为当年往前第 4 年的 1 月 1 日，最晚为当天；起止跨度**含起止共不超过 367 天**（例 `2025-01-01`~`2026-01-02`） |
-| `create_custom_end_date` | 创建结束日期 | `String` | 是 | — | 须与起始日期成对。格式同起始日期；仅年月日时默认 `23:59:59`。不能早于起始日期 |
-| `order_custom_start_date` | 下单起始日期 | `String` | 是 | — | 须与结束日期成对。仅 `YYYYMMDD` / `YYYY-MM-DD`。边界与跨度同创建日期 |
-| `order_custom_end_date` | 下单结束日期 | `String` | 是 | — | 须与起始日期成对。仅 `YYYYMMDD` / `YYYY-MM-DD`。不能早于起始日期 |
+| `create_start_date` | 创建起始日期 | `String` | 是 | `-` | 须与结束日期成对。支持 `YYYYMMDD` / `YYYY-MM-DD` / `YYYY-MM-DD HH:MM:SS` / `YYYYMMDD HH:MM:SS`；仅年月日时默认 `00:00:00`。最早为当年往前第 4 年的 1 月 1 日，最晚为当天；起止跨度**含起止共不超过 367 天**（例 `2025-01-01`~`2026-01-02`） |
+| `create_end_date` | 创建结束日期 | `String` | 是 | `-` | 须与起始日期成对。格式同起始日期；仅年月日时默认 `23:59:59`。不能早于起始日期 |
+| `order_start_date` | 下单起始日期 | `String` | 是 | `-` | 须与结束日期成对。仅 `YYYYMMDD` / `YYYY-MM-DD`。边界与跨度同创建日期 |
+| `order_end_date` | 下单结束日期 | `String` | 是 | `-` | 须与起始日期成对。仅 `YYYYMMDD` / `YYYY-MM-DD`。不能早于起始日期 |
 
 ### 入参样例
 
 ```json
 {
-  "create_custom_start_date": "2025-01-01",
-  "create_custom_end_date": "2025-01-31",
-  "order_custom_start_date": "2025-01-01",
-  "order_custom_end_date": "2025-12-31"
+  "create_start_date": "2025-01-01",
+  "create_end_date": "2025-01-31",
+  "order_start_date": "2025-01-01",
+  "order_end_date": "2025-12-31"
 }
 ```
 
@@ -56,10 +56,10 @@ category: jh
 
 ```json
 {
-  "create_custom_start_date": "2026-08-20 13:06:33",
-  "create_custom_end_date": "2026-08-20 14:06:33",
-  "order_custom_start_date": "2025-01-01",
-  "order_custom_end_date": "2025-12-31"
+  "create_start_date": "2026-08-20 13:06:33",
+  "create_end_date": "2026-08-20 14:06:33",
+  "order_start_date": "2025-01-01",
+  "order_end_date": "2025-12-31"
 }
 ```
 
@@ -67,10 +67,10 @@ category: jh
 
 ```json
 {
-  "create_custom_start_date": "20250101 00:00:00",
-  "create_custom_end_date": "20250131 23:59:59",
-  "order_custom_start_date": "20250101",
-  "order_custom_end_date": "20251231"
+  "create_start_date": "20250101 00:00:00",
+  "create_end_date": "20250131 23:59:59",
+  "order_start_date": "20250101",
+  "order_end_date": "20251231"
 }
 ```
 
@@ -79,11 +79,11 @@ category: jh
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "京慧-销售出库-订单明细 - 查询入参",
+  "title": "京慧-报表中心-销售出库订单明细表 - 查询入参",
   "description": "按创建日期与下单日期筛选京慧销售出库订单及明细报表，异步导出并解析为行级明细",
   "type": "object",
   "properties": {
-    "create_custom_start_date": {
+    "create_start_date": {
       "type": "string",
       "description": "创建起始日期。须与结束日期成对。支持 YYYYMMDD / YYYY-MM-DD / YYYY-MM-DD HH:MM:SS / YYYYMMDD HH:MM:SS；仅年月日时默认 00:00:00。最早为当年往前第 4 年的 1 月 1 日，最晚为当天；起止跨度含起止共不超过 367 天（例 2025-01-01~2026-01-02）",
       "anyOf": [
@@ -93,7 +93,7 @@ category: jh
         { "pattern": "^\\d{8} \\d{2}:\\d{2}:\\d{2}$" }
       ]
     },
-    "create_custom_end_date": {
+    "create_end_date": {
       "type": "string",
       "description": "创建结束日期。须与起始日期成对。格式同起始日期；仅年月日时默认 23:59:59。不能早于起始日期",
       "anyOf": [
@@ -103,7 +103,7 @@ category: jh
         { "pattern": "^\\d{8} \\d{2}:\\d{2}:\\d{2}$" }
       ]
     },
-    "order_custom_start_date": {
+    "order_start_date": {
       "type": "string",
       "description": "下单起始日期。须与结束日期成对。仅 YYYYMMDD / YYYY-MM-DD。边界与跨度同创建日期",
       "anyOf": [
@@ -111,7 +111,7 @@ category: jh
         { "pattern": "^\\d{4}-\\d{2}-\\d{2}$" }
       ]
     },
-    "order_custom_end_date": {
+    "order_end_date": {
       "type": "string",
       "description": "下单结束日期。须与起始日期成对。仅 YYYYMMDD / YYYY-MM-DD。不能早于起始日期",
       "anyOf": [
@@ -121,10 +121,10 @@ category: jh
     }
   },
   "required": [
-    "create_custom_start_date",
-    "create_custom_end_date",
-    "order_custom_start_date",
-    "order_custom_end_date"
+    "create_start_date",
+    "create_end_date",
+    "order_start_date",
+    "order_end_date"
   ],
   "additionalProperties": false
 }

@@ -1,5 +1,5 @@
 ---
-title: 千川-素材分析-视频推直播单条诊断
+title: 数据-素材数据-视频素材-推直播(数据内容人群诊断)
 description: 采集巨量千川素材分析页指定素材的「数据内容人群诊断」面板数据，含内容分析互动时序、素材元信息、脚本分析、人群维度分布及投放明细分日数据
 entry: rpa.conn.juliang.qc.material.analysis.video.live.diagnosis
 badge:
@@ -24,11 +24,11 @@ category: material
 
 ### 目标页面
 
-> **取数路径**：巨量千川—数据—素材分析—视频素材—推直播—数据内容人群诊断
+> **取数路径**：巨量千川—数据—素材数据—视频素材—推直播—数据内容人群诊断
 >
 > **取数链接**：[https://qianchuan.jinritemai.com/dataV2/roi2-material-analysis](https://qianchuan.jinritemai.com/dataV2/roi2-material-analysis)
 
-![巨量千川—素材分析列表页](../../_public/images/juliang/qc_material_analysis_video_live_diagnosis_1_20260629.png)
+![巨量千川—数据—素材数据—视频素材—推直播](../../_public/images/juliang/qc_material_analysis_video_live_diagnosis_1_20260629.png)
 
 ![巨量千川—数据内容人群诊断面板](../../_public/images/juliang/qc_material_analysis_video_live_diagnosis_2_20260629.png)
 
@@ -36,10 +36,10 @@ category: material
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `material_id` | 素材 ID | `String` | 是 | — | 在素材分析页搜索并定位的目标素材 ID |
-| `date_range_type` | 统计周期类型 | `String` | 是 | — | 可选值：`YESTERDAY`（昨天）、`LAST_7_DAYS`（最近7天）、`LAST_15_DAYS`（最近15天）、`LAST_WEEK`（上周）、`THIS_MONTH`（本月）、`LAST_MONTH`（上月）、`CUSTOM`（自定义）；在内容分析 Tab 设置一次，人群分析与投放数据共用 |
-| `custom_start_date` | 自定义开始日期 | `String` | `date_range_type = CUSTOM` 时必填 | — | 支持格式：`YYYYMMDD`、`YYYY-MM-DD` |
-| `custom_end_date` | 自定义结束日期 | `String` | `date_range_type = CUSTOM` 时必填 | — | 支持格式：`YYYYMMDD`、`YYYY-MM-DD`；不能早于 `custom_start_date`；结束日期为昨天时，若昨日数据暂未产出则任务失败 |
+| `material_id` | 素材 ID | `String` | 是 | `-` | 在素材分析页搜索并定位的目标素材 ID |
+| `date_type` | 统计周期类型 | `String` | 是 | `-` | 允许值：`YESTERDAY`（昨日）/ `LAST_7_DAYS`（近 7 天）/ `LAST_15_DAYS`（近 15 天）/ `LAST_WEEK`（上周）/ `THIS_MONTH`（本月）/ `LAST_MONTH`（上月）/ `CUSTOM`（自定义区间）。`YESTERDAY` 或 `CUSTOM` 结束日为昨天时，昨日数据暂未产出则任务失败；`LAST_7_DAYS` / `LAST_15_DAYS` / `THIS_MONTH` 昨日未产出时页面会排除昨天 |
+| `custom_start_date` | 自定义开始日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD` |
+| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不能早于 `custom_start_date`；结束日期为昨天时，若昨日数据暂未产出则任务失败 |
 
 **统计周期说明：**
 
@@ -54,14 +54,14 @@ category: material
 ```json
 {
   "material_id": "7647499280192372763",
-  "date_range_type": "LAST_7_DAYS"
+  "date_type": "LAST_7_DAYS"
 }
 ```
 
 ```json
 {
   "material_id": "7647499280192372763",
-  "date_range_type": "CUSTOM",
+  "date_type": "CUSTOM",
   "custom_start_date": "2026-06-12",
   "custom_end_date": "2026-06-24"
 }
@@ -72,7 +72,7 @@ category: material
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "巨量千川-视频推直播单条诊断 - 查询入参",
+  "title": "数据-素材数据-视频素材-推直播(数据内容人群诊断) - 查询入参",
   "description": "采集巨量千川素材分析页指定素材的「数据内容人群诊断」面板数据，含内容分析互动时序、素材元信息、脚本分析、人群维度分布及投放明细分日数据",
   "type": "object",
   "properties": {
@@ -80,9 +80,9 @@ category: material
       "type": "string",
       "description": "素材 ID，在素材分析页搜索并定位的目标素材"
     },
-    "date_range_type": {
+    "date_type": {
       "type": "string",
-      "description": "统计周期类型。可选值：YESTERDAY（昨天）、LAST_7_DAYS（最近7天）、LAST_15_DAYS（最近15天）、LAST_WEEK（上周）、THIS_MONTH（本月）、LAST_MONTH（上月）、CUSTOM（自定义）",
+      "description": "统计周期类型。允许值：YESTERDAY（昨日）/ LAST_7_DAYS（近 7 天）/ LAST_15_DAYS（近 15 天）/ LAST_WEEK（上周）/ THIS_MONTH（本月）/ LAST_MONTH（上月）/ CUSTOM（自定义区间）。YESTERDAY 或 CUSTOM 结束日为昨天时，昨日数据暂未产出则任务失败",
       "enum": [
         "YESTERDAY",
         "LAST_7_DAYS",
@@ -95,21 +95,21 @@ category: material
     },
     "custom_start_date": {
       "type": "string",
-      "description": "自定义开始日期；date_range_type=CUSTOM 时必填。支持 YYYYMMDD 或 YYYY-MM-DD"
+      "description": "自定义开始日期；date_type 为 CUSTOM 时必填。格式 YYYYMMDD 或 YYYY-MM-DD"
     },
     "custom_end_date": {
       "type": "string",
-      "description": "自定义结束日期；date_range_type=CUSTOM 时必填。支持 YYYYMMDD 或 YYYY-MM-DD；不能早于 custom_start_date"
+      "description": "自定义结束日期；date_type 为 CUSTOM 时必填。格式 YYYYMMDD 或 YYYY-MM-DD；不能早于 custom_start_date；结束日期为昨天时，若昨日数据暂未产出则任务失败"
     }
   },
-  "required": ["material_id", "date_range_type"],
+  "required": ["material_id", "date_type"],
   "allOf": [
     {
       "if": {
         "properties": {
-          "date_range_type": { "const": "CUSTOM" }
+          "date_type": { "const": "CUSTOM" }
         },
-        "required": ["date_range_type"]
+        "required": ["date_type"]
       },
       "then": {
         "required": ["custom_start_date", "custom_end_date"],
@@ -172,7 +172,7 @@ category: material
 | ---- | -------- | -------- | ------ | -------- | ---- |
 | `recordType` | 记录类型 | `String` | 否 | 经 recordType 派生 | `interaction_series` |
 | `materialId` | 素材 ID | `String` | 否 | 入参 `material_id` | `7647499280192372763` |
-| `dateRangeType` | 统计周期类型 | `String` | 否 | 入参 `date_range_type` | `CUSTOM` |
+| `dateRangeType` | 统计周期类型 | `String` | 否 | 入参 `date_type` | `CUSTOM` |
 | `customStartDate` | 入参统计开始日期 | `String` | 否 | 入参解析 | `2026-06-12` |
 | `customEndDate` | 入参统计结束日期 | `String` | 否 | 入参解析 | `2026-06-24` |
 | `actualStartDate` | 页面实际统计开始日期 | `String` | 否 | 面板日期回读 | `2026-06-12` |

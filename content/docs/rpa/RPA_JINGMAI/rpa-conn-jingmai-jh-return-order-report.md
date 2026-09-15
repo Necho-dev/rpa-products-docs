@@ -1,5 +1,5 @@
 ---
-title: 京慧-退货订单-明细报表
+title: 京慧-报表中心-退货订单明细表
 description: 按退货上架时间与创建日期筛选京慧退货订单报表，异步导出并解析为行级明细
 entry: rpa.conn.jingmai.jh.return.order.report
 badge:
@@ -24,11 +24,11 @@ category: jh
 
 ### 目标页面
 
-> **取数路径**：京慧—报表中心—退货订单及明细报表—退货订单报表
+> **取数路径**：京慧—报表中心—退货订单明细表
 >
 > **取数链接**：[https://jh.jdl.com/#/ReturnReportForm](https://jh.jdl.com/#/ReturnReportForm)
 
-![京麦—京慧退货订单报表](../_public/images/jingmai/jh_return_order_report_20260820.png)
+![京慧—报表中心—退货订单明细表](../_public/images/jingmai/jh_return_order_report_20260820.png)
 
 页面可选历史日期较久，但近三年以前的区间平台侧常无数据，连接器会按空结果返回，属正常现象；建议使用近两年内日期。
 
@@ -37,19 +37,19 @@ category: jh
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `putaway_custom_start_date` | 退货上架起始时间 | `String` | 是 | — | 须与结束时间成对。支持 `YYYYMMDD` / `YYYY-MM-DD` / `YYYY-MM-DD HH:MM:SS`；仅年月日时默认 `00:00:00`。最早为当年往前第 4 年的 1 月 1 日，最晚为当天；起止跨度**含起止共不超过 367 天** |
-| `putaway_custom_end_date` | 退货上架结束时间 | `String` | 是 | — | 须与起始时间成对。格式同起始时间；仅年月日时默认 `23:59:59`。不能早于起始时间 |
-| `create_custom_start_date` | 创建起始日期 | `String` | 是 | — | 须与结束日期成对。仅 `YYYYMMDD` / `YYYY-MM-DD`。边界与跨度同退货上架时间 |
-| `create_custom_end_date` | 创建结束日期 | `String` | 是 | — | 须与起始日期成对。仅 `YYYYMMDD` / `YYYY-MM-DD`。不能早于起始日期 |
+| `putaway_start_date` | 退货上架起始时间 | `String` | 是 | `-` | 须与结束时间成对。支持 `YYYYMMDD` / `YYYY-MM-DD` / `YYYY-MM-DD HH:mm:ss` / `YYYYMMDD HH:mm:ss`；仅年月日时默认 `00:00:00`。最早为当年往前第 4 年的 1 月 1 日，不能传今天；起止跨度**含起止共不超过 367 天** |
+| `putaway_end_date` | 退货上架结束时间 | `String` | 是 | `-` | 须与起始时间成对。格式同起始时间；仅年月日时默认 `23:59:59`。不能早于起始时间；不能传今天 |
+| `create_start_date` | 创建起始日期 | `String` | 是 | `-` | 须与结束日期成对。支持 `YYYYMMDD` / `YYYY-MM-DD` / `YYYY-MM-DD HH:mm:ss` / `YYYYMMDD HH:mm:ss`；带时分秒时仅取日期。边界与跨度同退货上架时间；不能传今天 |
+| `create_end_date` | 创建结束日期 | `String` | 是 | `-` | 须与起始日期成对。格式同起始日期；带时分秒时仅取日期。不能早于起始日期；不能传今天 |
 
 ### 入参样例
 
 ```json
 {
-  "putaway_custom_start_date": "2024-01-01",
-  "putaway_custom_end_date": "2024-12-31",
-  "create_custom_start_date": "2024-01-01",
-  "create_custom_end_date": "2024-12-31"
+  "putaway_start_date": "2024-01-01",
+  "putaway_end_date": "2024-12-31",
+  "create_start_date": "2024-01-01",
+  "create_end_date": "2024-12-31"
 }
 ```
 
@@ -57,10 +57,10 @@ category: jh
 
 ```json
 {
-  "putaway_custom_start_date": "2024-06-01 00:00:00",
-  "putaway_custom_end_date": "2024-06-30 23:59:59",
-  "create_custom_start_date": "2024-06-01",
-  "create_custom_end_date": "2024-06-30"
+  "putaway_start_date": "2024-06-01 00:00:00",
+  "putaway_end_date": "2024-06-30 23:59:59",
+  "create_start_date": "2024-06-01",
+  "create_end_date": "2024-06-30"
 }
 ```
 
@@ -69,50 +69,56 @@ category: jh
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "京慧-退货订单-明细报表 - 查询入参",
+  "title": "京慧-报表中心-退货订单明细表 - 查询入参",
   "description": "按退货上架时间与创建日期筛选京慧退货订单报表，异步导出并解析为行级明细",
   "type": "object",
   "properties": {
-    "putaway_custom_start_date": {
+    "putaway_start_date": {
       "type": "string",
-      "description": "退货上架起始时间。须与结束时间成对。支持 YYYYMMDD / YYYY-MM-DD / YYYY-MM-DD HH:MM:SS；仅年月日时默认 00:00:00。最早为当年往前第 4 年的 1 月 1 日，最晚为当天；起止跨度含起止共不超过 367 天",
+      "description": "退货上架起始时间。须与结束时间成对。支持 YYYYMMDD / YYYY-MM-DD / YYYY-MM-DD HH:mm:ss / YYYYMMDD HH:mm:ss；仅年月日时默认 00:00:00。最早为当年往前第 4 年的 1 月 1 日，不能传今天；起止跨度含起止共不超过 367 天",
       "anyOf": [
         { "pattern": "^\\d{8}$" },
         { "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
-        { "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$" }
+        { "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$" },
+        { "pattern": "^\\d{8} \\d{2}:\\d{2}:\\d{2}$" }
       ]
     },
-    "putaway_custom_end_date": {
+    "putaway_end_date": {
       "type": "string",
-      "description": "退货上架结束时间。须与起始时间成对。格式同起始时间；仅年月日时默认 23:59:59。不能早于起始时间",
+      "description": "退货上架结束时间。须与起始时间成对。格式同起始时间；仅年月日时默认 23:59:59。不能早于起始时间；不能传今天",
       "anyOf": [
         { "pattern": "^\\d{8}$" },
         { "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
-        { "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$" }
+        { "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$" },
+        { "pattern": "^\\d{8} \\d{2}:\\d{2}:\\d{2}$" }
       ]
     },
-    "create_custom_start_date": {
+    "create_start_date": {
       "type": "string",
-      "description": "创建起始日期。须与结束日期成对。仅 YYYYMMDD / YYYY-MM-DD。边界与跨度同退货上架时间",
+      "description": "创建起始日期。须与结束日期成对。支持 YYYYMMDD / YYYY-MM-DD / YYYY-MM-DD HH:mm:ss / YYYYMMDD HH:mm:ss；带时分秒时仅取日期。边界与跨度同退货上架时间；不能传今天",
       "anyOf": [
         { "pattern": "^\\d{8}$" },
-        { "pattern": "^\\d{4}-\\d{2}-\\d{2}$" }
+        { "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+        { "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$" },
+        { "pattern": "^\\d{8} \\d{2}:\\d{2}:\\d{2}$" }
       ]
     },
-    "create_custom_end_date": {
+    "create_end_date": {
       "type": "string",
-      "description": "创建结束日期。须与起始日期成对。仅 YYYYMMDD / YYYY-MM-DD。不能早于起始日期",
+      "description": "创建结束日期。须与起始日期成对。格式同起始日期；带时分秒时仅取日期。不能早于起始日期；不能传今天",
       "anyOf": [
         { "pattern": "^\\d{8}$" },
-        { "pattern": "^\\d{4}-\\d{2}-\\d{2}$" }
+        { "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+        { "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$" },
+        { "pattern": "^\\d{8} \\d{2}:\\d{2}:\\d{2}$" }
       ]
     }
   },
   "required": [
-    "putaway_custom_start_date",
-    "putaway_custom_end_date",
-    "create_custom_start_date",
-    "create_custom_end_date"
+    "putaway_start_date",
+    "putaway_end_date",
+    "create_start_date",
+    "create_end_date"
   ],
   "additionalProperties": false
 }

@@ -34,34 +34,35 @@ category: item
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `date_type` | 统计周期类型 | `String` | 否 | `昨日` | 可选值：`实时` / `昨日` / `7日` / `30日` / `周` / `月` / `自定义` |
-| `biz_date` | 业务日期 | `String` | 条件必填 | — | `date_type` 为 `周`、`月`、`自定义` 时必填，用于匹配自然周/月或自定义单日；支持格式：`YYYYMMDD` / `YYYY-MM-DD`；不可晚于昨天；选 `自定义` 时若日期超出平台可查范围，任务会失败并提示可选日期区间（约最近 25 天）；未传时输出中的 `bizDate` 默认取昨天（`T-1`） |
+| `date_type` | 统计周期类型 | `String` | 是 | `-` | 允许值：`REALTIME`（实时）/ `YESTERDAY`（昨日）/ `LAST_7_DAYS`（近 7 天）/ `LAST_30_DAYS`（近 30 天）/ `WEEK`（自然周）/ `MONTH`（自然月）/ `DAY`（按日） |
+| `biz_date` | 业务日期 | `String` | 条件必填 | `-` | `date_type` 为 `DAY`/`WEEK`/`MONTH` 时必填；快捷码忽略传入的 `biz_date`；始终填一天；格式 `YYYYMMDD` / `YYYY-MM-DD`；`DAY` 不可选今日及以后；`WEEK`/`MONTH` 用这一天定位所在周/月，不可选本周/本月的日期；`DAY` 最早约 today-25 |
 
 ### 入参样例
 
-默认昨日（不传 `biz_date`）：
+近 7 天：
 
 ```json
 {
-  "date_type": "昨日"
+  "date_type": "LAST_7_DAYS",
+  "biz_date": ""
 }
 ```
 
-自定义单日（`YYYYMMDD`）：
+按日（两种日期格式均可）：
 
 ```json
 {
-  "date_type": "自定义",
-  "biz_date": "20260501"
+  "date_type": "DAY",
+  "biz_date": "2026-09-03"
 }
 ```
 
-按自然周（`YYYY-MM-DD`）：
+按自然周：
 
 ```json
 {
-  "date_type": "周",
-  "biz_date": "2026-03-26"
+  "date_type": "WEEK",
+  "biz_date": "20260901"
 }
 ```
 
@@ -71,39 +72,39 @@ category: item
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "拼多多-数据中心-商品数据-商品明细 - 查询入参",
-  "description": "在商品数据明细页按所选统计周期采集各商品的流量、转化、成交与环比及同行等指标，列表按成交金额降序，支持翻页汇总（单任务上限 100 页）",
+  "description": "date_type 必填；允许值 REALTIME（实时）/ YESTERDAY（昨日）/ LAST_7_DAYS（近 7 天）/ LAST_30_DAYS（近 30 天）/ WEEK（自然周）/ MONTH（自然月）/ DAY（按日）；DAY/WEEK/MONTH 时 biz_date 条件必填；DAY 不可选今日及以后；WEEK/MONTH 用这一天定位所在周/月，不可选本周/本月的日期；DAY 最早约 today-25",
   "type": "object",
+  "required": ["date_type"],
+  "additionalProperties": false,
   "properties": {
     "date_type": {
       "type": "string",
-      "description": "统计周期类型；可选值：实时 / 昨日 / 7日 / 30日 / 周 / 月 / 自定义",
+      "description": "统计周期类型；允许值：REALTIME（实时）/ YESTERDAY（昨日）/ LAST_7_DAYS（近 7 天）/ LAST_30_DAYS（近 30 天）/ WEEK（自然周）/ MONTH（自然月）/ DAY（按日）",
       "enum": [
-        "实时",
-        "昨日",
-        "7日",
-        "30日",
-        "周",
-        "月",
-        "自定义"
-      ],
-      "default": "昨日"
+        "REALTIME",
+        "YESTERDAY",
+        "LAST_7_DAYS",
+        "LAST_30_DAYS",
+        "WEEK",
+        "MONTH",
+        "DAY"
+      ]
     },
     "biz_date": {
       "type": "string",
-      "description": "业务日期；date_type 为 周、月、自定义 时必填；支持 YYYYMMDD 或 YYYY-MM-DD；不可晚于昨天；自定义时约限近 25 天",
+      "description": "业务日期；date_type 为 DAY/WEEK/MONTH 时必填；快捷码忽略传入的 biz_date；始终填一天；格式 YYYYMMDD / YYYY-MM-DD；DAY 不可选今日及以后；WEEK/MONTH 用这一天定位所在周/月，不可选本周/本月的日期；DAY 最早约 today-25",
       "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
-  "required": [],
   "allOf": [
     {
       "if": {
         "properties": {
           "date_type": {
             "enum": [
-              "周",
-              "月",
-              "自定义"
+              "WEEK",
+              "MONTH",
+              "DAY"
             ]
           }
         },
@@ -117,8 +118,7 @@ category: item
         ]
       }
     }
-  ],
-  "additionalProperties": false
+  ]
 }
 ```
 

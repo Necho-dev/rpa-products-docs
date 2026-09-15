@@ -1,5 +1,5 @@
 ---
-title: 店铺-评价管理-来自买家的评价
+title: 交易-评价管理-来自买家的评价
 description: 按全部/正面/中性/负面及评价日期筛选，用于客服与口碑分析；默认配置最大翻页次数 100
 entry: rpa.conn.qianniu.shop.comment.list
 badge:
@@ -32,19 +32,54 @@ category: shop
 
 ### 业务入参
 
-| 字段                | 中文释义     | 数据类型  | 必填 | 默认值     | 说明 |
-| ------------------- | ------------ | --------- | ---- | ---------- | ---- |
-| `emotion_type`      | 情感分类     | `string`  | 否   | 可选项：`NEGATIVE` | `ALL` / `POSITIVE` / `NEUTRAL` / `NEGATIVE` |
-| `rate_date_start`   | 评价开始日期 | `string`  | 否   | bizDate - 30     | `YYYY-MM-DD` |
-| `rate_date_end`     | 评价结束日期 | `string`  | 否   | bizDate     | `YYYY-MM-DD` |
+| 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
+| ---- | -------- | -------- | ---- | ------ | ---- |
+| `emotion_type` | 情感分类 | `String` | 否 | `NEGATIVE` | 允许值：`ALL`（全部）/ `POSITIVE`（正面评价）/ `NEUTRAL`（中性评价）/ `NEGATIVE`（负面评价） |
+| `comment_start_date` | 评价开始日期 | `String` | 否 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与 `comment_end_date` 须同时传入；均未传则不填页面时间筛选 |
+| `comment_end_date` | 评价结束日期 | `String` | 否 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；与 `comment_start_date` 须同时传入 |
 
 ### 入参样例
 
 ```json
 {
-    "emotion_type": "NEGATIVE",
-    "rate_date_start": "",
-    "rate_date_end": ""
+  "emotion_type": "NEGATIVE",
+  "comment_start_date": "",
+  "comment_end_date": ""
+}
+```
+
+### 入参校验
+
+```json-schema collapsed
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "千牛-交易-评价管理-来自买家的评价 - 查询入参",
+  "description": "emotion_type 允许值 ALL（全部）/ POSITIVE（正面评价）/ NEUTRAL（中性评价）/ NEGATIVE（负面评价）；comment_start_date / comment_end_date 须同时传入；均未传则不填页面时间筛选",
+  "type": "object",
+  "required": [],
+  "additionalProperties": false,
+  "dependentRequired": {
+    "comment_start_date": ["comment_end_date"],
+    "comment_end_date": ["comment_start_date"]
+  },
+  "properties": {
+    "emotion_type": {
+      "type": "string",
+      "description": "情感分类；允许值：ALL（全部）/ POSITIVE（正面评价）/ NEUTRAL（中性评价）/ NEGATIVE（负面评价）",
+      "enum": ["ALL", "POSITIVE", "NEUTRAL", "NEGATIVE"],
+      "default": "NEGATIVE"
+    },
+    "comment_start_date": {
+      "type": "string",
+      "description": "评价开始日期；格式 YYYYMMDD 或 YYYY-MM-DD；与 comment_end_date 须同时传入；均未传则不填页面时间筛选",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    },
+    "comment_end_date": {
+      "type": "string",
+      "description": "评价结束日期；格式 YYYYMMDD 或 YYYY-MM-DD；与 comment_start_date 须同时传入",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    }
+  }
 }
 ```
 
@@ -60,7 +95,7 @@ category: shop
 | `feedEmotion`         | 评价情感码(原始值)   | `number`  | 是     | `emotionType.status` | 11 |
 | `feedEmotionName`     | 评价情感描述 | `string`  | 否 |  11-正面评价/12-中性评价/13-负面评价/其他-未知 | 正面评价 |
 | `feedDate`            | 评价时间(时间戳)     | `number`  | 否     | `rateContent.mainRate.date` | 1774945444001 |
-| `feedDateStr`         | 评价时间文本 | `string`  | 否     | 基于 `feedDate` 时间格式化：`YYYY-MM-DD HH:MM:SS` | 2026-03-31 16:24:04 |
+| `feedDateStr`         | 评价时间文本 | `string`  | 否     | 基于 `feedDate` 时间格式化：`YYYY-MM-DD HH:MM:SS` | `2026-03-31 16:24:04` |
 | `appendId`            | 追评 ID      | `string`  | 是     | `rateContent.appendRate.feedId` | 1301344048837 |
 | `appendContent`       | 追评内容     | `string`  | 是     | `rateContent.appendRate.content` | 因这台机子是外装的，所以家里没有预留它的位置。但是阳台正好有一个洗拖把的地方，机子尺寸也差不多，放上去也不会晃动。唯一缺点是机子的烘干模式是需要手动的，客服说是“烘干即停”，实际上三条内裤没有完完全全干透。 |
 | `appendExpression`    | 追评标签     | `List[Dict]`  | 是     | `rateContent.appendRate.expression` | 见数据样例 `appendExpression` |

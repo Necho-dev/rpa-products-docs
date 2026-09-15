@@ -1,5 +1,5 @@
 ---
-title: 天猫健康-三方外投-自定义报表
+title: 推广-三方外投-多渠道下载
 description: 登录天猫健康云台后，按媒体平台、日期与自定义表头模板筛选三方外投数据，异步导出账户粒度天汇总并解析为行级明细
 entry: rpa.conn.alijiankang.tmjk.three.party.custom.report
 badge:
@@ -24,11 +24,11 @@ category: tmjk
 
 ### 目标页面
 
-> **取数路径**：天猫健康云台—推广—三方外投—店铺看板—选择指标模板—口径说明（分天）—多渠道下载—下载中心
+> **取数路径**：天猫健康云台—推广—三方外投—店铺看板—选择指标模板—口径说明（分天）—多渠道下载
 >
 > **取数链接**：[https://yt.taobao.com/v2/third-party-invest#](https://yt.taobao.com/v2/third-party-invest#)
 
-![天猫健康—三方外投自定义报表](../../_public/images/alijiankang/tmjk_three_party_custom_report_20260825.png)
+![天猫健康云台—推广—三方外投—多渠道下载](../../_public/images/alijiankang/tmjk_three_party_custom_report_20260825.png)
 
 ![天猫健康—三方外投—多渠道数据汇总下载](../../_public/images/alijiankang/tmjk_three_party_custom_report_download_20260825.png)
 
@@ -36,11 +36,11 @@ category: tmjk
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `channels` | 媒体平台 / 下载渠道 | `String` / `List[String]` | 是 | — | 英文 code，列表页「媒体平台」与下载抽屉「渠道」共用同一套选项；支持英文逗号分隔字符串或 JSON 数组。可选值：`DOUYIN`（抖音）/ `BILIBILI`（B站）/ `TENCENT`（腾讯）/ `UC`（UC）/ `KUAISHOU`（快手）/ `ZHIHU`（知乎）/ `XIAOHONGSHU`（小红书）/ `WEIBO`（微博）/ `BAIDU`（百度）/ `ALIPAY`（支付宝）/ `XIAOHE_MEDICAL`（小荷医疗） |
-| `date_type` | 日期类型 | `String` | 是 | — | 英文 code，列表页与下载抽屉共用。可选值：`LAST_7_DAYS`（近7天）/ `LAST_30_DAYS`（近30天）/ `CUSTOM`（自定义） |
-| `custom_start_date` | 自定义起始日期 | `String` | 条件必填 | — | 仅 `date_type=CUSTOM` 时必填；支持 `YYYYMMDD` 或 `YYYY-MM-DD` |
-| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | — | 仅 `date_type=CUSTOM` 时必填；支持 `YYYYMMDD` 或 `YYYY-MM-DD`；须不早于起始日期；跨度不超过 31 天（含首尾） |
-| `report_template_name` | 自定义表头模板名称 | `String` | 是 | — | 与店铺看板「常用自定义表头模板」弹层项全文精确匹配 |
+| `channels` | 媒体平台 / 下载渠道 | `String` / `List[String]` | 是 | `-` | 英文 code，列表页「媒体平台」与下载抽屉「渠道」共用同一套选项；英文逗号分隔字符串或 JSON 数组。可选值：`DOUYIN`（抖音）/ `BILIBILI`（B站）/ `TENCENT`（腾讯）/ `UC`（UC）/ `KUAISHOU`（快手）/ `ZHIHU`（知乎）/ `XIAOHONGSHU`（小红书）/ `WEIBO`（微博）/ `BAIDU`（百度）/ `ALIPAY`（支付宝）/ `XIAOHE_MEDICAL`（小荷医疗） |
+| `date_type` | 日期类型 | `String` | 是 | `-` | 可选值：`LAST_7_DAYS`（近 7 天）/ `LAST_30_DAYS`（近 30 天）/ `CUSTOM`（自定义区间） |
+| `custom_start_date` | 自定义起始日期 | `String` | 条件必填 | `-` | 仅 `date_type=CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD` |
+| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `-` | 仅 `date_type=CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；须不早于起始日期；跨度不超过 31 天（含首尾） |
+| `report_template_name` | 自定义表头模板名称 | `String` | 是 | `-` | 与店铺看板「常用自定义表头模板」弹层项全文精确匹配 |
 
 ### 入参样例
 
@@ -71,7 +71,7 @@ category: tmjk
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "阿里健康-三方外投自定义报表 - 查询入参",
+  "title": "推广-三方外投-多渠道下载 - 查询入参",
   "description": "登录天猫健康云台后，按媒体平台、日期与自定义表头模板筛选三方外投数据，异步导出账户粒度天汇总并解析为行级明细",
   "type": "object",
   "properties": {
@@ -106,12 +106,12 @@ category: tmjk
       ]
     },
     "date_type": {
-      "description": "日期类型英文 code。可选值：LAST_7_DAYS（近7天）/ LAST_30_DAYS（近30天）/ CUSTOM（自定义）",
+      "description": "日期类型英文 code。可选值：LAST_7_DAYS（近 7 天）/ LAST_30_DAYS（近 30 天）/ CUSTOM（自定义区间）",
       "type": "string",
       "enum": ["LAST_7_DAYS", "LAST_30_DAYS", "CUSTOM"]
     },
     "custom_start_date": {
-      "description": "自定义起始日期，仅 date_type=CUSTOM 时必填；支持 YYYYMMDD 或 YYYY-MM-DD",
+      "description": "自定义起始日期，仅 date_type=CUSTOM 时必填；格式 YYYYMMDD 或 YYYY-MM-DD",
       "type": "string",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },

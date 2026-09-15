@@ -46,21 +46,17 @@ prompt:
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `date_type` | 日期类型 | `String` | 否 | `LAST_7_DAYS` | 英文 code。快捷优先于自定义：与自定义同时传入时按快捷、忽略自定义。走自定义必须传 `CUSTOM`。不传且起止皆空时按默认 `LAST_7_DAYS` 点选后再回读比对。可选值：`YESTERDAY`（昨天）/ `LAST_7_DAYS`（最近7天）/ `LAST_15_DAYS`（最近15天）/ `LAST_1_MONTH`（最近1个月）/ `LAST_3_MONTHS`（最近3个月）/ `CUSTOM`（自定义） |
-| `custom_start_date` | 自定义起始日期 | `String` | 条件必填 | `None` | 仅 `YYYYMMDD` / `YYYY-MM-DD`；须与 `custom_end_date` 成对；**仅** `date_type=CUSTOM` 时生效；须 ≥ 三年前 1 月 1 日；空串视为未传 |
-| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `None` | 仅 `YYYYMMDD` / `YYYY-MM-DD`；须与 `custom_start_date` 成对；**仅** `date_type=CUSTOM` 时生效；须 ≤ 昨天；起止跨度须严格小于三个自然月；空串视为未传 |
+| `date_type` | 日期类型 | `String` | 是 | `-` | 允许值：`YESTERDAY`（昨日）/ `LAST_7_DAYS`（近 7 天）/ `LAST_15_DAYS`（近 15 天）/ `LAST_1_MONTH`（近 1 个月）/ `LAST_3_MONTHS`（近 3 个月）/ `CUSTOM`（自定义）。与自定义同时传入时按快捷、忽略自定义 |
+| `custom_start_date` | 自定义起始日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；须与 `custom_end_date` 成对；须 ≥ 三年前 1 月 1 日 |
+| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；须与 `custom_start_date` 成对；须 ≤ 昨日；跨度须严格小于三个自然月 |
 
 ### 入参样例
 
-快捷「昨天」：
-
 ```json
 {
-  "date_type": "YESTERDAY"
+  "date_type": "LAST_7_DAYS"
 }
 ```
-
-自定义区间：
 
 ```json
 {
@@ -68,22 +64,6 @@ prompt:
   "custom_start_date": "2026-07-01",
   "custom_end_date": "2026-07-31"
 }
-```
-
-快捷优先（同时传自定义会被忽略）：
-
-```json
-{
-  "date_type": "LAST_7_DAYS",
-  "custom_start_date": "20260701",
-  "custom_end_date": "20260731"
-}
-```
-
-都不传（按默认最近7天点选）：
-
-```json
-{}
 ```
 
 ### 入参校验
@@ -96,7 +76,7 @@ prompt:
   "type": "object",
   "properties": {
     "date_type": {
-      "description": "日期类型英文 code，默认 LAST_7_DAYS（最近7天）。可选值：YESTERDAY（昨天）/ LAST_7_DAYS（最近7天）/ LAST_15_DAYS（最近15天）/ LAST_1_MONTH（最近1个月）/ LAST_3_MONTHS（最近3个月）/ CUSTOM（自定义）。与自定义同时传入时按快捷忽略自定义；走自定义必须传 CUSTOM；不传且起止皆空时按 LAST_7_DAYS 点选后回读比对",
+      "description": "允许值：YESTERDAY（昨日）/ LAST_7_DAYS（近 7 天）/ LAST_15_DAYS（近 15 天）/ LAST_1_MONTH（近 1 个月）/ LAST_3_MONTHS（近 3 个月）/ CUSTOM（自定义）。与自定义同时传入时按快捷、忽略自定义",
       "type": "string",
       "enum": [
         "YESTERDAY",
@@ -108,34 +88,19 @@ prompt:
       ]
     },
     "custom_start_date": {
-      "description": "自定义起始日期，仅 YYYYMMDD 或 YYYY-MM-DD；须与 custom_end_date 成对；仅 date_type=CUSTOM 时生效；须 ≥ 三年前1月1日；空串视为未传",
+      "description": "date_type 为 CUSTOM 时必填。格式 YYYYMMDD 或 YYYY-MM-DD；须与 custom_end_date 成对；须 ≥ 三年前 1 月 1 日",
       "type": "string",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_end_date": {
-      "description": "自定义结束日期，仅 YYYYMMDD 或 YYYY-MM-DD；须与 custom_start_date 成对；须 ≤ 昨天；起止跨度须严格小于三个自然月；空串视为未传",
+      "description": "date_type 为 CUSTOM 时必填。格式 YYYYMMDD 或 YYYY-MM-DD；须与 custom_start_date 成对；须 ≤ 昨日；跨度须严格小于三个自然月",
       "type": "string",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
-  "required": [],
+  "required": ["date_type"],
   "additionalProperties": false,
   "allOf": [
-    {
-      "if": {
-        "anyOf": [
-          { "required": ["custom_start_date"] },
-          { "required": ["custom_end_date"] }
-        ],
-        "not": { "required": ["date_type"] }
-      },
-      "then": {
-        "required": ["date_type"],
-        "properties": {
-          "date_type": { "const": "CUSTOM" }
-        }
-      }
-    },
     {
       "if": {
         "properties": { "date_type": { "const": "CUSTOM" } },

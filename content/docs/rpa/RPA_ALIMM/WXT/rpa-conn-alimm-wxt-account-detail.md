@@ -1,5 +1,5 @@
 ---
-title: 万相台-账户-账户明细
+title: 账户-账户明细-现金收支明细
 description: 导出阿里妈妈万相台账户明细（现金收支）数据，支持按收支类型、交易类型及日期范围筛选
 entry: rpa.conn.alimm.wxt.account.detail
 badge:
@@ -24,31 +24,102 @@ category: account
 
 ### 目标页面
 
-> **取数路径**：阿里妈妈—万相台—账户—账户明细
+> **取数路径**：万相台—账户—账户明细—现金收支明细
 >
 > **取数链接**：[https://one.alimama.com/index.html#!/account/detail](https://one.alimama.com/index.html#!/account/detail)
 
-![阿里妈妈—万相台账户明细](../../_public/images/alimm/wxt_account_detail_20260611.png)
+![万相台—账户—账户明细—现金收支明细](../../_public/images/alimm/wxt_account_detail_20260611.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `fin_type` | 收支类型 | `string` | 否 | `—` | 可选 `""` 或 `all`（全部）/ `expense`（支出）/ `income`（收入），不传表示全部 |
-| `trade_type` | 交易类型 | `string` | 否 | `—` | 可选 `""` 或 `all`（全部）/ `recharge` 或 `charge`（充值）/ `refund`（退款）/ `deduct`（扣款）/ `transfer`（转账）/ `compen`（赔付）/ `freeze`（冻结）/ `unfreeze`（解冻）/ `pay`（付款）/ `unpay`（退余额），不传表示全部 |
-| `time_type` | 时间维度 | `string` | 否 | `account_time` | 可选 `account_time`（记账时间）/ `trade_date`（交易日期） |
-| `date_type` | 日期快捷选项 | `string` | 否 | `last_30_days` | 可选 `today`（今天）/ `yesterday`（昨天）/ `last_week`（上周）/ `this_month`（本月）/ `last_month`（上月）/ `last_7_days`（近7天）/ `last_15_days`（近15天）/ `last_30_days`（近30天）/ `last_90_days`（近90天）/ `last_180_days`（近180天）/ `custom`（自定义，需配合 `custom_start_date` / `custom_end_date`） |
-| `custom_start_date` | 自定义起始日期 | `string` | 否 | `—` | `date_type` 为 `custom` 时必填，格式 `YYYYMMDD` 或 `YYYY-MM-DD` |
-| `custom_end_date` | 自定义结束日期 | `string` | 否 | `—` | `date_type` 为 `custom` 时必填，格式 `YYYYMMDD` 或 `YYYY-MM-DD`，最晚为今天 |
+| `fin_type` | 收支类型 | `String` | 否 | `-` | 允许值：`ALL`（全部）/ `EXPENSE`（支出）/ `INCOME`（收入） |
+| `trade_type` | 交易类型 | `String` | 否 | `-` | 允许值：`ALL`（全部）/ `RECHARGE`（充值）/ `REFUND`（退款）/ `DEDUCT`（扣款）/ `TRANSFER`（转账）/ `COMPEN`（赔付）/ `FREEZE`（冻结）/ `UNFREEZE`（解冻）/ `PAY`（付款）/ `UNPAY`（退余额） |
+| `time_type` | 时间维度 | `String` | 否 | `ACCOUNT_TIME` | 允许值：`ACCOUNT_TIME`（记账时间）/ `TRADE_DATE`（交易日期） |
+| `date_type` | 日期快捷选项 | `String` | 是 | `-` | 允许值：`TODAY`（今日）/ `YESTERDAY`（昨日）/ `LAST_WEEK`（上周）/ `THIS_MONTH`（本月）/ `LAST_MONTH`（上月）/ `LAST_7_DAYS`（近 7 天）/ `LAST_15_DAYS`（近 15 天）/ `LAST_30_DAYS`（近 30 天）/ `LAST_90_DAYS`（近 90 天）/ `LAST_180_DAYS`（近 180 天）/ `CUSTOM`（自定义区间） |
+| `custom_start_date` | 自定义起始日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD` |
+| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；最晚为今天 |
 
 ### 入参样例
 
+`YYYYMMDD`：
+
 ```json
 {
-    "fin_type": "income",
-    "trade_type": "refund",
-    "time_type": "account_time",
-    "date_type": "last_30_days"
+    "fin_type": "ALL",
+    "trade_type": "UNPAY",
+    "time_type": "TRADE_DATE",
+    "date_type": "CUSTOM",
+    "custom_start_date": "20260415",
+    "custom_end_date": "20260610"
+}
+```
+
+`YYYY-MM-DD`：
+
+```json
+{
+    "fin_type": "",
+    "trade_type": "",
+    "time_type": "",
+    "date_type": "CUSTOM",
+    "custom_start_date": "2026-04-15",
+    "custom_end_date": "2026-06-10"
+}
+```
+
+### 入参校验
+
+```json-schema collapsed
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "账户-账户明细-现金收支明细 - 查询入参",
+  "description": "导出阿里妈妈万相台账户明细（现金收支）数据，支持按收支类型、交易类型及日期范围筛选",
+  "type": "object",
+  "properties": {
+    "fin_type": {
+      "type": "string",
+      "description": "收支类型，允许值 ALL（全部）/ EXPENSE（支出）/ INCOME（收入）"
+    },
+    "trade_type": {
+      "type": "string",
+      "description": "交易类型，允许值 ALL / RECHARGE / REFUND / DEDUCT / TRANSFER / COMPEN / FREEZE / UNFREEZE / PAY / UNPAY"
+    },
+    "time_type": {
+      "type": "string",
+      "description": "时间维度，允许值 ACCOUNT_TIME（记账时间）/ TRADE_DATE（交易日期）",
+      "default": "ACCOUNT_TIME"
+    },
+    "date_type": {
+      "type": "string",
+      "description": "日期快捷选项，允许值 TODAY / YESTERDAY / LAST_WEEK / THIS_MONTH / LAST_MONTH / LAST_7_DAYS（近 7 天）/ LAST_15_DAYS / LAST_30_DAYS / LAST_90_DAYS / LAST_180_DAYS / CUSTOM",
+      "enum": ["TODAY", "YESTERDAY", "LAST_WEEK", "THIS_MONTH", "LAST_MONTH", "LAST_7_DAYS", "LAST_15_DAYS", "LAST_30_DAYS", "LAST_90_DAYS", "LAST_180_DAYS", "CUSTOM"]
+    },
+    "custom_start_date": {
+      "type": "string",
+      "description": "自定义起始日期，date_type=CUSTOM 时必填，格式 YYYYMMDD 或 YYYY-MM-DD",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    },
+    "custom_end_date": {
+      "type": "string",
+      "description": "自定义结束日期，date_type=CUSTOM 时必填，格式 YYYYMMDD 或 YYYY-MM-DD；最晚为今天",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    }
+  },
+  "required": ["date_type"],
+  "allOf": [
+    {
+      "if": {
+        "properties": { "date_type": { "const": "CUSTOM" } },
+        "required": ["date_type"]
+      },
+      "then": {
+        "required": ["custom_start_date", "custom_end_date"]
+      }
+    }
+  ],
+  "additionalProperties": false
 }
 ```
 

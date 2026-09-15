@@ -1,6 +1,6 @@
 ---
-title: 对账中心-账单明细
-description: 按日期区间从拼多多对账中心导出并下载账单明细，支持单日或最多 31 天区间，解析 ZIP 内 CSV 并映射为结构化记录
+title: 对账中心-贷款账户-贷款明细
+description: 按日期区间从拼多多对账中心导出并下载账单明细，区间含首尾不超过 31 天
 entry: rpa.conn.pinduoduo.finance.bill.list
 badge:
   label: 已上线
@@ -18,44 +18,34 @@ category: finance
 | **连接器代码**   | `rpa.conn.pinduoduo.finance.bill.list`|
 | **操作类型**     | `文件导出`|
 | **目标网页**     | `https://cashier.pinduoduo.com/main/bills`|
-| **适用场景**     | 按日期区间从拼多多对账中心导出账单明细；支持单日（`bizDate`）或区间（`beginDate`/`endDate`），区间含首尾不超过 31 天，仅支持最近 12 个自然月内日期|
+| **适用场景**     | 按日期区间从拼多多对账中心导出账单明细；`custom_start_date`/`custom_end_date` 必填，区间含首尾不超过 31 天，最早约 today-12 个自然月，不可晚于今天|
 | **数据表名**     | `ods_rpa_pinduoduo_finance_bill_list_du`|
 | **业务表名**     | `ODS_对账中心账单明细表(拼多多RPA)`|
 
 ### 目标页面
 
-> **取数路径**：拼多多商家后台—对账中心—账单
+> **取数路径**：拼多多商家后台—对账中心—贷款账户—贷款明细
 >
 > **取数链接**：[https://cashier.pinduoduo.com/main/bills](https://cashier.pinduoduo.com/main/bills?tab=4001&__app_code=113)
 
-![拼多多商家后台—对账中心—账单明细](../_public/images/pinduoduo/finance_bill_list_20260424.png)
+![拼多多商家后台—对账中心—贷款账户—贷款明细](../_public/images/pinduoduo/finance_bill_list_20260424.png)
 
 ### 业务入参
 
-| 字段          | 中文释义     | 数据类型  | 必填 | 默认值 | 说明                                                                                             |
-| ------------- | ------------ | --------- | ---- | ------ | ------------------------------------------------------------------------------------------------ |
-| `bizDate`     | 单日账单日期 | `string`  | 否   | —      | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；与 `beginDate`/`endDate` 不能同时传；须落在最近 12 个自然月内且不可晚于今天 |
-| `beginDate`   | 区间开始日期 | `string`  | 否   | —      | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；须与 `endDate` 同时传，且 `beginDate ≤ endDate`，含首尾跨度不超过 31 天；须落在最近 12 个自然月内且不可晚于今天 |
-| `endDate`     | 区间结束日期 | `string`  | 否   | —      | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；须与 `beginDate` 同时传，且 `beginDate ≤ endDate`，含首尾跨度不超过 31 天；须落在最近 12 个自然月内且不可晚于今天 |
+| 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
+| ---- | -------- | -------- | ---- | ------ | ---- |
+| `custom_start_date` | 区间开始日期 | `String` | 是 | `-` | 格式 `YYYYMMDD` / `YYYY-MM-DD`；须与 `custom_end_date` 成对；含首尾跨度不超过 31 天；最早约 today-12 个自然月 |
+| `custom_end_date` | 区间结束日期 | `String` | 是 | `-` | 格式 `YYYYMMDD` / `YYYY-MM-DD`；不可晚于今天 |
 
 ### 入参样例
 
-单日账单（`YYYYMMDD`）：
+区间（两种日期格式均可）：
 
 ```json
-{ "bizDate": "20260417" }
-```
-
-单日账单（`YYYY-MM-DD`）：
-
-```json
-{ "bizDate": "2026-04-17" }
-```
-
-区间账单（7 天）：
-
-```json
-{ "beginDate": "2026-04-11", "endDate": "2026-04-17" }
+{
+  "custom_start_date": "20260901",
+  "custom_end_date": "2026-09-07"
+}
 ```
 
 ### 入参校验
@@ -63,56 +53,23 @@ category: finance
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "拼多多-对账中心-账单明细 - 查询入参",
-  "description": "按日期区间从拼多多对账中心导出并下载账单明细；bizDate 与 beginDate/endDate 互斥",
+  "title": "拼多多-对账中心-贷款账户-贷款明细 - 查询入参",
+  "description": "custom_start_date / custom_end_date 必填；格式 YYYYMMDD 或 YYYY-MM-DD；含首尾跨度不超过 31 天；最早约 today-12 个自然月；不可晚于今天",
   "type": "object",
-  "properties": {
-    "bizDate": {
-      "type": "string",
-      "description": "单日账单日期；支持 YYYYMMDD 或 YYYY-MM-DD；与 beginDate/endDate 互斥；最近 12 个自然月内且不可晚于今天",
-      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
-    },
-    "beginDate": {
-      "type": "string",
-      "description": "区间开始日期；支持 YYYYMMDD 或 YYYY-MM-DD；须与 endDate 同时传入；含首尾跨度 ≤ 31 天",
-      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
-    },
-    "endDate": {
-      "type": "string",
-      "description": "区间结束日期；支持 YYYYMMDD 或 YYYY-MM-DD；须与 beginDate 同时传入；含首尾跨度 ≤ 31 天",
-      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
-    }
-  },
-  "required": [],
+  "required": ["custom_start_date", "custom_end_date"],
   "additionalProperties": false,
-  "allOf": [
-    {
-      "not": {
-        "required": ["bizDate", "beginDate"]
-      }
+  "properties": {
+    "custom_start_date": {
+      "type": "string",
+      "description": "区间开始日期；格式 YYYYMMDD / YYYY-MM-DD；须与 custom_end_date 成对；含首尾跨度不超过 31 天；最早约 today-12 个自然月",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
-    {
-      "not": {
-        "required": ["bizDate", "endDate"]
-      }
-    },
-    {
-      "if": {
-        "required": ["beginDate"]
-      },
-      "then": {
-        "required": ["endDate"]
-      }
-    },
-    {
-      "if": {
-        "required": ["endDate"]
-      },
-      "then": {
-        "required": ["beginDate"]
-      }
+    "custom_end_date": {
+      "type": "string",
+      "description": "区间结束日期；格式 YYYYMMDD / YYYY-MM-DD；不可晚于今天",
+      "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
-  ]
+  }
 }
 ```
 
@@ -123,7 +80,7 @@ category: finance
 | 字段               | 中文释义           | 数据类型         | 可为空 | 取数路径                | 示例                          |
 | ------------------ | ------------------ | ---------------- | ------ | ----------------------- | ----------------------------- |
 | `order_no`         | 商户订单号         | `string`         | 否     | `CSV.0.商户订单号`      | 240417-123456789012345        |
-| `trade_time`       | 发生时间           | `string`         | 是     | `CSV.0.发生时间`        | 2026-04-17 10:18:22           |
+| `trade_time`       | 发生时间           | `string`         | 是     | `CSV.0.发生时间`        | `2026-04-17 10:18:22`           |
 | `income_amount`    | 收入金额（+元）    | `string`         | 是     | `CSV.0.收入金额（+元）` | 59.90                         |
 | `expense_amount`   | 支出金额（-元）    | `string`         | 是     | `CSV.0.支出金额（-元）` | 0.00                          |
 | `bill_type`        | 账务类型           | `string`         | 是     | `CSV.0.账务类型`        | 交易收款                      |

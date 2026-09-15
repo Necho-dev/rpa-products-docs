@@ -1,5 +1,5 @@
 ---
-title: 商品-商品360-客群画像
+title: 商品-商品360-客群洞察-客群画像
 description: 按商品 ID 与业务日期采集生意参谋商品360客群洞察中的客群画像（访问人群 / 支付人群）
 entry: rpa.conn.sycm.item.archives.customer.profile
 badge:
@@ -38,9 +38,9 @@ category: item
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `item_id` | 商品 ID | `String` | 是 | — | 仅允许纯数字，长度 10～20 位；含字母/符号/过短/超长均判输入参数错误 |
-| `date_type` | 统计粒度 | `String` | 否 | `DAY` | 允许值：`DAY`(日) / `MONTH`(月)。决定页面点选「日」或「月」 |
-| `biz_date` | 业务日期 | `String` | 否 | `DAY` 时为昨天（T-1）；`MONTH` 时为上一完整月首日 | 仅支持 `YYYYMMDD` / `YYYY-MM-DD`。`DAY`：点选到日；硬校验近 400 天且不含今天（T-400～T-1）；有数据窗口近 90 天（today-90～T-1），窗外软返回「暂无数据」。`MONTH`：只取入参年月点选月；仅支持当前月之前连续 3 个完整月 |
+| `item_id` | 商品 ID | `String` | 是 | `-` | 仅允许纯数字，长度 10～20 位 |
+| `date_type` | 统计粒度 | `String` | 是 | `-` | 允许值：`DAY`（按日）/ `MONTH`（自然月） |
+| `biz_date` | 业务日期 | `String` | 条件必填 | `-` | `date_type` 为 `DAY`/`MONTH` 时必填；始终填一天，格式 `YYYYMMDD` 或 `YYYY-MM-DD`。`DAY` 不可选今日及以后；硬范围近 400 天；有数据窗口近 90 天，窗外软返回暂无数据。`MONTH` 用这一天定位所在月，不可选本月的日期；仅当前月之前连续 3 个月 |
 
 > 执行前会在商品360搜索框校验 `item_id` 是否可命中；未搜到相关商品时返回空数据（`没有相关商品: <item_id>`）。
 >
@@ -48,31 +48,23 @@ category: item
 
 ### 入参样例
 
-日模式：
+按日：
 
 ```json
 {
-  "item_id": "934****931",
+  "item_id": "752102501302",
   "date_type": "DAY",
-  "biz_date": "20260715"
+  "biz_date": "20260905"
 }
 ```
 
-月模式（`biz_date` 仍传年月日，只取年月）：
+按月：
 
 ```json
 {
-  "item_id": "934****931",
+  "item_id": "752102501302",
   "date_type": "MONTH",
-  "biz_date": "20260515"
-}
-```
-
-未传 `date_type` / `biz_date`（默认 `DAY` + 昨天）：
-
-```json
-{
-  "item_id": "934****931"
+  "biz_date": "2026-08-01"
 }
 ```
 
@@ -81,7 +73,7 @@ category: item
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "生意参谋-商品360-客群画像 - 查询入参",
+  "title": "生意参谋-商品360-客群洞察-客群画像 - 查询入参",
   "description": "按商品 ID 与业务日期采集生意参谋商品360客群洞察中的客群画像（访问人群 / 支付人群）",
   "type": "object",
   "properties": {
@@ -94,18 +86,32 @@ category: item
     },
     "date_type": {
       "type": "string",
-      "description": "统计粒度；允许值 DAY(日) / MONTH(月)；未传默认 DAY",
-      "enum": ["DAY", "MONTH"],
-      "default": "DAY"
+      "description": "统计粒度。允许值：DAY（按日）/ MONTH（自然月）",
+      "enum": ["DAY", "MONTH"]
     },
     "biz_date": {
       "type": "string",
-      "description": "业务日期；仅 YYYYMMDD / YYYY-MM-DD。DAY 未填默认 T-1；MONTH 未填默认上一完整月首日。DAY 硬范围 T-400～T-1、有数据窗口近 90 天窗外软空；MONTH 只取年月且为当前月之前连续 3 个完整月",
+      "description": "业务日期；date_type 为 DAY/MONTH 时必填；始终填一天。格式 YYYYMMDD 或 YYYY-MM-DD。DAY 不可选今日及以后；硬范围近 400 天；有数据窗口近 90 天窗外软返回暂无数据。MONTH 用这一天定位所在月，不可选本月的日期；仅当前月之前连续 3 个月",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
-  "required": ["item_id"],
-  "additionalProperties": false
+  "required": ["item_id", "date_type"],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "date_type": {
+            "enum": ["DAY", "MONTH"]
+          }
+        },
+        "required": ["date_type"]
+      },
+      "then": {
+        "required": ["biz_date"]
+      }
+    }
+  ]
 }
 ```
 

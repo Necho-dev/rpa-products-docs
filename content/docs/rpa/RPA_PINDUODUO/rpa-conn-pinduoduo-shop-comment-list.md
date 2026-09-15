@@ -1,5 +1,5 @@
 ---
-title: 商品-商品管理-评价管理
+title: 商品管理-评价管理-评价详情
 description: 按时间/评分/内容类型/回复状态/活动/订单/商品/关键词获取商品评价明细数据
 entry: rpa.conn.pinduoduo.shop.comment.list
 badge:
@@ -32,52 +32,44 @@ category: shop
 
 ### 业务入参
 
-| 字段                 | 中文释义       | 数据类型         | 必填 | 默认值   | 说明 |
-| -------------------- | -------------- | ---------------- | ---- | -------- | ---- |
-| `time_range`         | 评价时间范围   | `string`         | 否   | `90d`    | `30d` / `90d` / `180d` / `custom` |
-| `custom_start_date`  | 自定义开始日期 | `string`         | `time_range = custom` 时必填 | —     | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；最早近 24 个自然月，不可晚于 `custom_end_date` |
-| `custom_end_date`    | 自定义结束日期 | `string`         | `time_range = custom` 时必填 | —      | 支持格式：`YYYYMMDD` / `YYYY-MM-DD`；不可晚于今天；不可早于 `custom_start_date` |
-| `user_scores`        | 用户评分列表   | `List[int]`      | 否   | `[]`     | 可选项：`1`(1星)、`2`(2星)、`3`(3星)、`4`(4星)、`5`(5星) |
-| `content_types`      | 评价内容筛选   | `List[str]`   | 否   | `[]`     | 可选项：`有图片`、`有视频`、`主评有文字`、`有追加评价`、`已举报` |
-| `reply_status`       | 商家回复筛选   | `List[str]`   | 否   | `[]`     | 可选项：`已回复`、`未回复` |
-| `activity`           | 参与活动筛选   | `List[str]`   | 否   | `[]`     | 可选项：`评价有礼` |
-| `order_sn`           | 订单编号       | `string`         | 否   | —     | 比如 `260410-662259689903207` |
-| `goods_id`           | 商品 ID        | `string`         | 否   | —    | 比如 `930005554830` |
-| `keyword`            | 关键词         | `string`         | 否   | —     | 比如 `牙膏`；） |
+| 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
+| ---- | -------- | -------- | ---- | ------ | ---- |
+| `date_type` | 评价时间范围 | `String` | 是 | `-` | 允许值：`LAST_30_DAYS`（近 30 天）/ `LAST_90_DAYS`（近 90 天）/ `LAST_180_DAYS`（近 180 天）/ `CUSTOM`（自定义区间） |
+| `custom_start_date` | 自定义开始日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` / `YYYY-MM-DD`；最早约 today 往前 24 个自然月 |
+| `custom_end_date` | 自定义结束日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` / `YYYY-MM-DD`；不可晚于今天 |
+| `eval_tags` | 评价标签 | `String \| List[String]` | 否 | `-` | 填写页面下拉中的选项原文，选项不存在返回所有可选项 |
+| `user_scores` | 用户评分 | `List[Integer]` | 否 | `-` | 允许值：`1` / `2` / `3` / `4` / `5` |
+| `content_types` | 评价内容筛选 | `String \| List[String]` | 否 | `-` | 允许值：`HAS_IMAGE`（有图片）/ `HAS_VIDEO`（有视频）/ `MAIN_REVIEW_HAS_TEXT`（主评有文字）/ `HAS_APPEND`（有追加评价）/ `REPORTED`（已举报） |
+| `reply_status` | 商家回复筛选 | `String \| List[String]` | 否 | `-` | 允许值：`REPLIED`（已回复）/ `UNREPLIED`（未回复） |
+| `activity` | 参与活动筛选 | `String \| List[String]` | 否 | `-` | 允许值：`REVIEW_GIFT`（评价有礼） |
+| `order_sn` | 订单编号 | `String` | 否 | `-` | — |
+| `goods_id` | 商品 ID | `String` | 否 | `-` | 纯数字 |
+| `keyword` | 关键词 | `String` | 否 | `-` | — |
 
 ### 入参样例
 
-近 30 天 + 评分筛选：
+近 30 天：
 
 ```json
 {
-  "time_range": "30d",
-  "user_scores": [1, 2, 3],
-  "content_types": ["主评有文字"]
+  "date_type": "LAST_30_DAYS",
+  "custom_start_date": "",
+  "custom_end_date": "",
+  "eval_tags": [],
+  "user_scores": [],
+  "content_types": [],
+  "reply_status": [],
+  "activity": []
 }
 ```
 
-自定义区间（`YYYYMMDD`）：
+自定义区间（两种日期格式均可）：
 
 ```json
 {
-  "time_range": "custom",
-  "custom_start_date": "20260101",
-  "custom_end_date": "20260420",
-  "user_scores": [1, 2, 3],
-  "content_types": ["有追加评价"]
-}
-```
-
-自定义区间（`YYYY-MM-DD`）：
-
-```json
-{
-  "time_range": "custom",
-  "custom_start_date": "2026-01-01",
-  "custom_end_date": "2026-04-20",
-  "user_scores": [1, 2, 3],
-  "content_types": ["有追加评价"]
+  "date_type": "CUSTOM",
+  "custom_start_date": "20260901",
+  "custom_end_date": "2026-09-07"
 }
 ```
 
@@ -86,124 +78,70 @@ category: shop
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "拼多多商品评价管理 - 查询入参",
-  "description": "按时间/评分/内容类型/回复状态/活动/订单/商品/关键词获取商品评价明细数据",
+  "title": "拼多多-商品管理-评价管理-评价详情 - 查询入参",
+  "description": "date_type 必填；允许值 LAST_30_DAYS（近 30 天）/ LAST_90_DAYS（近 90 天）/ LAST_180_DAYS（近 180 天）/ CUSTOM（自定义区间）；CUSTOM 时起止条件必填；最早约 today 往前 24 个自然月；不可晚于今天",
   "type": "object",
+  "required": ["date_type"],
+  "additionalProperties": false,
   "properties": {
-    "time_range": {
+    "date_type": {
       "type": "string",
-      "description": "评价时间范围",
-      "enum": [
-        "30d",
-        "90d",
-        "180d",
-        "custom"
-      ],
-      "default": "90d"
+      "description": "评价时间范围；允许值：LAST_30_DAYS（近 30 天）/ LAST_90_DAYS（近 90 天）/ LAST_180_DAYS（近 180 天）/ CUSTOM（自定义区间）",
+      "enum": ["LAST_30_DAYS", "LAST_90_DAYS", "LAST_180_DAYS", "CUSTOM"]
     },
     "custom_start_date": {
       "type": "string",
-      "description": "自定义开始日期，time_range = custom 时必填。支持格式：YYYYMMDD 或 YYYY-MM-DD；最早近 24 个自然月",
+      "description": "自定义开始日期；date_type 为 CUSTOM 时必填；格式 YYYYMMDD / YYYY-MM-DD；最早约 today 往前 24 个自然月",
       "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
     "custom_end_date": {
       "type": "string",
-      "description": "自定义结束日期，time_range = custom 时必填。支持格式：YYYYMMDD 或 YYYY-MM-DD；不可晚于今天",
+      "description": "自定义结束日期；date_type 为 CUSTOM 时必填；格式 YYYYMMDD / YYYY-MM-DD；不可晚于今天",
       "pattern": "^(?:\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    },
+    "eval_tags": {
+      "type": "array",
+      "description": "评价标签；填写页面下拉中的选项原文，选项不存在返回所有可选项",
+      "items": { "type": "string" }
     },
     "user_scores": {
       "type": "array",
-      "description": "用户评分列表，可选项：1(1星)、2(2星)、3(3星)、4(4星)、5(5星)",
-      "items": {
-        "type": "integer",
-        "enum": [
-          1,
-          2,
-          3,
-          4,
-          5
-        ]
-      },
-      "uniqueItems": true,
-      "default": []
+      "description": "用户评分；允许值 1 / 2 / 3 / 4 / 5",
+      "items": { "type": "integer", "enum": [1, 2, 3, 4, 5] }
     },
     "content_types": {
       "type": "array",
-      "description": "评价内容筛选",
+      "description": "评价内容筛选；允许值 HAS_IMAGE（有图片）/ HAS_VIDEO（有视频）/ MAIN_REVIEW_HAS_TEXT（主评有文字）/ HAS_APPEND（有追加评价）/ REPORTED（已举报）",
       "items": {
         "type": "string",
-        "enum": [
-          "有图片",
-          "有视频",
-          "主评有文字",
-          "有追加评价",
-          "已举报"
-        ]
-      },
-      "uniqueItems": true,
-      "default": []
+        "enum": ["HAS_IMAGE", "HAS_VIDEO", "MAIN_REVIEW_HAS_TEXT", "HAS_APPEND", "REPORTED"]
+      }
     },
     "reply_status": {
       "type": "array",
-      "description": "商家回复筛选",
-      "items": {
-        "type": "string",
-        "enum": [
-          "已回复",
-          "未回复"
-        ]
-      },
-      "uniqueItems": true,
-      "default": []
+      "description": "商家回复筛选；允许值 REPLIED（已回复）/ UNREPLIED（未回复）",
+      "items": { "type": "string", "enum": ["REPLIED", "UNREPLIED"] }
     },
     "activity": {
       "type": "array",
-      "description": "参与活动筛选",
-      "items": {
-        "type": "string",
-        "enum": [
-          "评价有礼"
-        ]
-      },
-      "uniqueItems": true,
-      "default": []
+      "description": "参与活动筛选；允许值 REVIEW_GIFT（评价有礼）",
+      "items": { "type": "string", "enum": ["REVIEW_GIFT"] }
     },
-    "order_sn": {
-      "type": "string",
-      "description": "订单编号，如 260410-662259689903207"
-    },
-    "goods_id": {
-      "type": "string",
-      "description": "商品 ID，如 930005554830"
-    },
-    "keyword": {
-      "type": "string",
-      "description": "关键词，如 牙膏"
-    }
+    "order_sn": { "type": "string", "description": "订单编号" },
+    "goods_id": { "type": "string", "description": "商品 ID；纯数字" },
+    "keyword": { "type": "string", "description": "关键词" }
   },
-  "required": [],
-  "additionalProperties": false,
-  "if": {
-    "properties": {
-      "time_range": {
-        "const": "custom"
+  "allOf": [
+    {
+      "if": {
+        "properties": { "date_type": { "const": "CUSTOM" } },
+        "required": ["date_type"]
+      },
+      "then": {
+        "required": ["custom_start_date", "custom_end_date"]
       }
     }
-  },
-  "then": {
-    "required": [
-      "custom_start_date",
-      "custom_end_date"
-    ],
-    "dependentRequired": {
-      "custom_start_date": [
-        "custom_end_date"
-      ],
-      "custom_end_date": [
-        "custom_start_date"
-      ]
-    }
-  }
+  ]
 }
 ```
 

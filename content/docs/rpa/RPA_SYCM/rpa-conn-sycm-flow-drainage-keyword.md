@@ -38,33 +38,34 @@ category: flow
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `date_type` | 统计时间类型 | `String` | 否 | `day` | 可选值：`recent7`（7天）/ `day`（日）。页面只有实时、7天、日；实时无下载，不开放 |
-| `biz_date` | 业务日期 | `String` | 否 | `day` 都空则昨日 T-1 | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`。`recent7` 忽略本参数。日不可选今日及以后 |
+| `date_type` | 统计时间类型 | `String` | 是 | `-` | 允许值：`LAST_7_DAYS`（近 7 天）/ `DAY`（按日） |
+| `biz_date` | 业务日期 | `String` | 条件必填 | `-` | `date_type` 为 `DAY` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不可选今日及以后；最早约 2024-06-05。`LAST_7_DAYS` 时忽略 |
 
 ### 入参样例
-
-按日（默认昨天）：
-
-```json
-{
-  "date_type": "day"
-}
-```
-
-指定自然日：
-
-```json
-{
-  "date_type": "day",
-  "biz_date": "2026-08-05"
-}
-```
 
 近 7 天：
 
 ```json
 {
-  "date_type": "recent7"
+  "date_type": "LAST_7_DAYS"
+}
+```
+
+指定自然日（`YYYYMMDD`）：
+
+```json
+{
+  "date_type": "DAY",
+  "biz_date": "20260905"
+}
+```
+
+指定自然日（`YYYY-MM-DD`）：
+
+```json
+{
+  "date_type": "DAY",
+  "biz_date": "2026-08-31"
 }
 ```
 
@@ -79,18 +80,30 @@ category: flow
   "properties": {
     "date_type": {
       "type": "string",
-      "description": "统计时间类型，未传默认 day。可选值：recent7（7天）/ day（日）。不开放实时、周、月",
-      "enum": ["recent7", "day"],
-      "default": "day"
+      "description": "统计时间类型。允许值：LAST_7_DAYS（近 7 天）/ DAY（按日）",
+      "enum": ["LAST_7_DAYS", "DAY"]
     },
     "biz_date": {
       "type": "string",
-      "description": "业务日期；day 都空则昨日 T-1；recent7 时忽略。格式 YYYYMMDD 或 YYYY-MM-DD",
+      "description": "业务日期；date_type 为 DAY 时必填；LAST_7_DAYS 时忽略。格式 YYYYMMDD 或 YYYY-MM-DD；不可选今日及以后；最早约 2024-06-05",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
-  "required": [],
-  "additionalProperties": false
+  "required": ["date_type"],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "date_type": { "const": "DAY" }
+        },
+        "required": ["date_type"]
+      },
+      "then": {
+        "required": ["biz_date"]
+      }
+    }
+  ]
 }
 ```
 
@@ -109,7 +122,7 @@ category: flow
 | `payAmt`        | 支付金额   | `string` | 是     | `XLS.0.支付金额`   | - |
 | `avgPrice`      | 客单价     | `number`  | 是     | `XLS.0.客单价`     | - |
 | `uvValue`       | UV 价值    | `number`  | 是     | `XLS.0.UV价值`     | - |
-| `dateType`      | 统计时间类型 | `String` | 否   | 附加，来自入参 `date_type` | `day` |
+| `dateType`      | 统计时间类型 | `String` | 否   | 附加，来自入参 `date_type` | `DAY` |
 | `dateRangeStart` | 统计区间起始日 | `String` | 否 | 附加 | `2026-08-05` |
 | `dateRangeEnd`  | 统计区间结束日 | `String` | 否   | 附加 | `2026-08-05` |
 | `bizDate`       | 业务日期   | `string` | 否     | 附加，取区间结束日 `YYYYMMDD` | |
@@ -130,7 +143,7 @@ category: flow
     "payAmt": "-",
     "avgPrice": "-",
     "uvValue": "-",
-    "dateType": "day",
+    "dateType": "DAY",
     "dateRangeStart": "2026-04-14",
     "dateRangeEnd": "2026-04-14",
     "bizDate": "20260414",

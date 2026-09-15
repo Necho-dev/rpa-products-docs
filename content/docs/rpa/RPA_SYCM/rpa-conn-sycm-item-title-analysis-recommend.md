@@ -1,5 +1,5 @@
 ---
-title: 商品-商品360-标题分析/标题推荐
+title: 商品-商品360-标题分析
 description: 按商品 ID 与统计周期采集生意参谋商品360标题页的标题分析分词（含标签色）与标题推荐方案
 entry: rpa.conn.sycm.item.title.analysis.recommend
 badge:
@@ -32,23 +32,106 @@ category: item
 >
 > **取数链接**：[https://sycm.taobao.com/cc/item_archives?activeKey=title](https://sycm.taobao.com/cc/item_archives?activeKey=title)
 
-![生意参谋—商品360—标题分析/标题推荐](../_public/images/sycm/item_title_analysis_recommend_20260520.png)
+![生意参谋—商品360—标题分析](../_public/images/sycm/item_title_analysis_recommend_20260520.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `item_id` | 商品 ID | `string` | 是 | — | 商品 ID |
-| `date_type` | 统计周期类型 | `string` | 是 | — | 允许值：`today`（今日）、`recent7`（近 7 天）、`recent30`（近 30 天）、`day`（指定单日） |
-| `stat_date` | 统计日期 | `string` | 条件必填 | — | 当 `date_type=day` 时必填；格式 `YYYYMMDD`；不能晚于昨天、不能早于近三个月 |
+| `item_id` | 商品 ID | `String` | 是 | `-` | |
+| `date_type` | 统计时间类型 | `String` | 是 | `-` | 允许值：`REALTIME`（实时）/ `LAST_7_DAYS`（近 7 天）/ `LAST_30_DAYS`（近 30 天）/ `DAY`（按日） |
+| `biz_date` | 业务日期 | `String` | 条件必填 | `-` | `date_type` 为 `DAY` 时必填；始终填一天，格式 `YYYYMMDD` 或 `YYYY-MM-DD`；`REALTIME`/`LAST_7_DAYS`/`LAST_30_DAYS` 时忽略。`DAY` 不可选今日及以后；最早 today-90 |
 
 ### 入参样例
 
+实时：
+
 ```json
 {
-    "item_id": "826562939262",
-    "date_type": "day",
-    "stat_date": "20260319"
+  "item_id": "752102501302",
+  "date_type": "REALTIME"
+}
+```
+
+近 7 天：
+
+```json
+{
+  "item_id": "752102501302",
+  "date_type": "LAST_7_DAYS"
+}
+```
+
+近 30 天：
+
+```json
+{
+  "item_id": "752102501302",
+  "date_type": "LAST_30_DAYS"
+}
+```
+
+指定自然日（`YYYYMMDD`）：
+
+```json
+{
+  "item_id": "752102501302",
+  "date_type": "DAY",
+  "biz_date": "20260905"
+}
+```
+
+指定自然日（`YYYY-MM-DD`）：
+
+```json
+{
+  "item_id": "752102501302",
+  "date_type": "DAY",
+  "biz_date": "2026-08-05"
+}
+```
+
+### 入参校验
+
+```json-schema collapsed
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "生意参谋-商品360-标题分析 - 查询入参",
+  "description": "按商品 ID 与统计周期采集生意参谋商品360标题页的标题分析分词（含标签色）与标题推荐方案",
+  "type": "object",
+  "properties": {
+    "item_id": {
+      "type": "string",
+      "description": "商品 ID"
+    },
+    "date_type": {
+      "type": "string",
+      "description": "统计时间类型。允许值：REALTIME（实时）/ LAST_7_DAYS（近 7 天）/ LAST_30_DAYS（近 30 天）/ DAY（按日）",
+      "enum": ["REALTIME", "LAST_7_DAYS", "LAST_30_DAYS", "DAY"]
+    },
+    "biz_date": {
+      "type": "string",
+      "description": "业务日期；date_type 为 DAY 时必填；始终填一天；REALTIME/LAST_7_DAYS/LAST_30_DAYS 时忽略。格式 YYYYMMDD 或 YYYY-MM-DD；DAY 不可选今日及以后；最早 today-90",
+      "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    }
+  },
+  "required": ["item_id", "date_type"],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "date_type": {
+            "enum": ["DAY"]
+          }
+        },
+        "required": ["date_type"]
+      },
+      "then": {
+        "required": ["biz_date"]
+      }
+    }
+  ]
 }
 ```
 
@@ -59,7 +142,7 @@ category: item
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
 | `itemId` | 商品 ID | `string` | 否 | 来自入参 | `826562939262` |
-| `dateType` | 统计周期类型 | `string` | 否 | 由入参 `date_type` 映射 | `day` |
+| `dateType` | 统计周期类型 | `string` | 否 | 由入参 `date_type` 映射 | `DAY` |
 | `dateRangeStart` | 统计区间起始日 | `string` | 否 | 由入参与周期类型计算 | `2026-03-19` |
 | `dateRangeEnd` | 统计区间结束日 | `string` | 否 | 由入参与周期类型计算 | `2026-03-19` |
 | `maxGuideSeUv` | 标题引流人数最大值 | `number` | 否 | 当次标题各分词 `guideSeUv` 的最大值 | `68` |
@@ -117,7 +200,7 @@ category: item
 ```json
 {
     "itemId": "826562939262",
-    "dateType": "day",
+    "dateType": "DAY",
     "dateRangeStart": "2026-03-19",
     "dateRangeEnd": "2026-03-19",
     "maxGuideSeUv": 68,

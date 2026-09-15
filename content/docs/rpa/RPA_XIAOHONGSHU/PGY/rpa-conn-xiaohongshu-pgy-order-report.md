@@ -1,5 +1,5 @@
 ---
-title: 蒲公英-我的数据-订单报告
+title: 我的工作台-我的数据-订单报告
 description: 导出小红书蒲公英「我的数据-订单报告」xlsx，支持按订单ID与订单创建日期筛选
 entry: rpa.conn.xiaohongshu.pgy.order.report
 badge:
@@ -40,15 +40,15 @@ prompt:
 >
 > **取数链接**：[https://pgy.xiaohongshu.com/solar/post-trade/content-manage/order](https://pgy.xiaohongshu.com/solar/post-trade/content-manage/order)
 
-![小红书—蒲公英订单报告](../../_public/images/xiaohongshu/pgy_order_report_20260817.png)
+![小红书蒲公英—我的工作台—我的数据—订单报告](../../_public/images/xiaohongshu/pgy_order_report_20260817.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `order_id` | 订单 ID | `String` / `null` | 否 | `null`（不填） | `null` 表示不筛选订单 ID；有值须为字符串且为 15~30 位纯数字（`0-9`），禁止传数字类型|
-| `custom_start_date` | 订单创建开始日期 | `String` | 是 | — | 须为字符串；支持 `YYYYMMDD` / `YYYY-MM-DD`；必传，不能为空；须 ≤ `custom_end_date`。未传返回「未输入开始日期」；与结束日期同时未传返回「未输入开始和结束日期」 |
-| `custom_end_date` | 订单创建结束日期 | `String` | 是 | — | 须为字符串；支持 `YYYYMMDD` / `YYYY-MM-DD`；必传，不能为空；须 ≥ `custom_start_date`。未传返回「未输入结束日期」；与开始日期同时未传返回「未输入开始和结束日期」 |
+| `order_id` | 订单 ID | `String` | 否 | `-` | 不传则不筛选订单 ID；有值须为 15~30 位纯数字 |
+| `create_start_date` | 订单创建开始日期 | `String` | 是 | `-` | 支持 `YYYYMMDD` / `YYYY-MM-DD`；须 ≤ `create_end_date` |
+| `create_end_date` | 订单创建结束日期 | `String` | 是 | `-` | 支持 `YYYYMMDD` / `YYYY-MM-DD`；须 ≥ `create_start_date` |
 
 ### 入参样例
 
@@ -56,9 +56,9 @@ prompt:
 
 ```json
 {
-  "order_id": null,
-  "custom_start_date": "2026-08-01",
-  "custom_end_date": "2026-08-07"
+  "order_id": "",
+  "create_start_date": "2026-08-01",
+  "create_end_date": "2026-08-07"
 }
 ```
 
@@ -67,8 +67,8 @@ prompt:
 ```json
 {
   "order_id": "2084224137567178754",
-  "custom_start_date": "20260801",
-  "custom_end_date": "20260807"
+  "create_start_date": "20260801",
+  "create_end_date": "20260807"
 }
 ```
 
@@ -77,30 +77,28 @@ prompt:
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "小红书-蒲公英订单报告 - 查询入参",
+  "title": "我的工作台-我的数据-订单报告 - 查询入参",
   "description": "导出小红书蒲公英「我的数据-订单报告」xlsx，支持按订单ID与订单创建日期筛选",
   "type": "object",
   "properties": {
     "order_id": {
-      "description": "订单 ID。缺省或 null 表示不筛选；有值须为字符串且为 15~30 位纯数字，禁止数字类型",
-      "type": ["string", "null"],
-      "pattern": "^\\d{15,30}$",
-      "default": null
+      "description": "订单 ID；不传则不筛选；有值须为 15~30 位纯数字",
+      "type": "string"
     },
-    "custom_start_date": {
-      "description": "订单创建开始日期。须为字符串且必传；仅支持 YYYYMMDD 或 YYYY-MM-DD；不能晚于 custom_end_date。未传返回「未输入开始日期」；与结束日期同时未传返回「未输入开始和结束日期」",
+    "create_start_date": {
+      "description": "订单创建开始日期；YYYYMMDD 或 YYYY-MM-DD；不能晚于 create_end_date",
       "type": "string",
       "minLength": 1,
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     },
-    "custom_end_date": {
-      "description": "订单创建结束日期。须为字符串且必传；仅支持 YYYYMMDD 或 YYYY-MM-DD；不能早于 custom_start_date。未传返回「未输入结束日期」；与开始日期同时未传返回「未输入开始和结束日期」",
+    "create_end_date": {
+      "description": "订单创建结束日期；YYYYMMDD 或 YYYY-MM-DD；不能早于 create_start_date",
       "type": "string",
       "minLength": 1,
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
     }
   },
-  "required": ["custom_start_date", "custom_end_date"],
+  "required": ["create_start_date", "create_end_date"],
   "additionalProperties": false
 }
 ```

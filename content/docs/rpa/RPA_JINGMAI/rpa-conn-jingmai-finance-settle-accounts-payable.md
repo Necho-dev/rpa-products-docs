@@ -34,9 +34,9 @@ category: finance
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `custom_start_date` | 单据日期开始 | `String` | 是 | — | 支持格式：`YYYYMMDD`、`YYYY-MM-DD`；不能早于近一年（相对当天） |
-| `custom_end_date` | 单据日期结束 | `String` | 是 | — | 支持格式：`YYYYMMDD`、`YYYY-MM-DD`；不能晚于当天；不能早于 `custom_start_date` |
-| `bill_statuses` | 单据状态 | `String` \| `List[String]` | 否 | — | 多选；可选值：`UNSETTLED`（未结算）、`APPLYING`（申请中）、`APPROVED`（审核通过）、`SETTLED`（已结算）；字符串形式为英文逗号分隔 |
+| `bill_start_date` | 单据日期开始 | `String` | 是 | `-` | 支持格式：`YYYYMMDD`、`YYYY-MM-DD`；不能早于近一年（相对当天） |
+| `bill_end_date` | 单据日期结束 | `String` | 是 | `-` | 支持格式：`YYYYMMDD`、`YYYY-MM-DD`；不能晚于当天；不能早于 `bill_start_date` |
+| `bill_statuses` | 单据状态 | `String` \| `List[String]` | 否 | `-` | 多选；可选值：`UNSETTLED`（未结算）、`APPLYING`（申请中）、`APPROVED`（审核通过）、`SETTLED`（已结算）；字符串形式为英文逗号分隔 |
 
 ### 入参样例
 
@@ -44,8 +44,8 @@ category: finance
 
 ```json
 {
-  "custom_start_date": "2026-07-01",
-  "custom_end_date": "2026-07-15"
+  "bill_start_date": "2026-07-01",
+  "bill_end_date": "2026-07-15"
 }
 ```
 
@@ -53,8 +53,8 @@ category: finance
 
 ```json
 {
-  "custom_start_date": "20260701",
-  "custom_end_date": "20260715",
+  "bill_start_date": "20260701",
+  "bill_end_date": "20260715",
   "bill_statuses": ["UNSETTLED", "APPLYING"]
 }
 ```
@@ -68,14 +68,14 @@ category: finance
   "description": "在京麦供应商协同结算单应付账页，按单据日期与单据状态筛选并导出应付账明细数据",
   "type": "object",
   "properties": {
-    "custom_start_date": {
+    "bill_start_date": {
       "type": "string",
       "description": "单据日期开始。支持 YYYYMMDD 或 YYYY-MM-DD；不能早于近一年（相对当天）",
       "pattern": "^(\\d{4}-\\d{2}-\\d{2}|\\d{8})$"
     },
-    "custom_end_date": {
+    "bill_end_date": {
       "type": "string",
-      "description": "单据日期结束。支持 YYYYMMDD 或 YYYY-MM-DD；不能晚于当天；不能早于 custom_start_date",
+      "description": "单据日期结束。支持 YYYYMMDD 或 YYYY-MM-DD；不能晚于当天；不能早于 bill_start_date",
       "pattern": "^(\\d{4}-\\d{2}-\\d{2}|\\d{8})$"
     },
     "bill_statuses": {
@@ -97,7 +97,7 @@ category: finance
       ]
     }
   },
-  "required": ["custom_start_date", "custom_end_date"],
+  "required": ["bill_start_date", "bill_end_date"],
   "additionalProperties": false
 }
 ```
