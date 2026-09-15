@@ -38,15 +38,15 @@ category: finance
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `custom_start_date` | 订单下单开始时间 | `String` | 是 | `-` | 支持格式：YYYYMMDD、YYYY-MM-DD、YYYY-MM-DD HH:mm:ss、YYYYMMDD HH:mm:ss；不含时分秒时自动补 `00:00:00` |
-| `custom_end_date` | 订单下单结束时间 | `String` | 是 | `-` | 格式同 `custom_start_date`；不含时分秒时自动补 `23:59:59`；不能早于 `custom_start_date`；不能晚于当天；与 `custom_start_date` 间隔不超过 31 个自然日（含起止日） |
+| `order_start_date` | 订单下单开始时间 | `String` | 是 | `-` | 支持 `YYYYMMDD` / `YYYY-MM-DD` / `YYYY-MM-DD HH:mm:ss` / `YYYYMMDD HH:mm:ss`；不含时分秒时自动补 `00:00:00` |
+| `order_end_date` | 订单下单结束时间 | `String` | 是 | `-` | 格式同 `order_start_date`；不含时分秒时自动补 `23:59:59`；不能早于 `order_start_date`；不能晚于当天；与 `order_start_date` 间隔不超过 31 个自然日（含起止日） |
 
 ### 入参样例
 
 ```json
 {
-  "custom_start_date": "2026-04-01",
-  "custom_end_date": "2026-04-10"
+  "order_start_date": "2026-04-01",
+  "order_end_date": "2026-04-10"
 }
 ```
 
@@ -59,16 +59,16 @@ category: finance
   "description": "在京麦商家后台营销对账页，按订单下单时间范围导出营销对账明细数据",
   "type": "object",
   "properties": {
-    "custom_start_date": {
+    "order_start_date": {
       "type": "string",
       "description": "订单下单开始时间。支持格式：YYYYMMDD、YYYY-MM-DD、YYYY-MM-DD HH:mm:ss、YYYYMMDD HH:mm:ss；不含时分秒时自动补 00:00:00"
     },
-    "custom_end_date": {
+    "order_end_date": {
       "type": "string",
-      "description": "订单下单结束时间。格式同 custom_start_date；不含时分秒时自动补 23:59:59；不能早于 custom_start_date；不能晚于当天；与 custom_start_date 间隔不超过 31 个自然日（含起止日）"
+      "description": "订单下单结束时间。格式同 order_start_date；不含时分秒时自动补 23:59:59；不能早于 order_start_date；不能晚于当天；与 order_start_date 间隔不超过 31 个自然日（含起止日）"
     }
   },
-  "required": ["custom_start_date", "custom_end_date"],
+  "required": ["order_start_date", "order_end_date"],
   "additionalProperties": false
 }
 ```

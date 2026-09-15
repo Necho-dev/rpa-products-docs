@@ -1,5 +1,5 @@
 ---
-title: 财务-缴款单
+title: 财务-缴款单-费用列表
 description: 导出得物商家后台缴款单费用明细数据，支持按缴款类型、缴款方式、缴款状态、费用生成时间、业务编码筛选
 entry: rpa.conn.dewu.finance.finebill
 badge:
@@ -24,11 +24,11 @@ category: finance
 
 ### 目标页面
 
-> **取数路径**：得物商家后台—财务—缴款单
+> **取数路径**：得物商家后台—财务—缴款单—费用列表
 >
 > **取数链接**：[https://stark.dewu.com/main/finebill](https://stark.dewu.com/main/finebill)
 
-![得物商家后台—财务—缴款单](../_public/images/dewu/finance_finebill_20260617.png)
+![得物商家后台—财务—缴款单—费用列表](../_public/images/dewu/finance_finebill_20260617.png)
 
 ### 业务入参
 
@@ -57,7 +57,7 @@ category: finance
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "财务-缴款单 - 查询入参",
+  "title": "财务-缴款单-费用列表 - 查询入参",
   "description": "导出得物商家后台缴款单费用明细数据，支持按缴款类型、缴款方式、缴款状态、费用生成时间、业务编码筛选",
   "type": "object",
   "properties": {

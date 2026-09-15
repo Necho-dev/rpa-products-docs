@@ -1,5 +1,5 @@
 ---
-title: 财务-记录查询-财务记录
+title: 财务-财务记录
 description: 导出唯品会营销平台财务记录流水，支持按账户渠道与日期范围筛选后下载解析
 entry: rpa.conn.weipinhui.yx.finance.records
 badge:
@@ -36,11 +36,11 @@ prompt:
 
 ### 目标页面
 
-> **取数路径**：唯品会营销平台—财务—记录查询—财务记录
+> **取数路径**：唯品会营销平台—财务—财务记录
 >
 > **取数链接**：[https://e.vip.com/upgrade.html#/finance/records/records](https://e.vip.com/upgrade.html#/finance/records/records)
 
-![唯品会—财务记录](../../_public/images/weipinhui/yx_finance_records_20260727.png)
+![唯品会营销平台—财务—财务记录](../../_public/images/weipinhui/yx_finance_records_20260727.png)
 
 ### 业务入参
 
@@ -65,7 +65,7 @@ prompt:
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "唯品会-财务记录 - 查询入参",
+  "title": "财务-财务记录 - 查询入参",
   "description": "导出唯品会营销平台财务记录流水，支持按账户渠道与日期范围筛选后下载解析",
   "type": "object",
   "properties": {

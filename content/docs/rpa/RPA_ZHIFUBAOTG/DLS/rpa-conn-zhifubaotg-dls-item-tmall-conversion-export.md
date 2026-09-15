@@ -36,8 +36,8 @@ category: item
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `custom_start_date` | 自定义起始日期 | `String` | 是 | `-` | 对应抽屉「交易日期」开始。格式：`YYYYMMDD` 或 `YYYY-MM-DD`；不得晚于结束日 |
-| `custom_end_date` | 自定义结束日期 | `String` | 是 | `-` | 对应抽屉「交易日期」结束。格式：`YYYYMMDD` 或 `YYYY-MM-DD`；不得早于开始日期 |
+| `trade_start_date` | 交易日期开始 | `String` | 是 | `-` | 格式：`YYYYMMDD` 或 `YYYY-MM-DD`；不得晚于结束日 |
+| `trade_end_date` | 交易日期结束 | `String` | 是 | `-` | 格式：`YYYYMMDD` 或 `YYYY-MM-DD`；不得早于开始日期 |
 | `trade_no` | 交易号 | `String` | 否 | `-` | 不传则跳过填写。须为纯数字，长度 25–35 位 |
 | `acquire_pid` | 收单 PID | `String` | 否 | `-` | 不传则跳过填写。须为纯数字，长度 10–20 位 |
 | `attribution_period` | 归因效期 | `String` | 否 | `-` | 均未传则不填页面筛选。可选值：`ONE_DAY`（1天）/ `THREE_DAYS`（3天）/ `SEVEN_DAYS`（7天） |
@@ -48,8 +48,8 @@ category: item
 
 ```json
 {
-  "custom_start_date": "20260801",
-  "custom_end_date": "2026-08-15",
+  "trade_start_date": "20260801",
+  "trade_end_date": "2026-08-15",
   "trade_no": "2026081523001184171423109205",
   "acquire_pid": "2088370856823747",
   "attribution_period": "THREE_DAYS"
@@ -60,8 +60,8 @@ category: item
 
 ```json
 {
-  "custom_start_date": "20260824",
-  "custom_end_date": "2026-08-30"
+  "trade_start_date": "20260824",
+  "trade_end_date": "2026-08-30"
 }
 ```
 
@@ -74,17 +74,17 @@ category: item
   "description": "使用代理商账号登录支付宝数字推广平台后进入实物商品分析页，打开天猫链路转化归因交易明细抽屉，按可选交易日期、交易号、收单 PID 与归因效期经任务中心导出交易明细 CSV；抽屉暂无数据时直接返回空结果",
   "type": "object",
   "properties": {
-    "custom_start_date": {
+    "trade_start_date": {
       "type": "string",
-      "description": "自定义起始日期（交易日期开始），YYYYMMDD 或 YYYY-MM-DD",
+      "description": "交易日期开始，YYYYMMDD 或 YYYY-MM-DD",
       "anyOf": [
         { "pattern": "^\\d{8}$" },
         { "pattern": "^\\d{4}-\\d{2}-\\d{2}$" }
       ]
     },
-    "custom_end_date": {
+    "trade_end_date": {
       "type": "string",
-      "description": "自定义结束日期（交易日期结束），YYYYMMDD 或 YYYY-MM-DD；不得早于开始日期",
+      "description": "交易日期结束，YYYYMMDD 或 YYYY-MM-DD；不得早于开始日期",
       "anyOf": [
         { "pattern": "^\\d{8}$" },
         { "pattern": "^\\d{4}-\\d{2}-\\d{2}$" }
@@ -112,7 +112,7 @@ category: item
       "description": "归因效期。均未传则不填页面筛选。可选值：ONE_DAY（1天）/ THREE_DAYS（3天）/ SEVEN_DAYS（7天）"
     }
   },
-  "required": ["custom_start_date", "custom_end_date"],
+  "required": ["trade_start_date", "trade_end_date"],
   "additionalProperties": false
 }
 ```
@@ -125,7 +125,7 @@ category: item
 | `clickDate` | 点击日期 | `String` | 是 | `CSV.0.点击日期` | 2026-08-15 |
 | `tradeNo` | 交易号 | `String` | 是 | `CSV.0.交易号` | `202****205` (已脱敏) |
 | `tradeAmount` | 交易金额 | `Number` | 是 | `CSV.0.交易金额` | 258.00 |
-| `payTime` | 支付时间 | `String` | 是 | `CSV.0.支付时间` | 2026-08-15 14:25:20 |
+| `payTime` | 支付时间 | `String` | 是 | `CSV.0.支付时间` | `2026-08-15 14:25:20` |
 | `acquirePid` | 收单PID | `String` | 是 | `CSV.0.收单PID` | `208****747` (已脱敏) |
 | `convertEvent` | 转化事件 | `String` | 是 | `CSV.0.转化事件` | 交易笔数-收款账号PID |
 | `attrPlan` | 归因计划 | `String` | 是 | `CSV.0.归因计划` | `****` (已脱敏) |

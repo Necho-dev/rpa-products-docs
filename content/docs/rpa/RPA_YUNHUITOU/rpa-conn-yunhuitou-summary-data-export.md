@@ -1,5 +1,5 @@
 ---
-title: 报表-汇总报表-数据导出
+title: 报表-汇总报表-数据汇总
 description: 登录云汇投后进入汇总报表页，按可选筛选项下载并解析汇总报表 xlsx
 entry: rpa.conn.yunhuitou.summary.data.export
 badge:
@@ -24,19 +24,19 @@ category: report
 
 ### 目标页面
 
-> **取数路径**：云汇投—报表—汇总报表
+> **取数路径**：云汇投—报表—汇总报表—数据汇总
 >
 > **取数链接**：[https://yun-ma.tmallalipayuc.com/reportTable/summaryReport/index](https://yun-ma.tmallalipayuc.com/reportTable/summaryReport/index)
 
-![云汇投—汇总报表下载](../_public/images/yunhuitou/summary_data_export_20260814.png)
+![云汇投—报表—汇总报表—数据汇总](../_public/images/yunhuitou/summary_data_export_20260814.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
 | `report_mode` | 报表模式 | `String` | 否 | `-` | 均未传则不填页面筛选。可选值：`BLACK_BOX`（黑盒模式）/ `WHITE_BOX`（白盒模式）/ `TR`（TR模式） |
-| `custom_start_date` | 营销开始日期 | `String` | 是 | `-` | 格式：`YYYYMMDD` 或 `YYYY-MM-DD`；不得早于今天往前 93 天 |
-| `custom_end_date` | 营销结束日期 | `String` | 是 | `-` | 格式：`YYYYMMDD` 或 `YYYY-MM-DD`；不得晚于今天；不得早于开始日 |
+| `market_start_date` | 营销开始日期 | `String` | 是 | `-` | 格式：`YYYYMMDD` 或 `YYYY-MM-DD`；不得早于今天往前 93 天 |
+| `market_end_date` | 营销结束日期 | `String` | 是 | `-` | 格式：`YYYYMMDD` 或 `YYYY-MM-DD`；不得晚于今天；不得早于开始日 |
 | `attribution_logic` | 归因逻辑 | `String` | 否 | `-` | 均未传则不填页面筛选。可选值：`CLICK`（点击归因）/ `EXPOSURE`（曝光归因） |
 | `attribution_time` | 归因时间 | `String` | 否 | `-` | 均未传则不填页面筛选。可选值：`DAY_1`（1天）/ `DAY_7`（7天）/ `DAY_15`（15天）/ `DAY_30`（30天） |
 
@@ -44,8 +44,8 @@ category: report
 
 ```json
 {
-  "custom_start_date": "2026-08-15",
-  "custom_end_date": "2026-09-10",
+  "market_start_date": "2026-08-15",
+  "market_end_date": "2026-09-10",
   "attribution_time": "DAY_30"
 }
 ```
@@ -53,8 +53,8 @@ category: report
 ```json
 {
   "report_mode": "BLACK_BOX",
-  "custom_start_date": "20260815",
-  "custom_end_date": "20260910",
+  "market_start_date": "20260815",
+  "market_end_date": "20260910",
   "attribution_logic": "CLICK",
   "attribution_time": "DAY_30"
 }
@@ -65,7 +65,7 @@ category: report
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "云汇投-汇总报表数据导出 - 查询入参",
+  "title": "报表-汇总报表-数据汇总 - 查询入参",
   "description": "登录云汇投后进入汇总报表页，按可选筛选项下载并解析汇总报表 xlsx",
   "type": "object",
   "properties": {
@@ -74,7 +74,7 @@ category: report
       "enum": ["BLACK_BOX", "WHITE_BOX", "TR", ""],
       "description": "报表模式。可选值：BLACK_BOX（黑盒模式）/ WHITE_BOX（白盒模式）/ TR（TR模式）"
     },
-    "custom_start_date": {
+    "market_start_date": {
       "type": "string",
       "description": "营销开始日期，YYYYMMDD 或 YYYY-MM-DD；不得早于今天往前 93 天",
       "anyOf": [
@@ -82,7 +82,7 @@ category: report
         { "pattern": "^\\d{4}-\\d{2}-\\d{2}$" }
       ]
     },
-    "custom_end_date": {
+    "market_end_date": {
       "type": "string",
       "description": "营销结束日期，YYYYMMDD 或 YYYY-MM-DD；不得晚于今天；不得早于开始日",
       "anyOf": [
@@ -101,7 +101,7 @@ category: report
       "description": "归因时间。可选值：DAY_1（1天）/ DAY_7（7天）/ DAY_15（15天）/ DAY_30（30天）"
     }
   },
-  "required": ["custom_start_date", "custom_end_date"],
+  "required": ["market_start_date", "market_end_date"],
   "additionalProperties": false
 }
 ```

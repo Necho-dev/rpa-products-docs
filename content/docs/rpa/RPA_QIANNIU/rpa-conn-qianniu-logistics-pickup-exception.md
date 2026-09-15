@@ -98,8 +98,8 @@ category: logistics
 | `mail_no` | 运单号 | `string` | 是 | `XLSX.0.运单号` | — |
 | `courier_company` | 快递公司 | `string` | 是 | `XLSX.0.快递公司` | — |
 | `timeout_type` | 超时类型 | `string` | 否 | `XLSX.0.超时类型` | 即将超时 |
-| `pay_time` | 支付时间 | `string` | 否 | `XLSX.0.支付时间` | 2026-06-08 10:24:50 |
-| `expected_pickup_time` | 应揽收时间 | `string` | 否 | `XLSX.0.应揽收时间` | 2026-06-11 23:59:59 |
+| `pay_time` | 支付时间 | `string` | 否 | `XLSX.0.支付时间` | `2026-06-08 10:24:50` |
+| `expected_pickup_time` | 应揽收时间 | `string` | 否 | `XLSX.0.应揽收时间` | `2026-06-11 23:59:59` |
 | `exception_type` | 异常类型 | `string` | 否 | `XLSX.0.异常类型` | 支付-揽收(48h) |
 | `buyer_name` | 买家姓名 | `string` | 否 | `XLSX.0.买家姓名` | 陈* |
 | `buyer_phone` | 买家电话 | `string` | 否 | `XLSX.0.买家电话` | 1\*\*\*\*\*\*\*\*\*8 |
@@ -107,7 +107,7 @@ category: logistics
 | `expected_compensation_amount` | 预计赔付金额 | `number` | 否 | `XLSX.0.预计赔付金额` | 50.0 |
 | `order_service` | 订单服务 | `string` | 否 | `XLSX.0.订单服务` | 无 |
 | `goods_name` | 商品名称 | `string` | 否 | `XLSX.0.商品名称` | 松下壁挂洗衣机洗烘一体机婴幼儿童3kg家用小型迷你内衣裤洗衣机 |
-| `remark` | 备注信息 | `string` | 是 | `XLSX.0.备注信息` | 升级秀图50元+2瓶内衣洗衣液【小果｜06-08 10:28:13】\n已反馈售后，延迟发货【小述｜06-08 12:00:35】 |
+| `remark` | 备注信息 | `string` | 是 | `XLSX.0.备注信息` | `升级秀图50元+2瓶内衣洗衣液【小果｜06-08 10:28:13】\n已反馈售后，延迟发货【小述｜06-08 12:00:35】` |
 | `bizDate` | 业务日期 | `string` | 否 | 附加 |  |
 | `accountId` | 授权 ID | `string` | 否 | 附加 |  |
 

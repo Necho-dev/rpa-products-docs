@@ -1,5 +1,5 @@
 ---
-title: 物流-包裹中心-发货包裹异常列表
+title: 包裹中心-发货包裹-异常包裹列表
 description: 采集抖店包裹中心发货包裹异常列表，支持按发货时间、异常类型、包裹异常状态、是否已忽略异常预警筛选
 entry: rpa.conn.doudian.shop.shipping.package.list
 badge:
@@ -24,11 +24,11 @@ category: shop
 
 ### 目标页面
 
-> **取数路径**：抖店商家后台—物流—包裹中心—发货包裹
+> **取数路径**：抖店商家后台—包裹中心—发货包裹—异常包裹列表
 >
 > **取数链接**：[https://fxg.jinritemai.com/ffa/logistics/parcelCenter](https://fxg.jinritemai.com/ffa/logistics/parcelCenter)
 
-![抖店—包裹中心发货包裹异常列表](../_public/images/doudian/shop_shipping_package_list_20260624.png)
+![抖店商家后台—包裹中心—发货包裹—异常包裹列表](../_public/images/doudian/shop_shipping_package_list_20260624.png)
 
 ### 业务入参
 
@@ -69,7 +69,7 @@ category: shop
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "抖店-发货包裹异常列表 - 查询入参",
+  "title": "包裹中心-发货包裹-异常包裹列表 - 查询入参",
   "description": "采集抖店包裹中心发货包裹异常列表，支持按发货时间、异常类型、包裹异常状态、是否已忽略异常预警筛选",
   "type": "object",
   "properties": {

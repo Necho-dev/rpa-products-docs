@@ -1,5 +1,5 @@
 ---
-title: 物流-运单管理-常用信息导出
+title: 物流-快递服务-云单管理
 description: 在京东物流工作台运单管理页，按下单时间范围导出运单常用信息明细数据
 entry: rpa.conn.jingmai.wl.express.query.waybill
 badge:
@@ -28,18 +28,18 @@ category: wl
 
 ### 目标页面
 
-> **取数路径**：京东物流工作台—快递服务—运单管理
+> **取数路径**：京东物流工作台—物流—快递服务—云单管理
 >
 > **取数链接**：[https://wl.jdl.com/express-query/waybill](https://wl.jdl.com/express-query/waybill)
 
-![京麦—运单管理常用信息导出](../_public/images/jingmai/wl_express_query_waybill_20260712.png)
+![京东物流工作台—物流—快递服务—云单管理](../_public/images/jingmai/wl_express_query_waybill_20260712.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
 | `date_type` | 下单时间范围 | `String` | 是 | `-` | 可选值：`TODAY`（今日）、`LAST_7_DAYS`（近 7 天）、`LAST_1_MONTH`（近 1 个月）、`CUSTOM`（自定义） |
-| `custom_start_date` | 自定义开始时间 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填。支持格式：YYYYMMDD、YYYY-MM-DD、YYYY-MM-DD HH:mm:ss、YYYYMMDD HH:mm:ss；不含时分秒时自动补 `00:00:00`；不能早于 370 天前；非 `CUSTOM` 不应传入 |
+| `custom_start_date` | 自定义开始时间 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填。支持 `YYYYMMDD` / `YYYY-MM-DD` / `YYYY-MM-DD HH:mm:ss` / `YYYYMMDD HH:mm:ss`；不含时分秒时自动补 `00:00:00`；不能早于 370 天前；非 `CUSTOM` 不应传入 |
 | `custom_end_date` | 自定义结束时间 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填。格式同 `custom_start_date`；不含时分秒时自动补 `23:59:59`；不能早于 `custom_start_date`；不能晚于当天；非 `CUSTOM` 不应传入 |
 
 ### 入参样例
@@ -69,7 +69,7 @@ category: wl
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "京麦-运单管理常用信息导出 - 查询入参",
+  "title": "物流-快递服务-云单管理 - 查询入参",
   "description": "在京东物流工作台运单管理页，按下单时间范围导出运单常用信息明细数据",
   "type": "object",
   "properties": {

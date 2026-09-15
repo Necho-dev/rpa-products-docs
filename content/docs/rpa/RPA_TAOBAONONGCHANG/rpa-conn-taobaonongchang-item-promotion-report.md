@@ -1,5 +1,5 @@
 ---
-title: 商品-商品推广-推广中
+title: 推广-商品推广-推广中
 description: 登录淘宝农场后进入商业托管商品推广页，按可选筛选项采集推广中商品的推广明细
 entry: rpa.conn.taobaonongchang.item.promotion.report
 badge:
@@ -28,7 +28,7 @@ category: item
 >
 > **取数链接**：[https://mmc.tmall.com/ds/page/supplier/commercial-hosting-home](https://mmc.tmall.com/ds/page/supplier/commercial-hosting-home)
 
-![淘宝农场—商品推广—推广中](../_public/images/taobaonongchang/item_promotion_report_20260907.png)
+![淘宝农场—推广—商品推广—推广中](../_public/images/taobaonongchang/item_promotion_report_20260907.png)
 
 ### 业务入参
 
@@ -74,7 +74,7 @@ category: item
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "淘宝农场-商品推广明细 - 查询入参",
+  "title": "推广-商品推广-推广中 - 查询入参",
   "description": "登录淘宝农场后进入商业托管商品推广页，按可选筛选项采集推广中商品的推广明细",
   "type": "object",
   "properties": {

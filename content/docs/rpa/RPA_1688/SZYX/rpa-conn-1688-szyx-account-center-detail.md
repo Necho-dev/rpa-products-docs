@@ -1,5 +1,5 @@
 ---
-title: 数字营销-账户中心-账户明细
+title: 账户-账户中心-账户明细
 description: 导出 1688 数字营销账户中心账户汇总与明细，支持按日期类型与产品类型筛选后下载解析
 entry: rpa.conn.1688.szyx.account.center.detail
 badge:
@@ -36,11 +36,11 @@ prompt:
 
 ### 目标页面
 
-> **取数路径**：1688 数字营销—账户中心—账户明细
+> **取数路径**：1688 数字营销—账户—账户中心—账户明细
 >
 > **取数链接**：[https://p4p.1688.com/main.html#!/boot-page?pageId=100388&tab=account](https://p4p.1688.com/main.html#!/boot-page?pageId=100388&tab=account)
 
-![1688—数字营销账户中心账户明细](../../_public/images/1688/szyx_account_center_detail_20260801.png)
+![1688 数字营销—账户—账户中心—账户明细](../../_public/images/1688/szyx_account_center_detail_20260801.png)
 
 ### 业务入参
 
@@ -86,7 +86,7 @@ prompt:
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "1688-数字营销账户中心账户明细 - 查询入参",
+  "title": "账户-账户中心-账户明细 - 查询入参",
   "description": "导出 1688 数字营销账户中心账户汇总与明细，支持按日期类型与产品类型筛选后下载解析",
   "type": "object",
   "properties": {

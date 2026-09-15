@@ -1,5 +1,5 @@
 ---
-title: 视频号加热-推广订单-标准订单明细
+title: 推广订单-标准订单
 description: 导出视频号加热平台「标准订单」明细 CSV；筛选后自动全选展示项再下载
 entry: rpa.conn.weixin.sphjr.standard.order.report
 badge:
@@ -88,7 +88,7 @@ module:
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "视频号加热-标准订单明细 - 查询入参",
+  "title": "推广订单-标准订单 - 查询入参",
   "description": "导出视频号加热平台「标准订单」明细 CSV；订单创建时间必填，开始加热时间可选；筛选后自动全选展示项再下载",
   "type": "object",
   "properties": {

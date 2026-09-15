@@ -1,5 +1,5 @@
 ---
-title: 数据看板-推广数据总览-明细报表下载
+title: 热浪联盟-推广数据总览-全部订单数据总览
 description: 校验统计时间与统计截止日期（最大可选日为昨天）后，打开推广数据总览页设置筛选项并回读校验，再下载分日/分商品/分主播明细报表
 entry: rpa.conn.rlyq.promotion.data
 badge:
@@ -24,7 +24,7 @@ category: promotion
 
 ### 目标页面
 
-> **取数路径**：热浪引擎—商品联盟—数据看板—推广数据总览
+> **取数路径**：热浪联盟—推广数据总览—全部订单数据总览
 >
 > **取数链接**：[https://hot.taobao.com/hw/union/goods-alliance/databoard/overview](https://hot.taobao.com/hw/union/goods-alliance/databoard/overview)
 
@@ -71,7 +71,7 @@ category: promotion
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "热浪引擎-推广数据总览明细报表下载 - 查询入参",
+  "title": "热浪联盟-推广数据总览-全部订单数据总览 - 查询入参",
   "description": "校验统计时间与统计截止日期（最大可选日为昨天）后，打开推广数据总览页设置筛选项并回读校验，再下载分日/分商品/分主播明细报表",
   "type": "object",
   "properties": {

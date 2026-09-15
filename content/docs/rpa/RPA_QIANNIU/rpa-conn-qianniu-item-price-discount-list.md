@@ -125,7 +125,7 @@ category: item
 | --------------- | -------------- | -------- | ------ | ----------------------- | -------------------------------------------------------- |
 | `itemName`      | 商品名称       | `string` | 否     | `XLSX.0.商品名称`       | 松下小欢洗内衣内裤洗衣机全自动家用除菌小型波轮洗烘一体机 |
 | `itemId`        | 商品 ID        | `string` | 否     | `XLSX.0.商品Id`         | 719850241635                                             |
-| `skuName`       | SKU 名称       | `string` | 否     | `XLSX.0.sku名称`        | 颜色分类:XQB05-AW05C 0.5kg暖心米                         |
+| `skuName`       | SKU 名称       | `string` | 否     | `XLSX.0.sku名称`        | `颜色分类:XQB05-AW05C 0.5kg暖心米`                         |
 | `skuId`         | SKU ID         | `string` | 否     | `XLSX.0.skuId`          | 6035855913917                                            |
 | `lowPrice`      | 预估最低到手价 | `string` | 否     | `XLSX.0.预估最低到手价` | 1769.0                                                   |
 | `originalPrice` | 一口价         | `string` | 否     | `XLSX.0.一口价`         | 4999.0                                                   |
@@ -136,7 +136,7 @@ category: item
 | `discountDesc`  | 优惠信息       | `string` | 否     | `XLSX.0.优惠信息`       | 减400元                                                  |
 | `activityId`    | 活动 ID        | `string` | 否     | `XLSX.0.活动id`         | 130638447290                                             |
 | `discountFee`   | 优惠金额       | `string` | 否     | `XLSX.0.优惠金额`       | 400.0                                                    |
-| `activityTime`  | 活动时间       | `string` | 否     | `XLSX.0.活动时间`       | 2026-03-23 00:00:00-2026-03-31 23:59:59                  |
+| `activityTime`  | 活动时间       | `string` | 否     | `XLSX.0.活动时间`       | `2026-03-23 00:00:00-2026-03-31 23:59:59`                  |
 | `bizDate`           | 业务日期         | `string`  | 否     | 附加              |      |
 | `accountId`         | 授权 ID          | `string`  | 否     | 附加              |      |
 

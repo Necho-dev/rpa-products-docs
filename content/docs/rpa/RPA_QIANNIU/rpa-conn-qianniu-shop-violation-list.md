@@ -103,7 +103,7 @@ category: shop
 | `punishReason`       | 违规原因     | `string`  | 否     | `punishReason`       | 卖家发布的商品，经消费者维权退款评价数据反馈及主动排查发现涉嫌劣质或描述不符 |
 | `punishSource`       | 处罚来源     | `string`  | 否     | `punishSource`       | MTee3.0 |
 | `punishStatus`       | 处罚状态     | `string`  | 否     | `punishStatus`       | DONE |
-| `punishTime`         | 违规时间     | `string`  | 否     | `punishTime`         | 2025-08-18 15:50:07 |
+| `punishTime`         | 违规时间     | `string`  | 否     | `punishTime`         | `2025-08-18 15:50:07` |
 | `recordId`           | 记录 ID      | `string`  | 否     | `recordId`           | 824639 |
 | `recordSource`       | 记录来源     | `string`  | 否     | `recordSource`       | PUNISH_CENTER |
 | `recordStatus`       | 记录状态     | `string`  | 否     | `recordStatus`       | DONE |

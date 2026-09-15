@@ -1,5 +1,5 @@
 ---
-title: 物流-仓库库存-流水导出
+title: 物流-在库业务-仓库库存流水
 description: 在京东物流工作台仓库库存流水页，按日期范围导出库存流水明细数据
 entry: rpa.conn.jingmai.wl.inventory.flow
 badge:
@@ -28,11 +28,11 @@ category: wl
 
 ### 目标页面
 
-> **取数路径**：京东物流工作台—供应链—库存—库存流水
+> **取数路径**：京东物流工作台—物流—在库业务—仓库库存流水
 >
 > **取数链接**：[https://wl.jdl.com/supplychain--inventory/flow](https://wl.jdl.com/supplychain--inventory/flow)
 
-![京麦—仓库库存流水导出](../_public/images/jingmai/wl_inventory_flow_20260709.png)
+![京东物流工作台—物流—在库业务—仓库库存流水](../_public/images/jingmai/wl_inventory_flow_20260709.png)
 
 ### 业务入参
 
@@ -63,7 +63,7 @@ category: wl
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "京麦-仓库库存流水导出 - 查询入参",
+  "title": "物流-在库业务-仓库库存流水 - 查询入参",
   "description": "在京东物流工作台仓库库存流水页，按日期范围导出库存流水明细数据",
   "type": "object",
   "properties": {

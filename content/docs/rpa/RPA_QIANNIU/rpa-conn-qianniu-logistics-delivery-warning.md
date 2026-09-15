@@ -96,8 +96,8 @@ category: logistics
 | `trade_no` | 交易单号 | `number` | 否 | `XLSX.0.交易单号` | 5118851054150013638 |
 | `sub_trade_no` | 子交易单号 | `number` | 否 | `XLSX.0.子交易单号` | 5118851054150013638 |
 | `timeout_type` | 超时类型 | `string` | 否 | `XLSX.0.超时类型` | 支付超24h |
-| `pay_time` | 支付时间 | `string` | 否 | `XLSX.0.支付时间` | 2026-06-03 23:16:35 |
-| `expected_pickup_time` | 应揽收时间 | `string` | 否 | `XLSX.0.应揽收时间` | 2026-06-05 23:16:35 |
+| `pay_time` | 支付时间 | `string` | 否 | `XLSX.0.支付时间` | `2026-06-03 23:16:35` |
+| `expected_pickup_time` | 应揽收时间 | `string` | 否 | `XLSX.0.应揽收时间` | `2026-06-05 23:16:35` |
 | `exception_type` | 异常类型 | `string` | 否 | `XLSX.0.异常类型` | 支付-发货 |
 | `buyer_name` | 买家姓名 | `string` | 否 | `XLSX.0.买家姓名` | 张** |
 | `buyer_phone` | 买家电话 | `string` | 否 | `XLSX.0.买家电话` | 1\*\*\*\*\*\*\*\*\*7 |

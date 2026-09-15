@@ -1,5 +1,5 @@
 ---
-title: 京慧-退货订单-明细报表
+title: 京慧-报表中心-退货订单明细表
 description: 按退货上架时间与创建日期筛选京慧退货订单报表，异步导出并解析为行级明细
 entry: rpa.conn.jingmai.jh.return.order.report
 badge:
@@ -24,11 +24,11 @@ category: jh
 
 ### 目标页面
 
-> **取数路径**：京慧—报表中心—退货订单及明细报表—退货订单报表
+> **取数路径**：京慧—报表中心—退货订单明细表
 >
 > **取数链接**：[https://jh.jdl.com/#/ReturnReportForm](https://jh.jdl.com/#/ReturnReportForm)
 
-![京麦—京慧退货订单报表](../_public/images/jingmai/jh_return_order_report_20260820.png)
+![京慧—报表中心—退货订单明细表](../_public/images/jingmai/jh_return_order_report_20260820.png)
 
 页面可选历史日期较久，但近三年以前的区间平台侧常无数据，连接器会按空结果返回，属正常现象；建议使用近两年内日期。
 
@@ -69,7 +69,7 @@ category: jh
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "京慧-退货订单-明细报表 - 查询入参",
+  "title": "京慧-报表中心-退货订单明细表 - 查询入参",
   "description": "按退货上架时间与创建日期筛选京慧退货订单报表，异步导出并解析为行级明细",
   "type": "object",
   "properties": {

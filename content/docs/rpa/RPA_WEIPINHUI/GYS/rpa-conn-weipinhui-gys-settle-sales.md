@@ -1,5 +1,5 @@
 ---
-title: 供应商结算-商品结算销售满减-明细
+title: 账单结算-订单明细-商品结算销售满减明细表
 description: 在唯品会供应商结算平台，按事务发生期间导出商品结算销售满减明细报表数据
 entry: rpa.conn.weipinhui.gys.settle.sales
 badge:
@@ -36,25 +36,25 @@ prompt:
 
 ### 目标页面
 
-> **取数路径**：唯品会供应商结算—报表中心—账单结算—订单明细—019_商品结算销售满减明细报表
+> **取数路径**：唯品会供应商结算—账单结算—订单明细—商品结算销售满减明细表
 >
 > **取数链接**：[https://vfs.vip.com/v3/#/home](https://vfs.vip.com/v3/#/home)
 
-![唯品会—商品结算销售满减明细报表](../../_public/images/weipinhui/gys_settle_sales_20260818.png)
+![唯品会供应商结算—账单结算—订单明细—商品结算销售满减明细表](../../_public/images/weipinhui/gys_settle_sales_20260818.png)
 
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `custom_start_date` | 事务发生期间开始日 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不能晚于 `custom_end_date`；页面按月生效 |
-| `custom_end_date` | 事务发生期间结束日 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不能早于 `custom_start_date`；页面按月生效 |
+| `occur_start_date` | 事务发生期间开始日 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不能晚于 `occur_end_date`；页面按月生效 |
+| `occur_end_date` | 事务发生期间结束日 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不能早于 `occur_start_date`；页面按月生效 |
 
 ### 入参样例
 
 ```json
 {
-  "custom_start_date": "20260111",
-  "custom_end_date": "20260823"
+  "occur_start_date": "20260111",
+  "occur_end_date": "20260823"
 }
 ```
 
@@ -63,22 +63,22 @@ prompt:
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "唯品会-商品结算销售满减明细 - 查询入参",
+  "title": "账单结算-订单明细-商品结算销售满减明细表 - 查询入参",
   "description": "在唯品会供应商结算平台，按事务发生期间导出商品结算销售满减明细报表数据",
   "type": "object",
   "properties": {
-    "custom_start_date": {
+    "occur_start_date": {
       "type": "string",
-      "description": "事务发生期间开始日。格式 YYYYMMDD 或 YYYY-MM-DD；不能晚于 custom_end_date；页面按月生效",
+      "description": "事务发生期间开始日。格式 YYYYMMDD 或 YYYY-MM-DD；不能晚于 occur_end_date；页面按月生效",
       "pattern": "^(\\d{4}-\\d{2}-\\d{2}|\\d{8})$"
     },
-    "custom_end_date": {
+    "occur_end_date": {
       "type": "string",
-      "description": "事务发生期间结束日。格式 YYYYMMDD 或 YYYY-MM-DD；不能早于 custom_start_date；页面按月生效",
+      "description": "事务发生期间结束日。格式 YYYYMMDD 或 YYYY-MM-DD；不能早于 occur_start_date；页面按月生效",
       "pattern": "^(\\d{4}-\\d{2}-\\d{2}|\\d{8})$"
     }
   },
-  "required": ["custom_start_date", "custom_end_date"],
+  "required": ["occur_start_date", "occur_end_date"],
   "additionalProperties": false
 }
 ```

@@ -1,5 +1,5 @@
 ---
-title: 天猫健康-三方外投-自定义报表
+title: 推广-三方外投-多渠道下载
 description: 登录天猫健康云台后，按媒体平台、日期与自定义表头模板筛选三方外投数据，异步导出账户粒度天汇总并解析为行级明细
 entry: rpa.conn.alijiankang.tmjk.three.party.custom.report
 badge:
@@ -24,11 +24,11 @@ category: tmjk
 
 ### 目标页面
 
-> **取数路径**：天猫健康云台—推广—三方外投—店铺看板—选择指标模板—口径说明（分天）—多渠道下载—下载中心
+> **取数路径**：天猫健康云台—推广—三方外投—店铺看板—选择指标模板—口径说明（分天）—多渠道下载
 >
 > **取数链接**：[https://yt.taobao.com/v2/third-party-invest#](https://yt.taobao.com/v2/third-party-invest#)
 
-![天猫健康—三方外投自定义报表](../../_public/images/alijiankang/tmjk_three_party_custom_report_20260825.png)
+![天猫健康云台—推广—三方外投—多渠道下载](../../_public/images/alijiankang/tmjk_three_party_custom_report_20260825.png)
 
 ![天猫健康—三方外投—多渠道数据汇总下载](../../_public/images/alijiankang/tmjk_three_party_custom_report_download_20260825.png)
 
@@ -71,7 +71,7 @@ category: tmjk
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "阿里健康-三方外投自定义报表 - 查询入参",
+  "title": "推广-三方外投-多渠道下载 - 查询入参",
   "description": "登录天猫健康云台后，按媒体平台、日期与自定义表头模板筛选三方外投数据，异步导出账户粒度天汇总并解析为行级明细",
   "type": "object",
   "properties": {

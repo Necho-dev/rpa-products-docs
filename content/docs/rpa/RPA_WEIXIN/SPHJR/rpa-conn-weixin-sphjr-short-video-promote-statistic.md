@@ -1,5 +1,5 @@
 ---
-title: 视频号加热-数据分析-短视频数据
+title: 数据分析-短视频数据
 description: 导出视频号加热平台「数据分析-短视频数据」明细 CSV，支持按订单类型、作者、视频、创建人、日期与明细指标筛选
 entry: rpa.conn.weixin.sphjr.short.video.promote.statistic
 badge:
@@ -77,7 +77,7 @@ category: sphjr
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "视频号加热-短视频数据 - 查询入参",
+  "title": "数据分析-短视频数据 - 查询入参",
   "description": "导出视频号加热平台「数据分析-短视频数据」明细 CSV，支持按订单类型、作者、视频、创建人、日期与明细指标筛选",
   "type": "object",
   "properties": {

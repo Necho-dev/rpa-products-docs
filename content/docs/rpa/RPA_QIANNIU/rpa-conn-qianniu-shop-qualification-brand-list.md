@@ -57,7 +57,7 @@ category: shop
 | `auditStatusName` | 审核状态文本       | `string` | 否     | `0` 待提交 / `1` 审核中 / `2` 审核不通过 / `4` 预摘牌处罚 / `5` 造假处罚 / 未知 | 未知 |
 | `brandKind`       | 商标状态（R/TM）   | `number` | 否     | `brandKind`    | 1 |
 | `brandKindName`   | 商标状态文本       | `string` | 否     | `1` R / `2` TM | R |
-| `validDateEnd`    | 到期时间           | `string` | 否     | `validDateEnd` | 2027-03-31 00:00:00 |
+| `validDateEnd`    | 到期时间           | `string` | 否     | `validDateEnd` | `2027-03-31 00:00:00` |
 | `brandId`         | 品牌 ID            | `string` | 否     | `brandId`      | 81147 |
 | `grantBrandId`    | 授权品牌 ID        | `string` | 否     | `grantBrandId` | 16072896 |
 | `processTips`     | 情况说明           | `string` | 是     | 根据 `brandStatus` 映射：`1` "逾期未更新,该品牌的授权将被取消并下架对应商品。" / `2` "请在到期日前完成资质更新，逾期未更新，您的店铺将被监管。" / `3` "品牌中的资质若为"部分商家必填",说明该资质为选填项,请根据平台招商标准结合自身情况选择是否补全资质。若无"部分商家必填"字样,请补全缺少的资质或信息(有效期等),否则将影响店铺正常经营。" / 无 | 无 |

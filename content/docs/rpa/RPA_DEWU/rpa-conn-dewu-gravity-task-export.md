@@ -34,8 +34,8 @@ category: gravity
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
-| `custom_start_date` | 任务创建开始日期 | `String` | 是 | `-` | 格式 `YYYYMMDD`、`YYYY-MM-DD` |
-| `custom_end_date` | 任务创建结束日期 | `String` | 是 | `-` | 格式同 `custom_start_date`；不得晚于当天；与 `custom_start_date` 间隔不超过 90 天（含起止日） |
+| `create_start_date` | 任务创建开始日期 | `String` | 是 | `-` | 格式 `YYYYMMDD`、`YYYY-MM-DD` |
+| `create_end_date` | 任务创建结束日期 | `String` | 是 | `-` | 格式同 `create_start_date`；不得晚于当天；与 `create_start_date` 间隔不超过 90 天（含起止日） |
 | `promote_types` | 推广形式 | `String` / `List[String]` | 否 | `-` | 不传或 `ALL` 表示全选；多选时用英文逗号分隔或 JSON 数组。允许值：`VIDEO_OR_IMAGE`（视频或图文）/ `IMAGE_ONLY`（仅图文）/ `VIDEO_ONLY`（仅视频）/ `LIVE`（直播） |
 | `task_modes` | 任务模式 | `String` / `List[String]` | 否 | `-` | 不传或 `ALL` 表示全选；多选时用英文逗号分隔或 JSON 数组。允许值：`DIRECTED`（定向任务）/ `SUBMISSION`（投稿任务） |
 | `task_states` | 任务状态 | `String` / `List[String]` | 否 | `-` | 不传或 `ALL` 表示全选；多选时用英文逗号分隔或 JSON 数组。允许值：`UNDER_REVIEW`（任务审核中）/ `PENDING_MODIFICATION`（待修改）/ `CONFIRM_COLLABORATOR`（确认合作对象）/ `PENDING_SHIPMENT`（待发货）/ `PENDING_CREATOR_RECEIPT`（待达人收货）/ `PENDING_PUBLISH`（待发布）/ `CONTENT_UNDER_REVIEW`（动态审核中）/ `PENDING_ACCEPTANCE`（待验收）/ `REJECTED`（已驳回）/ `PENDING_RETURN`（待寄回）/ `PENDING_MERCHANT_RECEIPT`（待商家收货）/ `COMPLETED`（已完成任务）/ `CLOSED`（已关闭任务）/ `PENDING_PRODUCT_UPLOAD`（待上传商品）/ `CANCELLATION_REQUESTED`（申请取消任务）/ `PENDING_MERCHANT_CONFIRM`（待商家确认）/ `MERCHANT_INITIATED`（商家已发起）/ `RETURN_AFTER_TERMINATION`（终止后寄回） |
@@ -44,8 +44,8 @@ category: gravity
 
 ```json
 {
-    "custom_start_date": "2026-05-01",
-    "custom_end_date": "2026-05-19",
+    "create_start_date": "2026-05-01",
+    "create_end_date": "2026-05-19",
     "task_modes": "SUBMISSION",
     "task_states": "COMPLETED"
 }
@@ -60,12 +60,12 @@ category: gravity
   "description": "导出得物引力平台任务明细数据，支持按任务创建时间、推广形式、任务模式、任务状态筛选",
   "type": "object",
   "properties": {
-    "custom_start_date": {
+    "create_start_date": {
       "description": "任务创建开始日期。格式 YYYYMMDD 或 YYYY-MM-DD",
       "type": "string"
     },
-    "custom_end_date": {
-      "description": "任务创建结束日期。格式 YYYYMMDD 或 YYYY-MM-DD；不得晚于当天；与 custom_start_date 间隔不超过 90 天（含起止日）",
+    "create_end_date": {
+      "description": "任务创建结束日期。格式 YYYYMMDD 或 YYYY-MM-DD；不得晚于当天；与 create_start_date 间隔不超过 90 天（含起止日）",
       "type": "string"
     },
     "promote_types": {
@@ -136,7 +136,7 @@ category: gravity
       ]
     }
   },
-  "required": ["custom_start_date", "custom_end_date"],
+  "required": ["create_start_date", "create_end_date"],
   "additionalProperties": false
 }
 ```

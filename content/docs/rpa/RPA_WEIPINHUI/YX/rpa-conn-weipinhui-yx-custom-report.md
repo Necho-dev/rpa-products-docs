@@ -1,5 +1,5 @@
 ---
-title: 营销数据-下载中心-自定义报表
+title: 数据-报表下载-自定义报表
 description: 按报表模板名称与时间粒度匹配唯品会营销平台自定义报表，设置日期后异步导出并解析为行级明细
 entry: rpa.conn.weipinhui.yx.custom.report
 badge:
@@ -36,11 +36,11 @@ prompt:
 
 ### 目标页面
 
-> **取数路径**：唯品会营销平台—数据—下载—自定义报表
+> **取数路径**：唯品会营销平台—数据—报表下载—自定义报表
 >
 > **取数链接**：[https://e.vip.com/upgrade.html#/data/download/custom-report](https://e.vip.com/upgrade.html#/data/download/custom-report)
 
-![唯品会—自定义报表](../../_public/images/weipinhui/yx_custom_report_20260818.png)
+![唯品会营销平台—数据—报表下载—自定义报表](../../_public/images/weipinhui/yx_custom_report_20260818.png)
 
 ### 业务入参
 
@@ -77,7 +77,7 @@ prompt:
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "唯品会-营销自定义报表 - 查询入参",
+  "title": "数据-报表下载-自定义报表 - 查询入参",
   "description": "按报表模板名称与时间粒度匹配唯品会营销平台自定义报表，设置日期后异步导出并解析为行级明细",
   "type": "object",
   "properties": {

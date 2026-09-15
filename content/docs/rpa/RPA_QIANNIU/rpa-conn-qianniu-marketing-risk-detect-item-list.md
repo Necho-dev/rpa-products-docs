@@ -108,7 +108,7 @@ category: marketing
 | `recordId` | 风险记录 ID | `number` | 否 | `recordId` | 1536683208195 |
 | `riskCode` | 接口风险类型代码 | `string` | 否 | `riskCode` | ITEM_PREDICT_RISK_DETECT |
 | `riskScope` | 风险作用域 | `string` | 否 | `riskScope` | itemId |
-| `gmtModified` | 记录更新时间 | `string` | 否 | `gmtModified` | 2026-05-20 11:50:34 |
+| `gmtModified` | 记录更新时间 | `string` | 否 | `gmtModified` | `2026-05-20 11:50:34` |
 | `itemInfo` | 商品信息 | `Dict` | 否 | `itemInfo` | 见数据样例 `itemInfo` |
 | `riskDesc` | 风险描述 | `Dict` | 否 | `riskDesc` | 见数据样例 `riskDesc` |
 | `riskActionCode` | 可操作项代码 | `List[string]` | 否 | `riskActionCode` | 见数据样例 `riskActionCode` |
