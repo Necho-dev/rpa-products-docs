@@ -28,7 +28,7 @@ category: compete
 >
 > **取数链接**：[https://dmp.taobao.com/index_new.html#!/compete/compete-situation](https://dmp.taobao.com/index_new.html#!/compete/compete-situation)
 
-![达摩盘—市场—竞争态势分析—竞争商品分析](../../_public/images/alimm/dmp_compete_situation_item_20260706.png)
+![达摩盘—市场—竞争态势分析—竞争商品分析](../../_public/images/alimm/dmp_compete_situation_item_20260916.png)
 
 ### 业务入参
 
