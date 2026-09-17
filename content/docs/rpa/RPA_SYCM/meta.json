@@ -6,7 +6,8 @@
       { "key": "flow", "item": "流量", "icon": { "comp": "Activity", "color": "#7c3aed" } },
       { "key": "item", "item": "商品", "icon": { "comp": "ShoppingBag", "color": "#ea580c" } },
       { "key": "market", "item": "市场", "icon": { "comp": "TrendingUp", "color": "#0d9488" } },
-      { "key": "shop", "item": "店铺", "icon": { "comp": "Store", "color": "#0284c7" } }
+      { "key": "shop", "item": "店铺", "icon": { "comp": "Store", "color": "#0284c7" } },
+      { "key": "content", "item": "内容", "icon": { "comp": "Video", "color": "#db2777" } }
     ]
   }
 }
