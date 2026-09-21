@@ -1,6 +1,6 @@
 ---
 title: 商品-商品排行-全部商品(下载)
-description: 按日期类型（日/周/月）和日期参数下载生意参谋商品排行全部数据，支持天、自然周、自然月维度
+description: 按日期类型（日/周/月）和可选标准类目下载生意参谋商品排行全部数据；有选择视角时使用拆分视角
 entry: rpa.conn.sycm.item.rank.all
 badge:
   label: 已上线
@@ -22,7 +22,7 @@ category: item
 | **连接器代码**   | `rpa.conn.sycm.item.rank.all`                                                          |
 | **操作类型**     | `文件导出`                                                                             |
 | **目标网页**     | `https://sycm.taobao.com/cc/item_rank`                                                 |
-| **适用场景**     | 按日期类型（日/周/月）和日期参数下载生意参谋商品排行全部数据，支持天、自然周、自然月维度 |
+| **适用场景**     | 按日期类型（日/周/月）和可选标准类目下载生意参谋商品排行全部数据；有选择视角时使用拆分视角 |
 | **数据表名**     | `ods_rpa_sycm_item_rank_all_du`                                                        |
 | **业务表名**     | `ODS_商品排行全部商品数据下载(生意参谋RPA)`                                            |
 
@@ -34,12 +34,17 @@ category: item
 
 ![生意参谋—商品排行全部商品（下载）](../_public/images/sycm/rank_all_20260429.png)
 
+> 部分账号在「选择类目」上方有「选择视角」，有则使用拆分视角。类目入参只对应「标准类目」，须与选项全文一致；不传则不改页面当前类目。
+
 ### 业务入参
 
 | 字段 | 中文释义 | 数据类型 | 必填 | 默认值 | 说明 |
 | ---- | -------- | -------- | ---- | ------ | ---- |
 | `date_type` | 日期类型 | `String` | 是 | `-` | 允许值: `DAY`(按日) / `WEEK`(自然周) / `MONTH`(自然月) |
 | `biz_date` | 业务日期 | `String` | 是 | `-` | 格式 `YYYYMMDD` 或 `YYYY-MM-DD`。始终填一天。`DAY` 不可选今日及以后；`WEEK`/`MONTH` 用这一天定位所在周/月，不可选本周/本月的日期 |
+| `category_level1` | 一级类目 | `String` | 否 | `-` | 标准类目树左栏全称，须与选项完全一致。不传则不改页面类目。找不到则失败，失败信息含当前可选一级类目及数量。一级无下级时忽略更深层入参并选中一级 |
+| `category_level2` | 二级类目 | `String` | 条件必填 | `-` | 标准类目树中栏全称，须与选项完全一致。传入时必须同时传 `category_level1`。找不到则失败，失败信息含当前可选二级类目及数量。二级无三级面板时忽略 `category_level3` 并选中二级 |
+| `category_level3` | 三级类目 | `String` | 条件必填 | `-` | 标准类目树右栏全称，须与选项完全一致。传入时必须同时传 `category_level1`、`category_level2`。找不到则失败，失败信息含当前可选三级类目及数量 |
 
 ### 入参样例
 
@@ -79,13 +84,25 @@ category: item
 }
 ```
 
+按日并选到三级标准类目：
+
+```json
+{
+  "date_type": "DAY",
+  "biz_date": "20260920",
+  "category_level1": "童装/婴儿装/亲子装",
+  "category_level2": "裙子(新)",
+  "category_level3": "连衣裙"
+}
+```
+
 ### 入参校验
 
 ```json-schema collapsed
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "生意参谋-商品排行全部商品(下载) - 查询入参",
-  "description": "按日期类型（日/周/月）和日期参数下载生意参谋商品排行全部数据，支持天、自然周、自然月维度",
+  "description": "按日期类型（日/周/月）和可选标准类目下载生意参谋商品排行全部数据；有选择视角时使用拆分视角",
   "type": "object",
   "properties": {
     "date_type": {
@@ -97,10 +114,46 @@ category: item
       "type": "string",
       "description": "业务日期。始终填一天。格式 YYYYMMDD 或 YYYY-MM-DD；DAY 不可选今日及以后；WEEK/MONTH 用这一天定位所在周/月，不可选本周/本月的日期",
       "pattern": "^(\\d{8}|\\d{4}-\\d{2}-\\d{2})$"
+    },
+    "category_level1": {
+      "type": "string",
+      "description": "一级类目（左栏）。标准类目树全称，须与选项完全一致。不传则不改页面类目。找不到则失败，失败信息含当前可选一级类目及数量。一级无下级时忽略更深层入参并选中一级"
+    },
+    "category_level2": {
+      "type": "string",
+      "description": "二级类目（中栏）。传入时必须同时传 category_level1；须与选项完全一致。找不到则失败，失败信息含当前可选二级类目及数量。二级无三级面板时忽略 category_level3 并选中二级"
+    },
+    "category_level3": {
+      "type": "string",
+      "description": "三级类目（右栏）。传入时必须同时传 category_level1、category_level2；须与选项完全一致。找不到则失败，失败信息含当前可选三级类目及数量"
     }
   },
   "required": ["date_type", "biz_date"],
-  "additionalProperties": false
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "category_level2": { "type": "string", "minLength": 1 }
+        },
+        "required": ["category_level2"]
+      },
+      "then": {
+        "required": ["category_level1"]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "category_level3": { "type": "string", "minLength": 1 }
+        },
+        "required": ["category_level3"]
+      },
+      "then": {
+        "required": ["category_level1", "category_level2"]
+      }
+    }
+  ]
 }
 ```
 
