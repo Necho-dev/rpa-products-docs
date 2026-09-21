@@ -3,7 +3,8 @@
   "categoryAxis": {
     "title": "业务场景",
     "items": [
-      { "key": "promotion", "item": "淘客推广", "icon": { "comp": "Megaphone", "color": "#EA580C" } }
+      { "key": "promotion", "item": "淘客推广", "icon": { "comp": "Megaphone", "color": "#EA580C" } },
+      { "key": "finance", "item": "财务账户", "icon": { "comp": "Wallet", "color": "#0D9488" } }
     ]
   }
 }

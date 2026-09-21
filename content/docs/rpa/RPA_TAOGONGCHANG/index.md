@@ -1,7 +1,7 @@
 ---
 title: 淘工厂
 icon: ICO_TAOGONGCHANG
-description: 覆盖淘工厂淘客推广商品明细等场景的连接器
+description: 覆盖淘工厂淘客推广商品明细、货款账户收支明细等场景的连接器
 entry: RPA_TAOGONGCHANG
 category:
   slug: taobao
