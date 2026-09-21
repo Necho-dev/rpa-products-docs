@@ -32,7 +32,7 @@ category: content
 >
 > **取数链接**：[https://sycm.taobao.com/xsite/contentanalysis/overview_new_v2](https://sycm.taobao.com/xsite/contentanalysis/overview_new_v2)
 
-![生意参谋—内容—内容概况—作品分析](../_public/images/sycm/content_analysis_report_20260917.png)
+![生意参谋—内容—内容概况—作品分析](../_public/images/sycm/content_analysis_report_20260921.png)
 
 ### 业务入参
 
@@ -46,7 +46,7 @@ category: content
 | `content_source` | 内容来源 | `String` | 否 | `-` | 填写可搜索到的来源原文；支持模糊搜索，搜索出多条取第一条 |
 | `publish_date_type` | 内容发布时间 | `String` | 否 | `-` | 允许值：`ALL`（全部）/ `LAST_30_DAYS`（近30日） |
 | `content_id` | 内容ID | `String` | 否 | `-` | 多个 ID 用 `,` 分隔 |
-| `ggid` | 逛逛ID | `String` | 否 | `-` | `-` |
+| `ggid` | 逛逛ID | `String` | 否 | `-` | 输入逛逛ID搜索 |
 
 ### 入参样例
 
@@ -55,30 +55,67 @@ category: content
 ```json
 {
   "date_type": "DAY",
-  "biz_date": "2026-09-14",
-  "custom_start_date": "",
-  "custom_end_date": "",
-  "content_type": "",
-  "content_source": "",
-  "publish_date_type": "",
-  "content_id": "",
-  "ggid": ""
+  "biz_date": "2026-09-14"
 }
 ```
 
-自定义区间：
+7日 + 视频：
+
+```json
+{
+  "date_type": "LAST_7_DAYS",
+  "biz_date": "2026-09-01",
+  "content_type": "VIDEO"
+}
+```
+
+自然周：
+
+```json
+{
+  "date_type": "WEEK",
+  "biz_date": "2026-08-24"
+}
+```
+
+自然月：
+
+```json
+{
+  "date_type": "MONTH",
+  "biz_date": "2026-07-01"
+}
+```
+
+自定义区间 + 近30日发布：
 
 ```json
 {
   "date_type": "CUSTOM",
-  "biz_date": "",
   "custom_start_date": "2026-09-14",
   "custom_end_date": "2026-09-15",
   "content_type": "VIDEO",
-  "content_source": "",
-  "publish_date_type": "LAST_30_DAYS",
-  "content_id": "",
-  "ggid": ""
+  "publish_date_type": "LAST_30_DAYS"
+}
+```
+
+按逛逛ID搜索：
+
+```json
+{
+  "date_type": "DAY",
+  "biz_date": "2026-09-14",
+  "ggid": "466123097"
+}
+```
+
+按内容ID搜索：
+
+```json
+{
+  "date_type": "DAY",
+  "biz_date": "20260914",
+  "content_id": "562000110"
 }
 ```
 
@@ -131,7 +168,7 @@ category: content
     },
     "ggid": {
       "type": "string",
-      "description": "逛逛ID"
+      "description": "逛逛ID。输入逛逛ID搜索"
     }
   },
   "required": ["date_type"],

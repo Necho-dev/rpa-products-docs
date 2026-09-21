@@ -6,7 +6,7 @@ badge:
   label: 待上线
   color: "#EA580C"
 estimatedDuration:
-  sec: 60
+  sec: 90
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。
 category: finance
 ---
@@ -42,7 +42,7 @@ category: finance
 
 ### 入参样例
 
-按结算日期导出已结算账单：
+按结算日期导出已结算账单（`YYYY-MM-DD`）：
 
 ```json
 {
@@ -52,12 +52,32 @@ category: finance
 }
 ```
 
-按下单时间、紧凑日期格式：
+按结算日期、紧凑格式（`YYYYMMDD`）：
+
+```json
+{
+  "settle_start_date": "20260920",
+  "settle_end_date": "20260920",
+  "bill_status": "SETTLED"
+}
+```
+
+按下单时间导出（不传账单状态）：
 
 ```json
 {
   "order_start_date": "20260901",
   "order_end_date": "20260920"
+}
+```
+
+结算日期带时分秒 + 账单状态为不结算：
+
+```json
+{
+  "settle_start_date": "2026-09-20 00:00:00",
+  "settle_end_date": "2026-09-20 23:59:59",
+  "bill_status": "NOT_SETTLED"
 }
 ```
 

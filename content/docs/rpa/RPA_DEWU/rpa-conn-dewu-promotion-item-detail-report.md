@@ -6,7 +6,7 @@ badge:
   label: 待上线
   color: "#EA580C"
 estimatedDuration:
-  sec: 60
+  sec: 120
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。
 category: marketing
 ---
@@ -42,10 +42,51 @@ category: marketing
 
 ### 入参样例
 
+全选营销场景 + 近 30 天：
+
 ```json
 {
   "marketing_scenes": "ALL",
   "date_type": "LAST_30_DAYS"
+}
+```
+
+今天 + 营销场景逗号串（测款、成长）：
+
+```json
+{
+  "marketing_scenes": "PRODUCT_TEST,GROWTH",
+  "date_type": "TODAY"
+}
+```
+
+自定义区间（`YYYY-MM-DD`）：
+
+```json
+{
+  "marketing_scenes": "ALL",
+  "date_type": "CUSTOM",
+  "custom_start_date": "2026-09-19",
+  "custom_end_date": "2026-09-20"
+}
+```
+
+自定义区间（`YYYYMMDD`）：
+
+```json
+{
+  "date_type": "CUSTOM",
+  "custom_start_date": "20260919",
+  "custom_end_date": "20260920"
+}
+```
+
+按商品 SPUID + 昨天：
+
+```json
+{
+  "item_ids": ["8950895"],
+  "date_type": "YESTERDAY"
 }
 ```
 
