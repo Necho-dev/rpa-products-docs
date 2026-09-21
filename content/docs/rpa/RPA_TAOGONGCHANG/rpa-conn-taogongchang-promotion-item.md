@@ -41,6 +41,7 @@ category: promotion
 | `promotion_status` | 推广状态 | `String` | 否 | — | 不传则跳过。可选值：`WAIT_CONFIRM_INVITE`（待确认邀约）/ `XIAOER_REVIEWING`（小二审核中）/ `WAIT_COMPLETE_SIGNUP`（待完善报名信息）/ `WAIT_PROMOTE`（待推广）/ `PROMOTING`（推广中）/ `ENDED`（已结束） |
 | `item_id_or_title` | 商品 ID 或标题 | `String` / `List[String]` | 否 | — | 英文逗号分隔或 JSON 数组；中文逗号自动转英文。不传则跳过 |
 | `item_tab` | 列表 Tab | `String` | 否 | — | 不传则沿用页面当前 Tab。可选值：`PROMOTING`（推广中）/ `NOT_PROMOTING`（未推广）/ `PENDING`（待处理） |
+| `collect_limit` | 采集条数上限 | `String` | 否 | — | 范围 `1`～`2000`；不传则按接口总数采全量（最多 100 页） |
 
 ### 入参样例
 
@@ -121,6 +122,11 @@ category: promotion
       "type": "string",
       "enum": ["PROMOTING", "NOT_PROMOTING", "PENDING", ""],
       "description": "列表 Tab；空字符串视为未传。可选值：PROMOTING（推广中）/ NOT_PROMOTING（未推广）/ PENDING（待处理）"
+    },
+    "collect_limit": {
+      "type": "string",
+      "pattern": "^$|^[1-9]\\d{0,3}$",
+      "description": "采集条数上限；范围 1～2000。不传或空则按接口总数采全量（最多 100 页）"
     }
   },
   "required": [],
