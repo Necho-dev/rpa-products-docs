@@ -298,8 +298,6 @@ category: item
 
 ### 数据字段
 
-`bizDate` 格式为 `YYYYMMDD`。
-
 :::field-tree
 @define 素材标签
 | `description` | 标签说明 | `String` | 是 | 页面解析 | `维护素材可获取淘宝首页流量` |

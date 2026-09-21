@@ -155,8 +155,6 @@ category: item
 
 ### 数据字段
 
-`bizDate` 格式为 `YYYYMMDD`。
-
 :::field-tree
 @define AIGC权限
 | `aijz` | 是否具备爱剪辑权限 | `Boolean` | 否 | 页面解析 | `false` |

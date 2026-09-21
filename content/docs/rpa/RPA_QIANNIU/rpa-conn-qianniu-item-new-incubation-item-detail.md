@@ -106,8 +106,6 @@ category: item
 
 ### 数据字段
 
-`bizDate` 格式为 `YYYYMMDD`。
-
 :::field-tree
 @define 列表操作标签
 | `code` | 操作编码 | `String` | 是 | 页面解析 | `OP_LABEL_DATA` |
