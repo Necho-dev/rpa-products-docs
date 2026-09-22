@@ -3,8 +3,8 @@ title: 商品-新品运营-新品查询-近期发布
 description: 采集千牛新品运营—新品查询—近期发布商品明细（仅天猫店铺）；无业务筛选项，自动翻页（每页 10 条、最多 100 页）
 entry: rpa.conn.qianniu.item.new.publish.detail
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 90
   description: 根据测试运行耗时估算，每翻一页约 4s；实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

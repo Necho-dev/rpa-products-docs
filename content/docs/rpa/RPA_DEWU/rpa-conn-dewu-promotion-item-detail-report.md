@@ -3,8 +3,8 @@ title: 营销-得物推-商品推广明细报表
 description: 导出得物推推广数据页商品推广明细，支持按营销场景、商品、日期筛选
 entry: rpa.conn.dewu.promotion.item.detail.report
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 120
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

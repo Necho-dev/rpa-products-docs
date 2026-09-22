@@ -3,8 +3,8 @@ title: 商品-新品运营-新品成长-孵化中
 description: 采集千牛新品运营—新品成长—孵化中商品的孵化进度与资源信息（仅天猫店铺），支持按商品ID、商品标题筛选；可只采列表或同时采集每条优化攻略，自动翻页（只要列表最多 100 页，列表加优化攻略最多 50 条）
 entry: rpa.conn.qianniu.item.new.incubation.item.detail
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 120
   description: 根据测试运行耗时估算，每翻一页约 5s；实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

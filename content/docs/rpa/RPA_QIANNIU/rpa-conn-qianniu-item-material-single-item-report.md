@@ -3,8 +3,8 @@ title: 商品-素材中心-搜推单品素材明细
 description: 采集千牛素材中心—商品素材管理—搜推素材中的单品素材（按商品查看），支持按商品分类、商品名称或ID、素材id、商品类目、排序筛选；自动翻页，最多 100 页、采集条数上限 1～1000
 entry: rpa.conn.qianniu.item.material.single.item.report
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 60
   description: 根据测试运行耗时估算，每翻一页约 3s；实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

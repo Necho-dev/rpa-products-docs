@@ -3,8 +3,8 @@ title: 商品-素材中心-基础素材明细
 description: 采集千牛素材中心—商品素材管理—基础素材明细，支持按素材场景（须与店铺类型一致）、排序、商品ID或名称、类目、商品状态、素材类型与状态、大促活动、素材推荐待采纳筛选；自动翻页，最多 100 页、采集条数上限 1～1000
 entry: rpa.conn.qianniu.item.material.list.report
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 90
   description: 根据测试运行耗时估算，每翻一页约 5s；实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

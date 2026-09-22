@@ -3,8 +3,8 @@ title: 推广-淘客推广-商品明细
 description: 登录淘工厂后进入淘客推广页，按统计时间、活动类型、推广状态等筛选项采集商品明细
 entry: rpa.conn.taogongchang.promotion.item
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 120
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

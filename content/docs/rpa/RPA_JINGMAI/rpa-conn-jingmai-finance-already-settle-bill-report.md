@@ -3,8 +3,8 @@ title: 财务-已结算-账单明细报表
 description: 在京麦对账中心已结算明细页，按结算日期或下单时间与账单状态筛选并导出账单明细
 entry: rpa.conn.jingmai.finance.already.settle.bill.report
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 90
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

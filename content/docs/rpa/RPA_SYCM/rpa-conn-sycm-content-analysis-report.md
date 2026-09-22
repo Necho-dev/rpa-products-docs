@@ -3,8 +3,8 @@ title: 内容-内容概况-作品分析
 description: 按统计时间与可选筛选项导出生意参谋内容概况「作品分析」明细报表
 entry: rpa.conn.sycm.content.analysis.report
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 dataReady:
   time: "09:00:00"
   cycle: daily

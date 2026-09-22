@@ -3,8 +3,8 @@ title: 财务-货款账户-收支明细
 description: 登录淘工厂后进入货款账户，按入账时间和支付宝/微信渠道导出收支流水
 entry: rpa.conn.taogongchang.finance.account.bill.detail
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 180
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。
