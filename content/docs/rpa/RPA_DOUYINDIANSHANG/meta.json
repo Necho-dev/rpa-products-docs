@@ -1,0 +1,9 @@
+{
+  "title": "抖音电商",
+  "categoryAxis": {
+    "title": "子平台"
+  },
+  "pages": [
+    "./LP"
+  ]
+}

@@ -28,7 +28,7 @@ category: live
 >
 > **取数链接**：[https://compass.jinritemai.com/shop/live-overview](https://compass.jinritemai.com/shop/live-overview)
 
-![抖音电商罗盘—直播概览直播间列表](../_public/images/douyindianshang/lp_live_list_report_20260911.png)
+![抖音电商罗盘—直播概览直播间列表](../../_public/images/douyindianshang/lp_live_list_report_20260911.png)
 
 ### 业务入参
 

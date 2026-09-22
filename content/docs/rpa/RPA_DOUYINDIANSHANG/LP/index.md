@@ -1,10 +1,10 @@
 ---
-title: 抖音电商罗盘
+title: 罗盘
 icon: ICO_DOUYIN
 description: 覆盖抖音电商罗盘直播概览、直播间列表等场景的连接器
 entry: RPA_DOUYINDIANSHANG_LP
 category:
-  slug: doudian
+  slug: lp
   icon:
     comp: ICO_DOUYIN
   link: https://compass.jinritemai.com/
@@ -12,7 +12,7 @@ category:
 
 :::meta-panel
 icon: ICO_DOUYIN
-platform: 抖音电商罗盘
+platform: 罗盘
 platformUrl: https://compass.jinritemai.com/
 requireLogin: true
 loginOptions:
