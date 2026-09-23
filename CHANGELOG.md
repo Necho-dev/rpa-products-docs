@@ -2,9 +2,15 @@
 
 本文件记录 HeroKnowledge 面向使用者的版本变化。格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
-当前发布版本见 [`package.json`](package.json) 的 `version`（**0.7.0**）。未发布改动记在 **[Unreleased]**，发版时再截成 `## [x.y.z]`。
+当前发布版本见 [`package.json`](package.json) 的 `version`（**0.7.1**）。未发布改动记在 **[Unreleased]**，发版时再截成 `## [x.y.z]`。
 
 ## [Unreleased]
+
+## [0.7.1] - 2026-09-23
+
+### Changed
+
+- 部署脚本在拉取主仓库后按 `.gitmodules` 识别子模块：缺失则首次克隆，远程有新提交则更新。`.vendor/` 下的子模块仍走稀疏检出。
 
 ## [0.7.0] - 2026-09-23
 

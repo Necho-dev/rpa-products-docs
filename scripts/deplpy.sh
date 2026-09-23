@@ -6,12 +6,13 @@ set -euo pipefail
 DEPLOY_PATH="${DEPLOY_PATH:-/opt/1panel/apps/rpa-products-docs}"
 BRANCH="${BRANCH:-main}"
 FORCE=0
+ORIG_ARGS=("$@")
 
 usage() {
   cat <<'EOF'
 用法: deplpy.sh [--force]
 
-  默认      仅当主仓或 auth / API 文档 submodule 相对 origin 有更新时才构建
+  默认      仅当主仓或 .gitmodules 中的子模块相对 origin 有更新时才构建
   --force   跳过 Git 更新检查，按当前工作区构建并启动
             （首次配置、或本地/服务器上手动重建）
 
@@ -37,14 +38,6 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-# 每项格式：相对路径|跟踪分支
-# 环境变量可覆盖单条分支；日后加其它 Submodule 时追加一行即可，例如：
-#   "content/docs/rpa|${RPA_BRANCH:-main}"
-SUBMODULES=(
-  "content/docs/auth|${AUTH_BRANCH:-main}"
-  ".vendor/dc-knowledge|${API_DOCS_BRANCH:-master}"
-)
-
 # 按 .vendor/mounts 稀疏检出并挂载。新克隆时把 NEED_UPDATE 置 1。
 sync_vendor() {
   local out
@@ -57,6 +50,98 @@ sync_vendor() {
 
 log() { echo ">>> $*" >&2; }
 log_sentry() { echo ">>> [Sentry] $*" >&2; }
+
+# 子模块以当前 .gitmodules 为准。AUTH_BRANCH / API_DOCS_BRANCH 只覆盖对应路径。
+# .vendor/ 走稀疏克隆，不用 git submodule update --init，避免拉下整个远程仓库。
+submodule_present() {
+  [ -e "$1/.git" ]
+}
+
+is_vendor_submodule() {
+  case "$1" in
+    .vendor/*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+branch_override() {
+  local path="$1" branch="$2"
+  case "$path" in
+    content/docs/auth) printf '%s' "${AUTH_BRANCH:-$branch}" ;;
+    .vendor/dc-knowledge) printf '%s' "${API_DOCS_BRANCH:-$branch}" ;;
+    *) printf '%s' "$branch" ;;
+  esac
+}
+
+load_submodules() {
+  local key path name branch
+  SUBMODULES=()
+  [ -f .gitmodules ] || return 0
+  while read -r key path; do
+    [ -n "${path:-}" ] || continue
+    name="${key#submodule.}"
+    name="${name%.path}"
+    branch="$(git config -f .gitmodules --get "submodule.${name}.branch" || true)"
+    branch="$(branch_override "$path" "${branch:-main}")"
+    SUBMODULES+=("${path}|${branch}")
+  done < <(git config -f .gitmodules --get-regexp '^submodule\..*\.path$' || true)
+  if [ "${#SUBMODULES[@]}" -eq 0 ]; then
+    log ".gitmodules 中没有子模块"
+  else
+    log "子模块清单: ${SUBMODULES[*]}"
+  fi
+}
+
+note_submodule_drift() {
+  local path="$1" branch="$2" sub_local sub_remote
+  if ! submodule_present "$path"; then
+    log "Submodule 未初始化: $path，将首次拉取 ($branch)"
+    NEED_UPDATE=1
+    return
+  fi
+  if is_vendor_submodule "$path"; then
+    git -C "$path" fetch --depth 1 origin "$branch"
+  else
+    git -C "$path" fetch origin "$branch"
+  fi
+  sub_local="$(git -C "$path" rev-parse HEAD)"
+  sub_remote="$(git -C "$path" rev-parse "origin/$branch")"
+  if [ "$sub_local" != "$sub_remote" ]; then
+    log "Submodule 有更新 [$path]: ${sub_local:0:8} -> ${sub_remote:0:8} (origin/$branch)"
+    NEED_UPDATE=1
+  fi
+}
+
+update_one_submodule() {
+  local path="$1" branch="$2"
+  if is_vendor_submodule "$path"; then
+    if submodule_present "$path"; then
+      log "更新稀疏子模块 $path ($branch)"
+      git -C "$path" fetch --depth 1 origin "$branch"
+      git -C "$path" reset --hard "origin/$branch"
+    else
+      log "稀疏子模块 $path 将由 sync-vendor.sh 首次克隆"
+    fi
+    return
+  fi
+  log "同步子模块 $path ($branch)"
+  git config -f .gitmodules "submodule.$path.branch" "$branch"
+  git submodule sync -- "$path"
+  git submodule update --init --remote -- "$path"
+}
+
+sync_all_submodules() {
+  local entry path branch
+  load_submodules
+  if [ "${#SUBMODULES[@]}" -gt 0 ]; then
+    for entry in "${SUBMODULES[@]}"; do
+      path="${entry%%|*}"
+      branch="${entry#*|}"
+      update_one_submodule "$path" "$branch"
+    done
+  fi
+  sync_vendor
+}
 
 # 从 dotenv 文件读取 KEY=value（忽略注释/空行；不 source，避免执行）
 read_dotenv_value() {
@@ -262,9 +347,8 @@ MAIN_CHANGED=0
 
 if [ "$FORCE" -eq 1 ]; then
   log "--force：跳过 Git 更新检查，按当前工作区构建"
-  sync_vendor
-  git submodule update --init --recursive
   export_compose_build_env
+  sync_all_submodules
   NEED_UPDATE=1
 else
   current_branch="$(git rev-parse --abbrev-ref HEAD)"
@@ -274,9 +358,6 @@ else
   fi
 
   git fetch origin "$BRANCH"
-  sync_vendor
-  git submodule update --init --recursive
-
   # 先导出 .env，避免 cron 空变量盖掉 Compose build.args 插值
   export_compose_build_env
 
@@ -288,28 +369,29 @@ else
     MAIN_CHANGED=1
   fi
 
-  for entry in "${SUBMODULES[@]}"; do
-    path="${entry%%|*}"
-    branch="${entry#*|}"
-    if [ ! -d "$path/.git" ] && [ ! -f "$path/.git" ]; then
-      log "Submodule 未初始化: $path，将在更新阶段拉取"
-      NEED_UPDATE=1
-      continue
-    fi
-    git -C "$path" fetch origin "$branch"
-    sub_local="$(git -C "$path" rev-parse HEAD)"
-    sub_remote="$(git -C "$path" rev-parse "origin/$branch")"
-    if [ "$sub_local" != "$sub_remote" ]; then
-      log "Submodule 有更新 [$path]: ${sub_local:0:8} -> ${sub_remote:0:8} (origin/$branch)"
-      NEED_UPDATE=1
-    fi
-  done
-
   # 先拉取主仓，避免预检逻辑本身有 bug 时永远 pull 不到修复
   if [ "$MAIN_CHANGED" -eq 1 ]; then
     log "拉取主仓库 origin/$BRANCH"
     git pull --ff-only origin "$BRANCH"
     export_compose_build_env
+    if [ "${DEPLOY_REEXEC:-0}" != 1 ]; then
+      log "主仓库已更新，重新执行部署脚本以识别新增子模块"
+      export DEPLOY_REEXEC=1
+      export DEPLOY_AFTER_PULL=1
+      exec "$0" "${ORIG_ARGS[@]}"
+    fi
+  fi
+
+  if [ "${DEPLOY_AFTER_PULL:-0}" = 1 ]; then
+    log "续跑：主仓库已拉取，继续同步子模块并构建"
+    NEED_UPDATE=1
+  fi
+
+  load_submodules
+  if [ "${#SUBMODULES[@]}" -gt 0 ]; then
+    for entry in "${SUBMODULES[@]}"; do
+      note_submodule_drift "${entry%%|*}" "${entry#*|}"
+    done
   fi
 fi
 
@@ -320,16 +402,9 @@ if [ "$NEED_UPDATE" -eq 1 ]; then
   log "开始执行更新流程"
 
   if [ "$FORCE" -eq 0 ]; then
-    for entry in "${SUBMODULES[@]}"; do
-      path="${entry%%|*}"
-      branch="${entry#*|}"
-      git config -f .gitmodules "submodule.$path.branch" "$branch"
-      git submodule sync -- "$path"
-      git submodule update --init --remote -- "$path"
-    done
+    sync_all_submodules
   fi
 
-  sync_vendor
   log "开始构建镜像并滚动更新容器"
   reserve_previous_image
   docker compose up -d --build

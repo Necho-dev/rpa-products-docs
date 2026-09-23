@@ -2,7 +2,7 @@
 
 HeroKnowledge 是预策·数据连接中心的内部知识库，基于 [Fumadocs](https://fumadocs.vercel.app/) 与 [Next.js](https://nextjs.org/) 构建。站点收录 RPA 连接器说明和授权帮助，并提供全文检索、AI 问答、RSS 订阅与 MCP 服务。
 
-当前版本为 **0.7.0**。版本说明见 [CHANGELOG.md](CHANGELOG.md)。
+当前版本为 **0.7.1**。版本说明见 [CHANGELOG.md](CHANGELOG.md)。
 
 ## 功能概览
 
@@ -185,7 +185,7 @@ cd ../../..
 git add content/docs/auth && git commit -m "chore: bump auth submodule"
 ```
 
-`scripts/deplpy.sh` 与 `deploy/dual-instance/deploy.sh` 都会跟踪 auth 与 API 文档子模块的远程最新提交；即使主仓库尚未更新 gitlink，有变更时也会重建。`.vendor/` 下的子模块走稀疏检出，构建前按 `.vendor/mounts` 挂到目标目录。两套脚本不要同时跑。首次或只想按当前代码重建时加 `--force`。
+`scripts/deplpy.sh` 与 `deploy/dual-instance/deploy.sh` 在拉取主仓库后按 `.gitmodules` 识别子模块：未初始化的会首次克隆，远程分支有新提交的会更新。主仓库刚被 pull 时，脚本会再执行自己一次，这样同一次部署就能用上新的子模块名单。`.vendor/` 下的子模块走稀疏检出，不跑 `git submodule update --init`。两套脚本不要同时跑。首次或只想按当前代码重建时加 `--force`。
 
 **1Panel 里如何指定分支？**
 
