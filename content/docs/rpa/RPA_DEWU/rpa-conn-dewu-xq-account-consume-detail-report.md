@@ -37,7 +37,7 @@ category: finance
 | `date_type` | 时间范围 | `String` | 是 | `-` | 允许值：`TODAY`（今天）/ `YESTERDAY`（昨天）/ `LAST_7_DAYS`（近 7 天）/ `CUSTOM`（自定义区间） |
 | `custom_start_date` | 开始日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD` |
 | `custom_end_date` | 结束日期 | `String` | 条件必填 | `-` | `date_type` 为 `CUSTOM` 时必填；格式 `YYYYMMDD` 或 `YYYY-MM-DD`；不得早于 `custom_start_date` |
-| `consume_type` | 消耗类型 | `String` | 否 | `-` | 允许值：`ACCOUNT_FUND_DETAIL`（账户资金明细）/ `PAY_LATER_CONSUME_DETAIL`（先享后付消耗明细）。不传则不点选。两种类型下载列不同 |
+| `consume_type` | 消耗类型 | `String` | 否 | `-` | 允许值：`ACCOUNT_FUND_DETAIL`（账户资金明细）/ `PAY_LATER_CONSUME_DETAIL`（先享后付消耗明细）。不传则为页面默认的账户资金明细 |
 
 ### 入参样例
 
@@ -112,7 +112,7 @@ category: finance
       "type": "string"
     },
     "consume_type": {
-      "description": "消耗类型。允许值：ACCOUNT_FUND_DETAIL（账户资金明细）/ PAY_LATER_CONSUME_DETAIL（先享后付消耗明细）。不传则不点选",
+      "description": "消耗类型。允许值：ACCOUNT_FUND_DETAIL（账户资金明细）/ PAY_LATER_CONSUME_DETAIL（先享后付消耗明细）。不传则为页面默认的账户资金明细",
       "type": "string",
       "enum": ["ACCOUNT_FUND_DETAIL", "PAY_LATER_CONSUME_DETAIL"]
     }
@@ -133,7 +133,7 @@ category: finance
 
 ### 数据字段
 
-两种消耗类型下载列不同；下表汇总全部字段，当前类型不提供的字段为空。
+两种消耗类型导出的表头不同；连接器按两套表头并集回传，本文件没有的列补 `null`。
 
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
@@ -156,8 +156,6 @@ category: finance
 
 ### 数据样例
 
-账户资金明细：
-
 ```json
 [
   {
@@ -172,22 +170,9 @@ category: finance
     "invoiceAmount": "0",
     "tradeType": "星桥激励金过期",
     "tradeSummary": "星桥激励金使用期限过期核销",
-    "bizDate": "20260922",
-    "accountId": "1****1"
-  }
-]
-```
-
-先享后付消耗明细：
-
-```json
-[
-  {
-    "orderNo": "DLY****934",
-    "tradeType": "货款扣减消耗",
-    "consumeAmount": "-3667.02",
-    "effectiveTime": "2026-01-20 07:50:10",
-    "flowStatus": "已结算",
+    "consumeAmount": null,
+    "effectiveTime": null,
+    "flowStatus": null,
     "bizDate": "20260922",
     "accountId": "1****1"
   }
