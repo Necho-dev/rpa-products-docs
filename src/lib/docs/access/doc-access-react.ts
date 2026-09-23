@@ -22,7 +22,7 @@ export const getDocAccessContextFromRequest = cache(async (): Promise<DocAccessC
   const claimedSh = h.get(EMBED_VERIFIED_SH_HEADER);
   if (claimedSh) {
     const reqForVerify = new Request('http://localhost/', { headers: h });
-    const verified = verifyCubeEmbedRequest(reqForVerify);
+    const verified = await verifyCubeEmbedRequest(reqForVerify);
     if (verified && verified.sh === claimedSh) {
       return getDocAccessContextForEmbed(verified.sh, verified.user);
     }

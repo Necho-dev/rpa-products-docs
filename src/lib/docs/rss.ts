@@ -2,7 +2,7 @@ import { Feed } from 'feed';
 import type { DocAccessContext } from '@/lib/docs/access/doc-access';
 import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
 import { getSiteDescription, getSiteName } from '@/lib/core/knowledge-env';
-import { source } from '@/lib/docs/source/source';
+import { docUpdatedAt, source } from '@/lib/docs/source/source';
 
 export function getRSS(access: DocAccessContext, siteOrigin: string) {
   const baseUrl = siteOrigin.replace(/\/$/, '');
@@ -30,7 +30,7 @@ export function getRSS(access: DocAccessContext, siteOrigin: string) {
       title: page.data.title,
       description: page.data.description,
       link: `${baseUrl}${page.url}`,
-      date: new Date(page.data.lastModified ?? new Date()),
+      date: docUpdatedAt(page) ?? new Date(),
 
       author: [
         {

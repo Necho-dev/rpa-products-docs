@@ -22,7 +22,7 @@ import {
 } from '@/lib/docs/doc-references-core';
 import { isDocPageAccessible, resolveDocPage } from '@/lib/docs/docs-site-tools';
 import { buildPageCoverUrl } from '@/lib/docs/source/resolve-module-cover-url';
-import { source } from '@/lib/docs/source/source';
+import { docUpdatedAt, source } from '@/lib/docs/source/source';
 
 type DocPage = ReturnType<typeof source.getPages>[number];
 
@@ -108,7 +108,7 @@ function toResolved(edge: ResolvedReferenceEdge, target: DocPage): ResolvedRefer
   const description = target.data.description?.trim();
   if (description) resolved.description = description;
 
-  const lastModified = target.data.lastModified;
+  const lastModified = docUpdatedAt(target);
   if (lastModified) {
     const date = new Date(lastModified);
     if (!Number.isNaN(date.getTime())) {
@@ -204,7 +204,7 @@ export function getPageBacklinks(page: DocPage, access: DocAccessContext): Refer
 
     const out: Referrer = { url: referrer.url, title: referrer.title };
     if (referrer.icon) out.icon = referrer.icon;
-    const lastModified = referrerPage.data.lastModified;
+    const lastModified = docUpdatedAt(referrerPage);
     if (lastModified) {
       const date = new Date(lastModified);
       if (!Number.isNaN(date.getTime())) out.updatedLabel = formatUpdated(date);

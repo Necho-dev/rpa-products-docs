@@ -52,13 +52,16 @@ code=$(curl_code "$BASE/health")
 code=$(curl_code "$BASE/llms.htm/docs/foo")
 [[ "$code" == "404" ]] && pass "Embed: 直访 /llms.htm → 404" || fail "直访 /llms.htm 期望 404，实际 $code"
 
-code=$(curl_code "$BASE${DOC_PATH}?render=html")
-[[ "$code" == "401" ]] && pass "Embed: 无签名 render=html → 401" || fail "无签名 embed 期望 401，实际 $code"
+code=$(curl_code "$BASE${DOC_PATH}?mode=page")
+[[ "$code" == "401" ]] && pass "Embed: 无签名 mode=page → 401" || fail "无签名 embed 期望 401，实际 $code"
 
-# --- 嵌入 BFF 签名（需 secrets 文件） ---
+# --- 嵌入登录包（需 secrets 文件 + 用户中心或 AES 回退） ---
 if [[ -f "$SECRETS_FILE" ]]; then
-  embed_headers=$(python3 - "$SECRETS_FILE" "$DOC_PATH" "$CUBE_ORIGIN" <<'PY'
-import hashlib, json, sys, time
+  embed_qs=$(python3 - "$SECRETS_FILE" "$DOC_PATH" "$CUBE_ORIGIN" <<'PY'
+import hashlib, json, sys, time, base64
+from urllib.parse import urlencode
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad
 secrets_path, doc_path, cube_origin = sys.argv[1], sys.argv[2], sys.argv[3]
 with open(secrets_path) as f:
     data = json.load(f)
@@ -70,40 +73,35 @@ for k, v in data.items():
     break
 if not sh:
     sys.exit('no secret in file')
+payload = json.dumps({"userName": "verify-user", "targetUrl": doc_path, "cubeOrigin": cube_origin.rstrip("/")}, separators=(",", ":"))
+key = secret.encode("ascii")
+cipher = AES.new(key, AES.MODE_ECB)
+ed = base64.b64encode(cipher.encrypt(pad(payload.encode("utf-8"), AES.block_size))).decode("ascii")
 tm = int(time.time() * 1000)
-sg = hashlib.sha256(f"GET\n{doc_path}\n{tm}\n{secret}".encode()).hexdigest()
-print(f"X-Render-Mode: html")
-print(f"X-Cube-Secret-Hash: {sh}")
-print(f"X-Cube-Timestamp: {tm}")
-print(f"X-Cube-Signature: {sg}")
-print(f"X-Cube-Origin: {cube_origin.rstrip('/')}")
+sg = hashlib.sha256(f"{ed}{tm}{secret}".encode()).hexdigest()
+print(urlencode({"mode": "page", "ed": ed, "sh": sh, "tm": str(tm), "sg": sg}))
 PY
 )
-  embed_args=()
-  while IFS= read -r line; do embed_args+=(-H "$line"); done <<< "$embed_headers"
+  embed_url="$BASE${DOC_PATH}?${embed_qs}"
 
-  code=$(curl -sS -o /dev/null -w '%{http_code}' "${embed_args[@]}" -H "User-Agent: httpx/0.27.0" "$BASE${DOC_PATH}")
-  [[ "$code" == "200" ]] && pass "Embed: httpx UA + 合法 HMAC → 200" || fail "BFF 嵌入期望 200，实际 $code"
+  code=$(curl -sS -o /dev/null -w '%{http_code}' -H "User-Agent: httpx/0.27.0" "$embed_url")
+  [[ "$code" == "200" ]] && pass "Embed: Query 登录包 → 200" || fail "嵌入期望 200，实际 $code"
 
-  body_head=$(curl -sS "${embed_args[@]}" "$BASE${DOC_PATH}" | head -c 40 | tr -d '\n\r')
+  body_head=$(curl -sS "$embed_url" | head -c 40 | tr -d '\n\r')
   [[ "$body_head" == "<!DOCTYPE html>"* ]] && pass "Embed: 返回完整 HTML 文档" || fail "Embed HTML 异常: $body_head"
 
-  img_url=$(curl -sS "${embed_args[@]}" "$BASE${DOC_PATH}" | grep -oE 'src="[^"]*docsResources\?path=[^"]*"' | head -1 | sed 's/src="//;s/"$//')
+  img_url=$(curl -sS "$embed_url" | grep -oE 'src="[^"]*/resources/images/[^"]+\?sign=[^"]*"' | head -1 | sed 's/src="//;s/"$//' || true)
   if [[ -n "$img_url" ]]; then
-    pass "Embed: HTML 内图片为 docsResources 代理 URL"
+    pass "Embed: HTML 内图片为文档站 ?sign= 直链"
     if [[ "$img_url" == http* ]]; then
       code=$(curl_code_ua "$img_url")
-      note "docsResources 直连（依赖魔方 Mock）HTTP $code"
+      [[ "$code" == "200" ]] && pass "Resource: 有效 sign 直连 → 200" || note "sign 直连 HTTP $code"
     else
-      note "相对 docsResources URL，需在魔方页内加载: $img_url"
+      code=$(curl_code_ua "$BASE$img_url")
+      [[ "$code" == "200" ]] && pass "Resource: 站内 ?sign= → 200" || note "站内 sign HTTP $code"
     fi
   else
-    legacy=$(curl -sS "${embed_args[@]}" "$BASE${DOC_PATH}" | grep -o 'src="[^"]*/resources/images/[^"]*"' | head -1 || true)
-    if [[ -n "$legacy" ]]; then
-      fail "Embed: 仍输出文档站裸链图片 URL（应改为 docsResources）"
-    else
-      note "未解析到嵌入图片 URL，跳过 docsResources 测试"
-    fi
+    note "未解析到嵌入图片 URL，跳过 sign 测试"
   fi
 
   # 资源验签（仅当 DOCS_RESOURCES_REQUIRE_EMBED_SIGN=true 时严格 401）

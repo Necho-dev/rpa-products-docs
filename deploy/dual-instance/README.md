@@ -16,7 +16,7 @@
 | `.env` | Compose 插值：镜像名、端口、日志目录、`PRODUCTION_SECRETS_DIR`、构建期 `SENTRY_AUTH_*` |
 | `.env.intranet` | 仅 intranet 容器（`KNOWLEDGE_*`、`SENTRY_ENVIRONMENT=intranet`） |
 | `.env.production` | 仅 production 容器（SSO + `SENTRY_ENVIRONMENT=production`） |
-| `deploy.sh` | 检查主仓 / auth submodule；有更新则一次 `--build` 并滚动两个容器。`--force` 跳过检查 |
+| `deploy.sh` | 检查主仓 / auth 与 API 文档 submodule；有更新则一次 `--build` 并滚动两个容器。`--force` 跳过检查 |
 
 `env_file` 不会改 YAML 里的 `${INTRANET_PORT}`。改端口或宿主机挂载请编辑 `.env`，不要写在实例文件里。
 

@@ -3,6 +3,7 @@ import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
 import { source } from '@/lib/docs/source/source';
 import { renderDocPageToHtml } from '@/lib/docs/embed/html';
 import { verifyCubeEmbedRequest } from '@/lib/auth/cube-embed';
+import { inferSiteOrigin } from '@/lib/core/site-origin';
 import { notFound } from 'next/navigation';
 
 export const runtime = 'nodejs';
@@ -20,7 +21,7 @@ export async function GET(req: Request, { params }: RouteContext<'/llms.htm/docs
     );
   }
 
-  const verified = verifyCubeEmbedRequest(req);
+  const verified = await verifyCubeEmbedRequest(req);
   if (!verified || verified.sh !== claimedSh) {
     return Response.json(
       { error: 'unauthorized', message: '来源站身份二次校验失败' },
@@ -37,8 +38,7 @@ export async function GET(req: Request, { params }: RouteContext<'/llms.htm/docs
   if (!page) notFound();
   if (!isDocPageAccessible(page, access)) notFound();
 
-  const cubeOrigin = verified.cubeOrigin;
-  const html = await renderDocPageToHtml(page, cubeOrigin);
+  const html = await renderDocPageToHtml(page, inferSiteOrigin(req));
 
   return new Response(html, {
     headers: {

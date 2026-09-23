@@ -50,10 +50,13 @@ export { AISearchInput, AISearchPanelFooter } from '@/components/ai/ai-search-in
 export function AISearch({
   children,
   modelDisplayName,
+  visionEnabled = false,
 }: {
   children: ReactNode;
   /** 页面展示名（`LLM_MODEL_DISPLAY` 优先，否则 `LLM_MODEL`）；须由服务端传入 */
   modelDisplayName?: string;
+  /** 当前对接模型是否支持视觉输入；须由服务端传入 */
+  visionEnabled?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [panelView, setPanelView] = useState<AISearchPanelView>('chat');
@@ -329,6 +332,7 @@ export function AISearch({
       setPanelView,
       backgroundNotify,
       modelDisplayName,
+      visionEnabled,
       chatBooted: booted,
       bootError,
       chatError: chat.error,
@@ -351,6 +355,7 @@ export function AISearch({
       panelView,
       backgroundNotify,
       modelDisplayName,
+      visionEnabled,
       booted,
       bootError,
       persistedError,

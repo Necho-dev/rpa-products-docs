@@ -282,7 +282,7 @@ const remarkMdxDocBlocks: Plugin<[], Root> = () => {
       if (directive.name === 'category-filter') {
         const innerText = extractDirectiveInnerText(directive, file);
         const raw = parseDirectiveYaml(innerText, 'category-filter', filePath);
-        const { cover, search, labels, depth, layout, hubs } =
+        const { cover, search, labels, depth, layout, hubs, toc } =
           parseCategoryFilterDirectiveYaml(raw, filePath);
         const pageSlug = pageSlugFromDocFile(resolvedFilePath);
 
@@ -313,7 +313,7 @@ const remarkMdxDocBlocks: Plugin<[], Root> = () => {
         }
 
         let injectedHeadingCount = 0;
-        if (resolvedLayout === 'tabs' && filePath !== 'unknown') {
+        if (toc !== false && resolvedLayout === 'tabs' && filePath !== 'unknown') {
           const tabGroups = resolveCategoryFilterTabGroups(
             resolvedFilePath,
             pageSlug,

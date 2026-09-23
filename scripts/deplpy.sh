@@ -11,11 +11,11 @@ usage() {
   cat <<'EOF'
 用法: deplpy.sh [--force]
 
-  默认      仅当主仓或 auth submodule 相对 origin 有更新时才构建
+  默认      仅当主仓或 auth / API 文档 submodule 相对 origin 有更新时才构建
   --force   跳过 Git 更新检查，按当前工作区构建并启动
             （首次配置、或本地/服务器上手动重建）
 
-环境变量: DEPLOY_PATH  BRANCH  AUTH_BRANCH  HEALTH_WAIT_SECONDS
+环境变量: DEPLOY_PATH  BRANCH  AUTH_BRANCH  API_DOCS_BRANCH  HEALTH_WAIT_SECONDS
 EOF
 }
 
@@ -42,7 +42,18 @@ done
 #   "content/docs/rpa|${RPA_BRANCH:-main}"
 SUBMODULES=(
   "content/docs/auth|${AUTH_BRANCH:-main}"
+  ".vendor/dc-knowledge|${API_DOCS_BRANCH:-master}"
 )
+
+# 按 .vendor/mounts 稀疏检出并挂载。新克隆时把 NEED_UPDATE 置 1。
+sync_vendor() {
+  local out
+  out="$(bash "$DEPLOY_PATH/scripts/sync-vendor.sh")"
+  if [ "$out" = "initialized" ]; then
+    log ".vendor 子模块是新克隆的，将构建镜像"
+    NEED_UPDATE=1
+  fi
+}
 
 log() { echo ">>> $*" >&2; }
 log_sentry() { echo ">>> [Sentry] $*" >&2; }
@@ -251,6 +262,7 @@ MAIN_CHANGED=0
 
 if [ "$FORCE" -eq 1 ]; then
   log "--force：跳过 Git 更新检查，按当前工作区构建"
+  sync_vendor
   git submodule update --init --recursive
   export_compose_build_env
   NEED_UPDATE=1
@@ -262,6 +274,7 @@ else
   fi
 
   git fetch origin "$BRANCH"
+  sync_vendor
   git submodule update --init --recursive
 
   # 先导出 .env，避免 cron 空变量盖掉 Compose build.args 插值
@@ -316,6 +329,7 @@ if [ "$NEED_UPDATE" -eq 1 ]; then
     done
   fi
 
+  sync_vendor
   log "开始构建镜像并滚动更新容器"
   reserve_previous_image
   docker compose up -d --build

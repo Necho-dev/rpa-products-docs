@@ -29,6 +29,11 @@ export type ParsedCategoryFilterDirective = {
    * 概览页用 `hubs: true` + `depth: 1` 只收到子平台一层。
    */
   hubs?: boolean;
+  /**
+   * 是否把筛选分组添加到页面右侧目录;
+   * 默认 `layout: tabs` / `stack` 会添加; 若需要隐藏则显式写 `toc: false`
+   */
+  toc?: boolean;
   pagination: CategoryFilterPagination;
 };
 
@@ -57,7 +62,8 @@ export function parseCategoryFilterDirectiveYaml(
   let labels = true;
   let depth: number | undefined;
   let layout: CategoryFilterLayout | undefined;
-  let hubs = false;
+  let hubs: boolean | undefined;
+  let toc: boolean | undefined;
 
   if ('collect' in obj) {
     throw new Error(
@@ -103,6 +109,13 @@ export function parseCategoryFilterDirectiveYaml(
     hubs = obj.hubs;
   }
 
+  if ('toc' in obj) {
+    if (typeof obj.toc !== 'boolean') {
+      throw new Error(`${filePath}: :::category-filter toc must be true or false`);
+    }
+    toc = obj.toc;
+  }
+
   if ('layout' in obj) {
     const value = obj.layout;
     if (typeof value !== 'string' || !CATEGORY_FILTER_LAYOUTS.has(value as CategoryFilterLayout)) {
@@ -125,7 +138,8 @@ export function parseCategoryFilterDirectiveYaml(
     labels,
     ...(depth != null ? { depth } : {}),
     ...(layout ? { layout } : {}),
-    ...(hubs ? { hubs: true } : {}),
+    ...(hubs !== undefined ? { hubs } : {}),
+    ...(toc !== undefined ? { toc } : {}),
     pagination,
   };
 }

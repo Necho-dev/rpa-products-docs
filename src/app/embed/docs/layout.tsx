@@ -11,7 +11,7 @@
  * - 不显示选择器（DocSelectionProvider）
  * - 不显示摘录（ExcerptCollectionProvider）
  * 
- * 只支持通过 proxy rewrite（X-Render-Mode: html 通道）访问，
+ * 只支持通过 proxy rewrite（Query mode=page）访问；
  * 外部直访被 blockEmbedInternalRoutes 拦截返回 404。
  */
 import type { Metadata } from 'next';

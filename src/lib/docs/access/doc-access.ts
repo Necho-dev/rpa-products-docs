@@ -104,14 +104,14 @@ export function getDocAccessContext(req: Request): DocAccessContext {
 }
 
 /**
- * 嵌入通道专用：通过 HMAC 签名验证后构造访问上下文。
+ * 嵌入通道专用: UserCenter 签名校验成功后构造访问上下文
  *
  * 与 `getDocAccessContext` 的区别：
  * - **不**依赖请求 Cookie 或 Bearer 令牌（服务端请求不携带浏览器会话）
  * - 验签成功即视为持有完整私有访问权限
  *
- * @param sh  `secrets.json` 中已验证的 secret hash
- * @param user 可选；魔方 BFF 传入的用户名（供后续精细 ACL 使用）
+ * @param sh  已通过 UserCenter 校验的 secret hash
+ * @param user 可选；UserCenter 返回的 UserName
  */
 export function getDocAccessContextForEmbed(sh: string, user?: string | null): DocAccessContext {
   return {

@@ -74,10 +74,8 @@ export function AISearchPanel() {
               <>
                 {/* min-h-0 防止 flex 子项撑破父容器 */}
                 <AISearchPanelList className="flex-1 min-h-0" />
-                <div className="shrink-0 flex flex-col gap-0">
-                  <div className="rounded-xl border border-fd-border/80 bg-fd-secondary text-fd-secondary-foreground shadow-sm transition-shadow has-focus-visible:border-fd-primary/30 has-focus-visible:shadow-md">
-                    <AISearchInput />
-                  </div>
+                <div className="relative shrink-0 overflow-visible">
+                  <AISearchInput />
                   <AISearchPanelFooter />
                 </div>
               </>

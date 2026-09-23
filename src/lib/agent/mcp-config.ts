@@ -64,10 +64,9 @@ function buildToolsBlock(searchTags: SearchTag[]): string {
 - list_docs — catalog pages (paths, titles, descriptions). Optional tag (partition) and/or prefix (path prefix) to avoid the full site dump.
 - search_docs — full-text search when the user does not know an exact path.${tagNote}
 - get_docs_meta — title, description, URL, TOC, entry/tags/badge, schedule fields (dataReady / estimatedDuration / minInterval), and relationships (references.kind=dependency is 前置依赖) without full body.
-- get_docs_content — full page content for a known path. Image src values are content/docs-relative paths; use get_docs_image for binaries.
-- get_docs_image — fetch a docs screenshot as MCP image content. If using legacy PRIVATE_ACCESS_TOKEN without Authorization, pass page= for a page you can read that references the image.
+- get_docs_content — full page content for a known path. Image src values are short-lived signed URLs (SITE_ORIGIN/resources/images/...?sign=); fetch them directly.
 
-Typical flow: search_docs or list_docs → get_docs_meta (optional) → get_docs_content → get_docs_image (if a figure matters).`;
+Typical flow: search_docs or list_docs → get_docs_meta (optional) → get_docs_content.`;
 }
 
 /**

@@ -1,3 +1,4 @@
+import { decodePathSegment } from '@/lib/docs/source/compare-slug-order';
 import {
   normalizeModuleIcon,
   type ModuleIconConfig,
@@ -185,7 +186,9 @@ export function resolveFolderSegment(
 ): FolderPathSegment {
   const axisTitle = parent?.axis?.title?.trim() || '分类';
   const item =
-    self?.category?.item?.trim() || self?.title?.trim() || slug;
+    self?.category?.item?.trim() ||
+    self?.title?.trim() ||
+    decodePathSegment(slug);
   const icon =
     self?.category?.icon ??
     (self?.icon?.trim() ? { comp: self.icon.trim() } : undefined);
@@ -255,7 +258,9 @@ export function buildHubFolderPath(
         ? '平台'
         : parent?.axis?.title?.trim() || '子平台';
     const item =
-      self?.category?.item?.trim() || self?.title?.trim() || slug;
+      self?.category?.item?.trim() ||
+      self?.title?.trim() ||
+      decodePathSegment(slug);
     const icon =
       self?.category?.icon ??
       (self?.icon?.trim() ? { comp: self.icon.trim() } : undefined);

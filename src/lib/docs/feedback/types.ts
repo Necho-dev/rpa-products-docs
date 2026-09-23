@@ -1,4 +1,4 @@
-export type DocFeedbackSource = 'selection' | 'document';
+export type DocFeedbackSource = 'selection' | 'document' | 'page';
 
 export type DocFeedbackSubmitBody = {
   errorContent: string;

@@ -28,10 +28,11 @@ import { OpenDocAiToolsBridge } from '@/components/docs/open-doc-ai-tools-bridge
 import { DocFeedbackProvider } from '@/components/docs/feedback/doc-feedback-context';
 import { isDocFeedbackEnabled } from '@/lib/docs/feedback/config';
 import { AppUpdateSentinel } from '@/components/observability/app-update-sentinel';
-import { getLlmModelDisplayName } from '@/lib/ai/llm';
+import { getLlmModelDisplayName, isLlmVisionEnabled } from '@/lib/ai/llm';
 
 export default async function Layout({ children }: LayoutProps<'/docs'>) {
   const modelDisplayName = getLlmModelDisplayName();
+  const visionEnabled = isLlmVisionEnabled();
   const access = await getDocAccessContextFromRequest();
   const tree = filterPageTreeForAccess(source.getPageTree(), access);
   const categoryNavModels = listCategoryNavModels();
@@ -137,7 +138,7 @@ export default async function Layout({ children }: LayoutProps<'/docs'>) {
         },
       }}
     >
-      <AISearch modelDisplayName={modelDisplayName}>
+      <AISearch modelDisplayName={modelDisplayName} visionEnabled={visionEnabled}>
         <DocFeedbackProvider enabled={feedbackEnabled}>
           <ExcerptCollectionProvider>
             <ExcerptAiToolsBridge />

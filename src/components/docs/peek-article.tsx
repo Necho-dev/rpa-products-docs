@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { DocsBody, PageLastUpdate } from 'fumadocs-ui/layouts/notebook/page';
 import { createRelativeLink } from 'fumadocs-ui/mdx';
-import type { TOCItemType } from 'fumadocs-core/toc';
 import { PeekToc } from '@/components/docs/peek-toc';
 import { PeekHeadingScope } from '@/components/docs/peek-heading-scope';
 import { isCubeSsoEnabled } from '@/lib/auth/auth-config';
@@ -14,12 +13,13 @@ import { DocShareButton } from '@/components/docs/doc-share-dialog';
 import { ConnectorSchedulePanel } from '@/components/docs/connector-schedule-panel';
 import { collectScheduleAnnotations, hasScheduleMeta } from '@/lib/docs/format-schedule-meta';
 import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
-import { getPageMarkdownUrl, getPageSharePoster, source } from '@/lib/docs/source/source';
+import { docUpdatedAt, getPageMarkdownUrl, getPageSharePoster, readDocsPage, source } from '@/lib/docs/source/source';
 import { docsRoute } from '@/lib/core/shared';
 import { inferSiteOrigin } from '@/lib/core/site-origin';
 import { headers } from 'next/headers';
 import type { DocAccessContext } from '@/lib/docs/access/doc-access';
 import { DocAppendix } from '@/components/docs/doc-appendix';
+import { DocPageFeedback } from '@/components/docs/feedback/doc-page-feedback';
 import { appendixTocItems } from '@/lib/docs/doc-appendix';
 import { getPageBacklinks } from '@/lib/docs/doc-references';
 
@@ -63,7 +63,8 @@ export async function PeekArticle({
     return <PeekArticleDenied path={page.url} />;
   }
 
-  const MDX = page.data.body;
+  const loaded = await readDocsPage(page);
+  const MDX = loaded.body;
   const scheduleMeta = {
     entry: page.data.entry,
     dataReady: page.data.dataReady,
@@ -77,7 +78,7 @@ export async function PeekArticle({
     citedBy: backlinks.length,
     annotations: annotations.length,
   });
-  const toc = [...((page.data.toc ?? []) as TOCItemType[]), ...appendixToc];
+  const toc = [...(loaded.toc ?? []), ...appendixToc];
   const tocIds = toc
     .map((item) => item.url.replace(/^#/, ''))
     .filter((id) => id.length > 0);
@@ -87,7 +88,8 @@ export async function PeekArticle({
     new Request(`http://${hdrs.get('host') ?? 'localhost'}/`, { headers: Object.fromEntries(hdrs.entries()) }),
   );
   const mcpUrl = `${origin}/mcp`;
-  const lastModified = page.data.lastModified;
+  const lastModified = loaded.lastModified ?? docUpdatedAt(page);
+  const tags: string[] = Array.isArray(page.data.tags) ? page.data.tags : [];
 
   return (
     <div data-doc-peek="true" data-doc-path={page.url} className="flex min-h-full w-full">
@@ -107,9 +109,9 @@ export async function PeekArticle({
         {page.data.description ? (
           <p className="mt-2 text-sm text-fd-muted-foreground">{page.data.description}</p>
         ) : null}
-        {Array.isArray(page.data.tags) && page.data.tags.length > 0 ? (
+        {tags.length > 0 ? (
           <div className="not-prose mt-2 flex flex-wrap gap-1.5">
-            {page.data.tags.map((tag) => (
+            {tags.map((tag) => (
               <span
                 key={tag}
                 className="inline-flex items-center gap-1 rounded-md border border-fd-border bg-fd-muted/50 px-2 py-0.5 text-xs font-medium text-fd-muted-foreground"
@@ -138,6 +140,11 @@ export async function PeekArticle({
           />
         </DocsBody>
         <DocAppendix referrers={backlinks} annotations={annotations} />
+        <DocPageFeedback
+          title={page.data.title}
+          pageUrl={`${origin}${page.url}`}
+          pagePath={page.url}
+        />
         {lastModified ? (
           <PageLastUpdate date={lastModified} className="mt-auto pt-6" />
         ) : null}

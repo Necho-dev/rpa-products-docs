@@ -1,6 +1,11 @@
 # deps
 /node_modules
 
+# API 连接器正文在 .vendor/dc-knowledge 的稀疏检出里，这里只挂符号链接
+/content/docs/api/*
+!/content/docs/api/meta.json
+!/content/docs/api/index.md
+
 # generated content
 .source
 
@@ -19,6 +24,9 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# python
+__pycache__/
 
 # others
 .env

@@ -359,18 +359,21 @@ function ModuleCardHeader({
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <h3
-              className="min-w-0 flex-1 truncate text-sm font-bold text-fd-foreground"
+              className={cn(
+                'min-w-0 flex-1 text-sm font-bold text-fd-foreground',
+                description ? 'truncate' : 'line-clamp-2',
+              )}
               title={title}
             >
               {highlightQueryText(title, highlightQuery)}
             </h3>
             {badge ? <ModuleCardBadgePill {...badge} /> : null}
           </div>
-          <p className="mt-1.5 line-clamp-2 min-h-[2lh] text-xs leading-relaxed text-fd-muted-foreground">
-            {description
-              ? highlightQueryText(description, highlightQuery)
-              : null}
-          </p>
+          {description ? (
+            <p className="mt-1.5 line-clamp-2 min-h-[2lh] text-xs leading-relaxed text-fd-muted-foreground">
+              {highlightQueryText(description, highlightQuery)}
+            </p>
+          ) : null}
         </div>
       </div>
       <ModuleCardScheduleLine

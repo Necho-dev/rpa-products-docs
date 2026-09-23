@@ -28,8 +28,6 @@ describe('rewriteMarkdownImagesForEmbed', () => {
   ].join('\n');
   const processed =
     '<img alt="千牛—保证金账户—结算资金账单明细" src="__img0" />';
-  const docsRel =
-    'rpa/_public/images/qianniu/finance_bail_account_detail_20260715.png';
 
   it('rewrites __imgN to absolute site resource URLs for llms.mdx', () => {
     const out = rewriteMarkdownImagesForEmbed(processed, raw, docPath, {
@@ -42,13 +40,23 @@ describe('rewriteMarkdownImagesForEmbed', () => {
     assert.doesNotMatch(out, /__img0/);
   });
 
-  it('rewrites __imgN to content/docs-relative paths for MCP', () => {
-    const out = rewriteMarkdownImagesForEmbed(processed, raw, docPath, {
-      siteOrigin: 'http://127.0.0.1:3000',
-      docsRelativePaths: true,
-    });
-    assert.match(out, new RegExp(`src="${docsRel}"`));
-    assert.doesNotMatch(out, /resources\/images|__img0/);
+  it('rewrites __imgN to signed docs resource URLs', () => {
+    const prev = process.env.DOCS_RESOURCE_SIGN_SECRET;
+    process.env.DOCS_RESOURCE_SIGN_SECRET = 'unit-test-resource-secret';
+    try {
+      const out = rewriteMarkdownImagesForEmbed(processed, raw, docPath, {
+        siteOrigin: 'http://127.0.0.1:3000',
+        signResources: true,
+      });
+      assert.match(
+        out,
+        /src="http:\/\/127\.0\.0\.1:3000\/resources\/images\/rpa\/_public\/images\/qianniu\/finance_bail_account_detail_20260715\.png\?sign=\d+\.[0-9a-f]+"/,
+      );
+      assert.doesNotMatch(out, /__img0/);
+    } finally {
+      if (prev === undefined) delete process.env.DOCS_RESOURCE_SIGN_SECRET;
+      else process.env.DOCS_RESOURCE_SIGN_SECRET = prev;
+    }
   });
 
   it('falls back to site-relative /resources/images when siteOrigin is missing', () => {
@@ -59,21 +67,44 @@ describe('rewriteMarkdownImagesForEmbed', () => {
     );
   });
 
-  it('rewrites to cube docsResources when cubeOrigin is set', () => {
-    const out = rewriteMarkdownImagesForEmbed(processed, raw, docPath, {
-      cubeOrigin: 'https://cube.example.com',
-    });
-    assert.match(
-      out,
-      /src="https:\/\/cube\.example\.com\/docsResources\?path=rpa%2F_public%2Fimages%2Fqianniu%2Ffinance_bail_account_detail_20260715\.png"/,
-    );
+  it('rewrites to signed docs resource URLs when signResources is set', () => {
+    const prev = process.env.DOCS_RESOURCE_SIGN_SECRET;
+    process.env.DOCS_RESOURCE_SIGN_SECRET = 'unit-test-resource-secret';
+    try {
+      const out = rewriteMarkdownImagesForEmbed(processed, raw, docPath, {
+        siteOrigin: 'https://docs.example.com',
+        signResources: true,
+      });
+      assert.match(
+        out,
+        /src="https:\/\/docs\.example\.com\/resources\/images\/rpa\/_public\/images\/qianniu\/finance_bail_account_detail_20260715\.png\?sign=\d+\.[0-9a-f]+"/,
+      );
+    } finally {
+      if (prev === undefined) delete process.env.DOCS_RESOURCE_SIGN_SECRET;
+      else process.env.DOCS_RESOURCE_SIGN_SECRET = prev;
+    }
   });
 
-  it('omits images when embed cubeOrigin is explicitly missing', () => {
-    const out = rewriteMarkdownImagesForEmbed(processed, raw, docPath, {
-      cubeOrigin: null,
-    });
-    assert.equal(out, '');
-    assert.doesNotMatch(out, /resources\/images|__img0/);
+  it('omits images when signResources is set but no signing secret', () => {
+    const prevRes = process.env.DOCS_RESOURCE_SIGN_SECRET;
+    const prevQuote = process.env.DOCS_QUOTE_SIGN_SECRET;
+    const prevSession = process.env.DOCS_SESSION_SECRET;
+    delete process.env.DOCS_RESOURCE_SIGN_SECRET;
+    delete process.env.DOCS_QUOTE_SIGN_SECRET;
+    delete process.env.DOCS_SESSION_SECRET;
+    try {
+      const out = rewriteMarkdownImagesForEmbed(processed, raw, docPath, {
+        siteOrigin: 'https://docs.example.com',
+        signResources: true,
+      });
+      assert.equal(out, '');
+    } finally {
+      if (prevRes === undefined) delete process.env.DOCS_RESOURCE_SIGN_SECRET;
+      else process.env.DOCS_RESOURCE_SIGN_SECRET = prevRes;
+      if (prevQuote === undefined) delete process.env.DOCS_QUOTE_SIGN_SECRET;
+      else process.env.DOCS_QUOTE_SIGN_SECRET = prevQuote;
+      if (prevSession === undefined) delete process.env.DOCS_SESSION_SECRET;
+      else process.env.DOCS_SESSION_SECRET = prevSession;
+    }
   });
 });

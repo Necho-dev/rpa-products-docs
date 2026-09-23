@@ -2,15 +2,15 @@
 
 HeroKnowledge 是预策·数据连接中心的内部知识库，基于 [Fumadocs](https://fumadocs.vercel.app/) 与 [Next.js](https://nextjs.org/) 构建。站点收录 RPA 连接器说明和授权帮助，并提供全文检索、AI 问答、RSS 订阅与 MCP 服务。
 
-当前版本为 **0.6.6**。版本说明见 [CHANGELOG.md](CHANGELOG.md)。
+当前版本为 **0.7.0**。版本说明见 [CHANGELOG.md](CHANGELOG.md)。
 
 ## 功能概览
 
 - **分区文档**：连接器在 `/docs/rpa`，授权帮助在 `/docs/auth`（后者以 Git Submodule 引入）。
 - **阅读体验**：支持单栏与双栏对照、引用卡片、链接预览、选词分享图，以及面向大模型的导出页（`/llms.mdx`）。
 - **检索与对话**：关键词搜索与 AI 语义问答；对话里可以打开文档（右侧预览或左侧整页）。
-- **MCP**：提供 `list_docs`、`search_docs`、`get_docs_meta`、`get_docs_content` 等工具，可用 `tag`、`prefix` 缩小范围，并读取调度相关元数据。
-- **鉴权**：本地可用传统访问令牌；生产环境可启用 Cube SSO 与嵌入验签，详见 [`deploy/CUBE_SSO.md`](deploy/CUBE_SSO.md)。
+- **MCP**：提供 `list_docs`、`search_docs`、`get_docs_meta`、`get_docs_content`；正文配图为短时 `?sign=` 直链。
+- **鉴权**：本地可用传统访问令牌；生产环境可启用 Cube SSO 与嵌入验签，详见 [`docs/CUBE_SSO.md`](docs/CUBE_SSO.md)。
 - **可观测性**：本机可写 jsonl 审计（access / sso / mcp / secrets）；也可接入 Sentry，上报错误、链路、回放与业务审计。
 - **部署方式**：本地用 Next.js 开发；仓库根目录提供单容器 Compose；同机双实例见 [`deploy/dual-instance/`](deploy/dual-instance/)。
 
@@ -56,7 +56,8 @@ cp .env.example .env
 | `PORT` | 映射到宿主机的端口；容器内固定监听 `3000` |
 | `COMPOSE_IMAGE` | 单实例使用的镜像标签；双实例请看 `deploy/dual-instance/.env` |
 | `DOCS_CUBE_SSO_ENABLED` | 是否启用 Cube SSO |
-| `DOCS_SECRETS_FILE_PATH` / `DOCS_SECRETS_DIR` | SSO 密钥文件；容器内路径固定为 `/opt/secrets/secrets.json` |
+| `DOCS_USER_CENTRE_BASE_URL` | 用户中心根地址，不含路径；callback / 嵌入请求 `/open/oidc/userInfoByAuth`。未配置、服务未就绪或校验失败时回退 `secrets.json` |
+| `DOCS_SECRETS_FILE_PATH` / `DOCS_SECRETS_DIR` | SSO 回退密钥文件；容器内路径固定为 `/opt/secrets/secrets.json` |
 | `DOCS_OBSERVABILITY_LOG_*` | 本机审计日志的开关与落盘目录 |
 | `SENTRY_DSN` | 未设置则关闭 Sentry；运行时读取，改完重启即可 |
 | `SENTRY_ENVIRONMENT` | Sentry 上的环境标签，默认 `dev`，与 `NODE_ENV` 无关 |
@@ -121,8 +122,9 @@ Dockerfile 分三阶段：`deps` 执行 `npm ci`，`builder` 产出 standalone�
 ```
 documents/
 ├── content/docs/          # rpa（主仓库）+ auth（Submodule）
+├── docs/
+│   └── CUBE_SSO.md        # 与魔方的对接说明
 ├── deploy/
-│   ├── CUBE_SSO.md        # 与魔方的对接说明
 │   └── dual-instance/     # 一镜像、两容器
 ├── scripts/deplpy.sh      # 1Panel 单实例滚动更新
 ├── Dockerfile
@@ -159,15 +161,20 @@ flowchart LR
 |------|----------|------|
 | `content/docs/rpa/` | `/docs/rpa` | 主仓库 |
 | `content/docs/auth/` | `/docs/auth` | [connectors-auth-docs](https://codeup.aliyun.com/yuce-tech/knowledge/connectors-auth-docs)（SSH：`git@codeup.aliyun.com:yuce-tech/knowledge/connectors-auth-docs.git`） |
+| `content/docs/api/` | `/docs/api` | [knowledge](https://codeup.aliyun.com/yuce-tech/dw/knowledge) 的 `data_source/api/api_connects_output_doc`（SSH：`git@codeup.aliyun.com:yuce-tech/dw/knowledge.git`，分支 `master`）。子模块在 `.vendor/dc-knowledge`，按 `.vendor/mounts` 稀疏检出后，平台目录以符号链接挂到这里；`meta.json` 与 `index.md` 留在主仓库 |
 
 ```bash
 git clone --recurse-submodules <主仓库地址>
+bash scripts/sync-vendor.sh
 npm install && npm run dev
 # 已经克隆过、但 auth 为空时：
 git submodule sync --recursive && git submodule update --init --recursive
+bash scripts/sync-vendor.sh
 ```
 
-本机需要能访问云效（HTTPS 凭据或 SSH 公钥）。服务器部署建议为主仓库和 auth 仓库分别配置只读 Deploy Key。
+本机需要能访问云效（HTTPS 凭据或 SSH 公钥）。服务器部署建议为主仓库、auth 仓库和 `dw/knowledge` 分别配置只读 Deploy Key。`deploy.sh` / `deplpy.sh` 会自己调用 `scripts/sync-vendor.sh`。
+
+需要对子模块做路径过滤时，把仓库放在 `.vendor/<name>`，并在 `.vendor/mounts` 加一行（子模块路径、稀疏路径、挂载目录、主仓库保留文件）。完整检出的子模块（如 auth）仍放在原路径。稀疏规则写在本地 `.git`，不进 `.gitmodules`；对 `.vendor/` 下的子模块不要只跑 `git submodule update --init`，否则会检出整个远程仓库。
 
 **如何只更新授权帮助？**
 
@@ -178,7 +185,7 @@ cd ../../..
 git add content/docs/auth && git commit -m "chore: bump auth submodule"
 ```
 
-`scripts/deplpy.sh` 与 `deploy/dual-instance/deploy.sh` 都会跟踪 auth 远程最新提交；即使主仓库尚未更新 gitlink，有变更时也会重建。两套脚本不要同时跑。首次或只想按当前代码重建时加 `--force`。
+`scripts/deplpy.sh` 与 `deploy/dual-instance/deploy.sh` 都会跟踪 auth 与 API 文档子模块的远程最新提交；即使主仓库尚未更新 gitlink，有变更时也会重建。`.vendor/` 下的子模块走稀疏检出，构建前按 `.vendor/mounts` 挂到目标目录。两套脚本不要同时跑。首次或只想按当前代码重建时加 `--force`。
 
 **1Panel 里如何指定分支？**
 
@@ -187,6 +194,7 @@ git add content/docs/auth && git commit -m "chore: bump auth submodule"
 | `DEPLOY_PATH` | 服务器上的仓库目录。`deplpy.sh` 默认为 `/opt/1panel/apps/rpa-products-docs`；dual-instance 的 `deploy.sh` 默认为脚本所在目录的上两级 |
 | `BRANCH` | 主仓库跟踪分支，默认 `main` |
 | `AUTH_BRANCH` | auth Submodule 跟踪分支，默认 `main` |
+| `API_DOCS_BRANCH` | API 文档 Submodule 跟踪分支，默认 `master` |
 
 **改了 `KNOWLEDGE_*` 或 `SENTRY_DSN`，需要重新构建镜像吗？**
 

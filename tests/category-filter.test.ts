@@ -125,6 +125,26 @@ describe('category-filter-config', () => {
     );
   });
 
+  it('keeps hubs false so a stale compiled prop cannot override it', () => {
+    assert.equal(
+      parseCategoryFilterDirectiveYaml({ hubs: false, depth: 3 }, 'x.md').hubs,
+      false,
+    );
+  });
+
+  it('parses toc false and omits it when unset', () => {
+    assert.equal(parseCategoryFilterDirectiveYaml({ toc: false }, 'x.md').toc, false);
+    assert.equal(parseCategoryFilterDirectiveYaml({ toc: true }, 'x.md').toc, true);
+    assert.equal('toc' in parseCategoryFilterDirectiveYaml({ layout: 'tabs' }, 'x.md'), false);
+  });
+
+  it('rejects invalid toc', () => {
+    assert.throws(
+      () => parseCategoryFilterDirectiveYaml({ toc: 'no' }, 'x.md'),
+      /toc must be true or false/,
+    );
+  });
+
   it('rejects invalid hubs', () => {
     assert.throws(
       () => parseCategoryFilterDirectiveYaml({ hubs: 'yes' }, 'x.md'),

@@ -134,11 +134,11 @@ async function markdownToHtml(markdown: string): Promise<string> {
 // ─── 主导出函数 ──────────────────────────────────────────────────────────────
 
 /**
- * 将文档页渲染为完整 HTML 字符串（用于 X-Render-Mode: html 嵌入通道）。
+ * 将文档页渲染为完整 HTML 字符串（用于 Query mode=page 嵌入通道）。
  *
  * 实现策略（绕开 Next.js App Router 对 react-dom/server 的限制）：
  * - 使用 `getText('processed')` 拿到处理后的 Markdown
- * - 图片 src 重写为绝对 URL（embed/markdown）
+ * - 图片 src 重写为文档站绝对 URL + 短时 `?sign=`
  * - 组件降级（Mermaid 源码 fallback，JsonSchema 代码块）
  * - remark → rehype → HTML 字符串，无 React 渲染依赖
  * - 返回完整 `<!DOCTYPE html>...` 文档，无站内 layout
@@ -146,7 +146,7 @@ async function markdownToHtml(markdown: string): Promise<string> {
  */
 export async function renderDocPageToHtml(
   page: DocPage,
-  cubeOrigin: string | null,
+  siteOrigin: string,
 ): Promise<string> {
   const [processedText, rawText] = await Promise.all([
     page.data.getText('processed'),
@@ -154,7 +154,8 @@ export async function renderDocPageToHtml(
   ]);
 
   let markdown = rewriteMarkdownImagesForEmbed(processedText, rawText, page.path, {
-    cubeOrigin,
+    siteOrigin,
+    signResources: true,
   });
 
   // 组件降级

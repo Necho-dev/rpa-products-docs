@@ -1,0 +1,6 @@
+# 路径过滤的子模块。完整检出的子模块不要写在这里。
+# 每行：子模块路径|稀疏路径|挂载目录|保留文件
+# 保留文件逗号分隔，留在主仓库，不会被符号链接覆盖；可以留空。
+# 子模块路径必须位于 .vendor/ 下。同一子模块多行时，稀疏路径合并检出。
+# 跟踪分支写在 deplpy.sh 与 deploy.sh 的 SUBMODULES。运行时要读正文的挂载，还要在 Dockerfile 里复制稀疏目录。
+.vendor/dc-knowledge|data_source/api/api_connects_output_doc|content/docs/api|meta.json,index.md

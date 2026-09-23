@@ -12,6 +12,7 @@ import { remarkSteps } from 'fumadocs-core/mdx-plugins/remark-steps';
 import { remarkMdxJsonSchema } from './src/lib/docs/source/remark-mdx-json-schema';
 import { remarkMdxFieldTree } from './src/lib/docs/source/remark-mdx-field-tree';
 import { remarkMdxDocBlocks } from './src/lib/docs/source/remark-mdx-doc-blocks';
+import { remarkMdxApiPage } from './src/lib/docs/source/remark-mdx-api-page';
 import { remarkMdxChangelog } from './src/lib/docs/source/remark-mdx-changelog';
 import { remarkSectionDirective } from './src/lib/docs/source/remark-section-directive';
 import { referencesSchema } from './src/lib/docs/doc-references-core'; // 图边：仅 path / kind
@@ -19,6 +20,8 @@ import remarkDirective from 'remark-directive';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { z } from 'zod';
+import { runtimePartitionNames } from './src/lib/docs/source/compile-mode';
+import { inferDocEntry } from './src/lib/docs/source/doc-entry';
 import { codeBlockIconExtensions, codeBlockIconShortcuts } from './src/lib/ui/code-block-icons';
 import { shikiDocsThemes } from './src/lib/ui/shiki-docs-themes';
 
@@ -116,12 +119,20 @@ const estimatedDurationSchema = durationValueSchema.optional();
 /** 最小调度间隔 + 可选计算单位 + 可选说明 */
 const minIntervalSchema = durationValueSchema.optional();
 
+/** 无 frontmatter 的页面用一级标题, 再退回文件名 */
+function inferDocTitle(source: string, filePath: string): string {
+  const heading = source.match(/^#\s+(.+)$/m)?.[1]?.trim();
+  if (heading) return heading;
+  const base = filePath.split('/').pop() ?? 'untitled';
+  return base.replace(/\.(md|mdx)$/i, '') || 'untitled';
+}
+
 /** 页面：不写 `access` 时继承目录 meta；可写 `public` 强制公开 */
 const docsPageSchema = pageSchema.extend({
   access: z.enum(['public', 'private']).optional(),
   /**
-   * 技术入口标识（如 rpa.conn.*、PyPI 包名、组件 ID 等），仅用于侧栏第二行小字，与站点 URL/文档路径无关。
-   * 与 `title`（中文标题）搭配使用，文件路径/slug 仍决定文档 URL。
+   * 技术入口标识(如 rpa.conn.*、PyPI 包名、组件 ID 等), 用于侧栏第二行和卡片底部, 与站点 URL 无关
+   * 未写时回退到文件名不含扩展名; `index` 不回退
    */
   entry: z.string().optional(),
   /** 文档描述下方展示的填充胶囊标签 */
@@ -166,6 +177,10 @@ const docsMetaSchema = metaSchema.extend({
    * `header`：顶栏第二行；`select`：一级 Tab 下拉。只过滤侧栏一级菜单。
    */
   categoryNav: categoryNavSchema.optional(),
+  /**
+   * 分区根专用: 编译模式: build(构建期编译), runtime(运行时编译)
+   */
+  compile: z.enum(['build', 'runtime']).optional(),
 });
 
 // 文档以 .md + YAML frontmatter 为主。
@@ -174,16 +189,55 @@ const docsMetaSchema = metaSchema.extend({
 // 平台 / 子平台目录的 meta.json 只承担：侧栏 pages 顺序 + categoryAxis 筛选词表。
 // 首页等少数页面可用 .mdx；需要分隔符等高级侧栏时再为对应目录加 meta.json / meta.yaml。
 // see https://fumadocs.dev/docs/mdx/collections
+const docsCollectionOptions = {
+  schema: ({ path, source }: { path: string; source: string }) =>
+    docsPageSchema.extend({
+      title: z.string().default(inferDocTitle(source, path)),
+      entry: z.preprocess((value) => {
+        if (typeof value === 'string' && value.trim()) return value.trim();
+        return inferDocEntry(path);
+      }, z.string().optional()),
+    }),
+  postprocess: {
+    includeProcessedMarkdown: true,
+  },
+} as const;
+
+/**
+ * 分区根 meta.json 的 compile: "runtime" 进入按需编译集合
+ * 省略或 compile: "build" 的分区(以及没有该字段的既有分区)仍在构建期编译(build)
+ */
+const runtimePartitions = runtimePartitionNames();
+const runtimeExcludes = runtimePartitions.map((name) => `!${name}/**`);
+
+/** 未标 runtime 的分区：构建期编译，MDX 里的图标和客户端组件才能用同一份 React。 */
 export const docs = defineDocs({
   dir: 'content/docs',
   docs: {
-    schema: docsPageSchema,
-    postprocess: {
-      includeProcessedMarkdown: true,
-    },
+    ...docsCollectionOptions,
+    files: ['**/*.md', '**/*.mdx', ...runtimeExcludes],
   },
   meta: {
     schema: docsMetaSchema,
+    files: ['**/*.{json,yaml}', ...runtimeExcludes],
+  },
+});
+
+/** compile: "runtime" 的分区: 打开页面时再编译正文, 避免把大批 Markdown 打进构建(build) */
+export const runtimeDocs = defineDocs({
+  dir: 'content/docs',
+  docs: {
+    ...docsCollectionOptions,
+    dynamic: true,
+    files: runtimePartitions.length
+      ? runtimePartitions.flatMap((name) => [`${name}/**/*.md`, `${name}/**/*.mdx`])
+      : ['__no_runtime_partition__/**/*.md'],
+  },
+  meta: {
+    schema: docsMetaSchema,
+    files: runtimePartitions.length
+      ? runtimePartitions.map((name) => `${name}/**/meta.json`)
+      : ['__no_runtime_partition__/**/meta.json'],
   },
 });
 
@@ -239,6 +293,7 @@ export default defineConfig({
       remarkMdxJsonSchema,
       remarkMdxFieldTree,
       remarkMdxDocBlocks,
+      remarkMdxApiPage, // :::api-page → 包装后的官方 APIPage
       remarkMdxFiles,
       remarkMdxMermaid,
       remarkMath,

@@ -66,6 +66,12 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/.next/cache ./.next/cache
 # quote.png 动态渲染需在运行时读 src/fonts；standalone trace 未必包含该目录
 COPY --from=builder --chown=nextjs:nodejs /app/src/fonts ./src/fonts
+# compile: runtime 的分区在请求时按路径读 Markdown，不会进 standalone trace。
+# 正文在 .vendor 的稀疏检出里；镜像里落成真实目录，再盖上主仓库保留的 meta.json / index.md。
+# 新增 .vendor/mounts 条目时，按同样方式复制对应稀疏目录。
+COPY --from=builder --chown=nextjs:nodejs /app/.vendor/dc-knowledge/data_source/api/api_connects_output_doc/. ./content/docs/api/
+COPY --from=builder --chown=nextjs:nodejs /app/content/docs/api/meta.json ./content/docs/api/meta.json
+COPY --from=builder --chown=nextjs:nodejs /app/content/docs/api/index.md ./content/docs/api/index.md
 COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 

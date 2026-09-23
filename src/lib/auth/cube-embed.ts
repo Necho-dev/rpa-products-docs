@@ -1,34 +1,22 @@
-import { timingSafeEqual } from 'node:crypto';
-import { getSecretByHash, isValidCubeOrigin, sha256Hex } from '@/lib/auth/cube';
+import {
+  isValidCubeOrigin,
+  openLoginPackAes,
+  resolveRequestCubeOrigin,
+} from '@/lib/auth/cube';
 import { signatureWindowMs } from '@/lib/auth/auth-config';
+import { fetchUserInfoByAuth, parseSaasQuery } from '@/lib/auth/user-centre';
 
 /**
- * 魔方 BFF 嵌入通道（通道 A）签名校验结果。
- * 校验通过时返回 { sh, user, cubeOrigin }, 若失败则返回 NULL
+ * 魔方嵌入通道: 登录包(ed/sh/sg/tm) 和 mode 只从 Query 读取
+ * 默认 UserCenter userInfoByAuth, 未配置/服务未就绪/请求失败时回退 secrets.json AES
  *
- * 签名算法:
- *   SHA256(METHOD + "\\n" + PATH + "\\n" + TIMESTAMP + "\\n" + APP_SECRET)  hex
+ *   ?mode=page|llms&ed=&sh=&tm=&sg=&saas=
  *
- * 来源站身份凭证传递:
- *
- * **HTTP Header (推荐, 用于 S2S 场景)**
- *   X-Cube-Secret-Hash / X-Cube-Timestamp / X-Cube-Signature
- *   X-Render-Mode: markdown | html
- *   X-Cube-User（可选）
- *   X-Cube-Origin (推荐, 用于嵌入 HTML 内图片代理基址)
- *
- * **URL Query (与 SSO callback 同名字段, 可复用现有封装)**
- *   sh / tm / sg
- *   render=markdown | html
- *   user (可选, 对应 X-Cube-User)
- *   cubeOrigin (可选)
- *
- * 注意: 签名中的 PATH 为 url.pathname, 不含 Query 字符串。
+ * 由 UserCenter 返回, cubeOrigin 优先 UserCenter, 缺省时用请求 Referer / Origin 兜底
  */
 export type CubeEmbedAuthResult = {
   sh: string;
   user: string | null;
-  /** 验签通过后解析；若缺失则嵌入 HTML 不输出 docsResources 图片 URL */
   cubeOrigin: string | null;
 };
 
@@ -44,96 +32,61 @@ export function stripClientEmbedVerifiedHeaders(headers: Headers): void {
   headers.delete(EMBED_VERIFIED_CUBE_ORIGIN_HEADER);
 }
 
-export function timingSafeStringEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
-  try {
-    return timingSafeEqual(Buffer.from(a, 'utf8'), Buffer.from(b, 'utf8'));
-  } catch {
-    return false;
-  }
-}
-
-/** Header 优先, 缺省时从 URL Query 读取 (Query 键名与 /auth/callback 对齐) */
-export function readEmbedField(
-  request: Request,
-  headerName: string,
-  queryKey: string,
-): string {
-  const fromHeader = request.headers.get(headerName)?.trim();
-  if (fromHeader) return fromHeader;
+/** 从 URL Query 读取嵌入字段 */
+export function readEmbedQuery(request: Request, queryKey: string): string {
   return new URL(request.url).searchParams.get(queryKey)?.trim() ?? '';
 }
 
-/** 读取嵌入验签三要素（不含 cubeOrigin） */
-export function readEmbedAuthFields(request: Request): {
+export type EmbedLoginPack = {
+  ed: string;
   sh: string;
   tmRaw: string;
   sg: string;
-} {
+};
+
+export function readEmbedLoginPack(request: Request): EmbedLoginPack {
   return {
-    sh: readEmbedField(request, 'x-cube-secret-hash', 'sh'),
-    tmRaw: readEmbedField(request, 'x-cube-timestamp', 'tm'),
-    sg: readEmbedField(request, 'x-cube-signature', 'sg'),
+    ed: readEmbedQuery(request, 'ed'),
+    sh: readEmbedQuery(request, 'sh'),
+    tmRaw: readEmbedQuery(request, 'tm'),
+    sg: readEmbedQuery(request, 'sg'),
   };
 }
 
 /**
- * 验签成功后解析魔方 origin（须在 HMAC 已通过之后调用）。
- * 优先级: X-Cube-Origin → Query cubeOrigin → Referer / Origin
+ * 用 UserCenter 校验嵌入登录包
+ * 未配置、服务未就绪或校验失败时，回退到用 secrets.json AES 验证和解密登录包
  */
-export function resolveCubeOrigin(request: Request): string | null {
-  const fromExplicit = readEmbedField(request, 'x-cube-origin', 'cubeOrigin');
-  if (fromExplicit && isValidCubeOrigin(fromExplicit)) {
-    return fromExplicit.replace(/\/$/, '');
-  }
-
-  for (const header of ['referer', 'origin'] as const) {
-    const raw = request.headers.get(header)?.trim();
-    if (!raw) continue;
-    try {
-      const origin = new URL(raw).origin;
-      if (isValidCubeOrigin(origin)) return origin;
-    } catch {
-      // ignore malformed URL
-    }
-  }
-
-  return null;
-}
-
-/**
- * 校验魔方 BFF 嵌入通道 HMAC 签名。
- * - 成功: 返回 CubeEmbedAuthResult
- * - 失败 (签名错误 / 过期 / 未知 sh / 凭证缺失): 返回 NULL
- *
- * 此函数不依赖请求 Cookie / Session, 可直接用于 S2S 场景
- */
-export function verifyCubeEmbedRequest(
-  request: Request,
-  options?: { pathname?: string },
-): CubeEmbedAuthResult | null {
-  const { sh, tmRaw, sg } = readEmbedAuthFields(request);
-  if (!sh || !tmRaw || !sg) return null;
+export async function verifyCubeEmbedRequest(request: Request): Promise<CubeEmbedAuthResult | null> {
+  const { ed, sh, tmRaw, sg } = readEmbedLoginPack(request);
+  if (!ed || !sh || !tmRaw || !sg) return null;
 
   const tm = Number.parseInt(tmRaw, 10);
   if (!Number.isFinite(tm)) return null;
-
   if (Math.abs(Date.now() - tm) > signatureWindowMs()) return null;
 
-  const secret = getSecretByHash(sh);
-  if (!secret) return null;
+  const user = await fetchUserInfoByAuth({
+    ed,
+    sh,
+    sg,
+    tm,
+    isSaas: parseSaasQuery(readEmbedQuery(request, 'saas')),
+  });
+  if (user) {
+    return {
+      sh,
+      user: user.u,
+      cubeOrigin: user.cubeOrigin ?? resolveRequestCubeOrigin(request),
+    };
+  }
 
-  const url = new URL(request.url);
-  const method = request.method.toUpperCase();
-  const path = options?.pathname ?? url.pathname;
-  const expected = sha256Hex(`${method}\n${path}\n${tm}\n${secret}`);
-
-  if (!timingSafeStringEqual(expected, sg)) return null;
-
-  const userRaw = readEmbedField(request, 'x-cube-user', 'user');
-  const user = userRaw || null;
-  const cubeOrigin = resolveCubeOrigin(request);
-  return { sh, user, cubeOrigin };
+  const local = openLoginPackAes(ed, sh, sg, tm);
+  if (!local.ok) return null;
+  return {
+    sh,
+    user: local.userName,
+    cubeOrigin: resolveRequestCubeOrigin(request),
+  };
 }
 
 /** 从 proxy 透传的内部头读取 cube origin (route handler 二次验签通过后使用) */
@@ -143,18 +96,27 @@ export function readVerifiedCubeOrigin(request: Request): string | null {
   return raw.replace(/\/$/, '');
 }
 
+export type EmbedMode = 'page' | 'llms';
+
+/** Query mode: page (React) | llms (/llms.mdx Markdown) */
+export function readEmbedModeRaw(request: Request): string {
+  return readEmbedQuery(request, 'mode').toLowerCase();
+}
+
 /**
- * 判断是否为嵌入 render 请求: markdown | html。
- * 读取顺序: Header `X-Render-Mode` → Query `render` (与 docsAuth 参数一致)。
- * 返回 null 表示走通道 B 浏览器 SSO
+ * 嵌入 mode: page (React) | llms (/llms.mdx Markdown)
+ * 返回 null 表示未声明嵌入 (走全页 SSO), 非法值见 hasInvalidEmbedMode
  */
-export function getEmbedRenderMode(request: Request): 'markdown' | 'html' | null {
-  const raw =
-    request.headers.get('x-render-mode')?.trim().toLowerCase()
-    ?? new URL(request.url).searchParams.get('render')?.trim().toLowerCase();
-  if (raw === 'markdown') return 'markdown';
-  if (raw === 'html') return 'html';
+export function getEmbedMode(request: Request): EmbedMode | null {
+  const raw = readEmbedModeRaw(request);
+  if (raw === 'page' || raw === 'llms') return raw;
   return null;
+}
+
+/** mode 不属于 page|llms */
+export function hasInvalidEmbedMode(request: Request): boolean {
+  const raw = readEmbedModeRaw(request);
+  return raw.length > 0 && raw !== 'page' && raw !== 'llms';
 }
 
 /** 生成 401 嵌入鉴权失败响应 (不 302, 不写 Cookie) */

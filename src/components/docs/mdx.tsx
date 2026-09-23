@@ -19,6 +19,10 @@ import { FieldTreeTable } from '@/components/docs/mdx/field-tree-table';
 import { TableWithExport } from '@/components/docs/mdx/table-export';
 import { DocsLink } from '@/components/docs/docs-link';
 import { ChangelogTimeline, ChangelogEntry } from '@/components/docs/mdx/changelog-timeline';
+import { APIPage } from '@/components/docs/api-page';
+import { withResourceSign } from '@/lib/auth/resource-sign';
+import { resourcesRequireEmbedSign } from '@/lib/auth/auth-config';
+import { isDocFigureSrc, resolveImgSrc } from '@/lib/ai/chat-vision';
 
 /** Recursively extract plain text from React node tree (handles shiki span nesting) */
 function extractText(node: React.ReactNode): string {
@@ -96,23 +100,38 @@ export function getMDXComponents(components?: MDXComponents) {
     FieldTreeTable,
     ChangelogTimeline,
     ChangelogEntry,
+    APIPage,
     table: TableWithExport,
-    img: ({ className, style, ...props }: React.ComponentProps<'img'>) => {
+    img: ({ className, style, src, alt, ...props }: React.ComponentProps<'img'>) => {
       const isFirst = mdxInlineImageIndex++ === 0;
+      const srcStr = resolveImgSrc(src);
+      const signedSrc =
+        typeof src === 'string' && resourcesRequireEmbedSign() ? withResourceSign(src) : src;
+      const figureSrc = resolveImgSrc(signedSrc) ?? srcStr;
+      const isFigure = Boolean(figureSrc && isDocFigureSrc(figureSrc));
       return (
-        <ImageZoom
-          {...(props as any)}
-          quality={95}
-          priority={isFirst}
-          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 90vw, min(72vw, 1600px)"
-          // Global CSS sets max-width:100% which changes width; Next/Image requires
-          // the other axis to be auto on the style prop to keep aspect ratio.
-          style={{ width: 'auto', height: 'auto', ...style }}
-          className={cn(
-            'rounded-xl shadow-md shadow-black/10 dark:shadow-black/30 border border-fd-border/30 [image-rendering:high-quality]',
-            className,
-          )}
-        />
+        <span
+          className="contents"
+          {...(isFigure && figureSrc
+            ? { 'data-doc-figure': figureSrc, 'data-doc-figure-alt': alt ?? '' }
+            : {})}
+        >
+          <ImageZoom
+            {...(props as any)}
+            src={signedSrc}
+            alt={alt}
+            quality={95}
+            priority={isFirst}
+            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 90vw, min(72vw, 1600px)"
+            // Global CSS sets max-width:100% which changes width; Next/Image requires
+            // the other axis to be auto on the style prop to keep aspect ratio.
+            style={{ width: 'auto', height: 'auto', ...style }}
+            className={cn(
+              'rounded-xl shadow-md shadow-black/10 dark:shadow-black/30 border border-fd-border/30 [image-rendering:high-quality]',
+              className,
+            )}
+          />
+        </span>
       );
     },
     pre: (props) => {

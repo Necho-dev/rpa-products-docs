@@ -2,7 +2,7 @@ import { isCubeSsoEnabled } from '@/lib/auth/auth-config';
 import { getDocAccessContextFromRequest } from '@/lib/docs/access/doc-access-react';
 import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
 import { DocShareButton } from '@/components/docs/doc-share-dialog';
-import { getPageImage, getPageMarkdownUrl, getPageSharePoster, source } from '@/lib/docs/source/source';
+import { docUpdatedAt, getDocPage, getPageImage, getPageMarkdownUrl, getPageSharePoster, readDocsPage, source } from '@/lib/docs/source/source';
 import { resolveCategoryFilterStackToc } from '@/lib/docs/source/collect-descendant-modules';
 import type { TOCItemType } from 'fumadocs-core/toc';
 import {
@@ -32,6 +32,8 @@ import { DocAppendix } from '@/components/docs/doc-appendix';
 import { appendixTocItems } from '@/lib/docs/doc-appendix';
 import { getPageBacklinks } from '@/lib/docs/doc-references';
 import { collectScheduleAnnotations, hasScheduleMeta } from '@/lib/docs/format-schedule-meta';
+import { isDocsArticlePagePath } from '@/lib/ai/chat-vision';
+import { DocPageFeedback } from '@/components/docs/feedback/doc-page-feedback';
 
 /** 路由段配置须为静态字面量；按请求做私有文档鉴权也需动态渲染 */
 export const dynamic = 'force-dynamic';
@@ -57,7 +59,7 @@ function dedupeTocByUrl(items: TOCItemType[]): TOCItemType[] {
 
 export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
   const params = await props.params;
-  const page = source.getPage(params.slug);
+  const page = getDocPage(params.slug);
   if (!page) notFound();
 
   const access = await getDocAccessContextFromRequest();
@@ -68,7 +70,8 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
     redirect(`/docs/access?next=${encodeURIComponent(page.url)}`);
   }
 
-  const MDX = page.data.body;
+  const loaded = await readDocsPage(page);
+  const MDX = loaded.body;
   const markdownUrl = getPageMarkdownUrl(page).url;
 
   const hdrs = await headers();
@@ -77,7 +80,7 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
   );
   const mcpUrl = `${origin}/mcp`;
 
-  const lastModified = page.data.lastModified;
+  const lastModified = loaded.lastModified ?? docUpdatedAt(page);
   const backlinks = getPageBacklinks(page, access);
   const stackToc = [...(await resolveCategoryFilterStackToc(page.slugs, access))];
   const scheduleMeta = {
@@ -93,7 +96,7 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
     annotations: annotations.length,
   });
   const toc = dedupeTocByUrl([
-    ...(page.data.toc ?? []),
+    ...(loaded.toc ?? []),
     ...stackToc,
     ...appendixToc,
   ]);
@@ -110,6 +113,7 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
     <DocsPage
       toc={toc}
       full={page.data.full}
+      tableOfContent={{ enabled: toc.length > 0 }}
       className={docsPageArticleClassName}
       breadcrumb={{ enabled: true }}
       slots={{ breadcrumb: DocsBreadcrumb }}
@@ -149,14 +153,21 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
         />
       </div>
       <DocsBody>
-        <MDX
-          components={getMDXComponents({
-            // this allows you to link to other pages with relative file paths
-            a: createRelativeLink(source, page, DocsLink),
-          })}
-        />
+        <div data-doc-kind={isDocsArticlePagePath(page.path) ? 'article' : 'hub'}>
+          <MDX
+            components={getMDXComponents({
+              // this allows you to link to other pages with relative file paths
+              a: createRelativeLink(source, page, DocsLink),
+            })}
+          />
+        </div>
       </DocsBody>
       <DocAppendix referrers={backlinks} annotations={annotations} />
+      <DocPageFeedback
+        title={page.data.title}
+        pageUrl={`${origin}${page.url}`}
+        pagePath={page.url}
+      />
       {lastModified ? (
         <PageLastUpdate date={lastModified} className="mt-auto pt-6" />
       ) : null}
@@ -179,8 +190,10 @@ export async function generateStaticParams() {
 
 export async function generateMetadata(props: PageProps<'/docs/[[...slug]]'>): Promise<Metadata> {
   const params = await props.params;
-  const page = source.getPage(params.slug);
-  if (!page) notFound();
+  const page = getDocPage(params.slug);
+  if (!page) {
+    return { title: getSiteName() };
+  }
 
   const access = await getDocAccessContextFromRequest();
   if (!isDocPageAccessible(page, access)) {

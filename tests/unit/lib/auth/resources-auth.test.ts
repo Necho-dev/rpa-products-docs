@@ -25,7 +25,7 @@ const locked: AuthorizeDocsImageDeps = {
   requireEmbedSign: () => true,
   isSsoEnabled: () => true,
   publicPrefixes: () => ['_public/_shared'],
-  verifyHmac: () => false,
+  verifySign: () => false,
   resolveAuth: () => auth({}),
 };
 
@@ -65,15 +65,15 @@ describe('authorizeDocsImageRequest', () => {
     assert.deepEqual(out, { ok: true, via: 'public' });
   });
 
-  it('allows embed HMAC without session (docsResources 回源)', () => {
+  it('allows resource sign without session', () => {
     const out = authorizeDocsImageRequest(req(), 'rpa/_public/images/a.png', {
       ...locked,
-      verifyHmac: () => true,
+      verifySign: () => true,
     });
-    assert.deepEqual(out, { ok: true, via: 'hmac' });
+    assert.deepEqual(out, { ok: true, via: 'sign' });
   });
 
-  it('does not treat MCP bearer as HTTP image auth (use get_docs_image)', () => {
+  it('does not treat MCP bearer as HTTP image auth (use signed ?sign= URLs)', () => {
     const out = authorizeDocsImageRequest(req(), 'rpa/_public/images/a.png', {
       ...locked,
       resolveAuth: () =>

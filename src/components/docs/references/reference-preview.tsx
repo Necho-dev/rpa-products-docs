@@ -10,14 +10,14 @@ import type { DocAccessContext } from '@/lib/docs/access/doc-access';
 import type { ResolvedReference } from '@/lib/docs/doc-references';
 import { isDocPageAccessible, resolveDocPage } from '@/lib/docs/docs-site-tools';
 import { referencePreviewHeadingPrefix } from '@/lib/docs/peek-heading-id';
-import { source } from '@/lib/docs/source/source';
+import { readDocsPage, source } from '@/lib/docs/source/source';
 
 /**
  * preview：把目标页正文 SSR 进限高滚动容器。
  * 不提供展开全文；完整阅读走悬浮工具条（分屏 / 新标签等）。
  * 不再嵌套出口引用块，避免 A 预览 B、B 预览 A 递归。
  */
-export function ReferencePreview({
+export async function ReferencePreview({
   reference,
   access,
 }: {
@@ -29,8 +29,9 @@ export function ReferencePreview({
     return <ReferenceCard reference={{ ...reference, mode: 'summary' }} />;
   }
 
-  const MDX = page.data.body;
-  const toc = (page.data.toc ?? []) as TOCItemType[];
+  const loaded = await readDocsPage(page);
+  const MDX = loaded.body;
+  const toc = (loaded.toc ?? []) as TOCItemType[];
   const tocIds = toc.map((item) => item.url.replace(/^#/, '')).filter((id) => id.length > 0);
   const prefix = referencePreviewHeadingPrefix(page.url);
 

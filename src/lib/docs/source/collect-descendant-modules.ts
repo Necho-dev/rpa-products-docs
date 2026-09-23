@@ -16,6 +16,7 @@ import {
   type FolderLookup,
 } from '@/lib/docs/source/category-config';
 import { compareDocsSidebarOrder, readDocsMetaJson, readDocsIndexFrontmatter, readDocsMetaPagesOrder } from '@/lib/docs/source/meta-pages-order';
+import { inferDocEntry } from '@/lib/docs/source/doc-entry';
 import { resolveModuleCoverUrl } from '@/lib/docs/source/resolve-module-cover-url';
 import { source } from '@/lib/docs/source/source';
 import type {
@@ -179,7 +180,7 @@ export function collectCategoryFilter(
       }
     }
     const title = data.title?.trim() || slugs[slugs.length - 1] || page.url;
-    const entry = data.entry?.trim();
+    const entry = data.entry?.trim() || inferDocEntry(page.path);
     let url = cat.link ?? lookupFolder(slugs)?.category?.link;
     if (!url) {
       for (let n = slugs.length - 1; n > pageSlug.length; n--) {
@@ -293,7 +294,7 @@ export async function resolveCategoryFilterStackToc(
   if (!page?.path) return [];
 
   const parsed = readCategoryFilterDirectiveFromDocsPath(page.path);
-  if (!parsed || (parsed.layout !== 'stack' && parsed.layout !== 'tabs')) {
+  if (!parsed || parsed.toc === false || (parsed.layout !== 'stack' && parsed.layout !== 'tabs')) {
     return [];
   }
 

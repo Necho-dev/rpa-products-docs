@@ -58,6 +58,33 @@ export function signatureWindowMs(): number {
   return envInt('DOCS_SIGNATURE_WINDOW_MS', DEFAULT_SIGNATURE_WINDOW_MS);
 }
 
+/** UserCenter Base URL: https(s)://host[:port] 不要带尾斜杠 */
+export function userCentreBaseUrl(): string | undefined {
+  return trimEnv('DOCS_USER_CENTRE_BASE_URL');
+}
+
+export function userCentreTimeoutMs(): number {
+  return envInt('DOCS_USER_CENTRE_TIMEOUT_MS', 4_000);
+}
+
+/** 嵌入通道短时缓存 userInfoByAuth 结果, 降低同一登录包的重复打点 */
+export function embedUserInfoCacheTtlMs(): number {
+  return envInt('DOCS_EMBED_USERINFO_CACHE_TTL_MS', 30_000);
+}
+
+/**
+ * 资源签名密钥: 配图 ?sign=、分享图与分享页 HMAC 共用
+ * 回退顺序: DOCS_RESOURCE_SIGN_SECRET -> 旧名 DOCS_QUOTE_SIGN_SECRET -> DOCS_SESSION_SECRET
+ */
+export function resourceSignSecret(): string | undefined {
+  return trimEnv('DOCS_RESOURCE_SIGN_SECRET') ?? trimEnv('DOCS_QUOTE_SIGN_SECRET') ?? sessionSecret();
+}
+
+/** 配图签名 TTL, 默认与嵌入时间窗同量级 */
+export function resourceSignTtlMs(): number {
+  return envInt('DOCS_RESOURCE_SIGN_TTL_MS', signatureWindowMs());
+}
+
 export function cubeOriginPatternSource(): string {
   return (
     trimEnv('DOCS_CUBE_ORIGIN_PATTERN') ??
@@ -83,9 +110,9 @@ function envBool(key: string, defaultValue = false): boolean {
 }
 
 /**
- * 为 true 时 `/resources/images/**` 拒绝匿名，须命中任一通道：
- * 公开前缀 / 嵌入 BFF HMAC / 浏览器 Session。
- * 未显式配置时: 生产环境且 `DOCS_CUBE_SSO_ENABLED` 为 true -> 默认 true。
+ * True 时 /resources/images/** 拒绝匿名, 须命中任一通道：
+ * 公开前缀 / 文档站 ?sign= / 浏览器 Cookie Session
+ * 未显式配置时: 生产环境且 DOCS_CUBE_SSO_ENABLED True -> 默认 True
  */
 export function resourcesRequireEmbedSign(): boolean {
   const raw = trimEnv('DOCS_RESOURCES_REQUIRE_EMBED_SIGN');

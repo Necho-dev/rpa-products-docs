@@ -17,7 +17,7 @@ import { DocsFloatingAnchors } from '@/components/docs/floating-anchors';
 import { cn } from '@/lib/core/cn';
 import { getSiteDescription, getSiteName } from '@/lib/core/knowledge-env';
 import { docsRoute } from '@/lib/core/shared';
-import { getLlmModelDisplayName } from '@/lib/ai/llm';
+import { getLlmModelDisplayName, isLlmVisionEnabled } from '@/lib/ai/llm';
 
 const cards = [
   {
@@ -30,9 +30,9 @@ const cards = [
   {
     href: `${docsRoute}/api`,
     icon: ServerCrash,
-    title: 'API 连接器(规划中)',
+    title: 'API 连接器',
     description:
-      '面向官方开放 API 的连接器(规划中): 通过预策自研 ISV 服务, 累计对接 1700+ 连接器, 搭配标准化数仓, 助力商家快速接入官方数据;',
+      '面向官方开放 API 的连接器: 通过预策自研 ISV 服务, 累计对接 2000+ 连接器, 搭配标准化数仓, 助力商家快速接入官方数据;',
   },
   {
     href: `${docsRoute}/auth`,
@@ -52,11 +52,12 @@ const cards = [
 
 export default function HomePage() {
   const modelDisplayName = getLlmModelDisplayName();
+  const visionEnabled = isLlmVisionEnabled();
   const siteName = getSiteName();
   const siteDescription = getSiteDescription();
 
   return (
-    <AISearch modelDisplayName={modelDisplayName}>
+    <AISearch modelDisplayName={modelDisplayName} visionEnabled={visionEnabled}>
       <OpenDocAiToolsBridge />
       <AISearchPanel />
       <main className="flex min-h-0 flex-1 flex-col">

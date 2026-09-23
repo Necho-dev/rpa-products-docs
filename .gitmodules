@@ -2,3 +2,8 @@
 	path = content/docs/auth
 	url = git@codeup.aliyun.com:yuce-tech/knowledge/connectors-auth-docs.git
 	branch = main
+[submodule ".vendor/dc-knowledge"]
+	path = .vendor/dc-knowledge
+	url = git@codeup.aliyun.com:yuce-tech/dw/knowledge.git
+	branch = master
+	shallow = true

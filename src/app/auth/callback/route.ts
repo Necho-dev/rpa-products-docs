@@ -1,7 +1,12 @@
 import { appendSessionCookie, cubeOriginCookieHeader, safeRedirectPath } from '@/lib/auth/session';
-import { signatureWindowMs } from '@/lib/auth/auth-config';
-import { aesEcbDecrypt, getSecretByHash, isValidCubeOrigin, sha256Hex, timingSafeHexEqual } from '@/lib/auth/cube';
+import { signatureWindowMs, userCentreBaseUrl } from '@/lib/auth/auth-config';
+import {
+  isValidCubeOrigin,
+  openLoginPackAes,
+  resolveRequestCubeOrigin,
+} from '@/lib/auth/cube';
 import { clearMcpTokenCookieHeader } from '@/lib/auth/mcp-token';
+import { fetchUserInfoByAuth, parseSaasQuery } from '@/lib/auth/user-centre';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -12,19 +17,61 @@ type CallbackPayload = {
   cubeOrigin?: string;
 };
 
-export function GET(request: Request) {
+function rejectRedirectWithEmbed(target: string): boolean {
+  try {
+    const probe = new URL(target, 'http://localhost');
+    return probe.searchParams.has('mode') || probe.searchParams.has('render');
+  } catch {
+    return true;
+  }
+}
+
+function landingPath(queryRedirect: string | null, payloadTarget?: string): string {
+  const raw = queryRedirect || payloadTarget || '/docs';
+  return safeRedirectPath(raw);
+}
+
+function successRedirect(
+  request: Request,
+  target: string,
+  user: { u: string; s: string },
+  cubeOrigin: string | null,
+): Response {
+  const headers = new Headers({ Location: target });
+  appendSessionCookie(headers, request, { u: user.u, s: user.s });
+  headers.append('Set-Cookie', clearMcpTokenCookieHeader(request));
+  if (cubeOrigin && isValidCubeOrigin(cubeOrigin)) {
+    headers.append('Set-Cookie', cubeOriginCookieHeader(cubeOrigin, request));
+  }
+  return new Response(null, { status: 302, headers });
+}
+
+async function tryUserCentre(ed: string, sh: string, sg: string, tm: number, isSaas: boolean) {
+  if (!userCentreBaseUrl()) return null;
+  return fetchUserInfoByAuth({ ed, sh, sg, tm, isSaas });
+}
+
+function tryLocalAes(
+  ed: string,
+  sh: string,
+  sg: string,
+  tm: number,
+): { user: { u: string; s: string }; payload: CallbackPayload } | { error: Response } {
+  const local = openLoginPackAes(ed, sh, sg, tm);
+  if (!local.ok) return { error: new Response(local.message, { status: 401 }) };
+  return { user: { u: local.userName, s: sh }, payload: local.payload };
+}
+
+export async function GET(request: Request) {
   const url = new URL(request.url);
   const ed = url.searchParams.get('ed') ?? '';
   const sh = url.searchParams.get('sh') ?? '';
   const sg = url.searchParams.get('sg') ?? '';
   const tmRaw = url.searchParams.get('tm') ?? '';
+  const queryRedirect = url.searchParams.get('redirect');
+  const isSaas = parseSaasQuery(url.searchParams.get('saas'));
 
-  let tm: number;
-  try {
-    tm = Number.parseInt(tmRaw, 10);
-  } catch {
-    return new Response('bad tm', { status: 400 });
-  }
+  const tm = Number.parseInt(tmRaw, 10);
   if (!Number.isFinite(tm)) {
     return new Response('bad tm', { status: 400 });
   }
@@ -33,49 +80,39 @@ export function GET(request: Request) {
     return new Response('timestamp expired', { status: 401 });
   }
 
-  const secret = getSecretByHash(sh);
-  if (!secret) {
-    return new Response('unknown secret hash', { status: 401 });
+  if (!ed || !sh || !sg) {
+    return new Response('missing login pack', { status: 400 });
   }
 
-  if (!timingSafeHexEqual(sha256Hex(`${ed}${tm}${secret}`), sg)) {
-    return new Response('bad signature', { status: 401 });
+  const ucUser = await tryUserCentre(ed, sh, sg, tm, isSaas);
+  if (ucUser) {
+    const target = landingPath(queryRedirect);
+    if (!target.startsWith('/') || rejectRedirectWithEmbed(target)) {
+      return new Response('illegal target', { status: 400 });
+    }
+    return successRedirect(
+      request,
+      target,
+      { u: ucUser.u, s: ucUser.s },
+      ucUser.cubeOrigin ?? resolveRequestCubeOrigin(request),
+    );
   }
 
-  let payload: CallbackPayload;
-  try {
-    payload = JSON.parse(aesEcbDecrypt(ed, secret)) as CallbackPayload;
-  } catch {
-    return new Response('bad payload', { status: 401 });
-  }
+  const local = tryLocalAes(ed, sh, sg, tm);
+  if ('error' in local) return local.error;
 
-  const target = payload.targetUrl ?? '/';
+  const target = landingPath(queryRedirect, local.payload.targetUrl);
   if (typeof target !== 'string' || !target.startsWith('/')) {
     return new Response('illegal target', { status: 400 });
   }
-  // 禁止 SSO 回跳携带 render=, 避免通道 B 误开通道 A (嵌入须走 BFF HMAC)
-  try {
-    const probe = new URL(target, 'http://localhost');
-    if (probe.searchParams.has('render')) {
-      return new Response('illegal target', { status: 400 });
-    }
-  } catch {
+  if (rejectRedirectWithEmbed(target)) {
     return new Response('illegal target', { status: 400 });
   }
 
-  const userName = payload.userName ?? '';
-  if (!userName) {
-    return new Response('missing user', { status: 401 });
-  }
-
-  const headers = new Headers({ Location: safeRedirectPath(target) });
-  appendSessionCookie(headers, request, { u: userName, s: sh });
-  headers.append('Set-Cookie', clearMcpTokenCookieHeader(request));
-
-  const cubeOrigin = payload.cubeOrigin;
-  if (isValidCubeOrigin(cubeOrigin)) {
-    headers.append('Set-Cookie', cubeOriginCookieHeader(cubeOrigin, request));
-  }
-
-  return new Response(null, { status: 302, headers });
+  return successRedirect(
+    request,
+    target,
+    local.user,
+    local.payload.cubeOrigin || resolveRequestCubeOrigin(request),
+  );
 }

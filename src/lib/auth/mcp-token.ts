@@ -2,6 +2,7 @@ import {
   isSecureCookieRequest,
   mcpTokenTtlSec,
   sessionSecret,
+  userCentreBaseUrl,
 } from '@/lib/auth/auth-config';
 import { DOCS_MCP_TOKEN_COOKIE } from '@/lib/auth/cookie-names';
 import { isKnownSecretHash } from '@/lib/auth/cube';
@@ -48,7 +49,9 @@ export function parseMcpBearerToken(
   const payload = asMcpPayload(raw);
   if (!payload) return null;
   if (!mcpAudMatches(payload.aud, expectedAud)) return null;
-  if (!isKnownSecretHash(payload.s)) return null;
+  // SSO 签发: token.s (取自 secrets.json 的 sh)
+  // UserCenter 签发: customerIdentify -> tenantId -> orgId
+  if (!isKnownSecretHash(payload.s) && !userCentreBaseUrl()) return null;
   return payload;
 }
 

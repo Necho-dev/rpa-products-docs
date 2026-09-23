@@ -1,6 +1,6 @@
 /**
  * 选词分享预签名：服务端生成带 HMAC 的 quote 分享图 URL 与分享页 URL。
- * 客户端（selection-provider）在用户选中文本后 POST 调用，避免在前端暴露 DOCS_QUOTE_SIGN_SECRET。
+ * 客户端(selection-provider) 在用户选中文本后 POST 调用, 避免在前端暴露资源签名密钥
  */
 import { getDocAccessContextFromRequest } from '@/lib/docs/access/doc-access-react';
 import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
@@ -51,7 +51,7 @@ export async function POST(req: Request) {
   }
 
   if (!quoteSignSecret()) {
-    const message = '当前环境未配置 DOCS_QUOTE_SIGN_SECRET, 无法生成分享图';
+    const message = '当前环境未配置 DOCS_RESOURCE_SIGN_SECRET, 无法生成分享图';
     return NextResponse.json({ error: message }, { status: 503 });
   }
 

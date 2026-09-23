@@ -1,5 +1,5 @@
 /*
- * 嵌入 HTML 片段样式（X-Render-Mode: html 通道）
+ * 嵌入 HTML 片段样式（Query mode=page 通道）
  *
  * ── 复用策略 ──────────────────────────────────────────────────────────────────
  * 文档站使用 Tailwind CSS + fumadocs-ui prose 类 + CSS 变量体系（--color-fd-*），

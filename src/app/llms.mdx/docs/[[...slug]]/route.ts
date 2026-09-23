@@ -1,7 +1,7 @@
 import { getDocAccessContext, getDocAccessContextForEmbed } from '@/lib/docs/access/doc-access';
 import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
-import { getEmbedMarkdown, getLLMText, source } from '@/lib/docs/source/source';
-import { getEmbedRenderMode, verifyCubeEmbedRequest } from '@/lib/auth/cube-embed';
+import { getEmbedMarkdown, source } from '@/lib/docs/source/source';
+import { getEmbedMode, verifyCubeEmbedRequest } from '@/lib/auth/cube-embed';
 import { inferSiteOrigin } from '@/lib/core/site-origin';
 import { notFound } from 'next/navigation';
 
@@ -9,27 +9,22 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request, { params }: RouteContext<'/llms.mdx/docs/[[...slug]]'>) {
-  // 嵌入通道判定：
-  // proxy.ts rewrite 时会同时设置 x-embed-verified-sh（已验签的 sh）以及原始签名头，
-  // 这里在 route handler 层做二次 HMAC 验签，防止外部直接请求并伪造 x-embed-verified-sh 头绕过鉴权。
+  // 嵌入通道判定: proxy rewrite 保留 Query 登录包, 并设置 x-embed-verified-sh。
+  // 二次调用 UserCenter API: userInfoByAuth, 防止伪造 x-embed-verified-sh 绕过。
   const claimedSh = req.headers.get('x-embed-verified-sh');
-  const hasRenderMode = getEmbedRenderMode(req) !== null;
+  const hasEmbedMode = getEmbedMode(req) !== null;
 
   let isEmbedRequest = false;
   let embedSh: string | null = null;
   let embedUser: string | null = null;
-  let embedCubeOrigin: string | null = null;
 
-  if (claimedSh && hasRenderMode) {
-    // 二次验签：重新校验原始 BFF 签名头
-    const verified = verifyCubeEmbedRequest(req);
+  if (claimedSh && hasEmbedMode) {
+    const verified = await verifyCubeEmbedRequest(req);
     if (verified && verified.sh === claimedSh) {
       isEmbedRequest = true;
       embedSh = verified.sh;
       embedUser = verified.user;
-      embedCubeOrigin = verified.cubeOrigin;
     }
-    // 验签失败: 不是合法的嵌入请求, 下面走 getDocAccessContext (Cookie/Bearer 鉴权)
   }
 
   const access = isEmbedRequest
@@ -49,12 +44,7 @@ export async function GET(req: Request, { params }: RouteContext<'/llms.mdx/docs
   if (!page) notFound();
   if (!isDocPageAccessible(page, access)) notFound();
 
-  let body: string;
-  if (isEmbedRequest) {
-    body = await getEmbedMarkdown(page, embedCubeOrigin);
-  } else {
-    body = await getLLMText(page, { siteOrigin: inferSiteOrigin(req) });
-  }
+  const body = await getEmbedMarkdown(page, { siteOrigin: inferSiteOrigin(req) });
 
   return new Response(body, {
     headers: {

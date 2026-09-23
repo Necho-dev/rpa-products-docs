@@ -29,7 +29,8 @@ import {
 } from '@/lib/docs/open-doc-ai-tools';
 import { getDocAccessContext } from '@/lib/docs/access/doc-access';
 import { inferSiteOrigin } from '@/lib/core/site-origin';
-import { createLlmProvider } from '@/lib/ai/llm';
+import { createLlmProvider, isLlmVisionEnabled } from '@/lib/ai/llm';
+import { convertChatDataPart } from '@/lib/ai/chat-vision';
 import { getSearchTags } from '@/lib/docs/search/search-tags';
 import { isSentryEnabled } from '@/lib/observability/sentry';
 import { convertToModelMessages, createUIMessageStreamResponse, stepCountIs, streamText, tool } from 'ai';
@@ -79,7 +80,7 @@ export async function POST(req: Request, _ctx: RouteContext<"/api/chat">) {
     system: `You are a helpful assistant for this documentation site. The docs live under ${docsRoute}.
 When the user asks about documentation, topics, connectors, apps, or anything that may be covered in the site docs, you MUST use the documentation tools to read real catalog, search hits, or page content — do not guess paths or invent content.
 Client Context describes the user's current docs view. location is the browser URL of the left/main page. layout "single" means one document (left). layout "split" means desktop dual-pane: left is the main article, right is the peeked article. layout "sheet" means the right document is a mobile overlay on top of left. left/right objects include path, title, and url. When the user says 这篇 / 左边 / 右边 / 当前打开的 / 右栏, map to the corresponding pane and prefer getDocumentationPage with that pane's path. If ambiguous, consider both panes and say which one you used.
-When Client Context includes a selection field, prioritize answering about that selected excerpt while using documentation tools if needed for broader context.
+When Client Context includes a selection field, prioritize answering about that selected excerpt while using documentation tools if needed for broader context.${isLlmVisionEnabled() ? '\nUser messages may include attached images labeled 图N. These come from the current article or the user\'s clipboard. Refer to them by 图N when discussing screenshots.' : ''}
 Prefer searchDocumentationPages when the user is vague or keyword-driven; use listDocumentationPages with tag and/or prefix to browse a partition or path prefix (do not dump the full catalog unless asked); use getDocumentationPageMeta before getDocumentationPage when you only need headings, TOC, entry/badge, schedule fields (dataReady / estimatedDuration / minInterval), or prerequisites (references, kind=dependency is 前置依赖); use getDocumentationPage for full body text.
 
 openDocumentationPage runs in the user's browser and requires explicit confirmation — it may open a right-pane preview or navigate away. Use it only when the user asks to open/jump to a page. Prefer target=peek. Do not use it to read content.
@@ -156,11 +157,7 @@ After every tool call, you MUST continue and write a clear reply in the same lan
     messages: await convertToModelMessages<InkeepUIMessage>((reqJson as { messages: InkeepUIMessage[] }).messages, {
       ignoreIncompleteToolCalls: true,
       convertDataPart(part) {
-        if (part.type === 'data-client')
-          return {
-            type: 'text',
-            text: `[Client Context: ${JSON.stringify(part.data)}]`,
-          };
+        return convertChatDataPart(part, { visionEnabled: isLlmVisionEnabled() });
       },
     }),
     toolChoice: 'auto',

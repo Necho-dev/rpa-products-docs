@@ -21,3 +21,4 @@ playwright
 .vscode
 .git
 .gitignore
+# .vendor 要进构建上下文：运行时分区从稀疏检出读 Markdown

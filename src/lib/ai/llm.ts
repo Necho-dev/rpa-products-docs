@@ -32,6 +32,11 @@ export function getLlmModelDisplayName(): string | undefined {
   return model || undefined;
 }
 
+/** 当前对接模型是否支持视觉输入；仅 `true`（忽略大小写）为开启 */
+export function isLlmVisionEnabled(raw = process.env.LLM_MODEL_VISION): boolean {
+  return raw?.trim().toLowerCase() === 'true';
+}
+
 /** AI 搜索语义理解：json_object 模式 + 客户端 Zod 校验，避免 generateObject 的 schema warning */
 export function getLlmJsonModel() {
   return createLlmProvider({ jsonObject: true })(process.env.LLM_MODEL ?? '');

@@ -1,18 +1,12 @@
-import { signatureWindowMs, sessionSecret } from '@/lib/auth/auth-config';
+import { resourceSignSecret, signatureWindowMs } from '@/lib/auth/auth-config';
 import { sha256Hex, timingSafeHexEqual } from '@/lib/auth/cube';
 import { MAX_QUOTE_TEXT, normalizeQuoteText } from '@/lib/docs/selection/quote-text';
 
 export { MAX_QUOTE_TEXT, normalizeQuoteText, parseTextFragmentExact } from '@/lib/docs/selection/quote-text';
 
-function trimEnv(key: string): string | undefined {
-  const v = process.env[key];
-  if (typeof v !== 'string') return undefined;
-  const t = v.trim();
-  return t === '' ? undefined : t;
-}
-
+/** 文章分享图与配图 ?sign= 用同一套资源签名密钥 */
 export function quoteSignSecret(): string | undefined {
-  return trimEnv('DOCS_QUOTE_SIGN_SECRET') ?? sessionSecret();
+  return resourceSignSecret();
 }
 
 export function buildQuoteSignature(

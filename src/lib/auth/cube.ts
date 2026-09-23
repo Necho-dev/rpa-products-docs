@@ -40,6 +40,30 @@ export function isValidCubeOrigin(origin: unknown): origin is string {
   return typeof origin === 'string' && origin.length > 0 && originPattern().test(origin);
 }
 
+function originFromUrl(raw: string): string | null {
+  try {
+    return new URL(raw).origin;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * 请求来源（Referer → Origin）提取 origin 信息
+ * 须匹配 DOCS_CUBE_ORIGIN_PATTERN，且不能是文档站自身 origin
+ */
+export function resolveRequestCubeOrigin(request: Request): string | null {
+  const selfOrigin = originFromUrl(request.url);
+  for (const header of ['referer', 'origin'] as const) {
+    const raw = request.headers.get(header)?.trim();
+    if (!raw) continue;
+    const origin = originFromUrl(raw);
+    if (!origin || origin === selfOrigin) continue;
+    if (isValidCubeOrigin(origin)) return origin;
+  }
+  return null;
+}
+
 export type SecretsMap = Record<string, string>;
 
 let cachedSecrets: SecretsMap | null = null;
@@ -129,6 +153,34 @@ export function loadSecrets(): SecretsMap {
 
 export function getSecretByHash(sh: string): string | undefined {
   return loadSecrets()[sh];
+}
+
+export type LoginPackPayload = {
+  userName?: string;
+  targetUrl?: string;
+  cubeOrigin?: string;
+};
+
+export type LoginPackAesResult =
+  | { ok: true; userName: string; payload: LoginPackPayload }
+  | { ok: false; message: 'unknown secret hash' | 'bad signature' | 'bad payload' | 'missing user' };
+
+/** 用 secrets.json 里的 App Secret 验证 sg 再解密 ed */
+export function openLoginPackAes(ed: string, sh: string, sg: string, tm: number): LoginPackAesResult {
+  const secret = getSecretByHash(sh);
+  if (!secret) return { ok: false, message: 'unknown secret hash' };
+  if (!timingSafeHexEqual(sha256Hex(`${ed}${tm}${secret}`), sg)) {
+    return { ok: false, message: 'bad signature' };
+  }
+  let payload: LoginPackPayload;
+  try {
+    payload = JSON.parse(aesEcbDecrypt(ed, secret)) as LoginPackPayload;
+  } catch {
+    return { ok: false, message: 'bad payload' };
+  }
+  const userName = payload.userName?.trim() ?? '';
+  if (!userName) return { ok: false, message: 'missing user' };
+  return { ok: true, userName, payload };
 }
 
 export function isKnownSecretHash(sh: string): boolean {

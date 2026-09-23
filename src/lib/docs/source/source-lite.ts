@@ -1,3 +1,4 @@
+import { runtimeDocs } from 'collections/dynamic';
 import { docs } from 'collections/server';
 import { loader } from 'fumadocs-core/source';
 import { docsRoute } from '@/lib/core/shared';
@@ -12,6 +13,9 @@ import { docsEntryInSidebarPlugin } from '@/lib/docs/source/docs-entry-in-sideba
  */
 export const sourceLite = loader({
   baseUrl: docsRoute,
-  source: docs.toFumadocsSource(),
+  source: {
+    docs: docs.toFumadocsSource(),
+    runtimeDocs: runtimeDocs.toFumadocsSource(),
+  },
   plugins: [docsEntryInSidebarPlugin()],
 });

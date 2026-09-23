@@ -1,18 +1,18 @@
 /**
  * 嵌入通道文档页（/embed/docs/[[...slug]]）
  *
- * 仅由 proxy.ts applyEmbedGate (X-Render-Mode: html) rewrite 调用，
+ * 由 proxy.ts applyEmbedGate (Query mode=page) rewrite 调用
  * 外部直访被 blockEmbedInternalRoutes 拦截返回 404。
  *
  * 与 /docs/[[...slug]]/page.tsx 的区别：
  * - 鉴权失败渲染 401 提示（不 redirect，嵌入场景不应 302 到登录页）
  * - 不依赖 DocsLayout/DocsPage context（极简布局）
  * - 不显示工具栏（分享、Markdown 复制、MCP、ViewOptions）
- * - 完整 MDX 渲染：page.data.body + getMDXComponents（与文档站一致）
+ * - 完整 MDX 渲染: readDocsPage + getMDXComponents (与文档站一致)
  */
 import { getDocAccessContextFromRequest } from '@/lib/docs/access/doc-access-react';
 import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
-import { source } from '@/lib/docs/source/source';
+import { readDocsPage, source } from '@/lib/docs/source/source';
 import { notFound } from 'next/navigation';
 import { getMDXComponents } from '@/components/docs/mdx';
 import { ConnectorSchedulePanel } from '@/components/docs/connector-schedule-panel';
@@ -37,7 +37,8 @@ export default async function EmbedDocPage(props: PageProps<'/embed/docs/[[...sl
     );
   }
 
-  const MDX = page.data.body;
+  const loaded = await readDocsPage(page);
+  const MDX = loaded.body;
 
   const scheduleMeta = {
     entry: page.data.entry,

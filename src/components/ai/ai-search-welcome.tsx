@@ -57,7 +57,7 @@ export function AISearchWelcome() {
 
   return (
     <div
-      className="flex size-full flex-col items-center justify-center gap-5 text-center"
+      className="flex min-h-full w-full flex-1 flex-col items-center justify-center gap-5 px-2 text-center"
       onClick={(e) => e.stopPropagation()}
     >
       <div className="relative">
@@ -77,7 +77,7 @@ export function AISearchWelcome() {
         </div>
       </div>
       <p className="text-sm text-fd-muted-foreground">👋 Hi~ 我是文档助手，有什么可以帮你？</p>
-      <div className="grid w-full max-w-[420px] grid-cols-2 gap-2 px-1">
+      <div className="grid w-full max-w-105 grid-cols-2 gap-2 px-1">
         {quickPrompts.map(({ icon: Icon, label, fillText, color }) => (
           <button
             key={label}

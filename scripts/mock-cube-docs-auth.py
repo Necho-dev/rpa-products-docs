@@ -1,31 +1,21 @@
 #!/usr/bin/env python3
 """
-本地 Mock：对齐 Java RemoteDocsController（docsAuth / docsContent / logout）。
+本地 Mock：对齐文档站契约（docsAuth 全页 SSO / docsContent 嵌入 / logout）。
 
 真实魔方在 docsAuth 服务端用 LoginContext 识别已登录用户，不向文档站透传 Session Cookie；
 本 Mock 同样假定调用 docsAuth 时用户已在魔方侧登录，仅用 MOCK_CUBE_USER 写入加密载荷。
 
-────────────────────────────────────────────────────────────────────────
-双通道 Mock 说明
+全页 SSO：
+  /docsAuth?redirect=/docs  → 302 {docs}/auth/callback?ed&sh&sg&tm&redirect=
 
-通道 B（SSO 全页）：
-  /docsAuth?redirect=/docs                → 302 callback → 全页 HTML
+嵌入：
+  /docsContent?path=/docs/xxx&mode=page|llms → 200 {"url": "{docs}{path}?mode=&ed=&sh=&tm=&sg="}
+  前端 iframe src 直连该 URL（Query 登录包）。
+llms 配图已是文档站 `?sign=` 直链，本 Mock 不提供 docsResources。
 
-通道 A 方案 A（扩展 docsAuth + render）：
-  /docsAuth?redirect=/docs/xxx&render=html     → 服务端拉取文档 → 200 完整 React HTML（/embed/docs）
-  /docsAuth?redirect=/docs/xxx&render=markdown → 服务端拉取文档 → 200 Markdown
-
-通道 A 方案 B（独立 docsContent 接口）：
-  /docsContent?path=/docs/xxx&render=html      → 服务端拉取文档 → 200 完整 React HTML（/embed/docs）
-  /docsContent?path=/docs/xxx&render=markdown  → 服务端拉取文档 → 200 Markdown
-
-⚠️  render=html 重要约束：
-  - render=html 返回完整 React SSR 页面，含 _next/static 资源路径（相对于文档站域）
-  - BFF 代理模式（Header 鉴权 + srcdoc 或 BFF 透传）不可行：
-      浏览器从魔方域 / BFF 域加载 _next/static → 404 → React 崩溃
-  - 正确接入方式：BFF 生成文档站 Query 签名 URL，前端用 <iframe src="https://docs.../docs/foo?render=html&sh=...&sg=...">
-  - render=markdown 无此限制，BFF 代理和 Query 直连均可
-────────────────────────────────────────────────────────────────────────
+本进程同时提供最小用户中心：
+  GET /api/open/oidc/userInfoByAuth
+  GET /open/oidc/userInfoByAuth
 
 依赖:
   python3 -m pip install fastapi uvicorn pycryptodome httpx
@@ -46,22 +36,12 @@
 文档站需开启:
   DOCS_CUBE_SSO_ENABLED=true
   DOCS_SECRETS_FILE_PATH=.secrets/dev-secrets.json
+  DOCS_USER_CENTRE_BASE_URL=http://127.0.0.1:8765
 
-联调 — SSO 全页:
+联调:
   http://127.0.0.1:8765/docsAuth?redirect=/docs
-
-联调 — 嵌入 Markdown（方案 A）:
-  http://127.0.0.1:8765/docsAuth?redirect=/docs/connectors/rpa-conn-qianniu-all&render=markdown
-
-联调 — 嵌入 HTML（方案 A，完整 React 渲染）:
-  http://127.0.0.1:8765/docsAuth?redirect=/docs/connectors/rpa-conn-qianniu-all&render=html
-
-联调 — 嵌入 HTML（方案 B，完整 React 渲染）:
-  http://127.0.0.1:8765/docsContent?path=/docs/connectors/rpa-conn-qianniu-all&render=html
-
-联调 — 退出:
+  http://127.0.0.1:8765/docsContent?path=/docs/rpa/RPA_QIANNIU/rpa-conn-qianniu-item-quality-score-list&mode=page
   http://127.0.0.1:8765/logout
-  → 文档站 /auth/logout?redirect=http://127.0.0.1:8765/
 """
 
 from __future__ import annotations
@@ -69,7 +49,6 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-import posixpath
 import sys
 import time
 from pathlib import Path
@@ -79,9 +58,9 @@ from urllib.parse import quote, urlencode
 import httpx
 import uvicorn
 from Crypto.Cipher import AES
-from Crypto.Util.Padding import pad
+from Crypto.Util.Padding import pad, unpad
 from fastapi import FastAPI, Query
-from fastapi.responses import HTMLResponse, PlainTextResponse, RedirectResponse, Response
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -115,113 +94,6 @@ def sha256_hex(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-def bff_signature(method: str, path: str, timestamp: int, app_secret: str) -> str:
-    """
-    BFF → 文档站嵌入请求签名算法（与 cube-embed.ts 对齐）：
-      SHA256(METHOD + "\\n" + PATH + "\\n" + TIMESTAMP + "\\n" + APP_SECRET)  hex
-    """
-    payload = f"{method}\n{path}\n{timestamp}\n{app_secret}"
-    return sha256_hex(payload)
-
-
-def build_signed_docs_embed_url(docs_path: str, render: str) -> str:
-    """构建带 Query 签名的文档站嵌入 URL（供浏览器 iframe src 直连文档站）。"""
-    docs_base = DOCS_BASE_URL.rstrip("/")
-    sh = sha256_hex(APP_SECRET)
-    timestamp = int(time.time() * 1000)
-    sg = bff_signature("GET", docs_path, timestamp, APP_SECRET)
-    cube_origin = CUBE_BASE_HOST.rstrip("/")
-    query = urlencode(
-        {
-            "render": render,
-            "sh": sh,
-            "tm": str(timestamp),
-            "sg": sg,
-            "user": MOCK_USER,
-            "cubeOrigin": cube_origin,
-        },
-        quote_via=quote,
-    )
-    return f"{docs_base}{docs_path}?{query}"
-
-
-def build_iframe_src(path: str, render: str, auth: str) -> str:
-    """
-    嵌入 iframe src（html | markdown 均支持）：
-
-    render=html：走 /embed/docs/... React 页面，HTML 内含 _next/static 引用。
-      **BFF 代理（Header / srcdoc / 透传）对 render=html 根本不可行**：
-        - srcdoc 模式：_next/static 相对路径解析到魔方域 → 404
-        - BFF 透传（iframe src=/docsContent）：_next/static 解析到 BFF 域 → 404
-      必须用 iframe src 直连文档站 Query 签名 URL，浏览器直接向文档站加载资源。
-
-    render=markdown：纯文本，BFF 代理或 Query 直连均可。
-    """
-    if render not in ("html", "markdown"):
-        return ""
-    if render == "html":
-        # html 只能 iframe src 直连文档站（Query 签名），BFF 代理模式不可行
-        return build_signed_docs_embed_url(path, render)
-    if auth == "query":
-        return build_signed_docs_embed_url(path, render)
-    # markdown + auth=header：iframe 加载同源 /docsContent
-    proxy_query = urlencode({"path": path, "render": render, "auth": auth}, quote_via=quote)
-    return f"/docsContent?{proxy_query}"
-
-
-def fetch_embed_content(docs_path: str, render: str, *, auth_via_query: bool = False) -> Response:
-    """
-    方案 A 嵌入分支 & 方案 B 共用：魔方 BFF 服务端向文档站发起请求，返回文档正文。
-
-    auth_via_query=False（默认）：凭证走 HTTP Header（X-Cube-*）
-    auth_via_query=True：凭证走 URL Query（sh/tm/sg/render/user），与 SSO callback 字段对齐，便于魔方复用现有封装
-    """
-    docs_base = DOCS_BASE_URL.rstrip("/")
-    parsed_path = docs_path
-
-    sh = sha256_hex(APP_SECRET)
-    timestamp = int(time.time() * 1000)
-    sg = bff_signature("GET", parsed_path, timestamp, APP_SECRET)
-
-    cube_origin = CUBE_BASE_HOST.rstrip("/")
-    if auth_via_query:
-        query = urlencode(
-            {
-                "render": render,
-                "sh": sh,
-                "tm": str(timestamp),
-                "sg": sg,
-                "user": MOCK_USER,
-                "cubeOrigin": cube_origin,
-            },
-            quote_via=quote,
-        )
-        full_url = f"{docs_base}{docs_path}?{query}"
-        headers: dict[str, str] = {}
-    else:
-        full_url = f"{docs_base}{docs_path}"
-        headers = {
-            "X-Render-Mode": render,
-            "X-Cube-Secret-Hash": sh,
-            "X-Cube-Timestamp": str(timestamp),
-            "X-Cube-Signature": sg,
-            "X-Cube-User": MOCK_USER,
-            "X-Cube-Origin": cube_origin,
-        }
-
-    try:
-        resp = httpx.get(full_url, headers=headers, follow_redirects=False, timeout=15.0)
-    except Exception as exc:
-        return Response(
-            content=f"请求文档站失败：{exc}",
-            status_code=502,
-            media_type="text/plain; charset=utf-8",
-        )
-
-    content_type = resp.headers.get("content-type", "text/plain")
-    return Response(content=resp.content, status_code=resp.status_code, media_type=content_type)
-
-
 def aes_ecb_encrypt(plaintext: str, key_ascii: str) -> str:
     key = key_ascii.encode("ascii")
     if len(key) not in (16, 24, 32):
@@ -233,8 +105,16 @@ def aes_ecb_encrypt(plaintext: str, key_ascii: str) -> str:
     return base64.b64encode(encrypted).decode("ascii")
 
 
+def aes_ecb_decrypt(cipher_b64: str, key_ascii: str) -> str:
+    import base64
+
+    key = key_ascii.encode("ascii")
+    cipher = AES.new(key, AES.MODE_ECB)
+    raw = cipher.decrypt(base64.b64decode(cipher_b64))
+    return unpad(raw, AES.block_size).decode("utf-8")
+
+
 def secure_wrap_data(payload_json: str, app_secret: str) -> dict[str, Any]:
-    """对齐 RemoteSecretService.secureWrapData + docs /auth/callback 验签。"""
     secret_hash = sha256_hex(app_secret)
     encrypt_data = aes_ecb_encrypt(payload_json, app_secret)
     timestamp = int(time.time() * 1000)
@@ -256,13 +136,53 @@ def build_payload_json(user_name: str, target_url: str, cube_origin: str) -> str
     return json.dumps(dto, ensure_ascii=False, separators=(",", ":"))
 
 
-def build_callback_url(docs_base_url: str, wrap: dict[str, Any]) -> str:
+def wrap_for_path(docs_path: str) -> dict[str, Any]:
+    payload_json = build_payload_json(MOCK_USER, docs_path, CUBE_BASE_HOST)
+    return secure_wrap_data(payload_json, APP_SECRET)
+
+
+def login_pack_query(docs_path: str, mode: str) -> dict[str, str]:
+    wrap = wrap_for_path(docs_path)
+    return {
+        "mode": mode,
+        "ed": wrap["encryptData"],
+        "sh": wrap["secretHash"],
+        "tm": str(wrap["timestamp"]),
+        "sg": wrap["signature"],
+    }
+
+
+def build_signed_docs_embed_url(docs_path: str, mode: str) -> str:
+    """构建带登录包的文档站嵌入 URL（供浏览器 iframe src 直连文档站）。"""
+    docs_base = DOCS_BASE_URL.rstrip("/")
+    query = urlencode(login_pack_query(docs_path, mode), quote_via=quote)
+    return f"{docs_base}{docs_path}?{query}"
+
+
+def fetch_embed_content(docs_path: str, mode: str) -> Response:
+    """探测文档站嵌入 URL（Query 登录包）。正式 iframe 应直连该 URL。"""
+    full_url = build_signed_docs_embed_url(docs_path, mode)
+    try:
+        resp = httpx.get(full_url, follow_redirects=False, timeout=15.0)
+    except Exception as exc:
+        return Response(
+            content=f"请求文档站失败：{exc}",
+            status_code=502,
+            media_type="text/plain; charset=utf-8",
+        )
+
+    content_type = resp.headers.get("content-type", "text/plain")
+    return Response(content=resp.content, status_code=resp.status_code, media_type=content_type)
+
+
+def build_callback_url(docs_base_url: str, wrap: dict[str, Any], redirect: str) -> str:
     query = urlencode(
         {
             "ed": wrap["encryptData"],
             "sh": wrap["secretHash"],
             "sg": wrap["signature"],
             "tm": wrap["timestamp"],
+            "redirect": redirect,
         },
         quote_via=quote,
     )
@@ -303,7 +223,7 @@ def _docs_auth_redirect(redirect: str) -> RedirectResponse:
 
     payload_json = build_payload_json(MOCK_USER, redirect, CUBE_BASE_HOST)
     wrap = secure_wrap_data(payload_json, APP_SECRET)
-    target = build_callback_url(DOCS_BASE_URL, wrap)
+    target = build_callback_url(DOCS_BASE_URL, wrap, redirect)
     return RedirectResponse(url=target, status_code=302)
 
 
@@ -316,7 +236,7 @@ def index() -> str:
     sample_auth = f"{CUBE_BASE_HOST.rstrip('/')}/docsAuth?redirect=/docs"
     sample_logout = f"{CUBE_BASE_HOST.rstrip('/')}/logout"
     docs_logout = build_docs_logout_url()
-    sample_doc = "/docs/connectors/rpa-conn-qianniu-all/rpa-conn-qianniu-item-quality-score-list"
+    sample_doc = "/docs/rpa/RPA_QIANNIU/rpa-conn-qianniu-item-quality-score-list"
     return f"""<!doctype html>
 <html lang="zh-CN">
 <head>
@@ -337,16 +257,16 @@ def index() -> str:
 
   <section>
     <h2>🖼 iframe 嵌入测试 <span class="badge" style="background:#f0fdf4;color:#166534">可视化</span></h2>
-    <p>在浏览器中直接预览文档嵌入效果（<code>&lt;iframe src&gt;</code>：Query 直连文档站 / Header 走 BFF 代理）。</p>
+    <p>在浏览器中直接预览文档嵌入效果：<code>iframe src</code> 直连文档站 Query URL。</p>
     <ul>
       <li><a href="/iframe-test">打开 iframe 测试页</a></li>
-      <li><a href="/iframe-test?path={sample_doc}&render=html">HTML 模式预览（商品质量分）</a></li>
-      <li><a href="/iframe-test?path={sample_doc}&render=markdown">Markdown 模式预览</a></li>
+      <li><a href="/iframe-test?path={sample_doc}&mode=page">page 模式预览（商品质量分）</a></li>
+      <li><a href="/iframe-test?path={sample_doc}&mode=llms">llms 模式预览</a></li>
     </ul>
   </section>
 
   <section>
-    <h2>通道 B：SSO 全页 <span class="badge">docsAuth</span></h2>
+    <h2>全页 SSO <span class="badge">docsAuth</span></h2>
     <ul>
       <li><a href="/docsAuth?redirect=/docs">/docsAuth?redirect=/docs</a></li>
       <li><a href="/api/docsAuth?redirect=/docs">/api/docsAuth?redirect=/docs</a></li>
@@ -354,20 +274,11 @@ def index() -> str:
   </section>
 
   <section>
-    <h2>通道 A 方案 A：docsAuth + render <span class="badge">新增分支</span></h2>
-    <p><code>render=html</code> 走 <code>/embed/docs/...</code> 极简 React 布局，与文档站渲染完全一致（FieldTreeTable/Mermaid/Tabs 均可交互）。</p>
+    <h2>嵌入 <span class="badge">docsContent</span></h2>
+    <p><code>mode=page|llms</code> 均返回文档站 iframe URL（Query 登录包），前端直连文档站。</p>
     <ul>
-      <li><a href="/docsAuth?redirect={sample_doc}&render=markdown">render=markdown</a></li>
-      <li><a href="/docsAuth?redirect={sample_doc}&render=html">render=html（完整 React 渲染）</a></li>
-    </ul>
-  </section>
-
-  <section>
-    <h2>通道 A 方案 B：独立 docsContent <span class="badge">新接口</span></h2>
-    <p>同上，<code>render=html</code> 走完整 React 渲染；魔方建议使用 <code>iframe src</code> 直连（非 srcdoc），以确保 <code>_next/static</code> 正确加载。</p>
-    <ul>
-      <li><a href="/docsContent?path={sample_doc}&render=markdown">render=markdown</a></li>
-      <li><a href="/docsContent?path={sample_doc}&render=html">render=html（完整 React 渲染）</a></li>
+      <li><a href="/docsContent?path={sample_doc}&mode=llms">mode=llms</a></li>
+      <li><a href="/docsContent?path={sample_doc}&mode=page">mode=page</a></li>
     </ul>
   </section>
 
@@ -384,8 +295,8 @@ def index() -> str:
   <section>
     <h2>curl 示例</h2>
     <p><code>curl -sI '{sample_auth}'</code></p>
-    <p><code>curl -s '{CUBE_BASE_HOST}/docsContent?path={sample_doc}&render=markdown'</code></p>
-    <p><code>curl -s '{CUBE_BASE_HOST}/docsContent?path={sample_doc}&render=html' | head -30</code></p>
+    <p><code>curl -s '{CUBE_BASE_HOST}/docsContent?path={sample_doc}&mode=llms'</code></p>
+    <p><code>curl -s '{CUBE_BASE_HOST}/docsContent?path={sample_doc}&mode=page' | head -30</code></p>
   </section>
 </body>
 </html>"""
@@ -394,56 +305,46 @@ def index() -> str:
 @app.get("/iframe-test", response_class=HTMLResponse)
 def iframe_test(
     path: str = Query(
-        "/docs/connectors/rpa-conn-qianniu-all/rpa-conn-qianniu-item-quality-score-list",
+        "/docs/rpa/RPA_QIANNIU/rpa-conn-qianniu-item-quality-score-list",
         description="文档站内相对路径",
     ),
-    render: str = Query("html", description="html | markdown"),
-    auth: str = Query("header", description="header | query — 文档站鉴权传参方式"),
+    mode: str = Query("page", description="page | llms"),
 ) -> str:
-    """
-    iframe 嵌入测试页：html / markdown 均通过 <iframe src="..."> 加载。
-    - Query 鉴权：iframe 直连文档站 signed URL
-    - Header 鉴权：iframe 加载同源 /docsContent BFF 代理
-    markdown 在 iframe 内为浏览器原生展示的纯文本（非渲染后的 HTML）。
-    """
-    content_resp = fetch_embed_content(path, render, auth_via_query=(auth == "query"))
+    """iframe 嵌入测试：page / llms 均 iframe src 直连文档站 Query URL。"""
+    iframe_src = build_signed_docs_embed_url(path, mode) if mode in ("page", "llms") else ""
+    content_resp = fetch_embed_content(path, mode) if iframe_src else Response(content=b"invalid mode", status_code=400)
     raw_body = content_resp.body.decode("utf-8", errors="replace") if isinstance(content_resp.body, bytes) else ""
     status = content_resp.status_code
-
-    iframe_src = build_iframe_src(path, render, auth) if status == 200 else ""
 
     if status != 200:
         preview_html = f"""<div style="padding:1rem;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;color:#991b1b">
   <strong>错误 {status}</strong>
   <pre style="margin:.5rem 0 0;font-size:.85em;white-space:pre-wrap">{raw_body}</pre>
 </div>"""
+        iframe_src = ""
     else:
         preview_html = f"""<iframe
   src="{iframe_src.replace('"', "&quot;")}"
   style="width:100%;min-height:600px;border:1px solid #e5e7eb;border-radius:8px;background:#fff"
   title="文档嵌入预览"
-  referrerpolicy="no-referrer"
 ></iframe>"""
 
     all_docs = [
-        "/docs/connectors/rpa-conn-qianniu-all/rpa-conn-qianniu-item-quality-score-list",
-        "/docs/connectors/rpa-conn-qianniu-all/rpa-conn-qianniu-item-price-discount-list",
-        "/docs/connectors/rpa-conn-pinduoduo-all/rpa-conn-pinduoduo-jinbao-order-detail",
-        "/docs/connectors/rpa-conn-sycm-all/rpa-conn-sycm-flow-shop-source",
-        "/docs/connectors/rpa-conn-doudian-all/rpa-conn-doudian-im-aftersale-retention",
-        "/docs/connectors/rpa-conn-alimm-all/rpa-conn-alimm-tblm-home-overview",
-        "/docs/connectors/rpa-conn-qianniu-all",
-        "/docs",
+        "/docs/rpa/RPA_QIANNIU/rpa-conn-qianniu-item-quality-score-list",
+        "/docs/rpa/RPA_QIANNIU/rpa-conn-qianniu-item-price-discount-list",
+        "/docs/rpa/RPA_PINDUODUO/rpa-conn-pinduoduo-jinbao-order-detail",
+        "/docs/rpa/RPA_SYCM/rpa-conn-sycm-flow-shop-source",
+        "/docs/rpa/RPA_DOUDIAN/rpa-conn-doudian-im-aftersale-retention",
+        "/docs/rpa/RPA_QIANNIU",
+        "/docs/rpa",
     ]
 
     option_rows = "\n".join(
         f'<option value="{p}"{" selected" if p == path else ""}>{p}</option>'
         for p in all_docs
     )
-    render_md = "selected" if render == "markdown" else ""
-    render_html = "selected" if render == "html" else ""
-    auth_header = "selected" if auth != "query" else ""
-    auth_query = "selected" if auth == "query" else ""
+    mode_llms = "selected" if mode == "llms" else ""
+    mode_page = "selected" if mode == "page" else ""
     iframe_src_meta = (
         f'<span>·</span><span>iframe src：<code>{iframe_src}</code></span>'
         if iframe_src
@@ -495,28 +396,20 @@ def iframe_test(
       <h1>📄 iframe 嵌入测试</h1>
       <label>文档路径</label>
       <select name="path">{option_rows}</select>
-      <label>格式</label>
-      <select name="render" style="min-width:7rem;flex:none">
-        <option value="html" {render_html}>HTML</option>
-        <option value="markdown" {render_md}>Markdown</option>
-      </select>
-      <label>鉴权</label>
-      <select name="auth" style="min-width:7rem;flex:none">
-        <option value="header" {auth_header}>Header</option>
-        <option value="query" {auth_query}>Query</option>
+      <label>模式</label>
+      <select name="mode" style="min-width:7rem;flex:none">
+        <option value="page" {mode_page}>page</option>
+        <option value="llms" {mode_llms}>llms</option>
       </select>
       <button type="submit">加载</button>
       <a href="/" style="color:#94a3b8;text-decoration:none;font-size:.8rem;white-space:nowrap">← 返回首页</a>
     </div>
-    {'<div style="padding:.4rem 1.25rem;background:#fef9c3;border-bottom:1px solid #fde047;font-size:.8rem;color:#854d0e"><strong>⚠️ render=html 不支持 BFF Header 代理模式</strong>：render=html 返回完整 React 页面（含 _next/static 资源引用），BFF 代理（Header 拉取再 srcdoc 或透传）会导致浏览器从 BFF 域加载 _next/static → 404。<strong>必须使用 iframe src 直连文档站 Query 签名 URL</strong>，魔方 BFF 只需生成签名 URL 并传给前端即可。此 Mock 已自动对 html 使用 Query 直连。</div>' if render == 'html' else ''}
     <div class="meta">
-      <span>通道 A（BFF 嵌入）</span>
+      <span>嵌入（iframe 直连）</span>
       <span>·</span>
       <span>路径：<code>{path}</code></span>
       <span>·</span>
-      <span>格式：<code>{render}</code></span>
-      <span>·</span>
-      <span>鉴权：<code>{'query（html 强制）' if render == 'html' else auth}</code></span>
+      <span>模式：<code>{mode}</code></span>
       <span>·</span>
       <span class="{'badge-ok' if status == 200 else 'badge-err'}">HTTP {status}</span>
       {iframe_src_meta}
@@ -529,52 +422,6 @@ def iframe_test(
 </html>"""
 
 
-ALLOWED_IMAGE_EXTS = frozenset({"png", "jpg", "jpeg", "gif", "webp", "svg"})
-
-
-@app.get("/docsResources")
-def docs_resources(
-    path: str = Query(..., description="相对 content/docs/ 的图片路径"),
-) -> Response:
-    """
-    模拟魔方图片代理：浏览器带 Mock 会话（本 Mock 不校验 Cookie，仅作联调）。
-    回源文档站 /resources/images/{path}，PATH 参与 BFF HMAC。
-    """
-    normalized = posixpath.normpath(path.strip())
-    if normalized.startswith("..") or path.strip().startswith("/"):
-        return Response(content="forbidden", status_code=403, media_type="text/plain")
-    ext = normalized.rsplit(".", 1)[-1].lower() if "." in normalized else ""
-    if ext not in ALLOWED_IMAGE_EXTS:
-        return Response(content="forbidden", status_code=403, media_type="text/plain")
-
-    resource_path = f"/resources/images/{normalized}"
-    timestamp = int(time.time() * 1000)
-    sh = sha256_hex(APP_SECRET)
-    sg = bff_signature("GET", resource_path, timestamp, APP_SECRET)
-    docs_url = f"{DOCS_BASE_URL.rstrip('/')}{resource_path}"
-    headers = {
-        "X-Cube-Secret-Hash": sh,
-        "X-Cube-Timestamp": str(timestamp),
-        "X-Cube-Signature": sg,
-        "X-Cube-Origin": CUBE_BASE_HOST.rstrip("/"),
-    }
-    try:
-        resp = httpx.get(docs_url, headers=headers, follow_redirects=False, timeout=15.0)
-    except Exception as exc:
-        return Response(
-            content=f"回源文档站失败：{exc}",
-            status_code=502,
-            media_type="text/plain; charset=utf-8",
-        )
-    content_type = resp.headers.get("content-type", "application/octet-stream")
-    return Response(
-        content=resp.content,
-        status_code=resp.status_code,
-        media_type=content_type,
-        headers={"Cache-Control": "private, no-store"},
-    )
-
-
 @app.get("/health")
 def health() -> dict[str, Any]:
     return {
@@ -583,6 +430,56 @@ def health() -> dict[str, Any]:
         "docsBaseUrl": DOCS_BASE_URL,
         "cubeBaseHost": CUBE_BASE_HOST,
     }
+
+
+@app.get("/open/oidc/userInfoByAuth")
+@app.get("/api/open/oidc/userInfoByAuth")
+def user_info_by_auth(
+    ed: str = Query(""),
+    sh: str = Query(""),
+    sg: str = Query(""),
+    tm: str = Query(""),
+    isSaas: Optional[str] = Query(None),
+) -> JSONResponse:
+    """最小用户中心：按 App Secret 校验登录包并返回用户。"""
+    if not ed or not sh or not sg or not tm:
+        return JSONResponse({"success": False, "code": "400", "msg": "missing login pack", "data": {}})
+    try:
+        timestamp = int(tm)
+    except ValueError:
+        return JSONResponse({"success": False, "code": "400", "msg": "bad tm", "data": {}})
+    if abs(int(time.time() * 1000) - timestamp) > 180_000:
+        return JSONResponse({"success": False, "code": "401", "msg": "timestamp expired", "data": {}})
+    expected_sh = sha256_hex(APP_SECRET)
+    if sh != expected_sh:
+        return JSONResponse({"success": False, "code": "401", "msg": "unknown secret hash", "data": {}})
+    expected_sg = sha256_hex(f"{ed}{timestamp}{APP_SECRET}")
+    if sg != expected_sg:
+        return JSONResponse({"success": False, "code": "401", "msg": "bad signature", "data": {}})
+    try:
+        payload = json.loads(aes_ecb_decrypt(ed, APP_SECRET))
+    except Exception:
+        return JSONResponse({"success": False, "code": "401", "msg": "bad payload", "data": {}})
+    user_name = str(payload.get("userName") or MOCK_USER)
+    cube_origin = str(payload.get("cubeOrigin") or CUBE_BASE_HOST).rstrip("/")
+    return JSONResponse(
+        {
+            "success": True,
+            "code": "200",
+            "msg": "ok",
+            "data": {
+                "userId": "mock-user-1",
+                "userName": user_name,
+                "name": user_name,
+                "tenantId": "tenant-mock-1",
+                "orgId": "org-mock-1",
+                "mobile": "",
+                "email": "",
+                "cubeOrigin": cube_origin,
+            },
+            "extraInfo": {"isSaas": isSaas, "cubeOrigin": cube_origin},
+        }
+    )
 
 
 @app.get("/logout")
@@ -609,55 +506,32 @@ def cube_logout(
 @app.get("/api/docsAuth")
 def docs_auth(
     redirect: str = Query("/", description="文档站内相对路径"),
-    render: Optional[str] = Query(None, description="html | markdown → 嵌入分支；空 / redirect → SSO 分支"),
+    mode: Optional[str] = Query(None, description="禁止传入；嵌入请用 docsContent"),
+    render: Optional[str] = Query(None, description="已废弃；嵌入请用 docsContent?mode="),
 ) -> Any:
-    """
-    方案 A：扩展现有 docsAuth，通过 render 参数区分 SSO 全页和 BFF 嵌入。
-
-    - render 未传 / render=redirect → 通道 B：SSO 302 callback（原有流程）
-    - render=html / render=markdown → 通道 A：BFF 服务端拉取文档正文
-    """
-    if render in ("html", "markdown"):
-        # 嵌入分支：魔方服务端拉取文档站内容
-        if not redirect.startswith("/"):
-            return Response(
-                content=json.dumps({"error": "非法 redirect 路径"}),
-                status_code=400,
-                media_type="application/json",
-            )
-        return fetch_embed_content(redirect, render)
-    # SSO 分支（原有流程）
+    if mode or render:
+        return JSONResponse(
+            {"error": "docsAuth 仅用于全页 SSO，嵌入请使用 docsContent?mode=page|llms"},
+            status_code=400,
+        )
     return _docs_auth_redirect(redirect)
 
 
 @app.get("/docsContent")
 @app.get("/api/docsContent")
 def docs_content(
-    path: str = Query(..., description="文档站内相对路径，如 /docs/connectors/foo"),
-    render: str = Query("html", description="html | markdown"),
-    auth: str = Query("header", description="header | query — 文档站鉴权传参方式"),
+    path: str = Query(..., description="文档站内相对路径，如 /docs/rpa/RPA_QIANNIU/foo"),
+    mode: str = Query("page", description="page | llms"),
 ) -> Any:
-    """
-    方案 B：独立 docsContent 接口，仅负责嵌入拉取（通道 A）。
-    职责单一：docsAuth = SSO 全页；docsContent = 读文档正文。
-    """
     if not path.startswith("/"):
-        return Response(
-            content=json.dumps({"error": "非法 path 路径"}),
-            status_code=400,
-            media_type="application/json",
-        )
-    if render not in ("html", "markdown"):
-        return Response(
-            content=json.dumps({"error": "render 参数须为 html 或 markdown"}),
-            status_code=400,
-            media_type="application/json",
-        )
-    return fetch_embed_content(path, render, auth_via_query=(auth == "query"))
+        return JSONResponse({"error": "非法 path 路径"}, status_code=400)
+    if mode not in ("page", "llms"):
+        return JSONResponse({"error": "mode 参数须为 page 或 llms"}, status_code=400)
+    return JSONResponse({"url": build_signed_docs_embed_url(path, mode)})
 
 
 def main() -> None:
-    print("Mock Cube SSO (docsAuth + logout)")
+    print("Mock Cube SSO (docsAuth + docsContent + userInfoByAuth)")
     print(f"  listen       http://{HOST}:{PORT}")
     print(f"  cube origin  {CUBE_BASE_HOST}")
     print(f"  docs base    {DOCS_BASE_URL}")

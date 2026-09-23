@@ -4,7 +4,7 @@ import { getEffectiveDocAccess } from '@/lib/docs/access/docs-access-effective';
 import { getDocsSearchApi } from '@/lib/docs/search/docs-search-server';
 import type { SearchTag } from '@/lib/docs/search/search-tags';
 import { filterSearchByScope, type SearchScope } from '@/lib/docs/search/search-utils';
-import { getLLMText, source } from '@/lib/docs/source/source';
+import { docUpdatedAt, getLLMText, readDocsPage, source } from '@/lib/docs/source/source';
 import { getPageBacklinks, getPageReferences } from '@/lib/docs/doc-references';
 import { docsRoute } from '@/lib/core/shared';
 import { matchesListPageFilters } from '@/lib/docs/list-page-filters';
@@ -91,7 +91,7 @@ WHEN TO USE: When you know the EXACT docs URL path (e.g. "${docsRoute}/some/page
 WHEN NOT TO USE: If you don't know the path, use list_docs or search_docs first. If you only need headings/structure, use get_docs_meta (token-efficient).
 
 Returns title, description, path, url, and content (processed markdown / LLM-oriented text).
-Image src values are content/docs-relative paths (e.g. rpa/_public/images/foo.png), not HTTP URLs.`;
+Image src values are short-lived signed docs URLs (SITE_ORIGIN/resources/images/...?sign=). Fetch them directly; there is no get_docs_image tool.`;
 
 export type DocToolTextResult = { ok: true; text: string } | { ok: false; text: string };
 
@@ -167,7 +167,6 @@ export async function getDocumentationPage(
 
   const content = await getLLMText(page, {
     siteOrigin,
-    docsRelativeImagePaths: true,
   });
   const base = siteOrigin.replace(/\/$/, '');
   const payload = {
@@ -423,6 +422,7 @@ export async function getDocumentationPageMeta(
 
   const base = siteOrigin.replace(/\/$/, '');
   const data = page.data as DocPageMetaFields;
+  const loaded = await readDocsPage(page);
 
   const payload = {
     title: page.data.title,
@@ -432,8 +432,8 @@ export async function getDocumentationPageMeta(
     entry: data.entry ?? null,
     tags: data.tags ?? null,
     badge: data.badge ?? null,
-    toc: serializeTocForMeta(data.toc),
-    lastModified: data.lastModified ?? null,
+    toc: serializeTocForMeta(loaded.toc),
+    lastModified: loaded.lastModified ?? docUpdatedAt(page) ?? null,
     dataReady: data.dataReady ?? null,
     estimatedDuration: data.estimatedDuration ?? null,
     minInterval: data.minInterval ?? null,

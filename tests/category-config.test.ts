@@ -149,6 +149,16 @@ describe('category-config', () => {
     assert.equal(path[0]?.icon?.comp, 'ICO_ALIMM_DMP');
   });
 
+  it('decodes percent-encoded folder names for display', () => {
+    const seg = resolveFolderSegment(
+      '%E4%B8%87%E7%9B%B8%E5%8F%B0_WANXIANGTAI',
+      { axis: { title: '分类' } },
+      undefined,
+    );
+    assert.equal(seg.slug, '%E4%B8%87%E7%9B%B8%E5%8F%B0_WANXIANGTAI');
+    assert.equal(seg.item, '万相台_WANXIANGTAI');
+  });
+
   it('prefers category.item over title', () => {
     const seg = resolveFolderSegment('DMP', { axis: { title: '子平台' } }, {
       category: { item: '达摩盘/DMP' },

@@ -20,6 +20,8 @@ export type AISearchContextValue = {
   /** 关窗期间生成完成的提示状态 */
   backgroundNotify: AISearchBackgroundNotify;
   modelDisplayName?: string;
+  /** 服务端传入：当前模型是否支持视觉输入 */
+  visionEnabled: boolean;
   /** IndexedDB 已就绪，可发送消息 */
   chatBooted: boolean;
   /** IndexedDB 初始化失败的错误信息 */

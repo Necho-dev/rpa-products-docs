@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-# 一镜像两容器：检查主仓 / auth submodule，有更新则一次 build 并滚动 intranet + production。
+# 一镜像两容器：检查主仓 / auth、API 文档 submodule，有更新则一次 build 并滚动 intranet + production。
 # 默认仓库根 = 本脚本的 ../.. ；1Panel 可设 DEPLOY_PATH。
 # 不调用仓库根 scripts/deplpy.sh。
 # --force：跳过 Git 更新检查，按当前工作区直接构建启动（首次配置 / 手动重建）。
@@ -16,11 +16,11 @@ usage() {
   cat <<'EOF'
 用法: deploy.sh [--force]
 
-  默认      仅当主仓或 auth submodule 相对 origin 有更新时才构建
+  默认      仅当主仓或 auth / API 文档 submodule 相对 origin 有更新时才构建
   --force   跳过 Git 更新检查，按当前工作区构建并启动两个容器
             （首次配置、或本地/服务器上手动重建）
 
-环境变量: DEPLOY_PATH  BRANCH  AUTH_BRANCH  HEALTH_WAIT_SECONDS
+环境变量: DEPLOY_PATH  BRANCH  AUTH_BRANCH  API_DOCS_BRANCH  HEALTH_WAIT_SECONDS
 EOF
 }
 
@@ -44,7 +44,18 @@ done
 
 SUBMODULES=(
   "content/docs/auth|${AUTH_BRANCH:-main}"
+  ".vendor/dc-knowledge|${API_DOCS_BRANCH:-master}"
 )
+
+# 按 .vendor/mounts 稀疏检出并挂载。新克隆时把 NEED_UPDATE 置 1。
+sync_vendor() {
+  local out
+  out="$(bash "$REPO_ROOT/scripts/sync-vendor.sh")"
+  if [ "$out" = "initialized" ]; then
+    log ".vendor 子模块是新克隆的，将构建镜像"
+    NEED_UPDATE=1
+  fi
+}
 
 log() { echo ">>> $*" >&2; }
 log_sentry() { echo ">>> [Sentry] $*" >&2; }
@@ -263,6 +274,7 @@ MAIN_CHANGED=0
 
 if [ "$FORCE" -eq 1 ]; then
   log "--force：跳过 Git 更新检查，按当前工作区构建"
+  sync_vendor
   git submodule update --init --recursive
   export_compose_build_env
   NEED_UPDATE=1
@@ -274,6 +286,7 @@ else
   fi
 
   git fetch origin "$BRANCH"
+  sync_vendor
   git submodule update --init --recursive
 
   export_compose_build_env
@@ -326,6 +339,7 @@ if [ "$NEED_UPDATE" -eq 1 ]; then
     done
   fi
 
+  sync_vendor
   log "一次构建镜像并滚动更新 intranet + production"
   reserve_previous_image
   compose up -d --build

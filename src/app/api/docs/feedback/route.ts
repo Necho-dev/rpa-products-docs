@@ -4,7 +4,7 @@ import { isValidCubeOrigin } from '@/lib/auth/cube';
 import { readCubeOriginFromCookieHeader } from '@/lib/auth/session';
 import { inferSiteOrigin } from '@/lib/core/site-origin';
 import { docFeedbackWebhookUrl, isDocFeedbackEnabled } from '@/lib/docs/feedback/config';
-import { isDocFeedbackReason } from '@/lib/docs/feedback/reasons';
+import { isAllowedDocFeedbackReason } from '@/lib/docs/feedback/reasons';
 import type { DocFeedbackSource } from '@/lib/docs/feedback/types';
 import { sanitizeWebhookTextField } from '@/lib/docs/feedback/webhook-text';
 import { headers } from 'next/headers';
@@ -40,9 +40,9 @@ function parseBody(body: unknown): {
   } catch {
     return null;
   }
-  if (!isDocFeedbackReason(reason)) return null;
   if (description && description.length > MAX_DESCRIPTION) return null;
-  if (source !== 'selection' && source !== 'document') return null;
+  if (source !== 'selection' && source !== 'document' && source !== 'page') return null;
+  if (!isAllowedDocFeedbackReason(source, reason)) return null;
 
   return {
     errorContent,

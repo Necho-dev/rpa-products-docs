@@ -22,6 +22,8 @@ import { idbGetHighlightById, type DocHighlight } from '@/lib/docs/selection/hig
 import { useAISearchContext } from '@/components/ai/ai-search-context';
 import { AISearchWelcome } from '@/components/ai/ai-search-welcome';
 import { useDocPeek } from '@/components/docs/doc-peek-context';
+import { ChatMessageImages } from '@/components/ai/ai-composer-images';
+import { chatImageLightboxSrc, chatImagePreviewSrc, isFigureCaptionText } from '@/lib/ai/chat-vision';
 
 /** 行内 code（排除 pre 代码块），字号略小于正文以协调等宽字体视觉偏大 */
 const aiChatInlineCodeClass = cn(
@@ -703,6 +705,7 @@ function Message({ message, ...props }: { message: InkeepUIMessage } & Component
   const segments: ReactNode[] = [];
   let textBuf = '';
   let linksFallback: z.infer<typeof ProvideLinksToolSchema>['links'] = [];
+  const attachedImages: Array<{ src: string; alt?: string; lightboxSrc?: string }> = [];
 
   const flushText = () => {
     if (textBuf.length === 0) return;
@@ -718,11 +721,24 @@ function Message({ message, ...props }: { message: InkeepUIMessage } & Component
 
   for (const part of message.parts ?? []) {
     if (part.type === 'text') {
+      if (isUser && isFigureCaptionText(part.text)) continue;
       textBuf += part.text;
       continue;
     }
 
     if (part.type === 'data-client') {
+      continue;
+    }
+
+    if (part.type === 'data-image') {
+      const src = chatImagePreviewSrc(part.data ?? {});
+      if (src) {
+        attachedImages.push({
+          src,
+          alt: part.data?.alt,
+          lightboxSrc: chatImageLightboxSrc(part.data ?? {}) ?? src,
+        });
+      }
       continue;
     }
 
@@ -748,7 +764,7 @@ function Message({ message, ...props }: { message: InkeepUIMessage } & Component
 
   /** Plain text of the full assistant reply, used for copy */
   const plainText = (message.parts ?? [])
-    .filter((p) => p.type === 'text')
+    .filter((p) => p.type === 'text' && !(isUser && isFigureCaptionText(p.text)))
     .map((p) => (p as { text: string }).text)
     .join('');
 
@@ -795,7 +811,10 @@ function Message({ message, ...props }: { message: InkeepUIMessage } & Component
           ) : null}
         </div>
         {/* 消息内容（全宽无气泡） */}
-        <div className="min-w-0 flex flex-col gap-1.5 pl-0.5">{segments}</div>
+        <div className="min-w-0 flex flex-col gap-1.5 pl-0.5">
+          {attachedImages.length > 0 ? <ChatMessageImages images={attachedImages} /> : null}
+          {segments}
+        </div>
       </div>
     );
   }

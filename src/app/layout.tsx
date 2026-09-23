@@ -29,6 +29,7 @@ import {
   getSiteDescription,
   getSiteName,
 } from '@/lib/core/knowledge-env';
+import { docsRootI18n } from '@/lib/docs/i18n-zh';
 
 /** 拉丁正文（本地 woff2，见 src/fonts） */
 const inter = localFont({
@@ -112,14 +113,7 @@ export default async function Layout({ children }: LayoutProps<'/'>) {
           <SearchTagsProvider tags={searchTags}>
           <RootProvider
             search={{ SearchDialog: DocsSearchDialog }}
-            i18n={{
-              locale: 'zh-CN',
-              translations: {
-                search: '搜索文档内容…',
-                toc: '目录',
-                lastUpdate: '最后更新于',
-              },
-            }}
+            i18n={docsRootI18n}
           >
             <DocumentTitleDefault defaultTitle={siteName} />
             {children}

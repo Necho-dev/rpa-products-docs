@@ -12,7 +12,7 @@ import { getOrCreateOgPng, ogCacheKey } from '@/lib/docs/og/runtime-cache';
 import { OgCoverCard, COVER_HEIGHT, COVER_WIDTH } from '@/lib/docs/og/template-cover';
 import { OgShareCard } from '@/lib/docs/og/template-card';
 import { OgSharePoster } from '@/lib/docs/og/template-poster';
-import { source } from '@/lib/docs/source/source';
+import { docUpdatedAt, source } from '@/lib/docs/source/source';
 import { inferSiteOrigin } from '@/lib/core/site-origin';
 import { notFound } from 'next/navigation';
 import { ImageResponse } from 'next/og';
@@ -67,7 +67,7 @@ export async function GET(
     variant: fileName,
     origin,
     pageUrl: page.url,
-    fingerprint: fingerprint(page),
+    fingerprint: fingerprint({ data: { lastModified: docUpdatedAt(page) } }),
   });
 
   const body = await getOrCreateOgPng({

@@ -31,7 +31,7 @@ export const runtime = 'nodejs';
  *
  * 安全限制：只允许访问图片扩展名文件，防止 .md / .json 等文档源码泄露。
  * 鉴权见 `authorizeDocsImageRequest`
- *（公开前缀 / 嵌入 HMAC / Session）
+ *（公开前缀 / `?sign=` / Session）
  */
 const DOCS_BASE_DIR = join(process.cwd(), 'content', 'docs');
 
@@ -82,7 +82,7 @@ export async function GET(
       {
         error: 'unauthorized',
         message:
-          '访问资源需要登录会话或有效的嵌入签名',
+          '访问资源需要登录会话或有效的资源签名',
       },
       { status: 401, headers: { 'Content-Type': 'application/json; charset=utf-8' } },
     );
