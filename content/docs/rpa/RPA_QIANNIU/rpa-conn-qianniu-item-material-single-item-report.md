@@ -199,6 +199,90 @@ category: item
 | `baseInfo` @默认素材基础信息 | 素材基础信息 | `Dict` | 否 | 页面解析 | 见数据样例 |
 | `items` @默认素材关联商品 | 关联商品 | `List[Dict]` | 是 | 页面解析 | 见数据样例 |
 
+@define 账号信息
+| `accountName` | 账号名称 | `String` | 是 | 页面解析 | `****` (已脱敏) |
+| `avatar` | 头像 | `String` | 是 | 页面解析 | `https://img.alicdn.com/****` (已脱敏) |
+| `shopPictureUrl` | 店铺图片 | `String` | 是 | 页面解析 | `https://img.alicdn.com/****` (已脱敏) |
+| `shopTitle` | 店铺名称 | `String` | 是 | 页面解析 | `****` (已脱敏) |
+
+@define 自产素材基础信息
+| `contentId` | 素材 ID | `Number` | 是 | 页面解析 | `548****063` (已脱敏) |
+| `contentType` | 素材类型 | `String` | 否 | 页面解析 | `video` |
+| `cover` @封面 | 封面 | `Dict` | 是 | 页面解析 | 见数据样例 |
+| `createTime` | 创建时间 | `Number` | 是 | 页面解析 | `1767075896370` |
+| `pictures` @图片 | 图片列表 | `List[Dict]` | 是 | 页面解析 | 见数据样例 |
+| `publishTime` | 发布时间 | `Number` | 是 | 页面解析 | `1767075896370` |
+| `qualityLevel` | 质量等级 | `Number` | 是 | 页面解析 | `1` |
+| `qualityStatus` | 质量状态 | `Number` | 是 | 页面解析 | `2` |
+| `summary` | 素材摘要 | `String` | 是 | 页面解析 | `****` (已脱敏) |
+| `title` | 素材标题 | `String` | 是 | 页面解析 | `****` (已脱敏) |
+| `video` @视频 | 视频 | `Dict` | 是 | 页面解析 | 见数据样例 |
+
+@define 素材经营数据
+| `rcmdExpoUv` | 猜你喜欢曝光人数 | `Number` | 是 | 页面解析 | `2700` |
+| `rcmdExpoUvLast7d` | 近 7 日猜你喜欢曝光人数 | `Number` | 是 | 页面解析 | `304` |
+| `rcmdLeadPayOrdAmt` | 推荐引导支付金额 | `Number` | 是 | 页面解析 | `28.5` |
+| `rcmdLeadPayOrdCnt` | 推荐引导支付订单数 | `Number` | 是 | 页面解析 | `5` |
+| `rcmdNdUv` | 推荐全屏页浏览人数 | `Number` | 是 | 页面解析 | `111` |
+| `rcmdNdUvLast7d` | 近 7 日推荐全屏页浏览人数 | `Number` | 是 | 页面解析 | `14` |
+| `searchExpoUv` | 搜索曝光人数 | `Number` | 是 | 页面解析 | `0` |
+| `searchExpoUvLast7d` | 近 7 日搜索曝光人数 | `Number` | 是 | 页面解析 | `0` |
+| `searchLeadPayOrdAmt` | 搜索引导支付金额 | `Number` | 是 | 页面解析 | `0` |
+| `searchLeadPayOrdCnt` | 搜索引导支付订单数 | `Number` | 是 | 页面解析 | `0` |
+| `searchNdUv` | 搜索全屏页浏览人数 | `Number` | 是 | 页面解析 | `0` |
+| `searchNdUvLast7d` | 近 7 日搜索全屏页浏览人数 | `Number` | 是 | 页面解析 | `0` |
+| `statWindow` | 统计窗口 | `String` | 是 | 页面解析 | `30d` |
+
+@define 全屏页浏览
+| `actionLink` | 跳转链接 | `String` | 是 | 页面解析 | `https://sycm.taobao.com/****` (已脱敏) |
+| `actionLinkName` | 跳转名称 | `String` | 是 | 页面解析 | `生意参谋-流量-推荐分析` |
+| `ds` | 统计日期 | `String` | 是 | 页面解析 | `20260923` |
+| `value` | 全屏页浏览人数 | `String` | 是 | 页面解析 | `1` |
+
+@define 互动信息
+| `commentCount` | 评论数 | `Number` | 是 | 页面解析 | `95` |
+| `likeCount` | 点赞数 | `Number` | 是 | 页面解析 | `0` |
+| `ndPv1d` @全屏页浏览 | 全屏页浏览 | `Dict` | 是 | 页面解析 | 见数据样例 |
+| `pv1d` | 浏览次数 | `Number` | 是 | 页面解析 | `2` |
+
+@define 自产素材关联商品
+| `collectItem` | 是否收藏商品 | `Boolean` | 是 | 页面解析 | `false` |
+| `itemId` | 商品 ID | `Number` | 否 | 页面解析 | `960****165` (已脱敏) |
+| `itemTitle` | 商品标题 | `String` | 否 | 页面解析 | `****` (已脱敏) |
+| `mainItem` | 是否主商品 | `Boolean` | 是 | 页面解析 | `false` |
+| `picUrl` | 商品主图 | `String` | 是 | 页面解析 | `https://img.alicdn.com/****` (已脱敏) |
+| `price` | 价格 | `String` | 是 | 页面解析 | `39.0` |
+| `targetUrl` | 商品链接 | `String` | 是 | 页面解析 | `https://item.taobao.com/****` (已脱敏) |
+| `valid` | 是否有效 | `Boolean` | 是 | 页面解析 | `true` |
+
+@define 操作是否可用
+| `satisfied` | 是否可操作 | `Boolean` | 否 | 页面解析 | `true` |
+| `tips` | 操作提示 | `String` | 是 | 页面解析 | `单个素材只支持编辑1次` |
+
+@define 操作信息
+| `delete` @操作是否可用 | 删除 | `Dict` | 是 | 页面解析 | 见数据样例 |
+| `edit` @操作是否可用 | 编辑 | `Dict` | 是 | 页面解析 | 见数据样例 |
+| `promote` @操作是否可用 | 推广 | `Dict` | 是 | 页面解析 | 见数据样例 |
+
+@define 素材标签
+| `code` | 标签编码 | `String` | 是 | 页面解析 | `need_optimize` |
+| `description` | 标签说明 | `String` | 是 | 页面解析 | `该商品同店（含千牛、光合、商品素材）已存在相似素材，此素材不会获得流量扶持。建议生产更多原创素材。` |
+| `flagName` | 标签文案 | `String` | 是 | 页面解析 | `重复或图片有删除` |
+| `topLevelCode` | 上级标签编码 | `String` | 是 | 页面解析 | `need_optimize` |
+
+@define 标签信息
+| `tags` @素材标签 | 标签列表 | `List[Dict]` | 是 | 页面解析 | 见数据样例 |
+
+@define 自产单品素材
+| `accountInfo` @账号信息 | 账号信息 | `Dict` | 是 | 页面解析 | 见数据样例 |
+| `baseInfo` @自产素材基础信息 | 素材基础信息 | `Dict` | 否 | 页面解析 | 见数据样例 |
+| `bizData` @素材经营数据 | 经营数据 | `Dict` | 是 | 页面解析 | 见数据样例 |
+| `interactiveInfo` @互动信息 | 互动信息 | `Dict` | 是 | 页面解析 | 见数据样例 |
+| `items` @自产素材关联商品 | 关联商品 | `List[Dict]` | 是 | 页面解析 | 见数据样例 |
+| `operateInfo` @操作信息 | 操作信息 | `Dict` | 是 | 页面解析 | 见数据样例 |
+| `tagInfo` @标签信息 | 标签信息 | `Dict` | 是 | 页面解析 | 见数据样例 |
+| `taskInfoList` | 任务列表 | `List[Dict]` | 是 | 页面解析 | `[]` |
+
 | 字段 | 中文释义 | 数据类型 | 可为空 | 取数路径 | 示例 |
 | ---- | -------- | -------- | ------ | -------- | ---- |
 | `aigcPermission` @AIGC权限 | AIGC 权限 | `Dict` | 是 | 页面解析 | 见数据样例 |
@@ -215,11 +299,12 @@ category: item
 | `maxSlotLimit` | 发布坑位上限 | `Number` | 是 | 页面解析 | `9` |
 | `recommendItem` | 是否推荐商品 | `Boolean` | 是 | 页面解析 | `true` |
 | `selfContentCount` | 自产素材数 | `Number` | 是 | 页面解析 | `3` |
+| `selfContents` @自产单品素材 | 自产单品素材 | `List[Dict]` | 是 | 页面解析 | 见数据样例 |
 | `title` | 商品标题 | `String` | 否 | 页面解析 | `****` (已脱敏) |
-| `totalSale` | 累计销量 | `Number` | 是 | 页面解析 | `154894` |
+| `totalSale` | 累计销量 | `Number` | 是 | 页面解析 | `155558` |
 | `upShelf` | 是否上架 | `Boolean` | 是 | 页面解析 | `true` |
 | `itemTags` | 商品标签 | `List[Dict]` | 是 | 页面解析 | `—` |
-| `bizDate` | 业务日期 | `String` | 否 | 附加 | `20260921` |
+| `bizDate` | 业务日期 | `String` | 否 | 附加 | `20260924` |
 | `accountId` | 授权 ID | `String` | 否 | 附加 | `1****6` (已脱敏) |
 :::
 
@@ -368,11 +453,233 @@ category: item
   "maxSlotLimit": 9,
   "recommendItem": true,
   "selfContentCount": 3,
+  "selfContents": [
+    {
+      "accountInfo": {
+        "accountName": "****",
+        "avatar": "https://img.alicdn.com/****",
+        "shopPictureUrl": "https://img.alicdn.com/****",
+        "shopTitle": "****"
+      },
+      "baseInfo": {
+        "contentId": 548****063,
+        "contentType": "video",
+        "cover": {
+          "height": 1440,
+          "url": "https://img.alicdn.com/****",
+          "width": 1080
+        },
+        "createTime": 1767075896370,
+        "pictures": [],
+        "publishTime": 1767075896370,
+        "qualityLevel": 1,
+        "qualityStatus": 2,
+        "summary": "****",
+        "title": "****",
+        "video": {
+          "duration": 27,
+          "height": 1920,
+          "videoId": 548****063,
+          "width": 1080
+        }
+      },
+      "bizData": {
+        "rcmdExpoUv": 0,
+        "rcmdExpoUvLast7d": 0,
+        "rcmdLeadPayOrdAmt": 0,
+        "rcmdLeadPayOrdCnt": 0,
+        "rcmdNdUv": 0,
+        "rcmdNdUvLast7d": 0,
+        "searchExpoUv": 0,
+        "searchExpoUvLast7d": 0,
+        "searchLeadPayOrdAmt": 0,
+        "searchLeadPayOrdCnt": 0,
+        "searchNdUv": 0,
+        "searchNdUvLast7d": 0,
+        "statWindow": "30d"
+      },
+      "interactiveInfo": {
+        "commentCount": 95,
+        "likeCount": 0,
+        "ndPv1d": { "value": "0" },
+        "pv1d": 0
+      },
+      "items": [
+        {
+          "collectItem": false,
+          "itemId": 960****165,
+          "itemTitle": "****",
+          "mainItem": false,
+          "picUrl": "https://img.alicdn.com/****",
+          "price": "39.0",
+          "targetUrl": "https://item.taobao.com/****",
+          "valid": true
+        }
+      ],
+      "operateInfo": {
+        "delete": { "satisfied": true },
+        "edit": { "satisfied": true, "tips": "单个素材只支持编辑1次" },
+        "promote": { "satisfied": false, "tips": "仅精选素材可支持推广" }
+      },
+      "tagInfo": { "tags": [] },
+      "taskInfoList": []
+    },
+    {
+      "accountInfo": {
+        "accountName": "****",
+        "avatar": "https://img.alicdn.com/****",
+        "shopPictureUrl": "https://img.alicdn.com/****",
+        "shopTitle": "****"
+      },
+      "baseInfo": {
+        "contentId": 548****478,
+        "contentType": "video",
+        "cover": {
+          "height": 1440,
+          "url": "https://img.alicdn.com/****",
+          "width": 1080
+        },
+        "createTime": 1767075879190,
+        "pictures": [],
+        "publishTime": 1767075879190,
+        "qualityLevel": 1,
+        "qualityStatus": 2,
+        "summary": "****",
+        "title": "****",
+        "video": {
+          "duration": 31,
+          "height": 1920,
+          "videoId": 548****478,
+          "width": 1080
+        }
+      },
+      "bizData": {
+        "rcmdExpoUv": 135,
+        "rcmdExpoUvLast7d": 61,
+        "rcmdLeadPayOrdAmt": 0,
+        "rcmdLeadPayOrdCnt": 0,
+        "rcmdNdUv": 1,
+        "rcmdNdUvLast7d": 0,
+        "searchExpoUv": 0,
+        "searchExpoUvLast7d": 0,
+        "searchLeadPayOrdAmt": 0,
+        "searchLeadPayOrdCnt": 0,
+        "searchNdUv": 0,
+        "searchNdUvLast7d": 0,
+        "statWindow": "30d"
+      },
+      "interactiveInfo": {
+        "commentCount": 95,
+        "likeCount": 0,
+        "ndPv1d": {
+          "actionLink": "https://sycm.taobao.com/****",
+          "actionLinkName": "生意参谋-流量-推荐分析",
+          "ds": "20260923",
+          "value": "0"
+        },
+        "pv1d": 0
+      },
+      "items": [
+        {
+          "collectItem": false,
+          "itemId": 960****165,
+          "itemTitle": "****",
+          "mainItem": false,
+          "picUrl": "https://img.alicdn.com/****",
+          "price": "39.0",
+          "targetUrl": "https://item.taobao.com/****",
+          "valid": true
+        }
+      ],
+      "operateInfo": {
+        "delete": { "satisfied": true },
+        "edit": { "satisfied": true, "tips": "单个素材只支持编辑1次" },
+        "promote": { "satisfied": false, "tips": "仅精选素材可支持推广" }
+      },
+      "tagInfo": { "tags": [] },
+      "taskInfoList": []
+    },
+    {
+      "accountInfo": {
+        "accountName": "****",
+        "avatar": "https://img.alicdn.com/****",
+        "shopPictureUrl": "https://img.alicdn.com/****",
+        "shopTitle": "****"
+      },
+      "baseInfo": {
+        "contentId": 548****319,
+        "contentType": "video",
+        "cover": {
+          "height": 1440,
+          "url": "https://img.alicdn.com/****",
+          "width": 1080
+        },
+        "createTime": 1767075861296,
+        "pictures": [],
+        "publishTime": 1767075861296,
+        "qualityLevel": 1,
+        "qualityStatus": 2,
+        "summary": "****",
+        "title": "****",
+        "video": {
+          "duration": 34,
+          "height": 1920,
+          "videoId": 548****319,
+          "width": 1080
+        }
+      },
+      "bizData": {
+        "rcmdExpoUv": 2700,
+        "rcmdExpoUvLast7d": 304,
+        "rcmdLeadPayOrdAmt": 28.5,
+        "rcmdLeadPayOrdCnt": 5,
+        "rcmdNdUv": 111,
+        "rcmdNdUvLast7d": 14,
+        "searchExpoUv": 0,
+        "searchExpoUvLast7d": 0,
+        "searchLeadPayOrdAmt": 0,
+        "searchLeadPayOrdCnt": 0,
+        "searchNdUv": 0,
+        "searchNdUvLast7d": 0,
+        "statWindow": "30d"
+      },
+      "interactiveInfo": {
+        "commentCount": 95,
+        "likeCount": 0,
+        "ndPv1d": {
+          "actionLink": "https://sycm.taobao.com/****",
+          "actionLinkName": "生意参谋-流量-推荐分析",
+          "ds": "20260923",
+          "value": "1"
+        },
+        "pv1d": 2
+      },
+      "items": [
+        {
+          "collectItem": false,
+          "itemId": 960****165,
+          "itemTitle": "****",
+          "mainItem": false,
+          "picUrl": "https://img.alicdn.com/****",
+          "price": "39.0",
+          "targetUrl": "https://item.taobao.com/****",
+          "valid": true
+        }
+      ],
+      "operateInfo": {
+        "delete": { "satisfied": true },
+        "edit": { "satisfied": true, "tips": "单个素材只支持编辑1次" },
+        "promote": { "satisfied": false, "tips": "仅精选素材可支持推广" }
+      },
+      "tagInfo": { "tags": [] },
+      "taskInfoList": []
+    }
+  ],
   "title": "****",
-  "totalSale": 154894,
+  "totalSale": 155558,
   "upShelf": true,
   "itemTags": null,
-  "bizDate": "20260921",
+  "bizDate": "20260924",
   "accountId": "1****6"
 }
 ```
