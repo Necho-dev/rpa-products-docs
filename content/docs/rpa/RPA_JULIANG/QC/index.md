@@ -3,6 +3,9 @@ title: 巨量千川
 icon: ICO_JULIANG_QC
 description: 覆盖巨量千川素材分析、品牌投放等场景的连接器
 entry: RPA_JULIANG_QC
+references:
+  - path: /docs/auth/YUCE_RPA/RPA_JULIANG/QC
+    kind: dependency
 category:
   slug: qc
   icon:
@@ -21,6 +24,14 @@ loginOptions:
   - text: 千川ID
     icon: Binary
   - type: sms
+:::
+
+:::references
+path: /docs/auth/YUCE_RPA/RPA_JULIANG/QC
+mode: summary
+prompt:
+  label: 请提前完成授权配置
+  type: warning
 :::
 
 ## 内含连接器

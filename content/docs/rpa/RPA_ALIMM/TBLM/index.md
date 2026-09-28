@@ -4,7 +4,7 @@ icon: ICO_ALIMM_TBLM
 description: 覆盖阿里妈妈淘宝联盟商家中心、推广概览等场景的连接器
 entry: RPA_ALIMM_TBLM
 references:
-  - path: /docs/auth/YUCE_RPA/RPA_ALIMM
+  - path: /docs/auth/YUCE_RPA/RPA_ALIMM/TBLM
     kind: dependency
 category:
   slug: tblm
@@ -25,7 +25,7 @@ loginOptions:
 :::
 
 :::references
-path: /docs/auth/YUCE_RPA/RPA_ALIMM
+path: /docs/auth/YUCE_RPA/RPA_ALIMM/TBLM
 mode: summary
 prompt:
   label: 请提前完成授权配置

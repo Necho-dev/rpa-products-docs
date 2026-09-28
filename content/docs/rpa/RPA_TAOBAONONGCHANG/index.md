@@ -3,6 +3,9 @@ title: 淘宝农场
 icon: ICO_TAOBAONONGCHANG
 description: 覆盖淘宝农场商业托管商品推广等场景的连接器
 entry: RPA_TAOBAONONGCHANG
+references:
+  - path: /docs/auth/YUCE_RPA/RPA_TAOBAONONGCHANG
+    kind: dependency
 category:
   slug: taobao
   icon:
@@ -18,6 +21,14 @@ requireLogin: true
 loginOptions:
   - text: 账号+密码
     icon: CircleUserRound
+:::
+
+:::references
+path: /docs/auth/YUCE_RPA/RPA_TAOBAONONGCHANG
+mode: summary
+prompt:
+  label: 请提前完成授权配置
+  type: warning
 :::
 
 ## 内含连接器

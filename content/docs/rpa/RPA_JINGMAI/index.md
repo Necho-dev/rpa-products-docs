@@ -3,6 +3,9 @@ title: 京麦商家后台
 icon: ICO_JINGMAI
 description: 覆盖京麦平台财务、物流、京慧等场景的连接器
 entry: RPA_JINGMAI
+references:
+  - path: /docs/auth/YUCE_RPA/RPA_JINGMAI
+    kind: dependency
 category:
   slug: jingdong
   icon:
@@ -19,6 +22,14 @@ loginOptions:
   - text: 账号+密码
     icon: CircleUserRound
   - type: sms
+:::
+
+:::references
+path: /docs/auth/YUCE_RPA/RPA_JINGMAI
+mode: summary
+prompt:
+  label: 请提前完成授权配置
+  type: warning
 :::
 
 ## 内含连接器

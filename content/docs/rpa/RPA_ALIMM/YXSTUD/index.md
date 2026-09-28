@@ -4,7 +4,7 @@ icon: ICO_ALIMM_YXSTUD
 description: 覆盖阿里妈妈营销生态UD进入 UD智汇投报表等场景的连接器
 entry: RPA_ALIMM_YXSTUD
 references:
-  - path: /docs/auth/YUCE_RPA/RPA_ALIMM
+  - path: /docs/auth/YUCE_RPA/RPA_ALIMM/YXSTUD
     kind: dependency
 category:
   slug: yxstud
@@ -27,7 +27,7 @@ loginOptions:
 :::
 
 :::references
-path: /docs/auth/YUCE_RPA/RPA_ALIMM
+path: /docs/auth/YUCE_RPA/RPA_ALIMM/YXSTUD
 mode: summary
 prompt:
   label: 请提前完成授权配置

@@ -3,6 +3,9 @@ title: 视频号加热平台
 icon: ICO_WEIXIN_SPHJR
 description: 覆盖微信视频号加热平台短视频推广数据等场景的连接器
 entry: RPA_WEIXIN_SPHJR
+references:
+  - path: /docs/auth/YUCE_RPA/RPA_WEIXIN/SPHJR
+    kind: dependency
 category:
   slug: sphjr
   icon:
@@ -22,6 +25,14 @@ loginOptions:
     icon: Binary
   - text: 账号唯一ID
     icon: Binary
+:::
+
+:::references
+path: /docs/auth/YUCE_RPA/RPA_WEIXIN/SPHJR
+mode: summary
+prompt:
+  label: 请提前完成授权配置
+  type: warning
 :::
 
 ## 内含连接器

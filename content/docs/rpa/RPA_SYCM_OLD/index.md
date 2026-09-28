@@ -4,7 +4,7 @@ icon: ICO_SYCM
 description: 覆盖生意参谋旧版后台流量与商品等分析能力的连接器
 entry: RPA_SYCM_OLD
 references:
-  - path: /docs/auth/YUCE_RPA/RPA_SYCM
+  - path: /docs/auth/YUCE_RPA/RPA_SYCM_OLD
     kind: dependency
 category:
   slug: taobao
@@ -27,7 +27,7 @@ loginOptions:
 :::
 
 :::references
-path: /docs/auth/YUCE_RPA/RPA_SYCM
+path: /docs/auth/YUCE_RPA/RPA_SYCM_OLD
 mode: summary
 prompt:
   label: 请提前完成授权配置

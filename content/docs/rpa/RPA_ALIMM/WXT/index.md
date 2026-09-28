@@ -4,7 +4,7 @@ icon: ICO_ALIMM_WXT
 description: 覆盖阿里妈妈万相台账户明细、商品报表、违规列表等场景的连接器
 entry: RPA_ALIMM_WXT
 references:
-  - path: /docs/auth/YUCE_RPA/RPA_ALIMM
+  - path: /docs/auth/YUCE_RPA/RPA_ALIMM/WXT
     kind: dependency
 category:
   slug: wxt
@@ -25,7 +25,7 @@ loginOptions:
 :::
 
 :::references
-path: /docs/auth/YUCE_RPA/RPA_ALIMM
+path: /docs/auth/YUCE_RPA/RPA_ALIMM/WXT
 mode: summary
 prompt:
   label: 请提前完成授权配置

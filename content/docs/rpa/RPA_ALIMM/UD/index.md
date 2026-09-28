@@ -4,7 +4,7 @@ icon: ICO_ALIMM_UD
 description: 覆盖阿里妈妈 UD智汇投报表、商品营销数据等场景的连接器
 entry: RPA_ALIMM_UD
 references:
-  - path: /docs/auth/YUCE_RPA/RPA_ALIMM
+  - path: /docs/auth/YUCE_RPA/RPA_ALIMM/UD
     kind: dependency
 category:
   slug: ud
@@ -27,7 +27,7 @@ loginOptions:
 :::
 
 :::references
-path: /docs/auth/YUCE_RPA/RPA_ALIMM
+path: /docs/auth/YUCE_RPA/RPA_ALIMM/UD
 mode: summary
 prompt:
   label: 请提前完成授权配置

@@ -4,7 +4,7 @@ icon: ICO_ALIMM_DMP
 description: 覆盖阿里妈妈达摩盘货品洞察、竞争态势等场景的连接器
 entry: RPA_ALIMM_DMP
 references:
-  - path: /docs/auth/YUCE_RPA/RPA_ALIMM
+  - path: /docs/auth/YUCE_RPA/RPA_ALIMM/DMP
     kind: dependency
 category:
   slug: dmp
@@ -25,7 +25,7 @@ loginOptions:
 :::
 
 :::references
-path: /docs/auth/YUCE_RPA/RPA_ALIMM
+path: /docs/auth/YUCE_RPA/RPA_ALIMM/DMP
 mode: summary
 prompt:
   label: 请提前完成授权配置

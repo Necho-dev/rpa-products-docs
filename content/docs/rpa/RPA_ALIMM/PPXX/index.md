@@ -4,7 +4,7 @@ icon: ICO_ALIMM_PPXX
 description: 覆盖阿里妈妈品牌新享数据中心会员加速、老客、新客、人群等场景的连接器
 entry: RPA_ALIMM_PPXX
 references:
-  - path: /docs/auth/YUCE_RPA/RPA_ALIMM
+  - path: /docs/auth/YUCE_RPA/RPA_ALIMM/PPXX
     kind: dependency
 category:
   slug: ppxx
@@ -25,7 +25,7 @@ loginOptions:
 :::
 
 :::references
-path: /docs/auth/YUCE_RPA/RPA_ALIMM
+path: /docs/auth/YUCE_RPA/RPA_ALIMM/PPXX
 mode: summary
 prompt:
   label: 请提前完成授权配置

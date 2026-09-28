@@ -3,6 +3,9 @@ title: 巨量云图
 icon: ICO_JULIANG_YT
 description: 覆盖巨量云图行业内容榜等场景的连接器
 entry: RPA_JULIANG_YT
+references:
+  - path: /docs/auth/YUCE_RPA/RPA_JULIANG/YT
+    kind: dependency
 category:
   slug: yt
   icon:
@@ -19,6 +22,14 @@ loginOptions:
   - text: 邮箱+密码
     icon: CircleUserRound
   - type: sms
+:::
+
+:::references
+path: /docs/auth/YUCE_RPA/RPA_JULIANG/YT
+mode: summary
+prompt:
+  label: 请提前完成授权配置
+  type: warning
 :::
 
 ## 内含连接器

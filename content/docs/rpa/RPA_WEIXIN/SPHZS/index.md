@@ -3,6 +3,9 @@ title: 视频号助手
 icon: ICO_WEIXIN_SPHZS
 description: 覆盖微信视频号助手等场景的连接器
 entry: RPA_WEIXIN_SPHZS
+references:
+  - path: /docs/auth/YUCE_RPA/RPA_WEIXIN/SPHZS
+    kind: dependency
 category:
   slug: sphzs
   icon:
@@ -20,6 +23,14 @@ loginOptions:
   - type: qrcode
   - text: 账号唯一ID
     icon: Binary
+:::
+
+:::references
+path: /docs/auth/YUCE_RPA/RPA_WEIXIN/SPHZS
+mode: summary
+prompt:
+  label: 请提前完成授权配置
+  type: warning
 :::
 
 ## 内含连接器
