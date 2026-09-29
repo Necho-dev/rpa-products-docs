@@ -34,6 +34,7 @@ __pycache__/
 .env.intranet
 .env.production
 logs/
+.build.lock
 .secrets/*
 !.secrets/*.example
 secrets.json

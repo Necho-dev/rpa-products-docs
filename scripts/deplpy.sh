@@ -12,7 +12,8 @@ usage() {
   cat <<'EOF'
 用法: deplpy.sh [--force]
 
-  默认      仅当主仓或 .gitmodules 中的子模块相对 origin 有更新时才构建
+  默认      远端提交与最近一次成功发布不一致时才构建
+            （含主仓、子模块有更新，以及上次构建失败后的重试）
   --force   跳过 Git 更新检查，按当前工作区构建并启动
             （首次配置、或本地/服务器上手动重建）
 
@@ -141,6 +142,51 @@ sync_all_submodules() {
     done
   fi
   sync_vendor
+}
+
+# 只在探活成功后写入。构建失败不更新，下次即使 Git 已对齐也会重试。
+BUILD_LOCK="$DEPLOY_PATH/.build.lock"
+
+# mode=origin：已 fetch 的远端提交；mode=head：当前检出（成功构建后写入）
+release_id() {
+  local mode="$1" entry path branch sha
+  {
+    if [ "$mode" = origin ]; then
+      sha="$(git rev-parse "origin/$BRANCH")"
+    else
+      sha="$(git rev-parse HEAD)"
+    fi
+    printf 'main %s\n' "$sha"
+    if [ "${#SUBMODULES[@]}" -gt 0 ]; then
+      for entry in "${SUBMODULES[@]}"; do
+        path="${entry%%|*}"
+        branch="${entry#*|}"
+        if ! submodule_present "$path"; then
+          printf '%s missing\n' "$path"
+          continue
+        fi
+        if [ "$mode" = origin ]; then
+          sha="$(git -C "$path" rev-parse "origin/$branch")"
+        else
+          sha="$(git -C "$path" rev-parse HEAD)"
+        fi
+        printf '%s %s\n' "$path" "$sha"
+      done
+    fi
+  } | LC_ALL=C sort
+}
+
+build_lock_matches_origin() {
+  [ -f "$BUILD_LOCK" ] || return 1
+  [ "$(release_id origin)" = "$(cat "$BUILD_LOCK")" ]
+}
+
+write_build_lock() {
+  local tmp
+  tmp="$(mktemp "$DEPLOY_PATH/.build.lock.XXXXXX")"
+  release_id head > "$tmp"
+  mv "$tmp" "$BUILD_LOCK"
+  log "已记录成功发布 $(git rev-parse --short HEAD)"
 }
 
 # 从 dotenv 文件读取 KEY=value（忽略注释/空行；不 source，避免执行）
@@ -393,6 +439,15 @@ else
       note_submodule_drift "${entry%%|*}" "${entry#*|}"
     done
   fi
+
+  if ! build_lock_matches_origin; then
+    if [ -f "$BUILD_LOCK" ]; then
+      log "当前远端提交尚未成功发布，将重新构建"
+    else
+      log "没有成功发布记录，将构建"
+    fi
+    NEED_UPDATE=1
+  fi
 fi
 
 log_sentry "运行时配置..."
@@ -411,6 +466,7 @@ if [ "$NEED_UPDATE" -eq 1 ]; then
   if wait_service_healthy; then
     log "容器已就绪，只保留最新镜像"
     keep_only_latest_image
+    write_build_lock
     log "文档站更新完成"
   else
     if rollback_to_previous; then
