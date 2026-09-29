@@ -1,4 +1,9 @@
-import { appendSessionCookie, cubeOriginCookieHeader, safeRedirectPath } from '@/lib/auth/session';
+import {
+  appendSessionCookie,
+  cubeOriginCookieHeader,
+  encodeLocationHeader,
+  safeRedirectPath,
+} from '@/lib/auth/session';
 import { signatureWindowMs, userCentreBaseUrl } from '@/lib/auth/auth-config';
 import {
   isValidCubeOrigin,
@@ -37,7 +42,7 @@ function successRedirect(
   user: { u: string; s: string },
   cubeOrigin: string | null,
 ): Response {
-  const headers = new Headers({ Location: target });
+  const headers = new Headers({ Location: encodeLocationHeader(target) });
   appendSessionCookie(headers, request, { u: user.u, s: user.s });
   headers.append('Set-Cookie', clearMcpTokenCookieHeader(request));
   if (cubeOrigin && isValidCubeOrigin(cubeOrigin)) {

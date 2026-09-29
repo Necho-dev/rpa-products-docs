@@ -2,7 +2,7 @@
 
 HeroKnowledge 是预策·数据连接中心的内部知识库，基于 [Fumadocs](https://fumadocs.vercel.app/) 与 [Next.js](https://nextjs.org/) 构建。站点收录 RPA 连接器说明和授权帮助，并提供全文检索、AI 问答、RSS 订阅与 MCP 服务。
 
-当前版本为 **0.7.1**。版本说明见 [CHANGELOG.md](CHANGELOG.md)。
+当前版本为 **0.7.2**。版本说明见 [CHANGELOG.md](CHANGELOG.md)。
 
 ## 功能概览
 

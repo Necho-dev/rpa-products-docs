@@ -2,9 +2,16 @@
 
 本文件记录 HeroKnowledge 面向使用者的版本变化。格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
-当前发布版本见 [`package.json`](package.json) 的 `version`（**0.7.1**）。未发布改动记在 **[Unreleased]**，发版时再截成 `## [x.y.z]`。
+当前发布版本见 [`package.json`](package.json) 的 `version`（**0.7.2**）。未发布改动记在 **[Unreleased]**，发版时再截成 `## [x.y.z]`。
 
 ## [Unreleased]
+
+## [0.7.2] - 2026-09-29
+
+### Fixed
+
+- 登录回调和登出的 `Location` 在写入前做百分号编码。中文文档路径不再因响应头只能放 Latin-1 而返回 500。
+- `/llms.mdx` 按 `encodeURI` 索引查找页面。中文目录的 API 连接器 Markdown 导出不再 404，`mode=llms` 走同一条路由。
 
 ## [0.7.1] - 2026-09-23
 

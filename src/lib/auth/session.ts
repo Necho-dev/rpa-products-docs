@@ -40,6 +40,14 @@ export function safeRedirectPath(input: string | null | undefined): string {
   return input;
 }
 
+/**
+ * Location 只能是 ByteString(码点 ≤ 255)
+ * 站内路径可含中文 slug, 写入响应头前百分号编码, 已有的 %XX 不会被二次编码
+ */
+export function encodeLocationHeader(value: string): string {
+  return encodeURI(value);
+}
+
 export function issueSessionToken(
   payload: Pick<SessionPayload, 'u' | 's'> & { iat?: number },
 ): string {

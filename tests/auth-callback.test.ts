@@ -121,6 +121,30 @@ describe('auth callback userInfoByAuth + AES 回退', () => {
     assert.equal(res.headers.get('location'), '/docs');
   });
 
+  it('redirect 含中文路径时 Location 做百分号编码', async () => {
+    process.env.DOCS_USER_CENTRE_BASE_URL = 'https://uc.example.com';
+    resetUserCentreCache();
+    globalThis.fetch = (async () =>
+      new Response(
+        JSON.stringify({
+          success: true,
+          data: { userName: 'uc-user', tenantId: 'tenant-uc' },
+        }),
+        { status: 200 },
+      )) as typeof fetch;
+
+    const target =
+      '/docs/api/巨量广告_OCEANENGINE_ADV/OCEANENGINE_AD_REPORT_CUSTOM_INFO-1/connector';
+    const { ed, sh, sg, tm } = wrap({ userName: 'ignored' });
+    const url = `http://127.0.0.1:3000/auth/callback?ed=${encodeURIComponent(ed)}&sh=${sh}&sg=${sg}&tm=${tm}&redirect=${encodeURIComponent(target)}`;
+    const res = await callbackGET(new Request(url));
+    assert.equal(res.status, 302);
+    const location = res.headers.get('location');
+    assert.equal(location, encodeURI(target));
+    assert.equal(decodeURI(location ?? ''), target);
+    assert.ok(location && [...location].every((ch) => ch.charCodeAt(0) <= 255));
+  });
+
   it('redirect 含 mode= 拒绝', async () => {
     process.env.DOCS_USER_CENTRE_BASE_URL = 'https://uc.example.com';
     resetUserCentreCache();

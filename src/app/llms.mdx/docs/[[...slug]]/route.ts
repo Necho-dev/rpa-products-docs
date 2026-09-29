@@ -1,6 +1,6 @@
 import { getDocAccessContext, getDocAccessContextForEmbed } from '@/lib/docs/access/doc-access';
 import { isDocPageAccessible } from '@/lib/docs/docs-site-tools';
-import { getEmbedMarkdown, source } from '@/lib/docs/source/source';
+import { getDocPage, getEmbedMarkdown } from '@/lib/docs/source/source';
 import { getEmbedMode, verifyCubeEmbedRequest } from '@/lib/auth/cube-embed';
 import { inferSiteOrigin } from '@/lib/core/site-origin';
 import { notFound } from 'next/navigation';
@@ -40,7 +40,8 @@ export async function GET(req: Request, { params }: RouteContext<'/llms.mdx/docs
     ? [...rawSlug.slice(0, -1), last.slice(0, -3)]
     : rawSlug;
   const pageSlug = stripped.length === 1 && stripped[0] === 'index' ? [] : stripped;
-  const page = source.getPage(pageSlug);
+  // Route Handler 的 params 已解码; 索引 slug 是 encodeURI, 按 getDocPage 查找
+  const page = getDocPage(pageSlug);
   if (!page) notFound();
   if (!isDocPageAccessible(page, access)) notFound();
 
