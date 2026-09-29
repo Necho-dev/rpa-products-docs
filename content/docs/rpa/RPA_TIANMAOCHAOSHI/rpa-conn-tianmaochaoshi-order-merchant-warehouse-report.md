@@ -3,8 +3,8 @@ title: 订单管理-商家仓-明细报表
 description: 登录天猫超市后进入订单管理商家仓，按筛选条件导出全部订单明细
 entry: rpa.conn.tianmaochaoshi.order.merchant.warehouse.report
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 120
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。
