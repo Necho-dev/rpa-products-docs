@@ -1,7 +1,7 @@
 ---
 title: 天猫超市
 icon: ICO_TIANMAOCHAOSHI
-description: 覆盖天猫超市天机商品分析、退款分析等场景的连接器
+description: 覆盖天猫超市订单管理、天机商品分析、退款分析等场景的连接器
 entry: RPA_TIANMAOCHAOSHI
 references:
   - path: /docs/auth/YUCE_RPA/RPA_TIANMAOCHAOSHI
