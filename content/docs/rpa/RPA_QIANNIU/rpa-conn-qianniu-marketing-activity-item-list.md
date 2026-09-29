@@ -3,8 +3,8 @@ title: 营销-活动报名-超级立减活动商品明细
 description: 采集千牛超级立减长期活动中审核通过的报名记录下的商品明细，多条审核通过时取第一条
 entry: rpa.conn.qianniu.marketing.activity.item.list
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 90
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

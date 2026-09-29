@@ -3,8 +3,8 @@ title: 交易-评价管理-买家秀内容明细
 description: 按内容类型、内容状态、文本关键词、内容id及起止日期采集买家秀内容明细
 entry: rpa.conn.qianniu.transaction.comment.buyer.content
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 180
   description: 根据测试运行耗时估算，每翻一页约 3s；实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

@@ -3,8 +3,8 @@ title: 星桥-账户-流水明细-消耗明细
 description: 导出得物星桥账户消耗明细，支持按时间范围和消耗类型筛选
 entry: rpa.conn.dewu.xq.account.consume.detail.report
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 60
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

@@ -3,8 +3,8 @@ title: 洞察-流量分析-市场数据趋势
 description: 按关键词、行业类目序号和统计周期采集万相台流量分析页市场数据趋势的按日指标
 entry: rpa.conn.alimm.wxt.traffic.analysis.market.trend
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 60
   description: 根据测试运行耗时估算，实际运行耗时将受到数据量、调度并发、网路波动等情况影响。

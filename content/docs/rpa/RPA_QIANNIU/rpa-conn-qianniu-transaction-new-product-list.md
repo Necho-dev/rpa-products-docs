@@ -3,8 +3,8 @@ title: 交易-新品试销-商品列表
 description: 按商品ID、商品标题采集千牛新品试销商品列表，可限制采集条数
 entry: rpa.conn.qianniu.transaction.new.product.list
 badge:
-  label: 待上线
-  color: "#EA580C"
+  label: 已上线
+  color: "#16A34A"
 estimatedDuration:
   sec: 60
   description: 根据测试运行耗时估算，每翻一页约 3s；实际运行耗时将受到数据量、调度并发、网路波动等情况影响。
